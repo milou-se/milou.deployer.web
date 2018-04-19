@@ -1,0 +1,138 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Globalization;
+using Arbor.KVConfiguration.Core;
+using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.IisHost.Areas.Deployment;
+using NuGet.Versioning;
+
+namespace Milou.Deployer.Web.IisHost.Areas.Application
+{
+    public class AppVersion
+    {
+        public AppVersion(
+            [NotNull] DeploymentTarget target,
+            [NotNull] IKeyValueConfiguration keyValueConfiguration,
+            IReadOnlyCollection<PackageVersion> availablePackageVersions)
+        {
+            KeyValueConfiguration =
+                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+            AvailablePackageVersions = availablePackageVersions;
+            Target = target ?? throw new ArgumentNullException(nameof(target));
+        }
+
+        public AppVersion([NotNull] DeploymentTarget target, string mesage)
+        {
+            KeyValueConfiguration = new InMemoryKeyValueConfiguration(new NameValueCollection());
+            Target = target;
+            Mesage = mesage;
+            AvailablePackageVersions = Array.Empty<PackageVersion>();
+        }
+
+        public string Mesage { get; }
+
+        [NotNull]
+        public IKeyValueConfiguration KeyValueConfiguration { get; }
+
+        [NotNull]
+        public DeploymentTarget Target { get; }
+
+        [CanBeNull]
+        public SemanticVersion SemanticVersion
+        {
+            get
+            {
+                if (!SemanticVersion.TryParse(KeyValueConfiguration[ConfigurationConstants.SemanticVersionNormalized],
+                    out SemanticVersion semver))
+                {
+                    return null;
+                }
+
+                return semver;
+            }
+        }
+
+        [CanBeNull]
+        public DateTime? DateployedAtUtc
+        {
+            get
+            {
+                if (!DateTime.TryParse(
+                    KeyValueConfiguration[ConfigurationConstants.DeploymentStartTime],
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.AdjustToUniversal,
+                    out DateTime deployedAtUtc))
+                {
+                    return null;
+                }
+
+                return deployedAtUtc;
+            }
+        }
+
+        public string DeployedRelative
+        {
+            get
+            {
+                if (!DateployedAtUtc.HasValue)
+                {
+                    return "N/A";
+                }
+
+                DateTime now = DateTime.UtcNow;
+
+                DateTime then = DateployedAtUtc.Value;
+
+                return now.Since(then);
+            }
+        }
+
+        public string DeployedSince
+        {
+            get
+            {
+                if (!DateployedAtUtc.HasValue)
+                {
+                    return string.Empty;
+                }
+
+                DateTime now = DateTime.UtcNow;
+
+                DateTime then = DateployedAtUtc.Value;
+
+                TimeSpan diff = (now - then);
+
+                if (diff.TotalSeconds < 0)
+                {
+                    return string.Empty;
+                }
+
+                return DeploymentInterval.Parse(diff).Name;
+            }
+        }
+
+        public string PreReleaseClass
+        {
+            get
+            {
+                if (SemanticVersion == null)
+                {
+                    return string.Empty;
+                }
+
+                if (SemanticVersion.IsPrerelease)
+                {
+                    return "prerelease";
+                }
+
+                return "stable";
+            }
+        }
+
+        public IReadOnlyCollection<PackageVersion> AvailablePackageVersions { get; }
+    }
+}

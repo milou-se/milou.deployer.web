@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.15
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B3D5061E-56DE-45D6-A18D-F33A03404E20}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitattributes = ..\.gitattributes
+		..\.gitignore = ..\.gitignore
+		..\build\build.bat = ..\build\build.bat
+		Milou.Deployment.Web.IisHost\config.user = Milou.Deployment.Web.IisHost\config.user
+		..\version.json = ..\version.json
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Core", "Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj", "{15B43C1A-FCFA-4C4C-AD1D-AA7E6CA14CC6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.IisHost", "Milou.Deployer.Web.IisHost\Milou.Deployer.Web.IisHost.csproj", "{CB0BBB98-3C61-4D63-937E-BE39CCA43447}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tests.Unit", "Milou.Deployer.Web.Tests.Unit\Milou.Deployer.Web.Tests.Unit.csproj", "{34E7DED9-6B88-414F-9CDB-604009CE0FFD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{15B43C1A-FCFA-4C4C-AD1D-AA7E6CA14CC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15B43C1A-FCFA-4C4C-AD1D-AA7E6CA14CC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15B43C1A-FCFA-4C4C-AD1D-AA7E6CA14CC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15B43C1A-FCFA-4C4C-AD1D-AA7E6CA14CC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB0BBB98-3C61-4D63-937E-BE39CCA43447}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB0BBB98-3C61-4D63-937E-BE39CCA43447}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB0BBB98-3C61-4D63-937E-BE39CCA43447}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB0BBB98-3C61-4D63-937E-BE39CCA43447}.Release|Any CPU.Build.0 = Release|Any CPU
+		{34E7DED9-6B88-414F-9CDB-604009CE0FFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{34E7DED9-6B88-414F-9CDB-604009CE0FFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34E7DED9-6B88-414F-9CDB-604009CE0FFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{34E7DED9-6B88-414F-9CDB-604009CE0FFD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4ABB975D-3353-4169-86F2-7927FC405E2A}
+	EndGlobalSection
+EndGlobal

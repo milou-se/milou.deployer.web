@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="logs\**" />
+    <Content Remove="logs\**" />
+    <EmbeddedResource Remove="logs\**" />
+    <None Remove="logs\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.13.1" />
+    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.13.1" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.13.1" />
+    <PackageReference Include="Arbor.KVConfiguration.userconfiguration" Version="0.13.1" />
+    <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
+    <PackageReference Include="autofac" Version="4.7.1" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
+    <PackageReference Include="Jetbrains.annotations" Version="11.1.0" />
+    <PackageReference Include="Marten" Version="2.7.1" />
+    <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
+    <PackageReference Include="MediatR" Version="4.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.7" />
+    <PackageReference Include="Nuget.versioning" Version="4.6.2" />
+    <PackageReference Include="Serilog" Version="2.6.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Serilog.sinks.console" Version="3.1.1" />
+    <PackageReference Include="Serilog.sinks.file" Version="4.0.0" />
+    <PackageReference Include="serilog.sinks.seq" Version="4.0.0" />
+    <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
+    <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\DeploymentJobs\" />
+    <Folder Include="Areas\Json\" />
+    <Folder Include="Areas\NuGet\Controllers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
+  </ItemGroup>
+</Project>

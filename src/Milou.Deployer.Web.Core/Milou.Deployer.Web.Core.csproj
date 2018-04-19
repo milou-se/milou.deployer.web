@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Validation\" />
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.13.1" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.13.1" />
+    <PackageReference Include="Arbor.KVConfiguration.userconfiguration" Version="0.13.1" />
+    <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
+    <PackageReference Include="Jetbrains.annotations" Version="11.1.0" />
+    <PackageReference Include="mailkit" Version="2.0.3" />
+    <PackageReference Include="Marten" Version="2.7.1" />
+    <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
+    <PackageReference Include="mediatr" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.1" />
+    <PackageReference Include="Nuget.versioning" Version="4.6.2" />
+    <PackageReference Include="serilog" Version="2.6.0" />
+    <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="1.4.0" />
+  </ItemGroup>
+</Project>

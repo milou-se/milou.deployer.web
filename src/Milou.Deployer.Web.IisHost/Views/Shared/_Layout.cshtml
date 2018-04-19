@@ -1,0 +1,42 @@
+﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
+@using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Milou NuGet Web Package Deployment</title>
+    <link type="text/css" href="~/Content/bootstrap.css" rel="stylesheet"/>
+    <link type="text/css" href="~/Content/Site.css" rel="stylesheet"/>
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+
+                <h1 style="font-size: 16px; color: white;">
+                <span>Milou NuGet Web Package Deployment</span></h1>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="/targets">Targets</a></li>
+                    <li><a href="/@MonitoringController.BaseRoute">Monitor and deploy</a></li>
+                    <li><a href="/@SettingsController.BaseRoute">Settings</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Milou Communication AB</p>
+        </footer>
+    </div>
+
+<script type="text/javascript" src="~/Scripts/jquery-3.1.1.js"></script>
+<script type="text/javascript" src="~/Scripts/bootstrap.js"></script>
+@RenderSection("scripts", required: false)
+    <script type="text/javascript" src="~/Scripts/Site.js"></script>
+</body>
+</html>

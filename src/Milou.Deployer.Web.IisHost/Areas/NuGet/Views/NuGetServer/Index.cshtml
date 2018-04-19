@@ -1,0 +1,8 @@
+﻿@using Milou.Deployer.Web.IisHost.Areas.NuGet
+<h2>Clear NuGet Server cache</h2>
+
+<form method="POST" action="@($"{NuGetServerController.NugetServerBaseRoute}/{NuGetServerController.ClearPostRoute}")">
+
+    <input type="submit" value="Clear cache"/>
+
+</form>

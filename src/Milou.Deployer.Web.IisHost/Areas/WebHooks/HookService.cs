@@ -1,0 +1,121 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.IisHost.Areas.Application;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
+using Serilog;
+
+namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
+{
+    [UsedImplicitly]
+    public class HookService
+    {
+        private readonly DeploymentService _deploymentService;
+
+        private readonly ILogger _logger;
+
+        private readonly MonitoringService _monitoringService;
+
+        private readonly IDeploymentTargetReadService _targetSource;
+
+        public HookService(
+            IDeploymentTargetReadService targetSource,
+            DeploymentService deploymentService,
+            ILogger logger,
+            MonitoringService monitoringService)
+        {
+            _targetSource = targetSource;
+            _deploymentService = deploymentService;
+            _logger = logger;
+            _monitoringService = monitoringService;
+        }
+
+        public async Task AutoDeployAsync([NotNull] IReadOnlyCollection<PackageVersion> packageIdentifiers)
+        {
+            if (packageIdentifiers == null)
+            {
+                throw new ArgumentNullException(nameof(packageIdentifiers));
+            }
+
+            _logger.Information("Received hook for packages {V}", string.Join(", ", packageIdentifiers.Select(p => p.ToString())));
+
+            IReadOnlyCollection<DeploymentTarget> deploymentTargets =
+                (await _targetSource.GetOrganizationsAsync(CancellationToken.None))
+                .SelectMany(
+                    organizationInfo =>
+                        organizationInfo.Projects.SelectMany(projectInfo => projectInfo.DeploymentTargets))
+                .SafeToReadOnlyCollection();
+
+            DeploymentTarget[] withAutoDeploy = deploymentTargets.Where(t => t.AutoDeployEnabled).ToArray();
+
+            if (!withAutoDeploy.Any())
+            {
+                _logger.Information("No target has auto deploy enabled");
+            }
+            else
+            {
+                foreach (DeploymentTarget deploymentTarget in withAutoDeploy)
+                {
+                    foreach (PackageVersion packageIdentifier in packageIdentifiers)
+                    {
+                        if (deploymentTarget.AllowedPackageNames.Contains(
+                            packageIdentifier.PackageId,
+                            StringComparer.InvariantCultureIgnoreCase))
+                        {
+                            bool allowDeployment =
+                                !packageIdentifier.Version.IsPrerelease || deploymentTarget.AllowPrerelease;
+
+                            if (allowDeployment)
+                            {
+                                AppVersion metadata = await _monitoringService.GetAppMetadataAsync(
+                                    deploymentTarget,
+                                    CancellationToken.None);
+
+                                if (metadata.SemanticVersion != null)
+                                {
+                                    if (packageIdentifier.Version > metadata.SemanticVersion)
+                                    {
+                                        _logger.Information("Auto deploying package {PackageIdentifier} to target {Name} from web hook", packageIdentifier, deploymentTarget.Name);
+
+                                        string result =
+                                            await
+                                                _deploymentService.ExecuteDeploymentAsync(
+                                                    new DeploymentTask(
+                                                            $"{packageIdentifier.PackageId}, {packageIdentifier.Version.ToNormalizedString()}",
+                                                        deploymentTarget.Id, Guid.NewGuid()
+                                                    ),
+                                                    _logger,
+                                                    CancellationToken.None);
+
+                                        _logger.Information("Deployed package {PackageIdentifier} to target {Name} from web hook with result {Result}", packageIdentifier, deploymentTarget.Name, result);
+                                    }
+                                    else
+                                    {
+                                        _logger.Information("Auto deployment skipped for {PackageIdentifier} since deployed version is higher {V}", packageIdentifier, metadata.SemanticVersion.ToNormalizedString());
+                                    }
+                                }
+                                else
+                                {
+                                    _logger.Information("Auto deployment skipped for {PackageIdentifier} since the target version could not be determined", packageIdentifier);
+                                }
+                            }
+                            else
+                            {
+                                _logger.Information("Auto deployment skipped for {PackageIdentifier} since the target does not allow pre-release", packageIdentifier);
+                            }
+                        }
+                        else
+                        {
+                            _logger.Information("No package id matched {PackageIdentifier} for target {Name}", packageIdentifier, deploymentTarget.Name);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

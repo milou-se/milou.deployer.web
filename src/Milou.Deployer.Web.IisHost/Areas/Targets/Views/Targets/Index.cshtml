@@ -1,0 +1,102 @@
+﻿@using Arbor.KVConfiguration.Core
+@using Milou.Deployer.Web.Core.Extensions
+@using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
+@using Milou.Deployer.Web.IisHost.Areas.Targets
+@model Milou.Deployer.Web.IisHost.Areas.Targets.OrganizationsViewModel
+
+<h1>Targets</h1>
+
+<div class="organizations">
+
+    @foreach (OrganizationViewModel organizationViewModel in Model.Organizations)
+    {
+        <h2 class="organization-toggler">Organization: @organizationViewModel.Organization</h2>
+
+        <div class="projects">
+
+            @foreach (ProjectViewModel project in organizationViewModel.Projects)
+            {
+                <h3 class="project-toggler">Project: @project.ProjectName</h3>
+
+                <div class="targets">
+
+                    @foreach (DeploymentTargetViewOutputModel item in project.Targets)
+                    {
+                        <div class="target">
+                            <h4>@item.Target.Name</h4>
+                            <p>
+                                Id: <strong>@item.Target.Id</strong>
+                            </p>
+
+                            <p>
+                                Using <strong>
+                                    <span class="@item.Target.Tool.ToLowerInvariant()">@item.Target.Tool</span>
+                                </strong> for deployment
+                            </p>
+
+                            <p>
+                                <label for="@(item.Target)-prerelease">Allow pre-release</label> <input disabled="disabled" id="@(item.Target)-prerelease" type="checkbox" @(item.Target.AllowExplicitExplicitPreRelease.HasValue && item.Target.AllowExplicitExplicitPreRelease.Value ? "checked=\"checked\"" : string.Empty)/>
+                            </p>
+
+                            <p>
+                                <label for="@(item.Target)-autoDeployment">Auto deployment</label> <input disabled="disabled" id="@(item.Target)-autoDeployment" type="checkbox" @(item.Target.AutoDeployment ? "checked=\"checked\"" : string.Empty) />
+                            </p>
+
+                            <p>
+                                URL: @if (item.Target.Uri != null)
+                                     {
+                                         <a href="@item.Target.Uri">@item.Target.Uri</a>
+                                     }
+                                     else
+                                     {
+                                         <span>N/A</span>
+                                     }
+                            </p>
+
+                            <p>
+                                PublishSettings file:
+                                @if (item.Target.PublishSettingFile.HasValue())
+                                {
+                                    <span>@item.Target.PublishSettingFile</span>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </p>
+
+                            <ul>
+                                @foreach (StringPair configPair in item.ConfigurationPairs)
+                                {
+                                    <li>@configPair.Key.Wrap("\""): <strong>@configPair.Value.Wrap("\"")</strong></li>
+                                }
+                            </ul>
+
+                            <p>Parameters</p>
+
+                            <ul>
+                                @foreach (KeyValuePair<string, string[]> parametersPair in item.Target.Parameters)
+                                {
+                                    <li>@parametersPair.Key.Wrap("\""): <strong>@string.Join(", ", parametersPair.Value.Select(value => value.Wrap("\""))))</strong></li>
+                                }
+                            </ul>
+
+                            <p>Allowed package names</p>
+
+                            <ul>
+                                @foreach (string name in item.Target.AllowedPackageNames)
+                                {
+                                    <li>@name</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+
+                <div class="after-targets"></div>
+
+            }
+        </div>
+        <div class="after-projects"></div>
+    }
+</div>
