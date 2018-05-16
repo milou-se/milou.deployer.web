@@ -17,14 +17,14 @@
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.13.1" />
     <PackageReference Include="Arbor.KVConfiguration.userconfiguration" Version="0.13.1" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
-    <PackageReference Include="autofac" Version="4.7.1" />
+    <PackageReference Include="autofac" Version="4.8.1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
     <PackageReference Include="Jetbrains.annotations" Version="11.1.0" />
-    <PackageReference Include="Marten" Version="2.7.1" />
+    <PackageReference Include="Marten" Version="2.8.0" />
     <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
     <PackageReference Include="MediatR" Version="4.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.7" />
-    <PackageReference Include="Nuget.versioning" Version="4.6.2" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.8" />
+    <PackageReference Include="Nuget.versioning" Version="4.7.0" />
     <PackageReference Include="Serilog" Version="2.6.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
     <PackageReference Include="Serilog.sinks.console" Version="3.1.1" />
