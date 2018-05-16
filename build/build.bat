@@ -33,3 +33,5 @@ SET Arbor.X.Tools.External.MSBuild.Verbosity=minimal
 SET Arbor.X.NuGet.Package.AllowManifestReWriteEnabled=false
 
 CALL "%~dp0\Build.exe"
+
+EXIT /B %ERRORLEVEL%
