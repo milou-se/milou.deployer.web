@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core
 {
@@ -17,6 +18,11 @@ namespace Milou.Deployer.Web.Core
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
+            }
+
+            if (name.Length > 100)
+            {
+                return false;
             }
 
             var allowedCharacters = new List<char>(100)
@@ -83,7 +89,7 @@ namespace Milou.Deployer.Web.Core
                 '-'
             };
 
-            bool isNameValid = name.ToCharArray().All(c => allowedCharacters.Contains(c));
+            bool isNameValid = name.ToCharArray().All(c => allowedCharacters.Contains(c) || c.IsIntegerValue());
 
             return isNameValid;
         }

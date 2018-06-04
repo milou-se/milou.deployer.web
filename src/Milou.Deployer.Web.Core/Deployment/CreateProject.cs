@@ -1,14 +1,20 @@
-﻿namespace Milou.Deployer.Web.Core.Deployment
-{
-    public class CreateProject
-    {
-        public string Id { get; }
-        public string OrganizationId { get; }
+﻿using MediatR;
+using Milou.Deployer.Web.Core.Extensions;
 
+namespace Milou.Deployer.Web.Core.Deployment
+{
+    public class CreateProject : IRequest<CreateProjectResult>, IValidationObject
+    {
         public CreateProject(string id, string organizationId)
         {
             Id = id;
             OrganizationId = organizationId;
         }
+
+        public string Id { get; }
+
+        public string OrganizationId { get; }
+
+        public bool IsValid => Id.HasValue() && OrganizationId.HasValue();
     }
 }

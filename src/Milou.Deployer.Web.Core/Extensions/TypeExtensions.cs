@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return false;
             }
 
-            if (!typeof(T).IsAssignableFrom(c: type))
+            if (!typeof(T).IsAssignableFrom(type))
             {
                 return false;
             }
@@ -59,7 +59,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return false;
             }
 
-            bool isInstantiatable = type.GetConstructor(types: Type.EmptyTypes) != null;
+            bool isInstantiatable = type.GetConstructor(Type.EmptyTypes) != null;
 
             return isInstantiatable;
         }

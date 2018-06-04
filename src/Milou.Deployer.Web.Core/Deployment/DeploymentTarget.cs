@@ -9,15 +9,18 @@ using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
+    [Optional]
     [Urn(ConfigurationConstants.DeployerTarget)]
     public class DeploymentTarget
     {
         public DeploymentTarget(
             [NotNull] string id,
             [NotNull] string name,
-            string tool,
-            bool allowExplicitPreRelease,
-            StringValues allowedPackageNames,
+            string tool = null,
+            bool allowExplicitPreRelease = false,
+            StringValues allowedPackageNames = default,
+            string nuGetConfigFile = null,
+            string nuGetPackageSource = null,
             string uri = null,
             string environmentConfiguration = null,
             string organization = null,
@@ -30,7 +33,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             string publishSettingFile = null,
             string targetDirectory = null,
             string parameterFile = null,
-            bool isReadOnly = false)
+            bool isReadOnly = false,
+            string iisSiteName = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -44,7 +48,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             if (Uri.TryCreate(uri, UriKind.Absolute, out Uri parsedUri))
             {
-                Uri = parsedUri;
+                Url = parsedUri;
             }
 
             EnvironmentConfiguration = environmentConfiguration;
@@ -54,12 +58,15 @@ namespace Milou.Deployer.Web.Core.Deployment
             TargetDirectory = targetDirectory;
             ParameterFile = parameterFile;
             IsReadOnly = isReadOnly;
+            IisSiteName = iisSiteName;
             Organization = organization ?? string.Empty;
             ProjectInvariantName = project ?? string.Empty;
             Name = name;
             Id = id;
             Tool = tool ?? string.Empty;
             AllowExplicitExplicitPreRelease = allowExplicitPreRelease;
+            NuGetConfigFile = nuGetConfigFile;
+            NuGetPackageSource = nuGetPackageSource;
             AllowedPackageNames = allowedPackageNames.SafeToReadOnlyCollection();
             EnvironmentType = EnvironmentType.Parse(environmentType);
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
@@ -68,7 +75,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public IReadOnlyCollection<string> EmailNotificationAddresses { get; }
 
-        public Uri Uri { get; }
+        public Uri Url { get; }
 
         public string EnvironmentConfiguration { get; }
 
@@ -105,7 +112,13 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public bool IsReadOnly { get; }
 
+        public string IisSiteName { get; }
+
         public ImmutableDictionary<string, string[]> Parameters { get; }
+
+        public string NuGetConfigFile { get; }
+
+        public string NuGetPackageSource { get; }
 
         public override string ToString()
         {

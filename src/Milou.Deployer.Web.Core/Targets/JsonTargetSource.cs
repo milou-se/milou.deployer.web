@@ -12,18 +12,18 @@ using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Structure;
 using Serilog;
-using ApplicationEnvironment = Milou.Deployer.Web.Core.Application.ApplicationEnvironment;
 
 namespace Milou.Deployer.Web.Core.Targets
 {
+    [UsedImplicitly]
     public class JsonTargetSource
     {
-        private readonly ApplicationEnvironment _environment;
+        private readonly Application.ApplicationEnvironment _environment;
         private readonly ILogger _logger;
         private readonly JsonDeploymentTargetSourceConfiguration _configuration;
 
         public JsonTargetSource(
-            [NotNull] ApplicationEnvironment environment,
+            [NotNull] Application.ApplicationEnvironment environment,
             [NotNull] ILogger logger,
             [NotNull] JsonDeploymentTargetSourceConfiguration configuration)
         {

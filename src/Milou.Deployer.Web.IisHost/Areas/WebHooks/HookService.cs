@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Processing;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Serilog;
@@ -42,7 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 throw new ArgumentNullException(nameof(packageIdentifiers));
             }
 
-            _logger.Information("Received hook for packages {V}", string.Join(", ", packageIdentifiers.Select(p => p.ToString())));
+            _logger.Information("Received hook for packages {Packages}", string.Join(", ", packageIdentifiers.Select(p => p.ToString())));
 
             IReadOnlyCollection<DeploymentTarget> deploymentTargets =
                 (await _targetSource.GetOrganizationsAsync(CancellationToken.None))
@@ -82,7 +83,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                     {
                                         _logger.Information("Auto deploying package {PackageIdentifier} to target {Name} from web hook", packageIdentifier, deploymentTarget.Name);
 
-                                        string result =
+                                        (ExitCode, string) result =
                                             await
                                                 _deploymentService.ExecuteDeploymentAsync(
                                                     new DeploymentTask(

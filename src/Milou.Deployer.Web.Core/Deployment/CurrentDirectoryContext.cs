@@ -8,16 +8,6 @@ namespace Milou.Deployer.Web.Core.Deployment
     {
         private readonly DirectoryInfo _oldCurrentDirectory;
 
-        public static CurrentDirectoryContext Create([NotNull] DirectoryInfo currentDirectory)
-        {
-            if (currentDirectory == null)
-            {
-                throw new ArgumentNullException(nameof(currentDirectory));
-            }
-
-            return new CurrentDirectoryContext(currentDirectory);
-        }
-
         private CurrentDirectoryContext([NotNull] DirectoryInfo currentDirectory)
         {
             if (currentDirectory == null)
@@ -28,6 +18,16 @@ namespace Milou.Deployer.Web.Core.Deployment
             _oldCurrentDirectory = new DirectoryInfo(Directory.GetCurrentDirectory());
 
             Directory.SetCurrentDirectory(currentDirectory.FullName);
+        }
+
+        public static CurrentDirectoryContext Create([NotNull] DirectoryInfo currentDirectory)
+        {
+            if (currentDirectory == null)
+            {
+                throw new ArgumentNullException(nameof(currentDirectory));
+            }
+
+            return new CurrentDirectoryContext(currentDirectory);
         }
 
         public void Dispose()

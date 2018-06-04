@@ -8,7 +8,7 @@ namespace Milou.Deployer.Web.Core
 {
     public static class AssemblyFilter
     {
-        public static readonly ImmutableArray<string> WhiteListed = new[] { "milou" }.ToImmutableArray();
+        private static readonly ImmutableArray<string> _WhiteListed = new[] { "milou" }.ToImmutableArray();
 
         public static bool FilterAssemblies([NotNull] Assembly assembly)
         {
@@ -24,7 +24,8 @@ namespace Milou.Deployer.Web.Core
 
             string assemblyName = assembly.GetName().Name;
 
-            bool isIncluded = WhiteListed.Any(whiteListed => assemblyName.StartsWith(whiteListed, StringComparison.OrdinalIgnoreCase));
+            bool isIncluded = _WhiteListed.Any(whiteListed =>
+                assemblyName.StartsWith(whiteListed, StringComparison.OrdinalIgnoreCase));
 
             return isIncluded;
         }

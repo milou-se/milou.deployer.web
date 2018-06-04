@@ -42,6 +42,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             _getTargets = getTargets ?? throw new ArgumentNullException(nameof(getTargets));
         }
 
+        [HttpGet]
         [Route("")]
         public async Task<IActionResult> Index(string prefix = null)
         {

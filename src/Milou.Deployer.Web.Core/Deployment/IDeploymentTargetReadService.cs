@@ -10,5 +10,9 @@ namespace Milou.Deployer.Web.Core.Deployment
         Task<DeploymentTarget> GetDeploymentTargetAsync(string deploymentTargetId, CancellationToken cancellationToken = default);
 
         Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(CancellationToken cancellationToken = default);
+
+        Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken);
+
+        Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(string organizationId, CancellationToken cancellationToken = default);
     }
 }

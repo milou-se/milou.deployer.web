@@ -26,6 +26,9 @@ namespace Milou.Deployer.Web.Core.Configuration
         [Metadata]
         public const string EmailConfiguration = "urn:milou:deployer:web:email:configuration";
 
+        [Metadata(defaultValue: "false", valueType: "bool")]
+        public const string EmailConfigurationEnabledDefault = EmailConfiguration + ":default:EmailEnabled";
+
         [Metadata]
         public const string ApplicationBasePath = "urn:milou:deployer:web:application-base-path";
 
@@ -36,7 +39,7 @@ namespace Milou.Deployer.Web.Core.Configuration
         public const string DeployerManifestEnabled = "tools:milou-deployer:use-manifest:enabled";
 
         [Metadata]
-        public const string DeployerExePath = "tools:milou-deployer:exe-path";
+        public const string DeployerExePath = "urn:milou-deployer:web:deployer:exe-path";
 
         [Metadata]
         public const string AllowPreReleaseEnabled = "MilouDeployer_AllowPreRelease_Enabled";
@@ -49,6 +52,8 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         [Metadata]
         public const string SemanticVersionNormalized = "urn:versioning:semver2:normalized";
+
+        public const string PackageId = "urn:nuget:package-id";
 
         [Metadata]
         public const string UsernameKey = "urn:authentication:basicauthentication:username";
@@ -82,5 +87,7 @@ namespace Milou.Deployer.Web.Core.Configuration
             [Metadata]
             public const string SerilogConsoleLogEnabled = "urn:milou-deployer:logging:serilog:console:enabled";
         }
+
+        public const string AutoDeployConfiguration = "urn:milou:deployer:auto-deploy:configuration";
     }
 }

@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Structure;
+using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Controllers;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 {
     [Area(TargetConstants.AreaName)]
-    [Route("targets")]
+
     public class TargetsController : BaseApiController
     {
         private readonly IDeploymentTargetReadService _targetSource;
@@ -22,7 +24,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         }
 
         [HttpGet]
-        [Route("")]
+        [Route(TargetConstants.TargetsRoute, Name = TargetConstants.TargetsRouteName)]
         public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
         {
             IReadOnlyCollection<OrganizationInfo> organizations = await _targetSource.GetOrganizationsAsync(cancellationToken);
@@ -30,6 +32,58 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             var targetsViewModel = new OrganizationsViewModel(organizations);
 
             return View(targetsViewModel);
+        }
+
+        [HttpPost]
+        [Route(TargetConstants.CreateTargetPostRoute, Name = TargetConstants.CreateTargetPostRouteName)]
+        public async Task<ActionResult<CreateTargetResult>> Post([FromBody] CreateTarget createTarget,  [FromServices] IMediator mediator, [FromQuery] bool redirect = true)
+        {
+            CreateTargetResult createTargetResult = await mediator.Send(createTarget);
+
+            if (redirect)
+            {
+                //TempData.Put(createTargetResult);
+
+                //if (createTargetResult.TargetName.IsNullOrWhiteSpace())
+                //{
+                //    return new RedirectToRouteResult(OrganizationConstants.OrganizationBaseRouteName);
+                //}
+
+                //return RedirectToRoute(ProjectConstants.ProjectsBaseRouteName,
+                //    new { organizationId = createTargetResult.OrganizationId });
+            }
+
+            return createTargetResult;
+        }
+
+        [Route(TargetConstants.CreateTargetGetRoute, Name = TargetConstants.CreateTargetGetRouteName)]
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(new CreateTargetViewOutputModel());
+        }
+
+        [Route(TargetConstants.EditTargetRoute, Name = TargetConstants.EditTargetRouteName)]
+        [HttpGet]
+        public async Task<IActionResult> Edit([FromRoute] string targetId, [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
+        {
+            DeploymentTarget deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(targetId);
+
+            if (deploymentTarget is null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(new EditTargetViewOutputModel(deploymentTarget));
+        }
+
+        [Route(TargetConstants.EditTargetPostRoute, Name=TargetConstants.EditTargetPostRouteName)]
+        [HttpPost]
+        public async Task<ActionResult<UpdateDeploymentTargetResult>> Edit([FromBody] UpdateDeploymentTarget updateDeploymentTarget, [FromServices] IMediator mediator)
+        {
+            UpdateDeploymentTargetResult updateDeploymentTargetResult = await mediator.Send(updateDeploymentTarget);
+
+            return updateDeploymentTargetResult;
         }
     }
 }

@@ -19,13 +19,15 @@ namespace Milou.Deployer.Web.Core.Deployment
     public class MilouDeployer
     {
         private readonly ICredentialReadService _credentialReadService;
+        private readonly IKeyValueConfiguration _keyValueConfiguration;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly MilouDeployerConfiguration _milouDeployerConfiguration;
 
         public MilouDeployer(
             [NotNull] MilouDeployerConfiguration milouDeployerConfiguration,
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
-            [NotNull] ICredentialReadService credentialReadService)
+            [NotNull] ICredentialReadService credentialReadService,
+            [NotNull] IKeyValueConfiguration keyValueConfiguration)
         {
             _milouDeployerConfiguration = milouDeployerConfiguration ??
                                           throw new ArgumentNullException(nameof(milouDeployerConfiguration));
@@ -33,6 +35,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _credentialReadService =
                 credentialReadService ?? throw new ArgumentNullException(nameof(credentialReadService));
+            _keyValueConfiguration = keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
         }
 
         public async Task<ExitCode> ExecuteAsync(
@@ -52,6 +55,11 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             SetLogging();
 
+            if (exeFile.Directory is null)
+            {
+                throw new InvalidOperationException("Invalid file directory");
+            }
+
             using (CurrentDirectoryContext.Create(exeFile.Directory))
             {
                 string targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
@@ -65,7 +73,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 string publishSettingsFile = deploymentTarget.PublishSettingFile;
                 bool useManifest = bool.TryParse(
-                                       StaticKeyValueConfigurationManager.AppSettings[
+                                       _keyValueConfiguration[
                                            ConfigurationConstants.DeployerManifestEnabled],
                                        out bool useManitest) && useManitest;
 
@@ -116,7 +124,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                         string publishUrl = _credentialReadService.GetSecretAsync(id, publishUrlKey);
                         string msdeploySite = _credentialReadService.GetSecretAsync(id, msdeploySiteKey);
 
-                        if (StringUtils.AllHasValue(username, password, publishUrl, msdeploySite))
+                        if (StringUtils.AllHaveValues(username, password, publishUrl, msdeploySite))
                         {
                             FileInfo fileInfo = CreateTempPublishFile(deploymentTarget,
                                 username,
@@ -145,7 +153,10 @@ namespace Milou.Deployer.Web.Core.Deployment
                                 environmentConfig = targetEnvironmentConfigName,
                                 publishSettingsFile,
                                 parameters,
-                                semanticVersion = deploymentTask.SemanticVersion.ToNormalizedString()
+                                deploymentTarget.NuGetConfigFile,
+                                deploymentTarget.NuGetPackageSource,
+                                semanticVersion = deploymentTask.SemanticVersion.ToNormalizedString(),
+                                iisSiteName = deploymentTarget.IisSiteName
                             }
                         }
                     };
@@ -275,7 +286,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 if (temporaryFile.Exists)
                 {
-                    File.Delete(temporaryFile.FullName);
+                    temporaryFile.Delete();
                 }
             }
 
@@ -290,6 +301,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
         }
 
+        [NotNull]
         private FileInfo CheckExecutableExists()
         {
             var exeFile = new FileInfo(_milouDeployerConfiguration.MilouDeployerExePath);

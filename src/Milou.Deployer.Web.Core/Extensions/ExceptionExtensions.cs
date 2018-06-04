@@ -15,12 +15,10 @@ namespace Milou.Deployer.Web.Core.Extensions
 
             return
                 ex is OutOfMemoryException ||
-#if !DNXCORE50
                 ex is AccessViolationException ||
                 ex is AppDomainUnloadedException ||
                 ex is StackOverflowException ||
                 ex is ThreadAbortException ||
-#endif
                 ex is SEHException;
         }
     }

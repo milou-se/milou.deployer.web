@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Deployment;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
-    public class DeploymentWorker
+    public class DeploymentWorker : BackgroundService
     {
         private ImmutableArray<DeploymentTargetWorker> _workers;
 
@@ -21,14 +24,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _workers = workers.ToImmutableArray();
         }
 
-        public DeploymentTargetWorker Worker([NotNull] string targetId)
+        public DeploymentTargetWorker GetWorkerByTargetId([NotNull] string targetId)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(targetId));
             }
 
-            return _workers.SingleOrDefault(worker => worker.TargetId.Equals(targetId));
+            DeploymentTargetWorker workerByTargetId = _workers.SingleOrDefault(worker => worker.TargetId.Equals(targetId, StringComparison.OrdinalIgnoreCase));
+
+            return workerByTargetId;
         }
 
         public void Enqueue([NotNull] DeploymentTask deploymentTask)
@@ -38,7 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
-            DeploymentTargetWorker foundWorker = Worker(deploymentTask.DeploymentTargetId);
+            DeploymentTargetWorker foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
 
             if (foundWorker is null)
             {
@@ -47,6 +52,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
 
             foundWorker.Enqueue(deploymentTask);
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            var tasks = new List<Task>(_workers.Length);
+
+            foreach (DeploymentTargetWorker deploymentTargetWorker in _workers)
+            {
+                tasks.Add(Task.Run(() => deploymentTargetWorker.ExecuteAsync(stoppingToken), stoppingToken));
+            }
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromHours(1),stoppingToken);
+            }
+
+            await Task.WhenAll(tasks);
         }
     }
 }

@@ -1,88 +1,44 @@
-﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
+﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
+@using Milou.Deployer.Web.IisHost.AspNetCore
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.StatusViewOutputModel
 
 <div id="messages"></div>
 
-<script>
-    var socket;
+<script src="/Scripts/signalr.js" type="text/javascript"></script>
 
-    var scheme = document.location.protocol === "https:" ? "wss" : "ws";
-    var port = document.location.port ? (":" + document.location.port) : "";
-
-    var uri = scheme + "://" + document.location.hostname + port + "/?targetid=@Model.DeploymentTargetId";
-
-    function updateState() {
-
-        if (!socket) {
-
-        } else {
-            switch (socket.readyState) {
-            case WebSocket.CLOSED:
-                console.log("Web socket closed");
-                break;
-            case WebSocket.CLOSING:
-                console.log("Web socket closing");
-                break;
-            case WebSocket.CONNECTING:
-                console.log("Web socket connecting");
-                break;
-            case WebSocket.OPEN:
-                console.log("Web socket open");
-                break;
-            default:
-                console.log("Unknown WebSocket State: " + htmlEscape(socket.readyState));
-                disable();
-                break;
-            }
-        }
-    }
-
-    function closeSocket() {
-        if (!socket || socket.readyState !== WebSocket.OPEN) {
-            console.log("socket not connected");
-        }
-
-        socket.close(1000, "Closing from client");
-    };
+<script type="text/javascript">
 
     var messages = document.getElementById('messages');
 
-    function connectToServer() {
+    let connection = new signalR.HubConnectionBuilder()
+        .withUrl('@DeploymentLogConstants.HubRoute')
+        .build();
 
-        socket = new WebSocket(uri);
-
-        socket.onmessage = function(event) {
+    connection.on('@DeploymentLoggingHub.MessageMethod',
+        data => {
 
             var para = document.createElement("span");
 
-            var eventData = JSON.parse(event.data);
+            var eventData = JSON.parse(data);
 
             if (eventData.Message) {
                 para.innerHTML = eventData.Message;
             } else {
                 para.innerHTML = '<span class="timestamp">' +
-                eventData.FormattedTimestamp +
-                '</span> <span class="level-' + eventData.Level + '">' +
-                eventData.Level +
-                '</span> <span class="message">' + eventData.RenderedTemplate +'</span><br />';
+                    eventData.FormattedTimestamp +
+                    '</span> <span class="level-' +
+                    eventData.Level +
+                    '">' +
+                    eventData.Level +
+                    '</span> <span class="message">' +
+                    eventData.RenderedTemplate +
+                    '</span><br />';
             }
 
             messages.appendChild(para);
 
             window.scrollTo(0, document.body.scrollHeight);
-        };
-
-        socket.onopen = function(event) {
-            updateState();
-
-        };
-
-        socket.onclose = function(event) {
-            updateState();
-        };
-
-        socket.onerror = updateState;
-    };
+        });
 
     function htmlEscape(str) {
         return str
@@ -93,6 +49,6 @@
             .replace(/>/g, '&gt;');
     }
 
-    connectToServer();
+    connection.start().then(() => connection.invoke('subscribe', '@Model.DeploymentTargetId'));
 
 </script>

@@ -25,12 +25,12 @@ namespace Milou.Deployer.Web.Core.Processing
             return ExecuteAsync(executePath,
                 cancellationToken,
                 arguments,
-                (m, c) => usedLogger.Information(m),
-                (m, c) => usedLogger.Error(m),
-                verboseAction: (m, c) => usedLogger.Verbose(m),
-                toolAction: (m, c) => usedLogger.Information(m),
+                (m, _) => usedLogger.Information("{Message}", m),
+                (m, _) => usedLogger.Error("{Message}", m),
+                verboseAction: (m, _) => usedLogger.Verbose("{Message}", m),
+                toolAction: (m, _) => usedLogger.Information("{Message}", m),
                 environmentVariables: environmentVariables,
-                debugAction: (m, c) => usedLogger.Debug(m));
+                debugAction: (m, _) => usedLogger.Debug("{Message}", m));
         }
 
         public static async Task<ExitCode> ExecuteAsync(

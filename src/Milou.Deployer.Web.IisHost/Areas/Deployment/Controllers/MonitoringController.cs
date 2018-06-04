@@ -17,7 +17,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
     public class MonitoringController : BaseApiController
     {
         public const string BaseRoute = "monitoring";
-        private readonly DeploymentService _deploymentService;
 
         private readonly MonitoringService _monitoringService;
 
@@ -25,14 +24,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         public MonitoringController(
             MonitoringService monitoringService,
-            IDeploymentTargetReadService targetSource,
-            DeploymentService deploymentService)
+            IDeploymentTargetReadService targetSource)
         {
             _monitoringService = monitoringService;
             _targetSource = targetSource;
-            _deploymentService = deploymentService;
         }
 
+        [HttpGet]
         [Route("~/")]
         [Route("")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken = default)
@@ -42,14 +40,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                     organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
                 .SafeToReadOnlyCollection();
 
-            Task<IReadOnlyCollection<AppVersion>> task =
-                _monitoringService.GetAppMetadataAsync(readOnlyCollection, cancellationToken);
 
-            Task packages = _deploymentService.GetPackageVersionsAsync();
-
-            await Task.WhenAll(packages, task);
-
-            IReadOnlyCollection<AppVersion> appVersions = await task;
+            IReadOnlyCollection<AppVersion> appVersions = await _monitoringService.GetAppMetadataAsync(readOnlyCollection, cancellationToken);
 
             return View(new MonitoringViewOutputModel(appVersions));
         }

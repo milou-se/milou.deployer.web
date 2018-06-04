@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Marten.Schema;
 
 namespace Milou.Deployer.Web.Core.Targets
@@ -15,5 +16,13 @@ namespace Milou.Deployer.Web.Core.Targets
 
         [ForeignKey(typeof(ProjectData))]
         public string ProjectId { get; set; }
+
+        public Uri Url { get; set; }
+
+        public string IisSiteName { get; set; }
+
+        public string NuGetConfigFile { get; set; }
+
+        public string NuGetPackageSource { get; set; }
     }
 }

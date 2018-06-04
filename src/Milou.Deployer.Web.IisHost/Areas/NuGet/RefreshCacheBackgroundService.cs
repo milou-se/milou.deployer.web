@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.IisHost.Areas.Application;
+using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Serilog;
 
@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
                 try
                 {
-                    await _deploymentService.GetPackageVersionsAsync(null, false);
+                    await _deploymentService.GetPackageVersionsAsync(null, false, cancellationToken: stoppingToken);
                 }
                 catch (Exception ex)
                 {

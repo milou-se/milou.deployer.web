@@ -1,43 +1,60 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Autofac;
+using Autofac.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
-using Milou.Deployer.Web.IisHost.Areas.AspNet;
+using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
-using Milou.Deployer.Web.IisHost.Areas.Logging;
+using Milou.Deployer.Web.IisHost.Areas.Messaging;
+using Milou.Deployer.Web.IisHost.AspNetCore;
 using Serilog;
+using KeyValueConfigurationModule = Milou.Deployer.Web.IisHost.Areas.Configuration.KeyValueConfigurationModule;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     [UsedImplicitly]
     public sealed class App : IDisposable
     {
-        public IContainer ComponentContext { get; private set; }
+        private bool _disposed;
+        private bool _disposing;
 
-        [NotNull]
-        private readonly CancellationTokenSource _cancellationTokenSource;
-
-        public App([NotNull] IWebHostBuilder webHost, [NotNull] CancellationTokenSource cancellationTokenSource)
+        public App(
+            [NotNull] IWebHostBuilder webHost,
+            [NotNull] CancellationTokenSource cancellationTokenSource,
+            [NotNull] ILogger appLogger)
         {
-            _cancellationTokenSource = cancellationTokenSource ??
-                                       throw new ArgumentNullException(nameof(cancellationTokenSource));
+            CancellationTokenSource = cancellationTokenSource ??
+                                      throw new ArgumentNullException(nameof(cancellationTokenSource));
+            Logger = appLogger ?? throw new ArgumentNullException(nameof(appLogger));
             HostBuilder = webHost ?? throw new ArgumentNullException(nameof(webHost));
         }
+
+        public CancellationTokenSource CancellationTokenSource { get; }
+
+        public ILogger Logger { get; }
 
         public IWebHostBuilder HostBuilder { get; private set; }
 
         public IWebHost WebHost { get; private set; }
 
+        public IContainer Container { get; private set; }
+
+        public Scope AppRootScope { get; private set; }
+
         public static async Task<App> CreateAsync(
-            CancellationTokenSource cancellationTokenSource = default,
-            Func<LoggerConfiguration, LoggerConfiguration> loggerConfigurationInterceptor = default,
+            CancellationTokenSource cancellationTokenSource,
+            Action<LoggerConfiguration> loggerConfigurationAction,
             params string[] args)
         {
             if (args == null)
@@ -47,39 +64,50 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             try
             {
-                App app = BuildApp(cancellationTokenSource, args, loggerConfigurationInterceptor);
+                App app = await BuildAppAsync(cancellationTokenSource, loggerConfigurationAction, args);
 
                 return app;
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex, "Error in startup");
+                Console.Error.WriteLine("Error in startup, " + ex);
                 throw;
             }
         }
 
         public void Dispose()
         {
-            Stop();
+            if (_disposed)
+            {
+                return;
+            }
 
-            ILogger logger = Log.Logger;
+            if (!_disposing)
+            {
+                Stop();
+                _disposing = true;
+            }
 
-            Log.CloseAndFlush();
+            WebHost?.Dispose();
+            AppRootScope?.Dispose();
+            Container?.Dispose();
 
-            if (logger is IDisposable disposable)
+            if (Logger is IDisposable disposable)
             {
                 disposable.Dispose();
             }
 
-            ComponentContext?.Dispose();
-            WebHost?.Dispose();
             WebHost = null;
             HostBuilder = null;
+            Container = null;
+            AppRootScope = null;
+            _disposed = true;
+            _disposing = false;
         }
 
         public void Stop()
         {
-            _cancellationTokenSource.Cancel();
+            CancellationTokenSource.Cancel();
         }
 
         public async Task<int> RunAsync([NotNull] params string[] args)
@@ -91,97 +119,107 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             WebHost = HostBuilder.Build();
 
-            await WebHost.StartAsync(_cancellationTokenSource.Token);
-
-            await RunStartupTasks();
+            await WebHost.StartAsync(CancellationTokenSource.Token);
 
             return 0;
         }
 
-        private static App BuildApp(
+        private static async Task<App> BuildAppAsync(
             CancellationTokenSource cancellationTokenSource,
-            string[] args,
-            Func<LoggerConfiguration, LoggerConfiguration> loggerConfigurationInterceptor)
+            Action<LoggerConfiguration> loggerConfigurationAction,
+            string[] args)
         {
+            ImmutableArray<Assembly> scanAssemblies = AppDomain.CurrentDomain.FilteredAssemblies();
+
             string basePathFromArg = args.SingleOrDefault(arg =>
-                arg.StartsWith("urn:milou:base-path", StringComparison.OrdinalIgnoreCase));
+                arg.StartsWith("urn:milou:deployer:web:base-path", StringComparison.OrdinalIgnoreCase));
 
             string basePath = basePathFromArg?.Split('=').LastOrDefault() ?? AppDomain.CurrentDomain.BaseDirectory;
 
-            SerilogApiInitialization.InitializeStartupLogging(file => GetBaseDirectoryFile(basePath, file));
+            ILogger startupLogger =
+                SerilogApiInitialization.InitializeStartupLogging(file => GetBaseDirectoryFile(basePath, file));
 
             MultiSourceKeyValueConfiguration configuration =
-                ConfigurationInitialization.InitializeConfiguration(file => GetBaseDirectoryFile(basePath, file));
+                ConfigurationInitialization.InitializeConfiguration(args,
+                    file => GetBaseDirectoryFile(basePath, file),
+                    startupLogger, scanAssemblies);
 
-            StaticKeyValueConfigurationManager.Initialize(configuration);
+            ILogger appLogger =
+                SerilogApiInitialization.InitializeAppLogging(configuration, startupLogger, loggerConfigurationAction);
 
-            SerilogApiInitialization.InitializeAppLogging(configuration, loggerConfigurationInterceptor);
+            appLogger.Debug("Started with command line args, {Args}", args);
 
-            Log.Logger.Information("Started with command line args, {Args}", args);
+            IReadOnlyList<IModule> modules =
+                GetConfigurationModules(configuration, cancellationTokenSource, appLogger, scanAssemblies);
 
-            IContainer container = Bootstrapper.Start(basePath);
+            Type[] excluded = { typeof(AppServiceModule) };
 
-            ConfigureModules(configuration, cancellationTokenSource, container);
+            AppContainerScope container = Bootstrapper.Start(basePathFromArg, modules, appLogger, scanAssemblies, excluded);
 
-            var buildApp = container.Resolve<App>();
+            var appRootScope = new Scope(container.AppRootScope);
 
-            buildApp.ComponentContext = container;
+            DeploymentTargetIds deploymentWorkers = await CreateWorkersAsync(container.AppRootScope);
 
-            return buildApp;
+            ILifetimeScope webHostScope =
+                container.AppRootScope.BeginLifetimeScope(builder =>
+                {
+                    builder.RegisterInstance(deploymentWorkers).AsSelf().SingleInstance();
+                    builder.RegisterType<Startup>().AsSelf();
+                    builder.RegisterInstance(appRootScope);
+                });
+
+            var webHostScopeWrapper = new Scope(webHostScope);
+            appRootScope.SubScope = webHostScopeWrapper;
+
+            IWebHostBuilder webHostBuilder =
+                CustomWebHostBuilder.GetWebHostBuilder(appRootScope, webHostScopeWrapper, appLogger);
+
+            var app = new App(webHostBuilder, cancellationTokenSource, appLogger)
+            {
+                Container = container.Container,
+                AppRootScope = appRootScope
+            };
+
+            return app;
         }
 
-        private static void ConfigureModules(
-            MultiSourceKeyValueConfiguration configuration,
-            [NotNull] CancellationTokenSource cancellationTokenSource,
-            IComponentContext componentContext)
+        private static async Task<DeploymentTargetIds> CreateWorkersAsync(ILifetimeScope scope)
         {
+            var deploymentTargetReadService = scope.Resolve<IDeploymentTargetReadService>();
+
+            IReadOnlyCollection<string> targetIds =
+                (await deploymentTargetReadService.GetDeploymentTargetsAsync(default))
+                .Select(deploymentTarget => deploymentTarget.Id)
+                .ToArray();
+
+            return new DeploymentTargetIds(targetIds);
+        }
+
+        private static IReadOnlyList<IModule> GetConfigurationModules(
+            MultiSourceKeyValueConfiguration configuration,
+            CancellationTokenSource cancellationTokenSource,
+            ILogger logger,
+            ImmutableArray<Assembly> scanAssemblies)
+        {
+            var modules = new List<IModule>();
+
             if (cancellationTokenSource == null)
             {
                 throw new ArgumentNullException(nameof(cancellationTokenSource));
             }
 
-            var loggingModule = new LoggingModule();
+            var loggingModule = new LoggingModule(logger);
 
-            loggingModule.Configure(componentContext.ComponentRegistry);
+            var module = new KeyValueConfigurationModule(configuration, logger);
 
-            var module = new KeyValueConfigurationModule(configuration);
+            var urnModule = new UrnConfigurationModule(configuration, logger, scanAssemblies);
 
-            module.Configure(componentContext.ComponentRegistry);
+            modules.Add(loggingModule);
+            modules.Add(module);
+            modules.Add(urnModule);
+            modules.Add(new MediatRModule(scanAssemblies));
 
-            var urnModule = new UrnConfigurationModule(configuration);
-
-            urnModule.Configure(componentContext.ComponentRegistry);
-
-            var webHostModule = new AspNetWebHostModule(cancellationTokenSource, componentContext);
-
-            webHostModule.Configure(componentContext.ComponentRegistry);
-
-            var lifetimeModule = new LifetimeModule(cancellationTokenSource);
-
-            lifetimeModule.Configure(componentContext.ComponentRegistry);
-        }
-
-        private async Task RunStartupTasks()
-        {
-            using (ILifetimeScope beginLifetimeScope = ComponentContext.BeginLifetimeScope())
-            {
-                var startupHandlers = beginLifetimeScope.Resolve<IEnumerable<IStartupHandler>>();
-
-                foreach (IStartupHandler startupHandler in startupHandlers)
-                {
-                    try
-                    {
-                        await startupHandler.HandleAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Logger.Error(ex,
-                            "Failed to run startup handler {Handler}",
-                            startupHandler.GetType().FullName);
-                        throw;
-                    }
-                }
-            }
+            return modules;
         }
 
         private static string GetBaseDirectoryFile(string basePath, string fileName)

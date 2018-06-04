@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using MediatR;
-using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Email;
@@ -26,9 +25,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     [UsedImplicitly]
     public class DeploymentService
     {
+        private const string AllPackagesCacheKey = "urn:packages:all";
         private readonly MilouDeployer _deployer;
+        private readonly IKeyValueConfiguration _keyValueConfiguration;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
+        private readonly ICustomMemoryCache _memoryCache;
 
         private readonly IDeploymentTargetReadService _targetSource;
 
@@ -36,15 +38,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] ILogger logger,
             [NotNull] IDeploymentTargetReadService targetSource,
             [NotNull] IMediator mediator,
-            [NotNull] MilouDeployer deployer)
+            [NotNull] MilouDeployer deployer,
+            [NotNull] IKeyValueConfiguration keyValueConfiguration,
+            [NotNull] ICustomMemoryCache memoryCache)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _deployer = deployer ?? throw new ArgumentNullException(nameof(deployer));
+            _keyValueConfiguration =
+                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
-        public async Task<string> ExecuteDeploymentAsync(
+        public async Task<(ExitCode, string)> ExecuteDeploymentAsync(
             [NotNull] DeploymentTask deploymentTask,
             ILogger logger,
             CancellationToken cancellationToken)
@@ -102,20 +109,51 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 new DeploymentFinishedNotification(deploymentTask, metadataContent),
                 cancellationToken);
 
-            return metadataContent;
+            return (exitCode, metadataContent);
         }
 
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
             string prefix = null,
             bool useCache = true,
-            ILogger logger = null)
+            ILogger logger = null,
+            bool includePreReleased = false,
+            string nugetPackageSource = null,
+            string nugetConfigFile = null,
+            CancellationToken cancellationToken = default)
         {
-            if (InMemoryCache.All.Any() && useCache)
+            string cacheKey = AllPackagesCacheKey;
+
+            if (nugetConfigFile.HasValue())
             {
-                return InMemoryCache.All;
+                string configCachePart =
+                    "urn:packages:" + nugetConfigFile.Replace(Path.DirectorySeparatorChar.ToString(), "");
+
+                if (nugetPackageSource.HasValue())
+                {
+                    cacheKey = configCachePart
+                               + ":" + nugetPackageSource
+                                   .Replace(":", "")
+                                   .Replace("/", "")
+                                   .Replace(".", "");
+                }
+                else
+                {
+                    cacheKey = configCachePart;
+                }
             }
 
-            string nugetExe = StaticKeyValueConfigurationManager.AppSettings[ConfigurationConstants.NuGetExePath];
+            if (useCache)
+            {
+                if (_memoryCache.TryGetValue(cacheKey, out IReadOnlyCollection<PackageVersion> packages))
+                {
+                    if (packages.Count > 0)
+                    {
+                        return packages;
+                    }
+                }
+            }
+
+            string nugetExe = _keyValueConfiguration[ConfigurationConstants.NuGetExePath];
 
             if (string.IsNullOrWhiteSpace(nugetExe))
             {
@@ -129,16 +167,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
 
-            string packageSource = StaticKeyValueConfigurationManager.AppSettings[packageSourceAppSettingsKey];
+            string packageSource = nugetPackageSource ?? _keyValueConfiguration[packageSourceAppSettingsKey];
 
-            var args = new List<string> { "list", "-prerelease" };
+            var args = new List<string> { "list" };
+
+            if (includePreReleased)
+            {
+                args.Add("-PreRelease");
+            }
 
             if (!string.IsNullOrWhiteSpace(packageSource))
             {
                 logger?.Debug("Using package source '{PackageSource}'", packageSource);
                 args.Add("-source");
                 args.Add(packageSource);
-                args.Add("-AllVersions");
             }
             else
             {
@@ -147,7 +189,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     packageSourceAppSettingsKey);
             }
 
-            string configFile = StaticKeyValueConfigurationManager.AppSettings[ConfigurationConstants.NugetConfigFile];
+            args.Add("-AllVersions");
+
+            string configFile = nugetConfigFile ?? _keyValueConfiguration[ConfigurationConstants.NugetConfigFile];
 
             if (configFile.HasValue() && File.Exists(configFile))
             {
@@ -163,10 +207,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             ExitCode exitCode =
                 await ProcessRunner.ExecuteAsync(nugetExe,
                     arguments: args,
-                    standardOutLog: (s, t) => builder.Add(s),
-                    standardErrorAction: (s, t) => errorBuild.Add(s),
-                    toolAction: (s, t) => _logger.Information("{ProcessToolMessage}", s),
-                    verboseAction: (s, t) => _logger.Verbose("{ProcessToolMessage}", s));
+                    standardOutLog: (s, _) => builder.Add(s),
+                    standardErrorAction: (s, _) => errorBuild.Add(s),
+                    toolAction: (s, _) => _logger.Information("{ProcessToolMessage}", s),
+                    verboseAction: (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
+                    cancellationToken: cancellationToken);
 
             string standardOut = string.Join(Environment.NewLine, builder);
             string standardErrorOut = string.Join(Environment.NewLine, errorBuild);
@@ -176,12 +221,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 var sources = new List<string>();
                 var sourcesError = new List<string>();
 
+                var sourcesArgs = new List<string> { "sources" };
+
+                if (configFile.HasValue() && File.Exists(configFile))
+                {
+                    sourcesArgs.Add("-ConfigFile");
+                    sourcesArgs.Add(configFile);
+                }
+
                 await ProcessRunner.ExecuteAsync(nugetExe,
-                    arguments: new[] { "sources" },
-                    standardOutLog: (s, t) => sources.Add(s),
-                    standardErrorAction: (s, t) => sourcesError.Add(s),
-                    toolAction: (s, t) => _logger.Information("{ProcessToolMessage}", s),
-                    verboseAction: (s, t) => _logger.Verbose("{ProcessToolMessage}", s));
+                    arguments: sourcesArgs,
+                    standardOutLog: (s, _) => sources.Add(s),
+                    standardErrorAction: (s, _) => sourcesError.Add(s),
+                    toolAction: (s, _) => _logger.Information("{ProcessToolMessage}", s),
+                    verboseAction: (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
+                    cancellationToken: cancellationToken);
 
                 string sourcesOut = string.Join(Environment.NewLine, sources);
                 string sourcesErrorOut = string.Join(Environment.NewLine, sourcesError);
@@ -208,7 +262,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     {
                         string[] parts = package.Split(' ');
 
-                        string packageId = parts.First();
+                        string packageId = parts[0];
 
                         try
                         {
@@ -231,33 +285,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 .ThenByDescending(packageVersion => packageVersion.Version)
                 .ToList();
 
-            if (InMemoryCache.All.SequenceEqual(items))
-            {
-                return InMemoryCache.All;
-            }
-
-            InMemoryCache.Invalidate();
-
             var addedPackages = new List<string>();
 
             foreach (PackageVersion packageVersion in items)
             {
                 addedPackages.Add(packageVersion.ToString());
-
-                InMemoryCache.Add(packageVersion);
             }
 
-            if (Log.Logger.IsEnabled(LogEventLevel.Verbose))
+            if (_logger.IsEnabled(LogEventLevel.Verbose))
             {
-                Log.Logger.Verbose("Added {Count} packages to in-memory cache {PackageVersions}",
+                _logger.Verbose("Added {Count} packages to in-memory cache {PackageVersions}",
                     addedPackages.Count,
                     addedPackages);
             }
             else
             {
-                Log.Logger.Information("Added {Count} packages to in-memory cache",
+                _logger.Information("Added {Count} packages to in-memory cache",
                     addedPackages.Count);
             }
+
+            _memoryCache.Set(cacheKey, addedPackages);
 
             return items;
         }
@@ -294,7 +341,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 metadata.AppendLine($"Publish settings file: {deploymentTarget.PublishSettingFile}");
                 metadata.AppendLine($"Target directory: {deploymentTarget.TargetDirectory}");
-                metadata.AppendLine($"Target URI: {deploymentTarget.Uri}");
+                metadata.AppendLine($"Target URI: {deploymentTarget.Url}");
             }
 
             metadata.AppendLine($"Exit code {exitCode}");
@@ -313,26 +360,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             string contentFilePath = Path.Combine(deploymentJobsDirectory.FullName,
                 $"{deploymentTask.DeploymentTaskId}.txt");
             return contentFilePath;
-        }
-
-        private static DirectoryInfo EnsureDeploymentJobsDirectoryExists()
-        {
-            string directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                "App_Data");
-
-            string baseDir = StaticKeyValueConfigurationManager.AppSettings["urn:milou:deployer:jobs-directory"]
-                .WithDefault(directoryPath);
-
-            string jobDirectoryPath = Path.Combine(baseDir, "DeploymentJobs");
-
-            var directoryInfo = new DirectoryInfo(jobDirectoryPath);
-
-            if (!directoryInfo.Exists)
-            {
-                directoryInfo.Create();
-            }
-
-            return directoryInfo;
         }
 
         private static void CheckPackageMatchingTarget(DeploymentTarget deploymentTarget, string packageId)
@@ -354,6 +381,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new InvalidOperationException(
                     $"The package id '{packageId}' is not in the list of allowed package ids: {allPackageIds}");
             }
+        }
+
+        private DirectoryInfo EnsureDeploymentJobsDirectoryExists()
+        {
+            string directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                "App_Data");
+
+            string baseDir = _keyValueConfiguration["urn:milou:deployer:jobs-directory"]
+                .WithDefault(directoryPath);
+
+            string jobDirectoryPath = Path.Combine(baseDir, "DeploymentJobs");
+
+            var directoryInfo = new DirectoryInfo(jobDirectoryPath);
+
+            if (!directoryInfo.Exists)
+            {
+                directoryInfo.Create();
+            }
+
+            return directoryInfo;
         }
 
         private async Task<ExitCode> RunDeploymentToolAsync(
@@ -441,7 +488,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             if (deploymentTarget == null)
             {
                 throw new InvalidOperationException(
-                    $"Deployment target with id '{deploymentTask.DeploymentTargetId}' was not found");
+                    $"Deployment target with id '{deploymentTask.DeploymentTargetId}' was not found using source {_targetSource.GetType().FullName}");
             }
 
             return deploymentTarget;

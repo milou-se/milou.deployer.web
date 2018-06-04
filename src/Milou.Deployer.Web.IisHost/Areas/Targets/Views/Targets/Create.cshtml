@@ -1,0 +1,20 @@
+﻿@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@model Milou.Deployer.Web.IisHost.Areas.Targets.Controllers.CreateTargetViewOutputModel
+
+<h1>Create target</h1>
+
+<form method="post" action="@Url.RouteUrl(TargetConstants.CreateTargetPostRouteName)">
+
+    <div class="input-field">
+        <label for="target-id">ID</label>
+        <input type="text" name="id" id="target-id"/>
+    </div>
+    <div class="input-field">
+        <label for="target-name">Name</label>
+        <input type="text" name="name" id="target-name"/>
+    </div>
+    <div class="input-field">
+        <input type="submit" value="Create project" />
+    </div>
+
+</form>

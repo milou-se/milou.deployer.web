@@ -19,24 +19,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             IReadOnlyCollection<PackageVersion> availablePackageVersions)
         {
-            KeyValueConfiguration =
+            Properties =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             AvailablePackageVersions = availablePackageVersions;
             Target = target ?? throw new ArgumentNullException(nameof(target));
         }
 
-        public AppVersion([NotNull] DeploymentTarget target, string mesage)
+        public AppVersion([NotNull] DeploymentTarget target, string message)
         {
-            KeyValueConfiguration = new InMemoryKeyValueConfiguration(new NameValueCollection());
+            Properties = new InMemoryKeyValueConfiguration(new NameValueCollection());
             Target = target;
-            Mesage = mesage;
+            Message = message;
             AvailablePackageVersions = Array.Empty<PackageVersion>();
         }
 
-        public string Mesage { get; }
+        public string Message { get; }
 
         [NotNull]
-        public IKeyValueConfiguration KeyValueConfiguration { get; }
+        public IKeyValueConfiguration Properties { get; }
 
         [NotNull]
         public DeploymentTarget Target { get; }
@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         {
             get
             {
-                if (!SemanticVersion.TryParse(KeyValueConfiguration[ConfigurationConstants.SemanticVersionNormalized],
+                if (!SemanticVersion.TryParse(Properties[ConfigurationConstants.SemanticVersionNormalized],
                     out SemanticVersion semver))
                 {
                     return null;
@@ -57,12 +57,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         }
 
         [CanBeNull]
+        public string PackageId => Properties[ConfigurationConstants.PackageId];
+
+        [CanBeNull]
         public DateTime? DateployedAtUtc
         {
             get
             {
                 if (!DateTime.TryParse(
-                    KeyValueConfiguration[ConfigurationConstants.DeploymentStartTime],
+                    Properties[ConfigurationConstants.DeploymentStartTime],
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.AdjustToUniversal,
                     out DateTime deployedAtUtc))

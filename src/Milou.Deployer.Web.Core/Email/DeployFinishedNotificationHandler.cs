@@ -14,10 +14,10 @@ using Serilog;
 namespace Milou.Deployer.Web.Core.Email
 {
     [UsedImplicitly]
-    public class DeployFinishedNotificationHandler : AsyncNotificationHandler<DeploymentFinishedNotification>
+    public class DeployFinishedNotificationHandler : INotificationHandler<DeploymentFinishedNotification>
     {
-        private readonly ILogger _logger;
         private readonly EmailConfiguration _emailConfiguration;
+        private readonly ILogger _logger;
         private readonly ISmtpService _smtpService;
         private readonly IDeploymentTargetReadService _targetSource;
 
@@ -32,16 +32,16 @@ namespace Milou.Deployer.Web.Core.Email
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             _emailConfiguration = emailConfiguration ?? new EmailConfiguration(
-                                      defaultFromEmailAddress: null,
-                                      smtpHost: null,
-                                      port: -1,
-                                      useSsl: false,
-                                      username: null,
-                                      password: null,
-                                      emailEnabled: false);
+                                      null,
+                                      null,
+                                      -1,
+                                      false,
+                                      null,
+                                      null,
+                                      false);
         }
 
-        protected override async Task HandleCore(DeploymentFinishedNotification notification)
+        public async Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
         {
             if (!_emailConfiguration.IsValid)
             {
@@ -51,13 +51,16 @@ namespace Milou.Deployer.Web.Core.Email
 
             if (!_emailConfiguration.EmailEnabled)
             {
-                _logger.Debug("Email is disabled, skipping sending deployment finished email for notification {Notification}", notification);
+                _logger.Debug(
+                    "Email is disabled, skipping sending deployment finished email for notification {Notification}",
+                    notification);
                 return;
             }
 
             var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
-            IReadOnlyCollection<OrganizationInfo> targets = await _targetSource.GetOrganizationsAsync(cancellationTokenSource.Token);
+            IReadOnlyCollection<OrganizationInfo> targets =
+                await _targetSource.GetOrganizationsAsync(cancellationTokenSource.Token);
 
             DeploymentTarget target = targets.SelectMany(o => o.Projects)
                 .SelectMany(project => project.DeploymentTargets)
@@ -105,7 +108,7 @@ namespace Milou.Deployer.Web.Core.Email
             }
             catch (Exception ex)
             {
-                Log.Logger.Error(ex,
+                _logger.Error(ex,
                     "Could not send email to '{To}'",
                     string.Join(", ", target.EmailNotificationAddresses));
             }

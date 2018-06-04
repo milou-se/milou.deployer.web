@@ -1,146 +1,52 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
 using Microsoft.AspNetCore.Hosting;
-using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Structure;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.IisHost.Areas.Application;
+using Milou.Deployer.Web.IisHost.Areas.Configuration;
 
 namespace Milou.Deployer.Web.IisHost
 {
-    public static class Program
+    internal static class Program
     {
         public static async Task<int> Main(string[] args)
         {
-            var customCancellationTokenSource = new CancellationTokenSource();
+            CancellationTokenSource cancellationTokenSource;
 
-            App app = await App.CreateAsync(customCancellationTokenSource, default, args);
-
-            int exitCode = await app.RunAsync(args);
-
-            if (Environment.UserInteractive)
+            if (int.TryParse(Environment.GetEnvironmentVariable(ConfigurationConstants.RestartTimeInSeconds),
+                    out int intervalInSeconds) && intervalInSeconds > 0)
             {
-                await Task.Run(() => RunInteractive(app, customCancellationTokenSource),
-                    customCancellationTokenSource.Token);
-            }
-
-            await app.WebHost.WaitForShutdownAsync(customCancellationTokenSource.Token);
-
-            app.Dispose();
-
-            return exitCode;
-        }
-
-        private static async Task RunInteractive(App app, CancellationTokenSource customCancellationTokenSource)
-        {
-            Console.WriteLine("Running interactive");
-
-            var commands = new Dictionary<string, Func<App, Task>>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["proj"] = AddProject,
-                ["org"] = AddOrg,
-                ["orgs"] = ListOrgs
-            };
-
-            while (!customCancellationTokenSource.IsCancellationRequested)
-            {
-                try
-                {
-                    Console.WriteLine(
-                        $"Available commands: {Environment.NewLine}{string.Join(Environment.NewLine, commands.Keys)}");
-                    Console.WriteLine("Enter command");
-                    string line = Console.ReadLine()?.Trim();
-
-                    if (string.IsNullOrWhiteSpace(line))
-                    {
-                        break;
-                    }
-
-                    if (commands.TryGetValue(line, out Func<App, Task> taskFactory))
-                    {
-                        await taskFactory.Invoke(app);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Invalid command");
-                    }
-                }
-
-                catch (Exception ex)
-                {
-                    Serilog.Log.Error(ex, "Exception throw in interactive mode");
-                }
-            }
-        }
-
-        private static async Task AddProject(App app)
-        {
-            Console.WriteLine("Enter project id");
-
-            string id = Console.ReadLine()?.Trim();
-
-            if (string.IsNullOrWhiteSpace(id))
-            {
-                Console.WriteLine("Invalid id");
-            }
-
-            Console.WriteLine("Enter organization id");
-            string organizationId = Console.ReadLine()?.Trim();
-
-            if (string.IsNullOrWhiteSpace(organizationId))
-            {
-                Console.WriteLine("Invalid organization id");
-            }
-
-            var deploymentTargetWriteService = app.ComponentContext.Resolve<IDeploymentTargetWriteService>();
-
-            if (deploymentTargetWriteService != null)
-            {
-                await deploymentTargetWriteService.CreateProjectAsync(new CreateProject(id, organizationId),
-                    CancellationToken.None);
-            }
-        }
-
-        private static async Task ListOrgs(App app)
-        {
-            var service = app.ComponentContext.Resolve<IDeploymentTargetReadService>();
-
-            ImmutableArray<OrganizationInfo>
-                organizations = await service.GetOrganizationsAsync(CancellationToken.None);
-
-            foreach (OrganizationInfo organizationInfo in organizations)
-            {
-                Console.WriteLine($"* {organizationInfo.Organization}");
-                foreach (ProjectInfo organizationInfoProject in organizationInfo.Projects)
-                {
-                    Console.WriteLine($"\t{organizationInfoProject.ProjectInvariantName}");
-                }
-            }
-        }
-
-        private static async Task AddOrg(App app)
-        {
-            Console.WriteLine("Enter organization id");
-
-            string id = Console.ReadLine()?.Trim();
-
-            if (!string.IsNullOrWhiteSpace(id))
-            {
-                var deploymentTargetWriteService = app.ComponentContext.Resolve<IDeploymentTargetWriteService>();
-
-                if (deploymentTargetWriteService != null)
-                {
-                    await deploymentTargetWriteService.CreateOrganizationAsync(new CreateOrganization(id),
-                        CancellationToken.None);
-                }
+                cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
             }
             else
             {
-                Console.WriteLine("Invalid id");
+                cancellationTokenSource = new CancellationTokenSource();
             }
+
+            using (cancellationTokenSource)
+            {
+                cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
+
+                using (App app = await App.CreateAsync(cancellationTokenSource, null, args))
+                {
+                    app.Logger.Information("Starting application {Application}", ApplicationConstants.ApplicationName);
+
+                    app.Logger.Debug("Restart time is set to {RestartIntervalInSeconds} seconds", intervalInSeconds);
+
+                    await app.RunAsync(args);
+
+                    app.Logger.Debug("Started Milou Deployer Web app, waiting for web host shutdown");
+
+                    await app.WebHost.WaitForShutdownAsync(cancellationTokenSource.Token);
+
+                    app.Logger.Information("Stopping application {Application}", ApplicationConstants.ApplicationName);
+                }
+            }
+
+            await Task.Delay(TimeSpan.FromMilliseconds(3000), CancellationToken.None);
+
+            return 0;
         }
     }
 }

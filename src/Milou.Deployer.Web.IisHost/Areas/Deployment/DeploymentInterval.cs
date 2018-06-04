@@ -34,21 +34,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment
 
         public int ToInclusive { get; }
 
-        public static IReadOnlyCollection<DeploymentInterval> All
+        public static IReadOnlyCollection<DeploymentInterval> All => new[]
         {
-            get
-            {
-                return new[]
-                {
-                    Invalid,
-                    ThisWeek,
-                    ThisMonth,
-                    ThisQuarter,
-                    ThisYear,
-                    MoreThanAYear
-                };
-            }
-        }
+            Invalid,
+            ThisWeek,
+            ThisMonth,
+            ThisQuarter,
+            ThisYear,
+            MoreThanAYear
+        };
 
         public static DeploymentInterval Parse(TimeSpan timeSpan)
         {

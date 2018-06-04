@@ -12,6 +12,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             new PreReleaseBehavior(nameof(AllowWithForceFlag));
 
         public static readonly PreReleaseBehavior Allow = new PreReleaseBehavior(nameof(Allow));
+
         public static readonly PreReleaseBehavior Deny = new PreReleaseBehavior(nameof(Deny));
 
         private PreReleaseBehavior(string name)
@@ -21,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public string Name { get; }
 
-        public static IReadOnlyCollection<PreReleaseBehavior> All => new[]
+        public static IReadOnlyCollection<PreReleaseBehavior> All { get; } = new[]
         {
             Invalid,
             AllowWithForceFlag,

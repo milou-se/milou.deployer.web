@@ -1,4 +1,4 @@
-﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
+﻿@using Milou.Deployer.Web.Core.Deployment
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentViewOutputModel
 
 <p>
@@ -13,7 +13,7 @@
 
         <select name="packageVersion" id="packageVersion">
 
-            @foreach (var item in Model.PackageVersions)
+            @foreach (PackageVersion item in Model.PackageVersions)
             {
                 <option value="@item.PackageId @item.Version.ToNormalizedString()">@item.PackageId @item.Version.ToNormalizedString()</option>
             }

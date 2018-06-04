@@ -1,0 +1,30 @@
+﻿{
+  "urn:arbor:kvconfiguration:schema:version": "1.0",
+  "keys": [
+    {
+      "key": "urn:versioning:semver2:normalized",
+      "value": "3.1.1",
+      "configurationMetadata": null
+    },
+    {
+      "key": "urn:deployment:start-time-utc",
+      "value": "2018-05-22T21:43:52.3930403Z",
+      "configurationMetadata": null
+    },
+    {
+      "key": "urn:milou-deployer:deployed-with:assembly-version",
+      "value": "3.1.0.0",
+      "configurationMetadata": null
+    },
+    {
+      "key": "urn:milou-deployer:deployed-with:assembly-file-version:",
+      "value": "v4.0.30319",
+      "configurationMetadata": null
+    },
+    {
+      "key": "urn:nuget:package-id",
+      "value": "Milou.Deployer.ConsoleClient",
+      "configurationMetadata": null
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 using System;
 using System.Net;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -27,7 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [Route("")]
         [HttpPost]
-        public async Task<IActionResult> Index(
+        public IActionResult Index(
             DeploymentTaskInput deploymentTaskInput)
         {
             if (deploymentTaskInput == null)
@@ -67,8 +66,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             }
         }
 
+        [HttpGet]
         [Route("/deployment/status/{deploymentTargetId}")]
-        public async Task<IActionResult> Status(string deploymentTargetId)
+        public IActionResult Status(string deploymentTargetId)
         {
             return View(new StatusViewOutputModel(deploymentTargetId));
         }

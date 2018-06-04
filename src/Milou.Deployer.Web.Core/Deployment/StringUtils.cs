@@ -5,9 +5,9 @@ namespace Milou.Deployer.Web.Core.Deployment
     public static class StringUtils
 
     {
-        public static bool AllHasValue(params string[] values)
+        public static bool AllHaveValues(params string[] values)
         {
-            return values != null && values.All(v => !string.IsNullOrWhiteSpace(v));
+            return values != null && values.All(paramValue => !string.IsNullOrWhiteSpace(paramValue));
         }
     }
 }

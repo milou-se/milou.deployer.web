@@ -1,10 +1,13 @@
 ﻿@using Milou.Deployer.Web.IisHost.Areas.NuGet
-@using Milou.Deployer.Web.IisHost.Areas.Settings
 @model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
 
 <h2>Target read service: @Model.TargetReadService</h2>
 
 <ul>
     <li><a href="/deployment/invalidate">Invalidate package cache</a></li>
-    <li><a href="/@NuGetServerController.NugetServerBaseRoute">NuGet Server settings</a></li>
 </ul>
+
+@foreach ((string Type, string Name, string Value) item in Model.Routes)
+{
+    <li>@item.Name: @item.Value (@item.Type)</li>
+}

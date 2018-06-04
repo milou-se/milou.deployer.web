@@ -46,7 +46,8 @@ namespace Milou.Deployer.Web.Core.Email
 
         public override string ToString()
         {
-            return $"{nameof(DefaultFromEmailAddress)}: {DefaultFromEmailAddress}, {nameof(SmtpHost)}: {SmtpHost}, {nameof(Port)}: {Port}, {nameof(UseSsl)}: {UseSsl}, {nameof(Username)}: {Username}, {nameof(Password)}: ******, {nameof(EmailEnabled)}: {EmailEnabled}, {nameof(IsValid)}: {IsValid}";
+            return
+                $"{nameof(DefaultFromEmailAddress)}: {DefaultFromEmailAddress}, {nameof(SmtpHost)}: {SmtpHost}, {nameof(Port)}: {Port}, {nameof(UseSsl)}: {UseSsl}, {nameof(Username)}: {Username}, {nameof(Password)}: ******, {nameof(EmailEnabled)}: {EmailEnabled}, {nameof(IsValid)}: {IsValid}";
         }
     }
 }

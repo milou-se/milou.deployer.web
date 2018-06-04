@@ -1,0 +1,53 @@
+﻿@using Arbor.KVConfiguration.Schema.Validators
+@using Milou.Deployer.Web.Core.Extensions
+@using Milou.Deployer.Web.Core.Structure
+@using Milou.Deployer.Web.IisHost.Areas.Projects
+@model Milou.Deployer.Web.IisHost.Areas.Projects.ProjectsViewOutputModel
+
+@if (Model.CreateProjectResult.HasValue())
+{
+    if (Model.CreateProjectResult.ValidationErrors.Length == 1)
+    {
+        <h3>@Model.CreateProjectResult.ValidationErrors[0].ErrorMessage</h3>
+    }
+    else if (Model.CreateProjectResult.ValidationErrors.Length > 0)
+    {
+        <ul>
+            @foreach (ValidationError item in Model.CreateProjectResult.ValidationErrors)
+            {
+                <li>@item.ErrorMessage</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <h3>Successfully created project @Model.CreateProjectResult.ProjectName</h3>
+    }
+}
+
+<table>
+    <thead>
+        <tr>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ProjectInfo item in Model.Projects)
+        {
+            <tr>
+                <td>@item.ProjectFullName</td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+<form method="post" action="@Url.RouteUrl(ProjectConstants.CreateProjectPostRouteName)">
+
+    <input type="text" name="id" />
+
+    <input type="hidden" name="organizationId" value="@Model.OrganizationId" />
+
+    <input type="submit" value="Create project" />
+
+</form>

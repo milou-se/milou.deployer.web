@@ -10,6 +10,7 @@ Artifacts
 
 **/Elmah.Errors/*.*
 src/Milou.Deployer.Web.IisHost/App_Data/DeploymentJobs/*
+**/*_NCrunch_*/**
 
 #################
 ## Eclipse

@@ -37,5 +37,15 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             return organizations.ToImmutableArray();
         }
+
+        public Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(string organizationId, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
