@@ -2,6 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.KVConfiguration.Core.Metadata;
+using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
@@ -20,12 +22,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly BlockingCollection<DeploymentTask> _queue = new BlockingCollection<DeploymentTask>();
 
         private readonly BlockingCollection<DeploymentTask> _runningTasks = new BlockingCollection<DeploymentTask>();
+        private WorkerConfiguration _workerConfiguration;
 
         public DeploymentTargetWorker(
             [NotNull] string targetId,
             [NotNull] DeploymentService deploymentService,
             [NotNull] ILogger logger,
-            [NotNull] IMediator mediator)
+            [NotNull] IMediator mediator,
+            WorkerConfiguration workerConfiguration)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {
@@ -36,6 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _workerConfiguration = workerConfiguration;
         }
 
         public string TargetId { get; }
@@ -68,7 +73,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 while (!deploymentTask.MessageQueue.IsCompleted)
                 {
                     if (!deploymentTask.MessageQueue.TryTake(out (string Message, WorkTaskStatus Status) valueTuple,
-                        TimeSpan.FromSeconds(10)))
+                        TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
                     {
                         deploymentTask.MessageQueue.CompleteAdding();
                     }
@@ -124,5 +129,25 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             _queue?.Dispose();
         }
+    }
+
+    [Urn(WorkerConstants.Configuration)]
+    [UsedImplicitly]
+    public class WorkerConfiguration
+    {
+        public WorkerConfiguration(int messageTimeOutInSeconds)
+        {
+            MessageTimeOutInSeconds = messageTimeOutInSeconds;
+        }
+
+        public int MessageTimeOutInSeconds { get; }
+    }
+
+    public static class WorkerConstants
+    {
+        public const string Configuration = "urn:milou:deployer:web:deployment-worker:configuration";
+
+        [Metadata(defaultValue: "10")]
+        public const string MessageTimeOutInSeconds = Configuration + ":default:" + nameof(MessageTimeOutInSeconds);
     }
 }

@@ -38,6 +38,7 @@ namespace Milou.Deployer.Web.Core.Email
                                       false,
                                       null,
                                       null,
+                                      30,
                                       false);
         }
 
@@ -57,7 +58,7 @@ namespace Milou.Deployer.Web.Core.Email
                 return;
             }
 
-            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds));
 
             IReadOnlyCollection<OrganizationInfo> targets =
                 await _targetSource.GetOrganizationsAsync(cancellationTokenSource.Token);

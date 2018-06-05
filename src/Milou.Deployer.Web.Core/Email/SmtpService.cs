@@ -26,6 +26,7 @@ namespace Milou.Deployer.Web.Core.Email
                                       false,
                                       null,
                                       null,
+                                      30,
                                       false);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

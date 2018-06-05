@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.KVConfiguration.Core.Metadata;
+using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Configuration;
@@ -33,6 +35,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly ICustomMemoryCache _memoryCache;
 
         private readonly IDeploymentTargetReadService _targetSource;
+        private readonly NuGetListConfiguration _deploymentConfiguration;
 
         public DeploymentService(
             [NotNull] ILogger logger,
@@ -40,7 +43,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] IMediator mediator,
             [NotNull] MilouDeployer deployer,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
-            [NotNull] ICustomMemoryCache memoryCache)
+            [NotNull] ICustomMemoryCache memoryCache,
+            NuGetListConfiguration deploymentConfiguration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
@@ -49,6 +53,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+            _deploymentConfiguration = deploymentConfiguration;
         }
 
         public async Task<(ExitCode, string)> ExecuteDeploymentAsync(
@@ -167,7 +172,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
 
-            string packageSource = nugetPackageSource ?? _keyValueConfiguration[packageSourceAppSettingsKey];
+            string packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 
             var args = new List<string> { "list" };
 
@@ -191,7 +196,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             args.Add("-AllVersions");
 
-            string configFile = nugetConfigFile ?? _keyValueConfiguration[ConfigurationConstants.NugetConfigFile];
+            string configFile = nugetConfigFile.WithDefault(_keyValueConfiguration[ConfigurationConstants.NugetConfigFile]);
 
             if (configFile.HasValue() && File.Exists(configFile))
             {
@@ -202,16 +207,25 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             var builder = new List<string>();
             var errorBuild = new List<string>();
 
-            logger?.Debug("Running NuGet to find packages");
+            logger?.Debug("Running NuGet to find packages with timeout {Seconds} seconds", _deploymentConfiguration.ListTimeOutInSeconds);
 
-            ExitCode exitCode =
-                await ProcessRunner.ExecuteAsync(nugetExe,
-                    arguments: args,
-                    standardOutLog: (s, _) => builder.Add(s),
-                    standardErrorAction: (s, _) => errorBuild.Add(s),
-                    toolAction: (s, _) => _logger.Information("{ProcessToolMessage}", s),
-                    verboseAction: (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
-                    cancellationToken: cancellationToken);
+            ExitCode exitCode;
+
+            using (var cancellationTokenSource =
+                new CancellationTokenSource(TimeSpan.FromSeconds(_deploymentConfiguration.ListTimeOutInSeconds)))
+            {
+                using (CancellationTokenSource linked =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
+                {
+                    exitCode = await ProcessRunner.ExecuteAsync(nugetExe,
+                        arguments: args,
+                        standardOutLog: (s, _) => builder.Add(s),
+                        standardErrorAction: (s, _) => errorBuild.Add(s),
+                        toolAction: (s, _) => _logger.Information("{ProcessToolMessage}", s),
+                        verboseAction: (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
+                        cancellationToken: linked.Token);
+                }
+            }
 
             string standardOut = string.Join(Environment.NewLine, builder);
             string standardErrorOut = string.Join(Environment.NewLine, errorBuild);
@@ -240,8 +254,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 string sourcesOut = string.Join(Environment.NewLine, sources);
                 string sourcesErrorOut = string.Join(Environment.NewLine, sourcesError);
 
-                throw new InvalidOperationException(
-                    $"Exit code {exitCode.Code} when running NuGet list packages; standard out '{standardOut}', standard error '{standardErrorOut}', exe path '{nugetExe}', arguments '{string.Join(" ", args)}', nuget sources '{sourcesOut}', sources error '{sourcesErrorOut}'");
+                _logger.Error($"Exit code {exitCode.Code} when running NuGet list packages; standard out '{standardOut}', standard error '{standardErrorOut}', exe path '{nugetExe}', arguments '{string.Join(" ", args)}', nuget sources '{sourcesOut}', sources error '{sourcesErrorOut}'");
+                return Array.Empty<PackageVersion>();
             }
 
             var ignoredOutputStatements = new List<string> { "Using credentials" };
@@ -311,7 +325,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task RefreshPackagesAsync()
         {
-            return GetPackageVersionsAsync(useCache: false);
+            return GetPackageVersionsAsync(useCache: false, logger: _logger);
         }
 
         private static string LogJobMetadata(
@@ -493,5 +507,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             return deploymentTarget;
         }
+    }
+
+    [Urn(NuGetListConstants.Configuration)]
+    [UsedImplicitly]
+    public class NuGetListConfiguration
+    {
+        public int ListTimeOutInSeconds { get; }
+
+        public NuGetListConfiguration(int listTimeOutInSeconds)
+        {
+            ListTimeOutInSeconds = listTimeOutInSeconds <= 0 ? 30 : listTimeOutInSeconds;
+        }
+    }
+
+    public static class NuGetListConstants
+    {
+        public const string Configuration = "urn:milou:deployer:web:nuget:list-configuration";
+
+        [Metadata(defaultValue: "30")]
+        public const string DefaultListTimeOutInSeconds =
+            Configuration + ":default:" + nameof(NuGetListConfiguration.ListTimeOutInSeconds);
     }
 }

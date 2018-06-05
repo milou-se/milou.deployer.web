@@ -194,7 +194,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             IReadOnlyCollection<PackageVersion> allPackageVersions =
                 await _deploymentService.GetPackageVersionsAsync(nugetConfigFile: target.NuGetConfigFile,
-                    nugetPackageSource: target.NuGetPackageSource);
+                    nugetPackageSource: target.NuGetPackageSource, logger: _logger);
 
             IReadOnlyCollection<PackageVersion> allTargetPackageVersions;
 
@@ -268,9 +268,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                _logger.Error("Could not get application metadata for {ApplicationMetadataUri}, {Ex}",
-                    applicationMetadataUri,
-                    ex);
+                _logger.Error(ex, "Could not get application metadata for {ApplicationMetadataUri}",
+                    applicationMetadataUri);
                 return ((HttpResponseMessage)null, ex.Message);
             }
         }

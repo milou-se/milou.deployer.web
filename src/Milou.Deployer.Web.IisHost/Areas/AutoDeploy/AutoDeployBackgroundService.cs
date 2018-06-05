@@ -55,7 +55,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             {
                 ImmutableArray<DeploymentTarget> deploymentTargets;
                 using (var targetsTokenSource =
-                    new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                    new CancellationTokenSource(TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {
                     using (CancellationTokenSource linked =
                         CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
@@ -74,14 +74,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 ImmutableHashSet<PackageVersion> packageVersions;
                 using (var packageVersionCancellationTokenSource =
-                    new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                    new CancellationTokenSource(TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {
                     using (CancellationTokenSource linked =
                         CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
                             packageVersionCancellationTokenSource.Token))
                     {
                         packageVersions =
-                            (await _deploymentService.GetPackageVersionsAsync(cancellationToken: linked.Token)).ToImmutableHashSet();
+                            (await _deploymentService.GetPackageVersionsAsync(cancellationToken: linked.Token, logger: _logger)).ToImmutableHashSet();
                     }
                 }
 
@@ -156,7 +156,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.AfterDeployDelayInSeconds), stoppingToken);
             }
         }
     }

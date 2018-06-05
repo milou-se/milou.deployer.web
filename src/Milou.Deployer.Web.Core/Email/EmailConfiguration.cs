@@ -16,6 +16,7 @@ namespace Milou.Deployer.Web.Core.Email
             bool useSsl,
             string username,
             string password,
+            int notificationTimeOutInSeconds = 30,
             bool emailEnabled = true)
         {
             DefaultFromEmailAddress = defaultFromEmailAddress;
@@ -24,6 +25,7 @@ namespace Milou.Deployer.Web.Core.Email
             UseSsl = useSsl;
             Username = username;
             Password = password;
+            NotificationTimeOutInSeconds = notificationTimeOutInSeconds <= 0 ? 30 : notificationTimeOutInSeconds;
             EmailEnabled = emailEnabled;
         }
 
@@ -43,6 +45,8 @@ namespace Milou.Deployer.Web.Core.Email
 
         public bool IsValid =>
             !EmailEnabled || (SmtpHost.HasValue() && Port >= 0 && DefaultFromEmailAddress.HasValue());
+
+        public int NotificationTimeOutInSeconds { get; }
 
         public override string ToString()
         {

@@ -41,7 +41,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                         httpMethodAttributes.Any(httpMethodAttribute => httpMethodAttribute == attribute.GetType()))
                     .ToArray();
 
-                _testOutputHelper.WriteLine($"Controller '{controller}' with action '{action}' is missing http method attribute");
+                _testOutputHelper.WriteLine($"Controller '{controller}' with action '{action}' is has http method attribute: {attributes.Length == 1}");
 
                 Assert.Single(attributes);
             }

@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
             }
 
-            TimeSpan cacheEntryAbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(120);
+            TimeSpan cacheEntryAbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(900);
 
             _memoryCache.Set(key, item, cacheEntryAbsoluteExpirationRelativeToNow);
             _keys.TryAdd(key, string.Empty);

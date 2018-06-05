@@ -102,7 +102,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             {
                 foreach (string deploymentTargetId in deploymentTargetIds.DeploymentWorkerIds)
                 {
-                    builder.Register(context => new DeploymentTargetWorker(deploymentTargetId, context.Resolve<DeploymentService>(), context.Resolve<Serilog.ILogger>(), context.Resolve<IMediator>())).AsSelf().AsImplementedInterfaces().Named<DeploymentTargetWorker>(deploymentTargetId);
+                    builder.Register(context => new DeploymentTargetWorker(deploymentTargetId, context.Resolve<DeploymentService>(), context.Resolve<Serilog.ILogger>(), context.Resolve<IMediator>(), context.Resolve<WorkerConfiguration>())).AsSelf().AsImplementedInterfaces().Named<DeploymentTargetWorker>(deploymentTargetId);
                 }
 
                 builder.Register(context => new DeploymentWorker(context.Resolve<IEnumerable<DeploymentTargetWorker>>())).AsSelf().AsImplementedInterfaces().SingleInstance();
