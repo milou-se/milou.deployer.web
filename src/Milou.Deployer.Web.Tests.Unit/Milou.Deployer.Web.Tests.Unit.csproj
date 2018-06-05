@@ -15,9 +15,10 @@
     <PackageReference Include="Machine.Specifications" Version="0.12.0" />
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.13.1" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.0" />
     <PackageReference Include="xunit.abstractions" Version="2.0.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
-    <PackageReference Include="xunit" Version="2.3.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0-beta.2.build4010" />
+    <PackageReference Include="xunit" Version="2.4.0-beta.2.build4010" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
