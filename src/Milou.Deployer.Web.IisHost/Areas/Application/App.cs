@@ -12,7 +12,6 @@ using Autofac.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
@@ -107,7 +106,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public void Stop()
         {
-            CancellationTokenSource.Cancel();
+            if (!CancellationTokenSource.IsCancellationRequested)
+            {
+                CancellationTokenSource.Cancel();
+            }
         }
 
         public async Task<int> RunAsync([NotNull] params string[] args)
@@ -132,12 +134,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ImmutableArray<Assembly> scanAssemblies = AppDomain.CurrentDomain.FilteredAssemblies();
 
             string basePathFromArg = args.SingleOrDefault(arg =>
-                arg.StartsWith("urn:milou:deployer:web:base-path", StringComparison.OrdinalIgnoreCase));
+                arg.StartsWith(ConfigurationConstants.BasePath, StringComparison.OrdinalIgnoreCase));
 
             string basePath = basePathFromArg?.Split('=').LastOrDefault() ?? AppDomain.CurrentDomain.BaseDirectory;
 
             ILogger startupLogger =
                 SerilogApiInitialization.InitializeStartupLogging(file => GetBaseDirectoryFile(basePath, file));
+
+            startupLogger.Information("Using application root directory {Directory}", basePath);
 
             MultiSourceKeyValueConfiguration configuration =
                 ConfigurationInitialization.InitializeConfiguration(args,
@@ -154,16 +158,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             Type[] excluded = { typeof(AppServiceModule) };
 
-            AppContainerScope container = Bootstrapper.Start(basePathFromArg, modules, appLogger, scanAssemblies, excluded);
+            AppContainerScope container = Bootstrapper.Start(basePath, modules, appLogger, scanAssemblies, excluded);
 
             var appRootScope = new Scope(container.AppRootScope);
 
-            DeploymentTargetIds deploymentWorkers = await CreateWorkersAsync(container.AppRootScope);
+            DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(container.AppRootScope);
 
             ILifetimeScope webHostScope =
                 container.AppRootScope.BeginLifetimeScope(builder =>
                 {
-                    builder.RegisterInstance(deploymentWorkers).AsSelf().SingleInstance();
+                    builder.RegisterInstance(deploymentTargetIds).AsSelf().SingleInstance();
                     builder.RegisterType<Startup>().AsSelf();
                     builder.RegisterInstance(appRootScope);
                 });
@@ -183,7 +187,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             return app;
         }
 
-        private static async Task<DeploymentTargetIds> CreateWorkersAsync(ILifetimeScope scope)
+        private static async Task<DeploymentTargetIds> GetDeploymentWorkerIdsAsync(ILifetimeScope scope)
         {
             var deploymentTargetReadService = scope.Resolve<IDeploymentTargetReadService>();
 

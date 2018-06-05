@@ -9,11 +9,6 @@ namespace Milou.Deployer.Web.Tests.Integration
     [UsedImplicitly]
     public class HttpGetRequestToRoot : WebFixtureBase, IAppHost
     {
-        //public HttpGetRequestToRoot(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-        //{
-
-        //}
-
         public HttpResponseMessage ResponseMessage { get; private set; }
 
         protected override async Task RunAsync()
@@ -26,7 +21,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Error in test");
+                    Logger.Error(ex, "Error in test");
                     Assert.NotNull(ex);
                 }
             }

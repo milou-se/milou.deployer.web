@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             Serilog.ILogger logger)
         {
             var environmentConfiguration =
-                startupScope.Lifetime.ResolveOptional<EnvironmentConfiguration>();
+                startupScope.Deepest().Lifetime.ResolveOptional<EnvironmentConfiguration>();
 
             string contentRoot = environmentConfiguration?.ApplicationBasePath ?? Directory.GetCurrentDirectory();
 

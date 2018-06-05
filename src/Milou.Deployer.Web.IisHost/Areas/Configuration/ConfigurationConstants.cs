@@ -5,7 +5,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
     public static class ConfigurationConstants
     {
         [Metadata()]
-        public static string JsonSourceEnabled = "urn:milou:deployer:web:json-source:enabled";
+        public const string JsonSourceEnabled = "urn:milou:deployer:web:json-source:enabled";
+
+        public const string BasePath = "urn:milou:deployer:web:base-path";
 
         [Metadata()]
         public const string HostConfiguration = "urn:milou:deployer:web:host";

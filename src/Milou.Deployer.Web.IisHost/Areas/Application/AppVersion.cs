@@ -14,13 +14,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     public class AppVersion
     {
+        private readonly DateTimeOffset _utcNow;
+
         public AppVersion(
             [NotNull] DeploymentTarget target,
-            [NotNull] IKeyValueConfiguration keyValueConfiguration,
-            IReadOnlyCollection<PackageVersion> availablePackageVersions)
+            [NotNull] IKeyValueConfiguration manifestProperties,
+            IReadOnlyCollection<PackageVersion> availablePackageVersions, DateTimeOffset utcNow)
         {
+            _utcNow = utcNow;
             Properties =
-                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+                manifestProperties ?? throw new ArgumentNullException(nameof(manifestProperties));
             AvailablePackageVersions = availablePackageVersions;
             Target = target ?? throw new ArgumentNullException(nameof(target));
         }
@@ -86,7 +89,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     return "N/A";
                 }
 
-                DateTime now = DateTime.UtcNow;
+                DateTime now = _utcNow.DateTime;
 
                 DateTime then = DateployedAtUtc.Value;
 
@@ -103,7 +106,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     return string.Empty;
                 }
 
-                DateTime now = DateTime.UtcNow;
+                DateTime now = _utcNow.DateTime;
 
                 DateTime then = DateployedAtUtc.Value;
 

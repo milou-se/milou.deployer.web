@@ -6,27 +6,28 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Serilog;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
     public abstract class WebFixtureBase : IDisposable, IAsyncLifetime
     {
         public Exception Exception { get; private set; }
-        private const int _cancellationTimeoutInSeconds = 120;
+        private const int CancellationTimeoutInSeconds = 120;
 
         private CancellationTokenSource _cancellationTokenSource;
 
-        protected List<FileInfo> FilesToClean = new List<FileInfo>();
-        protected List<DirectoryInfo> DirectoriesToClean = new List<DirectoryInfo>();
+        protected readonly List<FileInfo> FilesToClean = new List<FileInfo>();
+        protected readonly List<DirectoryInfo> DirectoriesToClean = new List<DirectoryInfo>();
 
-        protected ILogger _logger;
+        protected ILogger Logger;
 
-        private readonly ITestOutputHelper _testOutputHelper;
         public StringBuilder Builder { get; private set; }
 
         public App App { get; private set; }
@@ -37,7 +38,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public async Task InitializeAsync()
         {
-            _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(_cancellationTimeoutInSeconds));
+            _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
 
             try
             {
@@ -152,7 +153,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             string appRootDirectory = Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost");
 
-            string[] args = { $"urn:milou:deployer:web:base-path={appRootDirectory}" };
+            string[] args = { $"{ConfigurationConstants.BasePath}={appRootDirectory}" };
 
             _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
 
@@ -166,9 +167,9 @@ namespace Milou.Deployer.Web.Tests.Integration
             App = await App.CreateAsync(_cancellationTokenSource, AddXunitLogging, args);
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
-                _cancellationTimeoutInSeconds);
+                CancellationTimeoutInSeconds);
 
-            _logger = App.Logger;
+            Logger = App.Logger;
 
             return args;
         }

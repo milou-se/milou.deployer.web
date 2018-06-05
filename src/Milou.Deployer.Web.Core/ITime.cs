@@ -4,7 +4,7 @@ namespace Milou.Deployer.Web.Core
 {
     public interface ITime
     {
-        DateTime UtcNow();
+        DateTimeOffset UtcNow();
 
         DateTime LocalNow();
     }

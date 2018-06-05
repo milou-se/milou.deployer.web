@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Application;
@@ -22,16 +23,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     {
         private readonly DeploymentService _deploymentService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ITime _time;
         private readonly ILogger _logger;
 
         public MonitoringService(
             ILogger logger,
             DeploymentService deploymentService,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            ITime time)
         {
             _logger = logger;
             _deploymentService = deploymentService;
             _httpClientFactory = httpClientFactory;
+            _time = time;
         }
 
         public async Task<AppVersion> GetAppMetadataAsync(
@@ -97,11 +101,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     }
                     else
                     {
-                        IReadOnlyCollection<PackageVersion> allowedPackages =
-                            await GetAllowedPackagesAsync(deploymentTarget);
-                        appVersions.Add(new AppVersion(deploymentTarget,
-                            new InMemoryKeyValueConfiguration(new NameValueCollection()),
-                            allowedPackages));
+                        appVersions.Add(new AppVersion(deploymentTarget, "Missing URL"));
                     }
                 }
 
@@ -139,9 +139,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             }
                             else
                             {
-                                appVersion = new AppVersion(target,
-                                    new InMemoryKeyValueConfiguration(new NameValueCollection()),
-                                    allowedPackages);
+                                appVersion = new AppVersion(target, "Unknown error");
 
                                 _logger.Error("Could not get metadata for target {Name} ({Url}), http status code {V}",
                                     target.Name,
@@ -154,9 +152,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     }
                     catch (JsonReaderException ex)
                     {
-                        appVersions.Add(new AppVersion(target,
-                            new InMemoryKeyValueConfiguration(new NameValueCollection()),
-                            allowedPackages));
+                        appVersions.Add(new AppVersion(target, ex.Message));
 
                         _logger.Error(ex, "Could not get metadata for target {Name} ({Url})", target.Name, target.Url);
                     }
@@ -166,7 +162,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return appVersions;
         }
 
-        private static async Task<AppVersion> GetAppVersionAsync(
+        private async Task<AppVersion> GetAppVersionAsync(
             HttpResponseMessage response,
             DeploymentTarget target,
             IReadOnlyCollection<PackageVersion> filtered)
@@ -175,7 +171,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 !response.Content.Headers.ContentType.MediaType.Equals("application/json",
                     StringComparison.OrdinalIgnoreCase))
             {
-                return new AppVersion(target, new InMemoryKeyValueConfiguration(new NameValueCollection()), filtered);
+                return new AppVersion(target, "Response not JSON");
             }
 
             string json = await response.Content.ReadAsStringAsync();
@@ -189,7 +185,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 nameValueCollection.Add(configurationItem.Key, configurationItem.Value);
             }
 
-            var appVersion = new AppVersion(target, new InMemoryKeyValueConfiguration(nameValueCollection), filtered);
+            var appVersion = new AppVersion(target, new InMemoryKeyValueConfiguration(nameValueCollection), filtered, _time.UtcNow());
 
             return appVersion;
         }

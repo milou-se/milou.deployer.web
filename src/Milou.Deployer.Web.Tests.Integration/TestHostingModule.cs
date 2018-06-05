@@ -1,7 +1,7 @@
 ﻿using Autofac;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.IisHost.Areas.Configuration;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
@@ -9,11 +9,18 @@ namespace Milou.Deployer.Web.Tests.Integration
     [UsedImplicitly]
     public class TestHostingModule : Module
     {
+        private readonly EnvironmentConfiguration _environmentConfiguration;
+
+        public TestHostingModule(EnvironmentConfiguration environmentConfiguration)
+        {
+            _environmentConfiguration = environmentConfiguration;
+        }
+
         protected override void Load(ContainerBuilder builder)
         {
             int availablePort = TcpHelper.GetAvailablePort(new PortPoolRange(5000, 5099));
 
-            builder.RegisterInstance(new EnvironmentConfiguration { HttpPort = availablePort });
+            _environmentConfiguration.HttpPort = availablePort;
         }
     }
 }

@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.IisHost.Areas.Application;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -42,7 +43,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
-            AppDomain.CurrentDomain.FilteredAssemblies().SelectMany(assembly => assembly.GetLoadableTypes())
+            AppDomain.CurrentDomain.FilteredAssemblies(useCache: false).SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
                 .Select(item => new object[] { item.FullName, item.Assembly.GetName().Name })
                 .ToArray();

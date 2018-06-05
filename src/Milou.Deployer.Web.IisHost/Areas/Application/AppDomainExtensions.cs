@@ -1,29 +1,50 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyModel;
+using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 
-namespace Milou.Deployer.Web.Core.Extensions
+namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     public static class AppDomainExtensions
     {
         private static ImmutableArray<Assembly> _cache;
 
-        public static ImmutableArray<Assembly> FilteredAssemblies([NotNull] this AppDomain appDomain)
+        private static void ForceLoadReferenceAssemblies()
+        {
+            Type[] types =
+            {
+                typeof(ITime),
+                typeof(DeployController)
+            };
+
+            foreach (Type type in types)
+            {
+                Console.WriteLine(type.Assembly.GetName().Name);
+            }
+        }
+        public static ImmutableArray<Assembly> FilteredAssemblies(
+            [NotNull] this AppDomain appDomain,
+            string assemblyNameStartsWith = null,
+            bool useCache = true)
         {
             if (appDomain == null)
             {
                 throw new ArgumentNullException(nameof(appDomain));
             }
 
-            if (!_cache.IsDefaultOrEmpty)
+            if (useCache && !_cache.IsDefaultOrEmpty)
             {
                 return _cache;
             }
 
-            string[] whiteListed = { "milou" };
+            ForceLoadReferenceAssemblies();
+
+            string[] whiteListed = { assemblyNameStartsWith ?? "milou" };
 
             ImmutableArray<RuntimeLibrary> defaultRuntimeLibraries =
                 DependencyContext.Default?.RuntimeLibraries?.ToImmutableArray() ?? ImmutableArray<RuntimeLibrary>.Empty;
@@ -61,13 +82,35 @@ namespace Milou.Deployer.Web.Core.Extensions
                 }
             }
 
+            var orders = new List<(string, int)>
+            {
+                ("test", 1000),
+                ("debug", 2000)
+            };
+
+            int GetAssemblyLoadOrder(Assembly assembly)
+            {
+                string assemblyName = assembly.GetName().Name;
+
+                foreach ((string Name, int Order) valueTuple in orders)
+                {
+                    if (assemblyName.IndexOf(valueTuple.Name, StringComparison.OrdinalIgnoreCase) >= 0)
+                    {
+                        return valueTuple.Order;
+                    }
+                }
+
+                int defaultOrder = 0;
+
+                return defaultOrder;
+            }
+
             ImmutableArray<Assembly> filteredAssemblies = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(assembly => !assembly.IsDynamic && whiteListed.Any(listed =>
                                        assembly.FullName.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
                 .Select(assembly =>
                 {
-                    (Assembly Assembly, int Order) tuple = (assembly,
-                        assembly.GetName().Name.IndexOf("test", StringComparison.OrdinalIgnoreCase) >= 0 ? 1000 : 0);
+                    (Assembly Assembly, int Order) tuple = (assembly, GetAssemblyLoadOrder(assembly));
 
                     return tuple;
                 })
@@ -75,7 +118,10 @@ namespace Milou.Deployer.Web.Core.Extensions
                 .Select(tuple => tuple.Assembly)
                 .ToImmutableArray();
 
-            _cache = filteredAssemblies;
+            if (useCache)
+            {
+                _cache = filteredAssemblies;
+            }
 
             return filteredAssemblies;
         }

@@ -4,8 +4,6 @@ namespace Milou.Deployer.Web.Core.Application
     {
         public string ApplicationBasePath { get; set; }
 
-        public string ApplicationViewBasePath { get; set; }
-
         public string EnvironmentName { get; set; }
 
         public int? HttpPort { get; set; }

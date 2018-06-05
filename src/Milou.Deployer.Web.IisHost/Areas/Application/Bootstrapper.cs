@@ -6,6 +6,7 @@ using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
@@ -15,7 +16,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     public static class Bootstrapper
     {
         public static AppContainerScope Start(
-            string basePathFromArg,
+            string basePath,
             [NotNull] IReadOnlyList<IModule> modulesToRegister,
             [NotNull] ILogger logger,
             ImmutableArray<Assembly> scanAssemblies,
@@ -39,6 +40,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             }
 
             var builder = new ContainerBuilder();
+
+            builder.Register(context => new EnvironmentConfiguration { ApplicationBasePath = basePath }).AsSelf().SingleInstance();
 
             foreach (IModule module in modulesToRegister)
             {
