@@ -16,5 +16,10 @@
 
             return string.Empty;
         }
+
+        public static string Checked(this bool value)
+        {
+            return Checked((bool?)value);
+        }
     }
 }

@@ -164,6 +164,7 @@ namespace Milou.Deployer.Web.Core.Targets
                 data.AllowExplicitPreRelease = request.AllowExplicitPreRelease;
                 data.NuGetPackageSource = request.NugetPackageSource;
                 data.NuGetConfigFile = request.NugetConfigFile;
+                data.AutoDeployEnabled = request.AutoDeployEnabled;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);
@@ -217,7 +218,8 @@ namespace Milou.Deployer.Web.Core.Targets
                 uri: deploymentTargetData.Url?.ToString(),
                 nuGetConfigFile: deploymentTargetData.NuGetConfigFile,
                 nuGetPackageSource: deploymentTargetData.NuGetPackageSource,
-                iisSiteName: deploymentTargetData.IisSiteName);
+                iisSiteName: deploymentTargetData.IisSiteName,
+                autoDeployEnabled: deploymentTargetData.AutoDeployEnabled);
 
             return deploymentTargetAsync;
         }

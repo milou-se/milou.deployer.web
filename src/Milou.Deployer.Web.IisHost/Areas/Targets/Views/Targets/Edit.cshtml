@@ -22,6 +22,10 @@
         <input id="target-allowExplicitPreRelease" type="checkbox" name="allowExplicitPreRelease" @Model.DeploymentTarget.AllowExplicitExplicitPreRelease.Checked()/>
     </div>
     <div class="input-field">
+        <label for="target-autoDeployEnabled">Auto-deploy enabled</label>
+        <input id="target-autoDeployEnabled" type="checkbox" name="autoDeployEnabled" @Model.DeploymentTarget.AutoDeployEnabled.Checked()/>
+    </div>
+    <div class="input-field">
         @foreach ((string PackageName, int Index) item in Model.DeploymentTarget.AllowedPackageNames.AddDefaultItemIfEmpty().Select((item, index) => (item, index)))
         {
             <label for="target-AllowedPackageNames[@item.Index]">Allowed package name</label>

@@ -14,7 +14,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             Uri url,
             string iisSiteName = null,
             string nugetPackageSource = null,
-            string nugetConfigFile = null)
+            string nugetConfigFile = null,
+            bool autoDeployEnabled = false)
         {
             Id = id;
             AllowedPackageNames = allowedPackageNames;
@@ -23,6 +24,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             IisSiteName = iisSiteName;
             NugetPackageSource = nugetPackageSource;
             NugetConfigFile = nugetConfigFile;
+            AutoDeployEnabled = autoDeployEnabled;
         }
 
         public string Id { get; }
@@ -36,5 +38,6 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string IisSiteName { get; }
         public string NugetPackageSource { get; }
         public string NugetConfigFile { get; }
+        public bool AutoDeployEnabled { get; }
     }
 }

@@ -24,5 +24,7 @@ namespace Milou.Deployer.Web.Core.Targets
         public string NuGetConfigFile { get; set; }
 
         public string NuGetPackageSource { get; set; }
+
+        public bool AutoDeployEnabled { get; set; }
     }
 }
