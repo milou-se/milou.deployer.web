@@ -26,11 +26,10 @@
         <input id="target-autoDeployEnabled" type="checkbox" name="autoDeployEnabled" @Model.DeploymentTarget.AutoDeployEnabled.Checked()/>
     </div>
     <div class="input-field">
-        @foreach ((string PackageName, int Index) item in Model.DeploymentTarget.AllowedPackageNames.AddDefaultItemIfEmpty().Select((item, index) => (item, index)))
-        {
-            <label for="target-AllowedPackageNames[@item.Index]">Allowed package name</label>
-            <input id="target-AllowedPackageNames[@item.Index]" type="text" name="allowedPackageNames" value="@item.PackageName" />
-        }
+
+            <label for="target-packageId">Allowed package name</label>
+            <input id="target-packageId" type="text" name="packageId" value="@Model.DeploymentTarget.PackageId" />
+
     </div>
     <div class="input-field">
         <label for="target-url">URL</label>

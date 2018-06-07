@@ -64,9 +64,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 {
                     foreach (PackageVersion packageIdentifier in packageIdentifiers)
                     {
-                        if (deploymentTarget.AllowedPackageNames.Contains(
+                        if (deploymentTarget.PackageId.Equals(
                             packageIdentifier.PackageId,
-                            StringComparer.InvariantCultureIgnoreCase))
+                            StringComparison.OrdinalIgnoreCase))
                         {
                             bool allowDeployment =
                                 !packageIdentifier.Version.IsPrerelease || deploymentTarget.AllowPrerelease;

@@ -29,21 +29,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Delay(TimeSpan.FromSeconds(_nugetCacheConfiguration.StartupDelayInSeconds), stoppingToken);
+            //await Task.Delay(TimeSpan.FromSeconds(_nugetCacheConfiguration.StartupDelayInSeconds), stoppingToken);
 
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                try
-                {
-                    await _deploymentService.GetPackageVersionsAsync(null, false, _logger, cancellationToken: stoppingToken);
-                }
-                catch (Exception ex)
-                {
-                    _logger.Error(ex, "Could not update package cache");
-                }
+            //while (!stoppingToken.IsCancellationRequested)
+            //{
+            //    try
+            //    {
+            //        await _deploymentService.GetPackageVersionsAsync(null, false, _logger, cancellationToken: stoppingToken);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _logger.Error(ex, "Could not update package cache");
+            //    }
 
-                await Task.Delay(TimeSpan.FromSeconds(_nugetCacheConfiguration.CacheRefreshIntervalInSeconds), stoppingToken);
-            }
+            //    await Task.Delay(TimeSpan.FromSeconds(_nugetCacheConfiguration.CacheRefreshIntervalInSeconds), stoppingToken);
+            //}
         }
     }
 

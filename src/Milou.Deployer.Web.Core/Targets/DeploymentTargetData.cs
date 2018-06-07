@@ -12,8 +12,6 @@ namespace Milou.Deployer.Web.Core.Targets
 
         public bool AllowExplicitPreRelease { get; set; }
 
-        public ICollection<string> AllowedPackageNames { get; set; } = new HashSet<string>();
-
         [ForeignKey(typeof(ProjectData))]
         public string ProjectId { get; set; }
 
@@ -26,5 +24,7 @@ namespace Milou.Deployer.Web.Core.Targets
         public string NuGetPackageSource { get; set; }
 
         public bool AutoDeployEnabled { get; set; }
+
+        public string PackageId { get; set; }
     }
 }

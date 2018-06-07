@@ -22,11 +22,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                             "testproject",
                             new List<DeploymentTarget>
                             {
-                                new DeploymentTarget(Testtarget,
-                                    "Test target",
-                                    "MilouDeployer",
-                                    false,
-                                    new StringValues("MilouDeployerWebTest"),
+                                new DeploymentTarget(id: Testtarget,
+                                    name: "Test target",
+                                    packageId: "MilouDeployerWebTest",
+                                    allowExplicitPreRelease: false,
                                     autoDeployEnabled: true,
                                     targetDirectory: Environment.GetEnvironmentVariable("TestDeploymentTargetPath"),
                                     uri: Environment.GetEnvironmentVariable("TestDeploymentUri"),

@@ -193,27 +193,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private async Task<IReadOnlyCollection<PackageVersion>> GetAllowedPackagesAsync(DeploymentTarget target)
         {
             IReadOnlyCollection<PackageVersion> allPackageVersions =
-                await _deploymentService.GetPackageVersionsAsync(nugetConfigFile: target.NuGetConfigFile,
+                await _deploymentService.GetPackageVersionsAsync(target.PackageId, nugetConfigFile: target.NuGetConfigFile,
                     nugetPackageSource: target.NuGetPackageSource, logger: _logger);
 
-            IReadOnlyCollection<PackageVersion> allTargetPackageVersions;
-
-            if (target.AllowedPackageNames.Any(packageName =>
-                packageName.Equals("*", StringComparison.OrdinalIgnoreCase)))
-            {
-                allTargetPackageVersions = allPackageVersions;
-            }
-            else
-            {
-                allTargetPackageVersions =
-                    allPackageVersions.Where(
-                            packageVersion =>
-                                target.AllowedPackageNames.Any(
-                                    allowed =>
-                                        allowed.Equals(packageVersion.PackageId,
-                                            StringComparison.InvariantCultureIgnoreCase)))
-                        .SafeToReadOnlyCollection();
-            }
+            IReadOnlyCollection<PackageVersion> allTargetPackageVersions = allPackageVersions.Where(
+                    packageVersion =>
+                        target.PackageId.Equals(packageVersion.PackageId,
+                            StringComparison.OrdinalIgnoreCase))
+                .SafeToReadOnlyCollection();
 
             IReadOnlyCollection<PackageVersion> preReleaseFiltered = allTargetPackageVersions;
 

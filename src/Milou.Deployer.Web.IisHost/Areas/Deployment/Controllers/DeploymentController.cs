@@ -49,28 +49,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             IReadOnlyCollection<DeploymentTarget> targets =
                 (await _getTargets.GetOrganizationsAsync(CancellationToken.None)).SelectMany(
                     organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-                .Where(target => !string.IsNullOrWhiteSpace(target.Tool))
+
                 .SafeToReadOnlyCollection();
 
             ImmutableArray<string> allAllowedPackageNames =
-                targets.SelectMany(target => target.AllowedPackageNames).ToImmutableArray();
+                targets.Select(target => target.PackageId).ToImmutableArray();
 
-            IReadOnlyCollection<PackageVersion> items = (await _deploymentService.GetPackageVersionsAsync(prefix))
-                .Where(packageVersion =>
-                    allAllowedPackageNames.Any(allowed => allowed.Equals("*", StringComparison.OrdinalIgnoreCase)) ||
-                    allAllowedPackageNames.Any(allowed =>
-                        allowed.Equals(packageVersion.PackageId, StringComparison.OrdinalIgnoreCase)))
-                .OrderByDescending(packageVersion => packageVersion.Version)
-                .SafeToReadOnlyCollection();
+            IReadOnlyCollection<PackageVersion> items = ImmutableArray<PackageVersion>.Empty;
 
             return View(new DeploymentViewOutputModel(items, targets));
         }
 
         [HttpGet]
         [Route("invalidate")]
-        public async Task<ActionResult> InvalidateCache()
+        public async Task<ActionResult> InvalidateCache([FromServices] ICustomMemoryCache customMemoryCache)
         {
-            await _deploymentService.RefreshPackagesAsync();
+            customMemoryCache.Invalidate();
 
             return RedirectToAction(nameof(Index));
         }

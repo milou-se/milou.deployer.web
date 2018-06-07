@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -118,7 +119,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         }
 
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
-            string prefix = null,
+            [NotNull] string packageId,
             bool useCache = true,
             ILogger logger = null,
             bool includePreReleased = false,
@@ -126,6 +127,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             string nugetConfigFile = null,
             CancellationToken cancellationToken = default)
         {
+            if (string.IsNullOrWhiteSpace(packageId))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageId));
+            }
+
+            if (packageId.Equals("N/A"))
+            {
+                return ImmutableArray<PackageVersion>.Empty;
+            }
+
             string cacheKey = AllPackagesCacheKey;
 
             if (nugetConfigFile.HasValue())
@@ -146,6 +157,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     cacheKey = configCachePart;
                 }
             }
+
+            cacheKey += ":" + packageId;
 
             if (useCache)
             {
@@ -174,7 +187,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             string packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 
-            var args = new List<string> { "list" };
+            var args = new List<string> { "list", packageId };
 
             if (includePreReleased)
             {
@@ -258,16 +271,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 return Array.Empty<PackageVersion>();
             }
 
-            var ignoredOutputStatements = new List<string> { "Using credentials" };
-
-            List<string> filtered =
-                (!string.IsNullOrWhiteSpace(prefix)
-                    ? builder.Where(line =>
-                        line.IndexOf(prefix, StringComparison.InvariantCultureIgnoreCase) >= 0).ToList()
-                    : builder).ToList();
+            var ignoredOutputStatements = new List<string> { "Using credentials", "No packages found" };
 
             List<string> included =
-                filtered.Where(line => !ignoredOutputStatements.Any(ignored =>
+                builder.Where(line => !ignoredOutputStatements.Any(ignored =>
                         line.IndexOf(ignored, StringComparison.InvariantCultureIgnoreCase) >= 0))
                     .ToList();
 
@@ -276,13 +283,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     {
                         string[] parts = package.Split(' ');
 
-                        string packageId = parts[0];
+                        string currentPackageId = parts[0];
 
                         try
                         {
                             string version = parts.Last();
 
                             if (!SemanticVersion.TryParse(version, out SemanticVersion semanticVersion))
+                            {
+                                return null;
+                            }
+
+                            if (!packageId.Equals(currentPackageId, StringComparison.OrdinalIgnoreCase))
                             {
                                 return null;
                             }
@@ -321,11 +333,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _memoryCache.Set(cacheKey, addedPackages);
 
             return items;
-        }
-
-        public Task RefreshPackagesAsync()
-        {
-            return GetPackageVersionsAsync(useCache: false, logger: _logger);
         }
 
         private static string LogJobMetadata(
@@ -378,19 +385,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private static void CheckPackageMatchingTarget(DeploymentTarget deploymentTarget, string packageId)
         {
-            if (deploymentTarget.AllowedPackageNames.Any(name =>
-                name.Equals("*", StringComparison.OrdinalIgnoreCase)))
-            {
-                return;
-            }
-
             if (
-                !deploymentTarget.AllowedPackageNames.Any(
-                    allowed => allowed.Equals(packageId,
-                        StringComparison.InvariantCultureIgnoreCase)))
+                !deploymentTarget.PackageId.Equals(packageId,
+                        StringComparison.InvariantCultureIgnoreCase))
             {
                 string allPackageIds = string.Join(", ",
-                    deploymentTarget.AllowedPackageNames.Select(name => $"'{name}'"));
+                    deploymentTarget.PackageId.Select(name => $"'{name}'"));
 
                 throw new InvalidOperationException(
                     $"The package id '{packageId}' is not in the list of allowed package ids: {allPackageIds}");
@@ -470,7 +470,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private void VerifyAllowedPackageIsAllowed(DeploymentTarget deploymentTarget, string packageId, ILogger logger)
         {
-            if (deploymentTarget.AllowedPackageNames.Any())
+            if (deploymentTarget.PackageId.Any())
             {
                 CheckPackageMatchingTarget(deploymentTarget, packageId);
 

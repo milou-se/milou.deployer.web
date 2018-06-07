@@ -158,7 +158,7 @@ namespace Milou.Deployer.Web.Core.Targets
                     return new UpdateDeploymentTargetResult(new ValidationError("Not found"));
                 }
 
-                data.AllowedPackageNames = request.AllowedPackageNames;
+                data.PackageId = request.PackageId;
                 data.Url = request.Url;
                 data.IisSiteName = request.IisSiteName;
                 data.AllowExplicitPreRelease = request.AllowExplicitPreRelease;
@@ -212,9 +212,8 @@ namespace Milou.Deployer.Web.Core.Targets
             var deploymentTargetAsync = new DeploymentTarget(
                 deploymentTargetData.Id,
                 deploymentTargetData.Name,
-                "",
+                deploymentTargetData.PackageId ?? "N/A",
                 deploymentTargetData.AllowExplicitPreRelease,
-                deploymentTargetData.AllowedPackageNames.ToArray(),
                 uri: deploymentTargetData.Url?.ToString(),
                 nuGetConfigFile: deploymentTargetData.NuGetConfigFile,
                 nuGetPackageSource: deploymentTargetData.NuGetPackageSource,

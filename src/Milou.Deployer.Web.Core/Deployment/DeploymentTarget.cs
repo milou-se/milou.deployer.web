@@ -16,9 +16,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         public DeploymentTarget(
             [NotNull] string id,
             [NotNull] string name,
-            string tool = null,
+            [NotNull] string packageId,
             bool allowExplicitPreRelease = false,
-            StringValues allowedPackageNames = default,
             string nuGetConfigFile = null,
             string nuGetPackageSource = null,
             string uri = null,
@@ -46,6 +45,11 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
+            if (string.IsNullOrWhiteSpace(packageId))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageId));
+            }
+
             if (Uri.TryCreate(uri, UriKind.Absolute, out Uri parsedUri))
             {
                 Url = parsedUri;
@@ -63,11 +67,10 @@ namespace Milou.Deployer.Web.Core.Deployment
             ProjectInvariantName = project ?? string.Empty;
             Name = name;
             Id = id;
-            Tool = tool ?? string.Empty;
             AllowExplicitExplicitPreRelease = allowExplicitPreRelease;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
-            AllowedPackageNames = allowedPackageNames.SafeToReadOnlyCollection();
+            PackageId = packageId;
             EnvironmentType = EnvironmentType.Parse(environmentType);
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
             Parameters = parameters?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
@@ -87,7 +90,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public string ProjectInvariantName { get; }
 
-        public IReadOnlyCollection<string> AllowedPackageNames { get; }
+        public string PackageId { get; }
 
         public bool? AllowExplicitExplicitPreRelease { get; }
 
@@ -97,8 +100,6 @@ namespace Milou.Deployer.Web.Core.Deployment
                 || EnvironmentType.PreReleaseBehavior == PreReleaseBehavior.Allow;
 
         public EnvironmentType EnvironmentType { get; }
-
-        public string Tool { get; }
 
         public string Id { get; }
 

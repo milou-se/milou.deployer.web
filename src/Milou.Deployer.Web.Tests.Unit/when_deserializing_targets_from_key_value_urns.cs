@@ -23,29 +23,18 @@ namespace Milou.Deployer.Web.Tests.Unit
                 { "urn:milou-deployer:target", "instance1" },
                 { "urn:milou-deployer:target:instance1:id", "myId1" },
                 { "urn:milou-deployer:target:instance1:name", "myName1" },
-                { "urn:milou-deployer:target:instance1:tool", "myTool1" },
+                { "urn:milou-deployer:target:instance1:packageId", "myAllowedPackageId1.1" },
                 { "urn:milou-deployer:target:instance1:allow-Prerelease", "true" },
                 {
                     "urn:milou-deployer:target:instance1:allowed-Package-Names",
                     "myAllowedPackageId1.1"
                 },
-                {
-                    "urn:milou-deployer:target:instance1:allowed-Package-Names",
-                    "myAllowedPackageId1.2"
-                },
                 { "urn:milou-deployer:target:instance1:uri", "http://www.google.se" },
                 { "urn:milou-deployer:target:instance2:id", "myId2" },
                 { "urn:milou-deployer:target:instance2:name", "myName2" },
-                { "urn:milou-deployer:target:instance2:tool", "myTool2" },
+                { "urn:milou-deployer:target:instance2:packageId", "myAllowedPackageId2.1" },
                 { "urn:milou-deployer:target:instance2:allow-Prerelease", "false" },
-                {
-                    "urn:milou-deployer:target:instance2:allowed-Package-Names",
-                    "myAllowedPackageId2.1"
-                },
-                {
-                    "urn:milou-deployer:target:instance2:allowed-Package-Names",
-                    "myAllowedPackageId2.2"
-                }
+
             };
 
             key_value_configuration = new InMemoryKeyValueConfiguration(nameValueCollection);

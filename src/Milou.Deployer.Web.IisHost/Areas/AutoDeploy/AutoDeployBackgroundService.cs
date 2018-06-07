@@ -72,23 +72,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 ImmutableArray<DeploymentTarget> targetsWithUrl = deploymentTargets.Where(target => target.Url.HasValue()).ToImmutableArray();
 
-                ImmutableHashSet<PackageVersion> packageVersions;
-                using (var packageVersionCancellationTokenSource =
-                    new CancellationTokenSource(TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
-                {
-                    using (CancellationTokenSource linked =
-                        CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
-                            packageVersionCancellationTokenSource.Token))
-                    {
-                        packageVersions =
-                            (await _deploymentService.GetPackageVersionsAsync(cancellationToken: linked.Token, logger: _logger)).ToImmutableHashSet();
-                    }
-                }
-
-                if (packageVersions.IsEmpty)
-                {
-                    return;
-                }
 
                 AppVersion[] appVersions;
                 using (var cancellationTokenSource =
@@ -119,6 +102,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         continue;
                     }
 
+                    ImmutableHashSet<PackageVersion> packageVersions;
+                    using (var packageVersionCancellationTokenSource =
+                        new CancellationTokenSource(TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
+                    {
+                        using (CancellationTokenSource linked =
+                            CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
+                                packageVersionCancellationTokenSource.Token))
+                        {
+                            packageVersions =
+                                (await _deploymentService.GetPackageVersionsAsync(deploymentTarget.PackageId, cancellationToken: linked.Token, logger: _logger)).ToImmutableHashSet();
+                        }
+                    }
+
+                    if (packageVersions.IsEmpty)
+                    {
+                        continue;
+                    }
+
                     ImmutableHashSet<PackageVersion> filteredPackages;
                     if (!deploymentTarget.AllowPrerelease)
                     {
@@ -131,7 +132,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                     if (filteredPackages.IsEmpty)
                     {
-                        return;
+                        continue;
                     }
 
                     ImmutableHashSet<PackageVersion> newerPackages = filteredPackages

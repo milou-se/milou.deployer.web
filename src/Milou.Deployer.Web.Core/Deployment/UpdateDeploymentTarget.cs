@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using MediatR;
-using Microsoft.Extensions.Primitives;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
@@ -9,18 +8,18 @@ namespace Milou.Deployer.Web.Core.Deployment
     {
         public UpdateDeploymentTarget(
             string id,
-            StringValues allowedPackageNames,
             bool allowExplicitPreRelease,
             Uri url,
+            string packageId,
             string iisSiteName = null,
             string nugetPackageSource = null,
             string nugetConfigFile = null,
             bool autoDeployEnabled = false)
         {
             Id = id;
-            AllowedPackageNames = allowedPackageNames;
             AllowExplicitPreRelease = allowExplicitPreRelease;
             Url = url;
+            PackageId = packageId;
             IisSiteName = iisSiteName;
             NugetPackageSource = nugetPackageSource;
             NugetConfigFile = nugetConfigFile;
@@ -29,15 +28,18 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public string Id { get; }
 
-        public ICollection<string> AllowedPackageNames { get; }
-
         public Uri Url { get; }
 
         public bool AllowExplicitPreRelease { get; }
 
         public string IisSiteName { get; }
+
         public string NugetPackageSource { get; }
+
         public string NugetConfigFile { get; }
+
         public bool AutoDeployEnabled { get; }
+
+        public string PackageId { get; }
     }
 }
