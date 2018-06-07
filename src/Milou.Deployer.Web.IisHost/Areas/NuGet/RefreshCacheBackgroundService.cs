@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.KVConfiguration.Core.Metadata;
-using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -45,32 +43,5 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             //    await Task.Delay(TimeSpan.FromSeconds(_nugetCacheConfiguration.CacheRefreshIntervalInSeconds), stoppingToken);
             //}
         }
-    }
-
-    [Urn(NuGetCacheConstants.Configuration)]
-    [UsedImplicitly]
-    public class NuGetCacheConfiguration
-    {
-        private const int DefaultCacheRefreshIntervalInSeconds = 180;
-
-        private const int DefaultCacheRefreshStartupDelayInSeconds = 120;
-
-        public int CacheRefreshIntervalInSeconds { get; }
-
-        public int StartupDelayInSeconds { get; }
-
-        public NuGetCacheConfiguration(int cacheRefreshIntervalInSeconds = DefaultCacheRefreshIntervalInSeconds, int startupDelayInSeconds = DefaultCacheRefreshStartupDelayInSeconds)
-        {
-            CacheRefreshIntervalInSeconds = cacheRefreshIntervalInSeconds <= 0 ? DefaultCacheRefreshIntervalInSeconds : cacheRefreshIntervalInSeconds;
-            StartupDelayInSeconds = startupDelayInSeconds <= 0 ? DefaultCacheRefreshStartupDelayInSeconds : startupDelayInSeconds;
-        }
-    }
-
-    public static class NuGetCacheConstants
-    {
-        public const string Configuration = "urn:milou:deployer:web:nuget:cache:configuration";
-
-        [Metadata(defaultValue: "true")]
-        public const string Enabled = "urn:milou:deployer:web:nuget:cache:configuration:default:enabled";
     }
 }

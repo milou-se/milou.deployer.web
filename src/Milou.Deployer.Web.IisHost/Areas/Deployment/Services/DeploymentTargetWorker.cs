@@ -2,8 +2,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.KVConfiguration.Core.Metadata;
-using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
@@ -129,25 +127,5 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             _queue?.Dispose();
         }
-    }
-
-    [Urn(WorkerConstants.Configuration)]
-    [UsedImplicitly]
-    public class WorkerConfiguration
-    {
-        public WorkerConfiguration(int messageTimeOutInSeconds)
-        {
-            MessageTimeOutInSeconds = messageTimeOutInSeconds;
-        }
-
-        public int MessageTimeOutInSeconds { get; }
-    }
-
-    public static class WorkerConstants
-    {
-        public const string Configuration = "urn:milou:deployer:web:deployment-worker:configuration";
-
-        [Metadata(defaultValue: "10")]
-        public const string MessageTimeOutInSeconds = Configuration + ":default:" + nameof(MessageTimeOutInSeconds);
     }
 }

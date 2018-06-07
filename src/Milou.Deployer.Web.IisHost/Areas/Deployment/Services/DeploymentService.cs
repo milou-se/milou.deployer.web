@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
-using Arbor.KVConfiguration.Core.Metadata;
-using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Configuration;
@@ -507,26 +505,5 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             return deploymentTarget;
         }
-    }
-
-    [Urn(NuGetListConstants.Configuration)]
-    [UsedImplicitly]
-    public class NuGetListConfiguration
-    {
-        public int ListTimeOutInSeconds { get; }
-
-        public NuGetListConfiguration(int listTimeOutInSeconds)
-        {
-            ListTimeOutInSeconds = listTimeOutInSeconds <= 0 ? 30 : listTimeOutInSeconds;
-        }
-    }
-
-    public static class NuGetListConstants
-    {
-        public const string Configuration = "urn:milou:deployer:web:nuget:list-configuration";
-
-        [Metadata(defaultValue: "30")]
-        public const string DefaultListTimeOutInSeconds =
-            Configuration + ":default:" + nameof(NuGetListConfiguration.ListTimeOutInSeconds);
     }
 }
