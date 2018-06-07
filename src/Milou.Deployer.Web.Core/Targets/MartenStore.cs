@@ -9,17 +9,20 @@ using JetBrains.Annotations;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Email;
 using Milou.Deployer.Web.Core.Structure;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Targets
 {
     [UsedImplicitly]
-    public class MartenStore : IDeploymentTargetReadService,
+    public partial class MartenStore : IDeploymentTargetReadService,
         IRequestHandler<CreateOrganization, CreateOrganizationResult>,
         IRequestHandler<CreateProject, CreateProjectResult>,
         IRequestHandler<CreateTarget, CreateTargetResult>,
-        IRequestHandler<UpdateDeploymentTarget, UpdateDeploymentTargetResult>
+        IRequestHandler<UpdateDeploymentTarget, UpdateDeploymentTargetResult>,
+        INotificationHandler<DeploymentMetadataLogNotification>,
+        INotificationHandler<DeploymentFinishedNotification>
     {
         private readonly IDocumentStore _documentStore;
         private ILogger _logger;
@@ -280,6 +283,44 @@ namespace Milou.Deployer.Web.Core.Targets
                         })
                 })
                 .ToImmutableArray();
+        }
+
+        public async Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
+        {
+            using (IDocumentSession session = _documentStore.OpenSession())
+            {
+                var taskMetadata = new TaskMetadata
+                {
+                    DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
+                    DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
+                    Id = $"deploymentTaskMetadata/{notification.DeploymentTask.DeploymentTaskId}",
+                    Metadata = notification.MetadataContent
+                };
+
+
+                session.Store(taskMetadata);
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        public async Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
+        {
+            using (IDocumentSession session = _documentStore.OpenSession())
+            {
+                var taskMetadata = new TaskLog
+                {
+                    DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
+                    DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
+                    Id = $"deploymentTaskLog/{notification.DeploymentTask.DeploymentTaskId}",
+                    Log = notification.Log
+                };
+
+                session.Store(taskMetadata);
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
         }
     }
 }

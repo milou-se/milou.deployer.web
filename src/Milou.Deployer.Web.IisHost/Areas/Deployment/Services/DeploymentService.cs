@@ -101,17 +101,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             DateTime end = DateTime.UtcNow;
 
-            string metadataContent = LogJobMetadata(deploymentTask,
+            string metadataContent = await LogJobMetadataAsync(deploymentTask,
                 start,
                 end,
                 stopwatch,
                 exitCode,
                 deploymentJobsDirectory,
                 deploymentTarget);
-
-            await _mediator.Publish(
-                new DeploymentFinishedNotification(deploymentTask, metadataContent),
-                cancellationToken);
 
             return (exitCode, metadataContent);
         }
@@ -333,7 +329,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return items;
         }
 
-        private static string LogJobMetadata(
+        private async Task<string> LogJobMetadataAsync(
             DeploymentTask deploymentTask,
             DateTime start,
             DateTime end,
@@ -369,6 +365,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             string metadataFilePath = Path.Combine(deploymentJobsDirectory.FullName,
                 $"{deploymentTask.DeploymentTaskId}.metadata.txt");
+
+            await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, metadataContent));
 
             File.WriteAllText(metadataFilePath, metadataContent, Encoding.UTF8);
             return metadataContent;
@@ -426,9 +424,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             ExitCode exitCode;
 
+            var logBuilder = new StringBuilder();
+
             using (Logger log = new LoggerConfiguration()
                 .WriteTo.File(contentFilePath)
                 .WriteTo.DelegateSink(deploymentTask.Log)
+                .WriteTo.DelegateSink(message => logBuilder.AppendLine(message))
                 .CreateLogger())
             {
                 logger.Debug(
@@ -438,8 +439,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     deploymentTask.PackageId,
                     deploymentTask.SemanticVersion.ToNormalizedString());
 
-                exitCode = await _deployer.ExecuteAsync(deploymentTask, log);
+                try
+                {
+                    exitCode = await _deployer.ExecuteAsync(deploymentTask, log);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Failed to deploy");
+                    exitCode = ExitCode.Failure;
+                }
             }
+
+            await _mediator.Publish(new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString()));
 
             return exitCode;
         }

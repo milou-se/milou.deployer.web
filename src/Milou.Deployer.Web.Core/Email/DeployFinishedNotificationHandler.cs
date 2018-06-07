@@ -14,7 +14,7 @@ using Serilog;
 namespace Milou.Deployer.Web.Core.Email
 {
     [UsedImplicitly]
-    public class DeployFinishedNotificationHandler : INotificationHandler<DeploymentFinishedNotification>
+    public class DeployFinishedNotificationHandler : INotificationHandler<DeploymentMetadataLogNotification>
     {
         private readonly EmailConfiguration _emailConfiguration;
         private readonly ILogger _logger;
@@ -42,7 +42,7 @@ namespace Milou.Deployer.Web.Core.Email
                                       false);
         }
 
-        public async Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
         {
             if (!_emailConfiguration.IsValid)
             {
