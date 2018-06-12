@@ -1,4 +1,6 @@
-﻿namespace Milou.Deployer.Web.Core.Targets
+﻿using System;
+
+namespace Milou.Deployer.Web.Core.Targets
 {
     public class TaskLog
     {
@@ -9,5 +11,7 @@
         public string Id { get; set; }
 
         public string Log { get; set; }
+
+        public DateTime FinishedAtUtc { get; set; }
     }
 }

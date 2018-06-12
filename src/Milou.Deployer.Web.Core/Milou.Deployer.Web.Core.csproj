@@ -15,7 +15,7 @@
     <PackageReference Include="mailkit" Version="2.0.4" />
     <PackageReference Include="Marten" Version="2.8.0" />
     <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
-    <PackageReference Include="mediatr" Version="4.1.0" />
+    <PackageReference Include="mediatr" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.0" />
     <PackageReference Include="Nuget.versioning" Version="4.7.0" />

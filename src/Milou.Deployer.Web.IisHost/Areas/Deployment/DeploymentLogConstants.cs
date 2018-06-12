@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Web.IisHost.AspNetCore
+﻿namespace Milou.Deployer.Web.IisHost.Areas.Deployment
 {
     public static class DeploymentLogConstants
     {

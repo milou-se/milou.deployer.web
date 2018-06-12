@@ -48,7 +48,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
                     return deserializeObject;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return null;
                 }

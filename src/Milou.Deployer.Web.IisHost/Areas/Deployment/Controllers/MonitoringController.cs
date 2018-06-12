@@ -41,7 +41,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 .SafeToReadOnlyCollection();
 
 
-            IReadOnlyCollection<AppVersion> appVersions = await _monitoringService.GetAppMetadataAsync(readOnlyCollection, cancellationToken);
+            IReadOnlyCollection<AppVersion> appVersions =
+                await _monitoringService.GetAppMetadataAsync(readOnlyCollection, cancellationToken);
 
             return View(new MonitoringViewOutputModel(appVersions));
         }

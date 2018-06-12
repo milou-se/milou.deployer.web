@@ -26,6 +26,7 @@ using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
+using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.NuGet;

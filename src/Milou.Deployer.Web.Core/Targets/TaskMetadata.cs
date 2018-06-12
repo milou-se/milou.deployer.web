@@ -1,4 +1,7 @@
-﻿namespace Milou.Deployer.Web.Core.Targets
+﻿using System;
+using Milou.Deployer.Web.Core.Processing;
+
+namespace Milou.Deployer.Web.Core.Targets
 {
     public class TaskMetadata
     {
@@ -9,5 +12,11 @@
         public string Id { get; set; }
 
         public string Metadata { get; set; }
+
+        public DateTime StartedAtUtc { get; set; }
+
+        public DateTime FinishedAtUtc { get; set; }
+
+        public int ExitCode { get; set; }
     }
 }

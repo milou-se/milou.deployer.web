@@ -5,11 +5,19 @@ using JetBrains.Annotations;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
     public class AllRoutes
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public AllRoutes(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
             RouteList.GetConstantRoutes(AppDomain.CurrentDomain.FilteredAssemblies(useCache: false))
@@ -20,6 +28,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Theory]
         public void ShouldStartWithSlash(string name, string value)
         {
+            _testOutputHelper.WriteLine($"Asserting route {name} with value '{value}'");
             Assert.StartsWith("/", value, StringComparison.OrdinalIgnoreCase);
         }
     }

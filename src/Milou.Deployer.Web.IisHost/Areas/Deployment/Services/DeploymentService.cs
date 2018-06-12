@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Email;
@@ -35,6 +36,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private readonly IDeploymentTargetReadService _targetSource;
         private readonly NuGetListConfiguration _deploymentConfiguration;
+        private readonly ITime _time;
 
         public DeploymentService(
             [NotNull] ILogger logger,
@@ -43,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] MilouDeployer deployer,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ICustomMemoryCache memoryCache,
-            NuGetListConfiguration deploymentConfiguration)
+            NuGetListConfiguration deploymentConfiguration, ITime time)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
@@ -53,9 +55,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _deploymentConfiguration = deploymentConfiguration;
+            _time = time;
         }
 
-        public async Task<(ExitCode, string)> ExecuteDeploymentAsync(
+        public async Task<DeploymentTaskResult> ExecuteDeploymentAsync(
             [NotNull] DeploymentTask deploymentTask,
             ILogger logger,
             CancellationToken cancellationToken)
@@ -65,10 +68,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
-            DateTime start = DateTime.UtcNow;
+            DateTime start = _time.UtcNow().DateTime;
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            ExitCode exitCode;
+            (ExitCode, DateTime) result;
 
             DirectoryInfo deploymentJobsDirectory = EnsureDeploymentJobsDirectoryExists();
 
@@ -86,30 +89,32 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 VerifyAllowedPackageIsAllowed(deploymentTarget, deploymentTask.PackageId, logger);
 
-                exitCode = await RunDeploymentToolAsync(deploymentTask,
+                result = await RunDeploymentToolAsync(deploymentTask,
                     deploymentJobsDirectory,
                     deploymentTarget,
                     logger);
             }
             catch (Exception ex)
             {
-                exitCode = ExitCode.Failure;
+                result = (ExitCode.Failure, _time.UtcNow().DateTime);
                 logger.Error(ex, "Error deploying");
             }
 
             stopwatch.Stop();
 
-            DateTime end = DateTime.UtcNow;
-
-            string metadataContent = await LogJobMetadataAsync(deploymentTask,
+            string metadataContent = LogJobMetadata(deploymentTask,
                 start,
-                end,
+                result.Item2,
                 stopwatch,
-                exitCode,
+                result.Item1,
                 deploymentJobsDirectory,
                 deploymentTarget);
 
-            return (exitCode, metadataContent);
+            var deploymentTaskResult = new DeploymentTaskResult(deploymentTask.DeploymentTaskId, deploymentTask.DeploymentTargetId, result.Item1, start, result.Item2, metadataContent);
+
+            await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, deploymentTaskResult), cancellationToken);
+
+            return deploymentTaskResult;
         }
 
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
@@ -261,7 +266,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 string sourcesOut = string.Join(Environment.NewLine, sources);
                 string sourcesErrorOut = string.Join(Environment.NewLine, sourcesError);
 
-                _logger.Error($"Exit code {exitCode.Code} when running NuGet list packages; standard out '{standardOut}', standard error '{standardErrorOut}', exe path '{nugetExe}', arguments '{string.Join(" ", args)}', nuget sources '{sourcesOut}', sources error '{sourcesErrorOut}'");
+                _logger.Error("Exit code {Code} when running NuGet list packages; standard out '{StandardOut}', standard error '{StandardErrorOut}', exe path '{NugetExe}', arguments '{Arguments}', nuget sources '{SourcesOut}', sources error '{SourcesErrorOut}'", exitCode.Code, standardOut, standardErrorOut, nugetExe, string.Join(" ", args), sourcesOut, sourcesErrorOut);
                 return Array.Empty<PackageVersion>();
             }
 
@@ -329,7 +334,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return items;
         }
 
-        private async Task<string> LogJobMetadataAsync(
+        private string LogJobMetadata(
             DeploymentTask deploymentTask,
             DateTime start,
             DateTime end,
@@ -366,9 +371,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             string metadataFilePath = Path.Combine(deploymentJobsDirectory.FullName,
                 $"{deploymentTask.DeploymentTaskId}.metadata.txt");
 
-            await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, metadataContent));
-
             File.WriteAllText(metadataFilePath, metadataContent, Encoding.UTF8);
+
             return metadataContent;
         }
 
@@ -413,7 +417,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return directoryInfo;
         }
 
-        private async Task<ExitCode> RunDeploymentToolAsync(
+        private async Task<(ExitCode, DateTime)> RunDeploymentToolAsync(
             DeploymentTask deploymentTask,
             DirectoryInfo deploymentJobsDirectory,
             DeploymentTarget deploymentTarget,
@@ -450,9 +454,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
             }
 
-            await _mediator.Publish(new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString()));
+            DateTime finishedAtUtc = _time.UtcNow().DateTime;
 
-            return exitCode;
+            await _mediator.Publish(new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString(), finishedAtUtc));
+
+            return (exitCode, finishedAtUtc);
         }
 
         private void VerifyPreReleaseAllowed(

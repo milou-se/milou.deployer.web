@@ -103,12 +103,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
 
-                (ExitCode ExitCode, string Log) result =
+                DeploymentTaskResult result =
                     await _deploymentService.ExecuteDeploymentAsync(deploymentTask, _logger, stoppingToken);
 
                 if (result.ExitCode.IsSuccess)
                 {
-
                     _logger.Information("Executed deployment task {DeploymentTask}", deploymentTask);
 
                     deploymentTask.Status = WorkTaskStatus.Done;
@@ -118,7 +117,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     _logger.Error("Failed to deploy task {DeploymentTask}, result {Result}",
                         deploymentTask,
-                        result.Log);
+                        result.Metadata);
 
                     deploymentTask.Status = WorkTaskStatus.Failed;
                     deploymentTask.Log("{\"Message\": \"Work task failed\"}");

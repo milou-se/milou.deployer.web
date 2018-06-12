@@ -72,7 +72,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 ImmutableArray<DeploymentTarget> targetsWithUrl = deploymentTargets.Where(target => target.Url.HasValue()).ToImmutableArray();
 
-
                 AppVersion[] appVersions;
                 using (var cancellationTokenSource =
                     new CancellationTokenSource(

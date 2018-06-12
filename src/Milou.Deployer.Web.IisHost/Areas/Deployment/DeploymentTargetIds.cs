@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.IisHost.AspNetCore
+namespace Milou.Deployer.Web.IisHost.Areas.Deployment
 {
     public class DeploymentTargetIds
     {

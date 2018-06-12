@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
             await clientProxy.SendAsync(DeploymentLoggingHub.MessageMethod, notification.Message, cancellationToken);
         }
 
-        public Task Handle(SubscribeToDeploymentLog request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(SubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
             if (_TargetMapping.TryGetValue(request.DeploymentTargetId, out HashSet<string> subscribers))
             {
@@ -49,10 +49,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
                 _TargetMapping.TryAdd(request.DeploymentTargetId, new HashSet<string>(StringComparer.OrdinalIgnoreCase) {request.ConnectionId});
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult(Unit.Value);
         }
 
-        public Task Handle(UnsubscribeToDeploymentLog request, CancellationToken cancellationToken)
+        public Task<Unit> Handle(UnsubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
             HashSet<string>[] hashSets = _TargetMapping
                 .Where(pair => pair.Value.Contains(request.ConnectionId))
@@ -64,7 +64,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
                 hashSet.Remove(request.ConnectionId);
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult(Unit.Value);
         }
     }
 }

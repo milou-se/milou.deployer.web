@@ -83,7 +83,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                     {
                                         _logger.Information("Auto deploying package {PackageIdentifier} to target {Name} from web hook", packageIdentifier, deploymentTarget.Name);
 
-                                        (ExitCode, string) result =
+                                        DeploymentTaskResult result =
                                             await
                                                 _deploymentService.ExecuteDeploymentAsync(
                                                     new DeploymentTask(

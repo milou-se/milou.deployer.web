@@ -1,0 +1,14 @@
+﻿@using Milou.Deployer.Web.Core.Deployment
+@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
+@model Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentHistoryViewOutputModel
+
+@foreach (DeploymentTaskInfo item in Model.DeploymentTasks)
+{
+    <h2>
+        @item.FinishedAtUtc
+    </h2>
+
+    <a href="@Url.RouteUrl(DeploymentConstants.HistoryLogRouteName, new {deploymentTaskId=item.DeploymentTaskId})">Log</a>
+
+    <p>@item.Metadata</p>
+}

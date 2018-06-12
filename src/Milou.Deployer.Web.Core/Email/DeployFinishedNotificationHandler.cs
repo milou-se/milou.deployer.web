@@ -98,7 +98,7 @@ namespace Milou.Deployer.Web.Core.Email
             {
                 Text =
                     $@"Deployment finished for {notification.DeploymentTask}
-{notification.MetadataContent}"
+{notification.Result.Metadata}"
             };
 
             mimeMessage.Subject = $"Deployment finished for {notification.DeploymentTask}";

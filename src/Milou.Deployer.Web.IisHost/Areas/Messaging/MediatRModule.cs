@@ -24,28 +24,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
         {
             builder.RegisterAssemblyTypes(typeof(IMediator).Assembly).AsImplementedInterfaces();
 
-            builder.Register<SingleInstanceFactory>(ctx =>
+            builder.Register<ServiceFactory>(ctx =>
             {
-                var context = ctx.Resolve<IComponentContext>();
-
-                return type =>
-                {
-                    object returnValue = context.TryResolve(type, out object instance) ? instance : null;
-
-                    return returnValue;
-                };
-            });
-
-            builder.Register<MultiInstanceFactory>(ctx =>
-            {
-                var context = ctx.Resolve<IComponentContext>();
-
-                return type =>
-                {
-                    var enumerable = (IEnumerable<object>)context.Resolve(typeof(IEnumerable<>).MakeGenericType(type));
-
-                    return enumerable;
-                };
+                var c = ctx.Resolve<IComponentContext>();
+                return t => c.Resolve(t);
             });
 
             Type[] mediatrOpenTypes =

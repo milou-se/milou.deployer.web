@@ -1,5 +1,4 @@
-﻿@using Milou.Deployer.Web.Core.Extensions
-@using Milou.Deployer.Web.Core.Html
+﻿@using Milou.Deployer.Web.Core.Html
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Targets.Controllers.EditTargetViewOutputModel
 
@@ -9,8 +8,7 @@
 
     <div class="input-field">
         <label for="target-id">ID</label>
-        <input id="target-id" type="text" name="id" readonly="readonly" value="@Model.DeploymentTarget.Id" />
-
+        <input id="target-id" type="text" name="id" readonly="readonly" value="@Model.DeploymentTarget.Id"/>
     </div>
 
     <div class="input-field">
@@ -26,10 +24,8 @@
         <input id="target-autoDeployEnabled" type="checkbox" name="autoDeployEnabled" @Model.DeploymentTarget.AutoDeployEnabled.Checked()/>
     </div>
     <div class="input-field">
-
-            <label for="target-packageId">Allowed package name</label>
-            <input id="target-packageId" type="text" name="packageId" value="@Model.DeploymentTarget.PackageId" />
-
+        <label for="target-packageId">Allowed package name</label>
+        <input id="target-packageId" type="text" name="packageId" value="@Model.DeploymentTarget.PackageId"/>
     </div>
     <div class="input-field">
         <label for="target-url">URL</label>
@@ -48,7 +44,7 @@
         <input id="target-nugetPackageSource" type="text" name="nugetPackageSource" value="@Model.DeploymentTarget.NuGetPackageSource"/>
     </div>
     <div class="input-field">
-        <input type="submit" value="Edit project" />
+        <input type="submit" value="Edit project"/>
     </div>
 
 </form>

@@ -8,19 +8,25 @@ namespace Milou.Deployer.Web.Core.Deployment
     {
         public DeploymentMetadataLogNotification(
             [NotNull] DeploymentTask deploymentTask,
-            [NotNull] string metadataContent)
+            [NotNull] DeploymentTaskResult result)
         {
-            if (string.IsNullOrWhiteSpace(metadataContent))
+            if (result == null)
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(metadataContent));
+                throw new ArgumentNullException(nameof(result));
+            }
+
+            if (string.IsNullOrWhiteSpace(result.Metadata))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(result));
             }
 
             DeploymentTask = deploymentTask ?? throw new ArgumentNullException(nameof(deploymentTask));
-            MetadataContent = metadataContent;
+            Result = result;
         }
 
         public DeploymentTask DeploymentTask { get; }
 
-        public string MetadataContent { get; }
+        [NotNull]
+        public DeploymentTaskResult Result { get; }
     }
 }

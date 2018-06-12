@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Linq;
@@ -59,20 +60,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             HttpResponseMessage httpResponseMessage = result.Response;
 
+            IReadOnlyCollection<PackageVersion> packages = await GetAllowedPackagesAsync(target);
+
             if (httpResponseMessage == null)
             {
                 return new AppVersion(target,
-                    result.Message ?? $"Could not get application metadata from target {target.Url}");
+                    result.Message ?? $"Could not get application metadata from target {target.Url}", packages);
             }
 
             if (!httpResponseMessage.IsSuccessStatusCode)
             {
                 return new AppVersion(target,
-                    result.Message ?? $"Could not get application metadata from target {target.Url}");
+                    result.Message ?? $"Could not get application metadata from target {target.Url}", packages);
             }
 
             AppVersion appMetadata =
-                await GetAppVersionAsync(httpResponseMessage, target, await GetAllowedPackagesAsync(target));
+                await GetAppVersionAsync(httpResponseMessage, target, packages);
 
             return appMetadata;
         }
@@ -101,7 +104,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     }
                     else
                     {
-                        appVersions.Add(new AppVersion(deploymentTarget, "Missing URL"));
+                        appVersions.Add(new AppVersion(deploymentTarget, "Missing URL", ImmutableArray<PackageVersion>.Empty));
                     }
                 }
 
@@ -130,7 +133,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         {
                             if (message.HasValue())
                             {
-                                appVersion = new AppVersion(target, message);
+                                IReadOnlyCollection<PackageVersion> packages = await GetAllowedPackagesAsync(target);
+                                appVersion = new AppVersion(target, message, packages);
 
                                 _logger.Error("Could not get metadata for target {Name} ({Url}), http status code {V}",
                                     target.Name,
@@ -138,8 +142,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                                     response?.StatusCode.ToString() ?? "N/A");
                             }
                             else
-                            {
-                                appVersion = new AppVersion(target, "Unknown error");
+                        {
+                            IReadOnlyCollection<PackageVersion> packages = await GetAllowedPackagesAsync(target);
+                            appVersion = new AppVersion(target, "Unknown error", packages);
 
                                 _logger.Error("Could not get metadata for target {Name} ({Url}), http status code {V}",
                                     target.Name,
@@ -152,7 +157,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     }
                     catch (JsonReaderException ex)
                     {
-                        appVersions.Add(new AppVersion(target, ex.Message));
+                        appVersions.Add(new AppVersion(target, ex.Message, ImmutableArray<PackageVersion>.Empty));
 
                         _logger.Error(ex, "Could not get metadata for target {Name} ({Url})", target.Name, target.Url);
                     }
@@ -171,7 +176,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 !response.Content.Headers.ContentType.MediaType.Equals("application/json",
                     StringComparison.OrdinalIgnoreCase))
             {
-                return new AppVersion(target, "Response not JSON");
+                return new AppVersion(target, "Response not JSON", filtered);
             }
 
             string json = await response.Content.ReadAsStringAsync();

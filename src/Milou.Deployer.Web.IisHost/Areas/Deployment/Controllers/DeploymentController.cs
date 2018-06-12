@@ -62,7 +62,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [HttpGet]
         [Route("invalidate")]
-        public async Task<ActionResult> InvalidateCache([FromServices] ICustomMemoryCache customMemoryCache)
+        public ActionResult InvalidateCache([FromServices] ICustomMemoryCache customMemoryCache)
         {
             customMemoryCache.Invalidate();
 

@@ -109,14 +109,14 @@ namespace Milou.Deployer.Web.Tests.Integration
             string deploymentTargetId = TestDataCreator.Testtarget;
             var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId);
 
-            (ExitCode ExitCode, string BuildLog) tuple = await deploymentService.ExecuteDeploymentAsync(
+            DeploymentTaskResult deploymentTaskResult = await deploymentService.ExecuteDeploymentAsync(
                 deploymentTask,
                 App.Logger,
                 App.CancellationTokenSource.Token);
 
-            if (!tuple.ExitCode.IsSuccess)
+            if (!deploymentTaskResult.ExitCode.IsSuccess)
             {
-                throw new InvalidOperationException($"Initial deploy failed: {tuple.BuildLog}");
+                throw new InvalidOperationException($"Initial deploy failed: {deploymentTaskResult.Metadata}");
             }
 
             TestStartup.TestConfiguration = TestConfiguration;

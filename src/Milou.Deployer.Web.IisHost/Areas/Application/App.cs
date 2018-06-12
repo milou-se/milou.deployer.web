@@ -15,6 +15,7 @@ using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
+using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Messaging;
 using Milou.Deployer.Web.IisHost.AspNetCore;
 using Serilog;

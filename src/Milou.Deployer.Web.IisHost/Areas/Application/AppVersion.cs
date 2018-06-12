@@ -28,12 +28,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Target = target ?? throw new ArgumentNullException(nameof(target));
         }
 
-        public AppVersion([NotNull] DeploymentTarget target, string message)
+        public AppVersion([NotNull] DeploymentTarget target, string message, IReadOnlyCollection<PackageVersion> availablePackgages)
         {
             Properties = new InMemoryKeyValueConfiguration(new NameValueCollection());
             Target = target;
             Message = message;
-            AvailablePackageVersions = Array.Empty<PackageVersion>();
+            AvailablePackageVersions = availablePackgages;
         }
 
         public string Message { get; }
