@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             var environmentConfiguration =
                 startupScope.Deepest().Lifetime.ResolveOptional<EnvironmentConfiguration>();
 
-            string contentRoot = environmentConfiguration?.ApplicationBasePath ?? Directory.GetCurrentDirectory();
+            string contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
 
             var kestrelServerOptions = new List<KestrelServerOptions>();
 

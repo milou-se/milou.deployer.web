@@ -9,6 +9,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
 
         public const string BasePath = "urn:milou:deployer:web:base-path";
 
+        public const string ContentBasePath = "urn:milou:deployer:web:content-base-path";
+
         [Metadata()]
         public const string HostConfiguration = "urn:milou:deployer:web:host";
 

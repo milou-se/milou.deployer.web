@@ -137,7 +137,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             string basePathFromArg = args.SingleOrDefault(arg =>
                 arg.StartsWith(ConfigurationConstants.BasePath, StringComparison.OrdinalIgnoreCase));
 
+            string contentBasePathFromArg = args.SingleOrDefault(arg =>
+                arg.StartsWith(ConfigurationConstants.ContentBasePath, StringComparison.OrdinalIgnoreCase));
+
             string basePath = basePathFromArg?.Split('=').LastOrDefault() ?? AppDomain.CurrentDomain.BaseDirectory;
+            string contentBasePath = contentBasePathFromArg?.Split('=').LastOrDefault() ?? Directory.GetCurrentDirectory();
 
             ILogger startupLogger =
                 SerilogApiInitialization.InitializeStartupLogging(file => GetBaseDirectoryFile(basePath, file));
@@ -159,7 +163,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             Type[] excluded = { typeof(AppServiceModule) };
 
-            AppContainerScope container = Bootstrapper.Start(basePath, modules, appLogger, scanAssemblies, excluded);
+            AppContainerScope container = Bootstrapper.Start(basePath, contentBasePath, modules, appLogger, scanAssemblies, excluded);
 
             var appRootScope = new Scope(container.AppRootScope);
 

@@ -17,6 +17,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         public static AppContainerScope Start(
             string basePath,
+            string contentBasePath,
             [NotNull] IReadOnlyList<IModule> modulesToRegister,
             [NotNull] ILogger logger,
             ImmutableArray<Assembly> scanAssemblies,
@@ -41,7 +42,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             var builder = new ContainerBuilder();
 
-            builder.Register(context => new EnvironmentConfiguration { ApplicationBasePath = basePath }).AsSelf().SingleInstance();
+            builder.Register(context => new EnvironmentConfiguration
+            {
+                ApplicationBasePath = basePath,
+                ContentBasePath = contentBasePath
+            }).AsSelf().SingleInstance();
 
             foreach (IModule module in modulesToRegister)
             {
