@@ -1,6 +1,7 @@
 ﻿@using Milou.Deployer.Web.Core.Deployment
 @using Milou.Deployer.Web.Core.Extensions
 @using Milou.Deployer.Web.IisHost.Areas.Application
+@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.MonitoringViewOutputModel
 
@@ -11,6 +12,7 @@
         <tr>
             <th>Target</th>
             <th>URL</th>
+            <th>History</th>
             <th>Message</th>
             <th><span style="white-space: nowrap">Semantic version</span></th>
             <th>Deployed</th>
@@ -33,6 +35,7 @@
                         <a href="@item.Target.Url">@item.Target.Name</a>
                     }
                 </td>
+                <td><a href="@Url.RouteUrl(DeploymentConstants.HistoryRouteName, new {deploymentTargetId=item.Target.Id})">History</a></td>
                 <td>@item.Message</td>
                 <td>
                     <span class="@item.PreReleaseClass">@(item.SemanticVersion?.ToNormalizedString() ?? "N/A")</span>
