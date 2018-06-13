@@ -23,6 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         private readonly DeploymentWorker _deploymentWorker;
         private readonly MonitoringService _monitoringService;
         private ILogger _logger;
+        private PackageService _packageService;
 
         public AutoDeployBackgroundService(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -30,7 +31,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             [NotNull] MonitoringService monitoringService,
             [NotNull] DeploymentWorker deploymentWorker,
             [NotNull] AutoDeployConfiguration autoDeployConfiguration,
-            [NotNull] ILogger logger)
+            [NotNull] ILogger logger,
+            [NotNull] PackageService packageService)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -40,6 +42,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             _autoDeployConfiguration = autoDeployConfiguration ??
                                        throw new ArgumentNullException(nameof(autoDeployConfiguration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -110,7 +113,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                                 packageVersionCancellationTokenSource.Token))
                         {
                             packageVersions =
-                                (await _deploymentService.GetPackageVersionsAsync(deploymentTarget.PackageId, cancellationToken: linked.Token, logger: _logger)).ToImmutableHashSet();
+                                (await _packageService.GetPackageVersionsAsync(deploymentTarget.PackageId, cancellationToken: linked.Token, logger: _logger)).ToImmutableHashSet();
                         }
                     }
 

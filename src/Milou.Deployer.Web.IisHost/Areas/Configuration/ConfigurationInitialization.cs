@@ -8,6 +8,7 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Decorators;
 using Arbor.KVConfiguration.JsonConfiguration;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
 
@@ -19,7 +20,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
             IReadOnlyList<string> args,
             [NotNull] Func<string, string> basePath,
             ILogger logger,
-            IReadOnlyCollection<Assembly> scanAssemblies)
+            IReadOnlyCollection<Assembly> scanAssemblies,
+            string contentBasePath)
         {
             if (basePath == null)
             {
@@ -80,7 +82,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
             var inMemoryKeyValueConfiguration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
             MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration = appSettingsBuilder
-                .Add(new JsonKeyValueConfiguration(basePath("config.user"), throwWhenNotExists: false))
+                .Add(new JsonKeyValueConfiguration(Path.Combine(contentBasePath, "config.user"), throwWhenNotExists: false))
                 .Add(new EnvironmentVariableKeyValueConfigurationSource())
                 .Add(inMemoryKeyValueConfiguration)
                 .DecorateWith(new ExpandKeyValueConfigurationDecorator())

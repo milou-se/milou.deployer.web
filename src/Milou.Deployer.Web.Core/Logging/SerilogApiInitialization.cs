@@ -16,7 +16,7 @@ namespace Milou.Deployer.Web.Core.Logging
         public static ILogger InitializeAppLogging(
             [NotNull] MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration,
             ILogger logger,
-            Action<LoggerConfiguration> loggerConfigurationAction)
+            Action<LoggerConfiguration> loggerConfigurationAction, LoggingLevelSwitch loggingLevelSwitch)
         {
             if (multiSourceKeyValueConfiguration == null)
             {
@@ -40,7 +40,8 @@ namespace Milou.Deployer.Web.Core.Logging
             }
 
             LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
-                .MinimumLevel.Is(LogEventLevel.Debug).Enrich.WithProperty("Application", ApplicationConstants.ApplicationName);
+                .MinimumLevel.ControlledBy(loggingLevelSwitch)
+                .Enrich.WithProperty("Application", ApplicationConstants.ApplicationName);
 
             bool seqEnabled = false;
 
@@ -108,39 +109,54 @@ namespace Milou.Deployer.Web.Core.Logging
                 throw new ArgumentNullException(nameof(basePath));
             }
 
-            string logFilePath = basePath("startup.log");
+            bool fileLoggingEnabled = bool.TryParse(Environment.GetEnvironmentVariable(LoggingConstants.SerilogStartupLogEnabled),
+                         out bool enabled) && enabled;
 
-            if (string.IsNullOrWhiteSpace(logFilePath))
+            string logFile = null;
+
+            if (fileLoggingEnabled)
             {
-                throw new InvalidOperationException("The log path for startup logging is not defined");
+                string logFilePath = basePath("startup.log");
+
+                if (string.IsNullOrWhiteSpace(logFilePath))
+                {
+                    throw new InvalidOperationException("The log path for startup logging is not defined");
+                }
+
+                string pathFormat = Environment.ExpandEnvironmentVariables(
+                    Environment.GetEnvironmentVariable(LoggingConstants.SerilogStartupLogFilePath) ??
+                    logFilePath);
+
+                var fileInfo = new FileInfo(pathFormat);
+
+                if (fileInfo.Directory is null)
+                {
+                    throw new InvalidOperationException("Invalid file directory");
+                }
+
+                if (!fileInfo.Directory.Exists)
+                {
+                    fileInfo.Directory.Create();
+                }
+
+                logFile = fileInfo.FullName;
             }
 
-            string pathFormat =
-                Environment.GetEnvironmentVariable(LoggingConstants.SerilogStartupLogFilePath) ??
-                logFilePath;
-
-            var fileInfo = new FileInfo(pathFormat);
-
-            if (fileInfo.Directory is null)
-            {
-                throw new InvalidOperationException("Invalid file directory");
-            }
-
-            if (!fileInfo.Directory.Exists)
-            {
-                fileInfo.Directory.Create();
-            }
-
-            string rollingLoggingFile = Path.Combine(fileInfo.Directory.FullName,
-                $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}.{{Date}}{Path.GetExtension(fileInfo.Name)}");
-
-            Logger logger = new LoggerConfiguration()
+            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Is(LogEventLevel.Verbose)
-                .WriteTo.Console(LogEventLevel.Verbose)
-                .WriteTo.File(rollingLoggingFile, LogEventLevel.Debug)
+                .WriteTo.Console(LogEventLevel.Verbose);
+
+
+            if (logFile.HasValue())
+            {
+                loggerConfiguration = loggerConfiguration
+                    .WriteTo.File(logFile, LogEventLevel.Debug, rollingInterval: RollingInterval.Day);
+            }
+
+            Logger logger = loggerConfiguration
                 .CreateLogger();
 
-            logger.Information("Starting app");
+            logger.Verbose("Startup logging configured");
 
             return logger;
         }

@@ -6,6 +6,7 @@ using Autofac;
 using JetBrains.Annotations;
 using MediatR;
 using MediatR.Pipeline;
+using Serilog;
 using Module = Autofac.Module;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Messaging
@@ -14,10 +15,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
     public class MediatRModule : Module
     {
         private readonly IReadOnlyCollection<Assembly> _scanAssemblies;
+        private readonly IReadOnlyCollection<Type> _excludedTypes;
+        private readonly ILogger _logger;
 
-        public MediatRModule(IReadOnlyCollection<Assembly> scanAssemblies)
+        public MediatRModule(IReadOnlyCollection<Assembly> scanAssemblies, IReadOnlyCollection<Type> excludedTypes, ILogger logger)
         {
             _scanAssemblies = scanAssemblies;
+            _excludedTypes = excludedTypes;
+            _logger = logger;
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -41,6 +46,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
             {
                 builder
                     .RegisterAssemblyTypes(_scanAssemblies.ToArray())
+                    .Where(type => !_excludedTypes.Contains(type))
+                    .Where(type =>
+                    {
+                        bool isClosedType = mediatrOpenTypes.Any(type.IsClosedTypeOf);
+
+                        if (isClosedType)
+                        {
+                            _logger.Verbose("Registering type {Type}", type.FullName);
+                        }
+
+                        return isClosedType;
+                    })
                     .AsClosedTypesOf(mediatrOpenType)
                     .AsImplementedInterfaces();
             }

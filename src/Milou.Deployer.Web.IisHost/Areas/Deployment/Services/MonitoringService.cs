@@ -26,17 +26,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ITime _time;
         private readonly ILogger _logger;
+        private readonly PackageService _packageService;
 
         public MonitoringService(
-            ILogger logger,
-            DeploymentService deploymentService,
-            IHttpClientFactory httpClientFactory,
-            ITime time)
+            [NotNull] ILogger logger,
+            [NotNull] DeploymentService deploymentService,
+            [NotNull] IHttpClientFactory httpClientFactory,
+            [NotNull] ITime time,
+            [NotNull] PackageService packageService)
         {
-            _logger = logger;
-            _deploymentService = deploymentService;
-            _httpClientFactory = httpClientFactory;
-            _time = time;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _time = time ?? throw new ArgumentNullException(nameof(time));
+            _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
         }
 
         public async Task<AppVersion> GetAppMetadataAsync(
@@ -198,7 +201,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private async Task<IReadOnlyCollection<PackageVersion>> GetAllowedPackagesAsync(DeploymentTarget target)
         {
             IReadOnlyCollection<PackageVersion> allPackageVersions =
-                await _deploymentService.GetPackageVersionsAsync(target.PackageId, nugetConfigFile: target.NuGetConfigFile,
+                await _packageService.GetPackageVersionsAsync(target.PackageId, nugetConfigFile: target.NuGetConfigFile,
                     nugetPackageSource: target.NuGetPackageSource, logger: _logger);
 
             IReadOnlyCollection<PackageVersion> allTargetPackageVersions = allPackageVersions.Where(

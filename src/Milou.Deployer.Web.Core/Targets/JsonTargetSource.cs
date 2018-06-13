@@ -8,6 +8,7 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Structure;
@@ -18,12 +19,12 @@ namespace Milou.Deployer.Web.Core.Targets
     [UsedImplicitly]
     public class JsonTargetSource
     {
-        private readonly Application.ApplicationEnvironment _environment;
         private readonly ILogger _logger;
         private readonly JsonDeploymentTargetSourceConfiguration _configuration;
+        private EnvironmentConfiguration _environment;
 
         public JsonTargetSource(
-            [NotNull] Application.ApplicationEnvironment environment,
+            [NotNull] EnvironmentConfiguration environment,
             [NotNull] ILogger logger,
             [NotNull] JsonDeploymentTargetSourceConfiguration configuration)
         {
@@ -34,7 +35,7 @@ namespace Milou.Deployer.Web.Core.Targets
 
         public Task<IReadOnlyCollection<OrganizationInfo>> GetTargetsAsync(CancellationToken cancellationToken)
         {
-            string jsonTargetsFile = _configuration.SourceFile.WithDefault(Path.Combine(_environment.BasePath, "targets.json"));
+            string jsonTargetsFile = _configuration.SourceFile.WithDefault(Path.Combine(_environment.ApplicationBasePath, "targets.json"));
 
             _logger.Information("Reading targets from JSON file '{JsonFile}'", jsonTargetsFile);
 

@@ -20,10 +20,10 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             string headers = string.Join(Environment.NewLine,
                 WebFixture.ResponseMessage.Headers.Select(pair => $"{pair.Key}:{string.Join(",", pair.Value)}"));
-            Logger.Information("Response headers: {Headers}", headers);
+            Output.WriteLine($"Response headers: {headers}");
 
             string body = await WebFixture.ResponseMessage.Content.ReadAsStringAsync();
-            Logger.Information("Response body: {Body}", body);
+            Output.WriteLine($"Response body: {body}");
 
             Assert.Contains("<html", body);
         }
@@ -31,10 +31,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ThenItShouldReturnHttpStatusCodeOk200()
         {
-            Logger.Information("Response status code {StatusCode}",
-                WebFixture.ResponseMessage.StatusCode);
+            Output.WriteLine($"Response status code {WebFixture?.ResponseMessage?.StatusCode}");
 
-            Assert.Equal(HttpStatusCode.OK, WebFixture.ResponseMessage.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, WebFixture?.ResponseMessage?.StatusCode);
         }
     }
 }

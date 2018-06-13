@@ -4,7 +4,7 @@ using System.Net;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    internal class PortPoolRange
+    internal readonly struct PortPoolRange
     {
         private readonly int _portCount;
 

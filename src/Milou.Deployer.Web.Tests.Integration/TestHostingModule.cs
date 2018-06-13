@@ -18,9 +18,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected override void Load(ContainerBuilder builder)
         {
-            int availablePort = TcpHelper.GetAvailablePort(new PortPoolRange(5000, 5099));
+            PortPoolRental availablePort = TcpHelper.GetAvailablePort(new PortPoolRange(5020, 5099));
 
-            _environmentConfiguration.HttpPort = availablePort;
+            builder.RegisterInstance(availablePort);
+
+            _environmentConfiguration.HttpPort = availablePort.Port;
         }
     }
 }

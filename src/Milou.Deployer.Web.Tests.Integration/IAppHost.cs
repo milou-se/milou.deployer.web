@@ -7,7 +7,9 @@ namespace Milou.Deployer.Web.Tests.Integration
     public interface IAppHost
     {
         App App { get; }
+
         Exception Exception { get; }
+
         StringBuilder Builder { get; }
     }
 }

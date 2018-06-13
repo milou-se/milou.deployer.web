@@ -10,5 +10,8 @@ namespace Milou.Deployer.Web.Core.Logging
 
         [Metadata(defaultValue: "false")]
         public const string SerilogSeqEnabledDefault = SerilogBaseUrn + ":default:SeqEnabled";
+
+        [Metadata]
+        public static string SerilogStartupLogEnabled = SerilogBaseUrn + ":startup-log-file:enabled";
     }
 }

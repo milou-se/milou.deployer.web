@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
                 catch (Exception ex)
                 {
-                    Logger.Error(ex, "Error in test");
+                   App?.Logger?.Error(ex, "Error in test");
                     Assert.NotNull(ex);
                 }
             }

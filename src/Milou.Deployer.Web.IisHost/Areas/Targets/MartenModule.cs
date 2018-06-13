@@ -1,4 +1,7 @@
-﻿using Arbor.KVConfiguration.Core;
+﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
+using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using Autofac;
 using JetBrains.Annotations;
@@ -23,12 +26,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
 
         protected override void Load(ContainerBuilder builder)
         {
-            var configuration = _keyValueConfiguration.GetInstance<MartenConfiguration>();
+            ImmutableArray<MartenConfiguration> configurations = _keyValueConfiguration.GetInstances<MartenConfiguration>();
 
-            if (configuration is null)
+            if (configurations.IsDefaultOrEmpty)
             {
                 return;
             }
+
+            if (configurations.Length > 1)
+            {
+                throw new InvalidOperationException(
+                    $"Expected exactly 1 instance of type {nameof(MartenConfiguration)} but got {configurations.Length}");
+            }
+
+            MartenConfiguration configuration = configurations.Single();
 
             if (!string.IsNullOrWhiteSpace(configuration.ConnectionString) && configuration.Enabled)
             {

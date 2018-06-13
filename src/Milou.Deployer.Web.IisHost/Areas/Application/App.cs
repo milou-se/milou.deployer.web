@@ -7,11 +7,16 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.KVConfiguration.Urns;
 using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.WindowsServices;
+using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
@@ -19,6 +24,8 @@ using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Messaging;
 using Milou.Deployer.Web.IisHost.AspNetCore;
 using Serilog;
+using Serilog.Core;
+using Serilog.Events;
 using KeyValueConfigurationModule = Milou.Deployer.Web.IisHost.Areas.Configuration.KeyValueConfigurationModule;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
@@ -42,7 +49,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public CancellationTokenSource CancellationTokenSource { get; }
 
-        public ILogger Logger { get; }
+        public ILogger Logger { get; private set; }
 
         public IWebHostBuilder HostBuilder { get; private set; }
 
@@ -77,7 +84,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public void Dispose()
         {
-            if (_disposed)
+            if (_disposed || _disposing)
             {
                 return;
             }
@@ -88,15 +95,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 _disposing = true;
             }
 
+            Logger?.Verbose("Disposing application");
+            Logger?.Verbose("Disposing webhost");
             WebHost?.Dispose();
+            Logger?.Verbose("Disposing Application root scope");
             AppRootScope?.Dispose();
+            Logger?.Verbose("Disposing container");
             Container?.Dispose();
 
             if (Logger is IDisposable disposable)
             {
+                Logger?.Verbose("Disposing Logger");
                 disposable.Dispose();
             }
 
+            Logger = null;
             WebHost = null;
             HostBuilder = null;
             Container = null;
@@ -122,7 +135,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             WebHost = HostBuilder.Build();
 
-            await WebHost.StartAsync(CancellationTokenSource.Token);
+            if (args.Any(arg => arg.Equals(ApplicationConstants.RunAsService)))
+            {
+                Logger.Information("Starting as a Windows Service");
+                WebHost.RunAsService();
+            }
+            else
+            {
+                Logger.Information("Starting as a Console Application");
+                await WebHost.StartAsync(CancellationTokenSource.Token);
+            }
 
             return 0;
         }
@@ -134,14 +156,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         {
             ImmutableArray<Assembly> scanAssemblies = AppDomain.CurrentDomain.FilteredAssemblies();
 
-            string basePathFromArg = args.SingleOrDefault(arg =>
-                arg.StartsWith(ConfigurationConstants.BasePath, StringComparison.OrdinalIgnoreCase));
+            string basePathFromArg = args.ParseParameter(ConfigurationConstants.ApplicationBasePath);
 
-            string contentBasePathFromArg = args.SingleOrDefault(arg =>
-                arg.StartsWith(ConfigurationConstants.ContentBasePath, StringComparison.OrdinalIgnoreCase));
+            string contentBasePathFromArg = args.ParseParameter(ConfigurationConstants.ContentBasePath);
 
-            string basePath = basePathFromArg?.Split('=').LastOrDefault() ?? AppDomain.CurrentDomain.BaseDirectory;
-            string contentBasePath = contentBasePathFromArg?.Split('=').LastOrDefault() ?? Directory.GetCurrentDirectory();
+            string basePath = basePathFromArg ?? AppDomain.CurrentDomain.BaseDirectory;
+            string contentBasePath = contentBasePathFromArg ?? Directory.GetCurrentDirectory();
 
             ILogger startupLogger =
                 SerilogApiInitialization.InitializeStartupLogging(file => GetBaseDirectoryFile(basePath, file));
@@ -151,19 +171,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             MultiSourceKeyValueConfiguration configuration =
                 ConfigurationInitialization.InitializeConfiguration(args,
                     file => GetBaseDirectoryFile(basePath, file),
-                    startupLogger, scanAssemblies);
+                    startupLogger, scanAssemblies, contentBasePath);
+
+            var loggingLevelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug);
 
             ILogger appLogger =
-                SerilogApiInitialization.InitializeAppLogging(configuration, startupLogger, loggerConfigurationAction);
+                SerilogApiInitialization.InitializeAppLogging(configuration, startupLogger, loggerConfigurationAction, loggingLevelSwitch);
 
             appLogger.Debug("Started with command line args, {Args}", args);
 
             IReadOnlyList<IModule> modules =
                 GetConfigurationModules(configuration, cancellationTokenSource, appLogger, scanAssemblies);
 
-            Type[] excluded = { typeof(AppServiceModule) };
+            Type[] excludedModuleTypes = { typeof(AppServiceModule) };
 
-            AppContainerScope container = Bootstrapper.Start(basePath, contentBasePath, modules, appLogger, scanAssemblies, excluded);
+            AppContainerScope container = Bootstrapper.Start(basePath, contentBasePath, modules, appLogger, scanAssemblies, excludedModuleTypes, loggingLevelSwitch);
 
             var appRootScope = new Scope(container.AppRootScope);
 
@@ -223,10 +245,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             var urnModule = new UrnConfigurationModule(configuration, logger, scanAssemblies);
 
+            Type[] excludedTypes = configuration.GetInstances<ExcludedAutoRegistrationType>()
+                .Select(excluded => Type.GetType(excluded.FullName))
+                .Where(type => type != null)
+                .ToArray();
+
             modules.Add(loggingModule);
             modules.Add(module);
             modules.Add(urnModule);
-            modules.Add(new MediatRModule(scanAssemblies));
+            modules.Add(new MediatRModule(scanAssemblies, excludedTypes, logger));
 
             return modules;
         }

@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Processing;
+using Milou.Deployer.Web.Core.Targets;
+using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 
@@ -29,14 +31,14 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public HttpResponseMessage ResponseMessage { get; private set; }
 
-        public int TestSiteHttpPort { get; private set; }
+        public PortPoolRental TestSiteHttpPort { get; private set; }
 
         protected override async Task RunAsync()
         {
             using (var httpClient = new HttpClient())
             {
                 ResponseMessage =
-                    await httpClient.GetAsync($"http://localhost:{TestSiteHttpPort}/applicationmetadata.json");
+                    await httpClient.GetAsync($"http://localhost:{TestSiteHttpPort.Port}/applicationmetadata.json");
             }
         }
 
@@ -48,7 +50,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             TestConfiguration = await new TestPathHelper().CreateTestConfiguration(cancellationToken);
 
             Environment.SetEnvironmentVariable("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
-            Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort}");
+            Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port}");
             string nugetExePath = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "nuget", "nuget.exe");
             Environment.SetEnvironmentVariable(ConfigurationConstants.NuGetExePath, nugetExePath);
 
@@ -125,7 +127,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 .UseKestrel(options =>
                 {
                     options.Listen(IPAddress.Loopback,
-                        TestSiteHttpPort);
+                        TestSiteHttpPort.Port);
                 })
                 .UseContentRoot(TestConfiguration.SiteAppRoot.FullName)
                 .UseStartup<TestStartup>().Build();

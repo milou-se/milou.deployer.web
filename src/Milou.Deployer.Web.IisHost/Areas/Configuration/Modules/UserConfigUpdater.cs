@@ -4,23 +4,26 @@ using System.IO;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 {
     [UsedImplicitly]
-    public class UserConfigUpdater
+    public sealed class UserConfigUpdater : IDisposable
     {
         private readonly ConfigurationHolder _configurationHolder;
         private string _fileName;
         private FileSystemWatcher _fileSystemWatcher;
+        private bool _isDisposed;
 
         public UserConfigUpdater(
-            ConfigurationHolder configurationHolder)
+            ConfigurationHolder configurationHolder,
+            EnvironmentConfiguration applicationEnvironment)
         {
             _configurationHolder = configurationHolder;
 
-            _fileName = Path.Combine(Directory.GetCurrentDirectory(), "config.user");
+            _fileName = Path.Combine(applicationEnvironment.ContentBasePath ?? Directory.GetCurrentDirectory(), "config.user");
 
             if (File.Exists(_fileName))
             {
@@ -38,6 +41,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
         public void Start()
         {
+            if (_isDisposed)
+            {
+                throw new ObjectDisposedException(nameof(UserConfigUpdater));
+            }
+
             if (File.Exists(_fileName))
             {
                 _fileSystemWatcher.EnableRaisingEvents = true;
@@ -65,6 +73,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                     }
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            if (_isDisposed)
+            {
+                return;
+            }
+
+            if (_fileSystemWatcher != null)
+            {
+                _fileSystemWatcher.EnableRaisingEvents = false;
+                _fileSystemWatcher.Changed -= WatcherOnChanged;
+                _fileSystemWatcher.Created -= WatcherOnChanged;
+                _fileSystemWatcher.Renamed -= WatcherOnChanged;
+                _fileSystemWatcher.Dispose();
+            }
+
+            _fileSystemWatcher = null;
+            _isDisposed = true;
         }
     }
 }

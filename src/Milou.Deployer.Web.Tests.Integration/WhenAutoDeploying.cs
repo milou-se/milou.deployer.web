@@ -20,7 +20,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         [Fact]
-        public async Task Abc()
+        public async Task ThenNewVersionShouldBeDeployed()
         {
             SemanticVersion semanticVersion = null;
 
@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                            semanticVersion != expectedVersion)
                     {
                         HttpResponseMessage responseMessage = await httpClient.GetAsync(
-                            $"http://localhost:{WebFixture.TestSiteHttpPort}/applicationmetadata.json",
+                            $"http://localhost:{WebFixture.TestSiteHttpPort.Port}/applicationmetadata.json",
                             cancellationTokenSource.Token);
 
                         Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);

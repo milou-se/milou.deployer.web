@@ -1,0 +1,20 @@
+﻿{
+  "urn:arbor:kvconfiguration:schema:version": "1.0",
+  "keys": [
+    {
+      "key": "urn:milou-deployer:tools:nuget:source",
+      "value": "Milou.Deployer.Web.Tests.Integration",
+      "configurationMetadata": null
+    },
+    {
+      "key": "urn:milou-deployer:tools:nuget:config",
+      "value": "R:\\ToolTemp\\VisualStudio2017C\\Milou.Deployer.Web.Tests.Integration\\636645202789775947\\nuget\\Milou.Deployer.Web.Tests.Integration.nuget.config",
+      "configurationMetadata": null
+    },
+    {
+      "key": "urn:milou-deployer:tools:nuget:exe-path",
+      "value": "C:\\Projects\\Niklas\\milou.deployer.web\\tools\\nuget\\nuget.exe",
+      "configurationMetadata": null
+    }
+  ]
+}

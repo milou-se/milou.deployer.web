@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 using Autofac;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Application;
-using Milou.Deployer.Web.IisHost.Areas.Configuration;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Serilog;
 using Xunit;
 
@@ -23,10 +23,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private CancellationTokenSource _cancellationTokenSource;
 
-        protected readonly List<FileInfo> FilesToClean = new List<FileInfo>();
-        protected readonly List<DirectoryInfo> DirectoriesToClean = new List<DirectoryInfo>();
-
-        protected ILogger Logger;
+        public readonly List<FileInfo> FilesToClean = new List<FileInfo>();
+        public readonly List<DirectoryInfo> DirectoriesToClean = new List<DirectoryInfo>();
 
         public StringBuilder Builder { get; private set; }
 
@@ -42,6 +40,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             try
             {
+                Environment.SetEnvironmentVariable(RegistrationConstants.ExcludedType + ":marten:fullName",
+                    $"{typeof(MartenStore).FullName}, {typeof(MartenStore).Assembly.GetName().Name}");
                 await BeforeInitialize(_cancellationTokenSource.Token);
                 IReadOnlyCollection<string> args = await RunSetupAsync();
 
@@ -72,7 +72,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             return Task.CompletedTask;
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _cancellationTokenSource?.Dispose();
             App?.Dispose();
@@ -153,7 +153,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             string appRootDirectory = Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost");
 
-            string[] args = { $"{ConfigurationConstants.BasePath}={appRootDirectory}" };
+            string[] args =
+            {
+                $"{ConfigurationConstants.ContentBasePath}={appRootDirectory}",
+            };
 
             _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
 
@@ -168,8 +171,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);
-
-            Logger = App.Logger;
 
             return args;
         }

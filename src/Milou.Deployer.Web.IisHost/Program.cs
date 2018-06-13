@@ -1,8 +1,14 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.KVConfiguration.Core;
+using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
+using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 
@@ -30,17 +36,36 @@ namespace Milou.Deployer.Web.IisHost
 
                 using (App app = await App.CreateAsync(cancellationTokenSource, null, args))
                 {
+                    bool runAsService = app.Container.Resolve<IKeyValueConfiguration>().ValueOrDefault(ApplicationConstants.RunAsService) && !Debugger.IsAttached;
+
                     app.Logger.Information("Starting application {Application}", ApplicationConstants.ApplicationName);
 
                     app.Logger.Debug("Restart time is set to {RestartIntervalInSeconds} seconds", intervalInSeconds);
 
-                    await app.RunAsync(args);
+                    string[] runArgs;
 
-                    app.Logger.Debug("Started Milou Deployer Web app, waiting for web host shutdown");
+                    if (!args.Contains(ApplicationConstants.RunAsService) && runAsService)
+                    {
+                        runArgs = args
+                            .Concat(new[] { ApplicationConstants.RunAsService })
+                            .ToArray();
+                    }
+                    else
+                    {
+                        runArgs = args;
+                    }
 
-                    await app.WebHost.WaitForShutdownAsync(cancellationTokenSource.Token);
+                    await app.RunAsync(runArgs);
 
-                    app.Logger.Information("Stopping application {Application}", ApplicationConstants.ApplicationName);
+                    if (!runAsService)
+                    {
+                        app.Logger.Debug("Started Milou Deployer Web app, waiting for web host shutdown");
+
+                        await app.WebHost.WaitForShutdownAsync(cancellationTokenSource.Token);
+                    }
+
+                    app.Logger.Information("Stopping application {Application}",
+                        ApplicationConstants.ApplicationName);
                 }
             }
 

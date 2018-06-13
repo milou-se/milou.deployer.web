@@ -8,15 +8,14 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public abstract class TestBase<T> : IDisposable, IClassFixture<T> where T : class, IAppHost
     {
-        protected ILogger Logger;
         protected T WebFixture;
 
         protected TestBase(T webFixture, ITestOutputHelper output)
         {
+            Output = output;
             WebFixture = webFixture;
 
-            Logger = WebFixture.App.Logger;
-            CancellationTokenSource = WebFixture.App.CancellationTokenSource;
+            CancellationTokenSource = WebFixture?.App?.CancellationTokenSource;
 
             if (webFixture.Exception != null)
             {
@@ -25,28 +24,28 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
         }
 
+        public ITestOutputHelper Output { get; }
+
         protected CancellationTokenSource CancellationTokenSource { get; }
 
         public virtual void Dispose()
         {
-            if (!CancellationTokenSource.IsCancellationRequested)
+            if (CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
             {
-                CancellationTokenSource.Cancel(throwOnFirstException: false);
+                CancellationTokenSource.Cancel(false);
             }
 
             if (WebFixture != null)
             {
-                Logger = null;
                 WebFixture.App?.Dispose();
 
                 if (WebFixture is IDisposable disposable)
                 {
                     disposable.Dispose();
                 }
+
                 WebFixture = null;
             }
-
-
         }
     }
 }

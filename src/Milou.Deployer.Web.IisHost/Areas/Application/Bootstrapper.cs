@@ -10,6 +10,7 @@ using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
+using Serilog.Core;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
@@ -21,7 +22,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             [NotNull] IReadOnlyList<IModule> modulesToRegister,
             [NotNull] ILogger logger,
             ImmutableArray<Assembly> scanAssemblies,
-            [NotNull] IReadOnlyList<Type> excludedModules)
+            [NotNull] IReadOnlyList<Type> excludedModules,
+            [NotNull] LoggingLevelSwitch loggingLevelSwitch)
         {
             if (modulesToRegister == null)
             {
@@ -40,7 +42,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 throw new ArgumentNullException(nameof(excludedModules));
             }
 
+            if (loggingLevelSwitch == null)
+            {
+                throw new ArgumentNullException(nameof(loggingLevelSwitch));
+            }
+
             var builder = new ContainerBuilder();
+
+            builder.RegisterInstance(loggingLevelSwitch).AsSelf().SingleInstance();
 
             builder.Register(context => new EnvironmentConfiguration
             {

@@ -3,6 +3,7 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using Autofac;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Targets;

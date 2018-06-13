@@ -5,6 +5,17 @@ namespace Milou.Deployer.Web.Core.Configuration
     public static class ConfigurationConstants
     {
         [Metadata]
+        public const string JsonSourceEnabled = "urn:milou:deployer:web:json-source:enabled";
+
+        public const string ContentBasePath = "urn:milou:deployer:web:content-base-path";
+
+        [Metadata]
+        public const string HostConfiguration = "urn:milou:deployer:web:host";
+
+        [Metadata]
+        public const string RestartTimeInSeconds = "urn:milou:deployer:web:restart-time-in-seconds";
+
+        [Metadata]
         public const string NuGetPackageSourceName = "tools:nuget:package-source-name";
 
         [Metadata]
@@ -33,9 +44,6 @@ namespace Milou.Deployer.Web.Core.Configuration
         public const string ApplicationBasePath = "urn:milou:deployer:web:application-base-path";
 
         [Metadata]
-        public const string JsonSourceEnabled = "urn:milou:deployer:web:target-source:json:enabled";
-
-        [Metadata]
         public const string DeployerManifestEnabled = "tools:milou-deployer:use-manifest:enabled";
 
         [Metadata]
@@ -60,6 +68,8 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         [Metadata]
         public const string PasswordKey = "urn:authentication:basicauthentication:password";
+
+        public const string AutoDeployConfiguration = "urn:milou:deployer:auto-deploy:configuration";
 
         [Metadata]
         public static string WhiteListedIPs = "urn:milou:deployer:authorization:white-listed-ips";
@@ -87,7 +97,5 @@ namespace Milou.Deployer.Web.Core.Configuration
             [Metadata]
             public const string SerilogConsoleLogEnabled = "urn:milou-deployer:logging:serilog:console:enabled";
         }
-
-        public const string AutoDeployConfiguration = "urn:milou:deployer:auto-deploy:configuration";
     }
 }

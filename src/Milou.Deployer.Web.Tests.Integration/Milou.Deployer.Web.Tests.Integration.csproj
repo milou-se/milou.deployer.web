@@ -1,10 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="arbor.aesculus" Version="2.1.3" />
     <PackageReference Include="jetbrains.annotations" Version="11.1.0" />
+    <PackageReference Include="Microsoft.Net.Compilers" Version="2.8.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
     <PackageReference Include="ncrunch.framework" Version="3.17.0" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="1.0.5" />
