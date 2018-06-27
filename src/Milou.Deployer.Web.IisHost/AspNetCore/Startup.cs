@@ -40,13 +40,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
     public class Startup
     {
-        private readonly Scope _webHostScope;
         private readonly Serilog.ILogger _logger;
+        private readonly Scope _webHostScope;
         private ILifetimeScope _aspNetScope;
 
         public Startup([NotNull] Scope webHostScope, [NotNull] Serilog.ILogger logger)
         {
-            _webHostScope = webHostScope?.Deepest() ?? throw new ArgumentNullException(nameof(webHostScope));
+            _webHostScope = webHostScope.Deepest() ?? throw new ArgumentNullException(nameof(webHostScope));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -103,10 +103,18 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             {
                 foreach (string deploymentTargetId in deploymentTargetIds.DeploymentWorkerIds)
                 {
-                    builder.Register(context => new DeploymentTargetWorker(deploymentTargetId, context.Resolve<DeploymentService>(), context.Resolve<Serilog.ILogger>(), context.Resolve<IMediator>(), context.Resolve<WorkerConfiguration>())).AsSelf().AsImplementedInterfaces().Named<DeploymentTargetWorker>(deploymentTargetId);
+                    builder.Register(context => new DeploymentTargetWorker(deploymentTargetId,
+                            context.Resolve<DeploymentService>(),
+                            context.Resolve<Serilog.ILogger>(),
+                            context.Resolve<IMediator>(),
+                            context.Resolve<WorkerConfiguration>())).AsSelf().AsImplementedInterfaces()
+                        .Named<DeploymentTargetWorker>(deploymentTargetId);
                 }
 
-                builder.Register(context => new DeploymentWorker(context.Resolve<IEnumerable<DeploymentTargetWorker>>())).AsSelf().AsImplementedInterfaces().SingleInstance();
+                builder.Register(
+                        context => new DeploymentWorker(context.Resolve<IEnumerable<DeploymentTargetWorker>>()))
+                    .AsSelf()
+                    .AsImplementedInterfaces().SingleInstance();
 
                 var keyValueConfiguration = _webHostScope.Lifetime.Resolve<IKeyValueConfiguration>();
 
@@ -120,7 +128,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     {
                         var customAttribute = module.GetType().GetCustomAttribute<RegistrationOrderAttribute>();
 
-                        if (customAttribute is null || !customAttribute.Tag.HasValue() || !customAttribute.Tag.Equals(Scope.AspNetCoreScope, StringComparison.OrdinalIgnoreCase))
+                        if (customAttribute is null || !customAttribute.Tag.HasValue() ||
+                            !customAttribute.Tag.Equals(Scope.AspNetCoreScope, StringComparison.OrdinalIgnoreCase))
                         {
                             return null;
                         }
@@ -128,7 +137,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                         return new
                         {
                             Module = module,
-                            Order = customAttribute?.Order ?? 0
+                            customAttribute.Order
                         };
                     })
                     .Where(item => item != null)

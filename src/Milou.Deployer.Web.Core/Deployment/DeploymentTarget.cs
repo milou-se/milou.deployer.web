@@ -17,6 +17,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             [NotNull] string id,
             [NotNull] string name,
             [NotNull] string packageId,
+            string publishSettingsXml = null,
             bool allowExplicitPreRelease = false,
             string nuGetConfigFile = null,
             string nuGetPackageSource = null,
@@ -71,6 +72,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
             PackageId = packageId;
+            PublishSettingsXml = publishSettingsXml;
             EnvironmentType = EnvironmentType.Parse(environmentType);
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
             Parameters = parameters?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
@@ -108,6 +110,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string TargetDirectory { get; }
 
         public string PublishSettingFile { get; }
+
+        public string PublishSettingsXml { get; }
 
         public string ParameterFile { get; }
 

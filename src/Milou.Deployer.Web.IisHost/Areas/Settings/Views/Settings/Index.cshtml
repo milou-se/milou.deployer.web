@@ -1,13 +1,67 @@
-﻿@using Milou.Deployer.Web.IisHost.Areas.NuGet
+﻿@using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
 
 <h2>Target read service: @Model.TargetReadService</h2>
 
 <ul>
-    <li><a href="/deployment/invalidate">Invalidate package cache</a></li>
+    <li>
+        <a href="/deployment/invalidate">Invalidate package cache</a>
+    </li>
 </ul>
 
-@foreach ((string Type, string Name, string Value) item in Model.Routes)
-{
-    <li>@item.Name: @item.Value (@item.Type)</li>
-}
+<table>
+    <thead>
+    <tr>
+        <th>Route</th>
+        <th>Name</th>
+        <th>Defined in type</th>
+        <th>Used in controller</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (ControllerRouteInfo item in Model.Routes)
+    {
+        <tr>
+            <td>
+                @if (item.Route.IsLinkable() && !string.IsNullOrWhiteSpace(Url.RouteUrl(item.Route.Name)))
+                {
+                    <a href="@Url.RouteUrl(item.Route.Name)">@item.Route.Value</a>
+                }
+                else
+                {
+                    @Url.RouteUrl(item.Route.Name)
+                }
+            </td>
+            <td>@item.Route.Name</td>
+            <td>@item.Route.Type</td>
+            <td>@item.ControllerType</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h3>Configuration info</h3>
+
+<div>
+@Model.ConfigurationInfo.ConfigurationSourceChain
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Key</th>
+        <th>Value</th>
+        <th>Source</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (ConfigurationKeyInfo item in Model.ConfigurationInfo.Keys)
+    {
+        <tr>
+            <td>@item.Key</td>
+            <td>@item.Value</td>
+            <td>@item.Source</td>
+        </tr>
+    }
+    </tbody>
+</table>

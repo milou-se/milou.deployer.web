@@ -11,9 +11,10 @@ using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Email;
 using Milou.Deployer.Web.Core.Structure;
+using Milou.Deployer.Web.Core.Targets;
 using Serilog;
 
-namespace Milou.Deployer.Web.Core.Targets
+namespace Milou.Deployer.Web.Marten
 {
     [UsedImplicitly]
     public class MartenStore : IDeploymentTargetReadService,
@@ -170,6 +171,7 @@ namespace Milou.Deployer.Web.Core.Targets
                 data.NuGetPackageSource = request.NugetPackageSource;
                 data.NuGetConfigFile = request.NugetConfigFile;
                 data.AutoDeployEnabled = request.AutoDeployEnabled;
+                data.PublishSettingsXml = request.PublishSettingsXml;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);
@@ -218,6 +220,7 @@ namespace Milou.Deployer.Web.Core.Targets
                 deploymentTargetData.Id,
                 deploymentTargetData.Name,
                 deploymentTargetData.PackageId ?? "N/A",
+                deploymentTargetData.PublishSettingsXml,
                 deploymentTargetData.AllowExplicitPreRelease,
                 uri: deploymentTargetData.Url?.ToString(),
                 nuGetConfigFile: deploymentTargetData.NuGetConfigFile,

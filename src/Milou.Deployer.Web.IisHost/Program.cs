@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Application;
-using Milou.Deployer.Web.IisHost.Areas.Configuration;
 
 namespace Milou.Deployer.Web.IisHost
 {
@@ -40,7 +39,11 @@ namespace Milou.Deployer.Web.IisHost
 
                     app.Logger.Information("Starting application {Application}", ApplicationConstants.ApplicationName);
 
-                    app.Logger.Debug("Restart time is set to {RestartIntervalInSeconds} seconds", intervalInSeconds);
+                    if (intervalInSeconds >= 0)
+                    {
+                        app.Logger.Debug("Restart time is set to {RestartIntervalInSeconds} seconds",
+                            intervalInSeconds);
+                    }
 
                     string[] runArgs;
 
@@ -69,7 +72,11 @@ namespace Milou.Deployer.Web.IisHost
                 }
             }
 
-            await Task.Delay(TimeSpan.FromMilliseconds(3000), CancellationToken.None);
+            if (int.TryParse(Environment.GetEnvironmentVariable(ConfigurationConstants.ShutdownTimeInSeconds),
+                    out int shutDownTimeInSeconds) && shutDownTimeInSeconds > 0)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(shutDownTimeInSeconds), CancellationToken.None);
+            }
 
             return 0;
         }

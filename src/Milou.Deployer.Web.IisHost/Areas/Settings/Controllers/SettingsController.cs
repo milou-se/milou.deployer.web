@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Immutable;
+using System.Linq;
+using Arbor.KVConfiguration.Core;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Controllers;
 
@@ -15,10 +17,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         [HttpGet]
         [Route("")]
-        public IActionResult Index([FromServices] IDeploymentTargetReadService deploymentTargetReadService)
+        public IActionResult Index([FromServices] IDeploymentTargetReadService deploymentTargetReadService, [FromServices] MultiSourceKeyValueConfiguration configuration)
         {
-            return View(new SettingsViewModel(deploymentTargetReadService.GetType().Name,
-                RouteList.GetConstantRoutes(AppDomain.CurrentDomain.FilteredAssemblies())));
+            ImmutableArray<ControllerRouteInfo> routesWithController = RouteList.GetRoutesWithController(AppDomain.CurrentDomain.FilteredAssemblies());
+
+            var info = new ConfigurationInfo(configuration.SourceChain, configuration.AllKeys.OrderBy(item => item).Select(item => new ConfigurationKeyInfo(item, configuration[item], configuration.ConfiguratorFor(item).GetType().Name)).ToImmutableArray());
+
+            var settingsViewModel = new SettingsViewModel(
+                deploymentTargetReadService.GetType().Name,
+                routesWithController, info);
+
+            return View(settingsViewModel);
         }
     }
 }

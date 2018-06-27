@@ -5,18 +5,21 @@ using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Milou.Deployer.Web.Core.Extensions;
+using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     [UsedImplicitly]
     public class CustomMemoryCache : ICustomMemoryCache
     {
-        private readonly ConcurrentDictionary<string, object> _keys = new ConcurrentDictionary<string, object>();
+        private static readonly ConcurrentDictionary<string, object> _Keys = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
         private readonly IMemoryCache _memoryCache;
+        private readonly ILogger _logger;
 
-        public CustomMemoryCache(IMemoryCache memoryCache)
+        public CustomMemoryCache(IMemoryCache memoryCache, ILogger logger)
         {
             _memoryCache = memoryCache;
+            _logger = logger;
         }
 
         public IReadOnlyCollection<string> CachedKeys => GetCachedKeys();
@@ -53,40 +56,61 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             TimeSpan cacheEntryAbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(900);
 
             _memoryCache.Set(key, item, cacheEntryAbsoluteExpirationRelativeToNow);
-            _keys.TryAdd(key, string.Empty);
+            bool added = _Keys.TryAdd(key, string.Empty);
+
+            if (!added && !_Keys.ContainsKey(key))
+            {
+                _logger.Debug("Could not add item with key {Key} to cache", key);
+            }
         }
 
         public void Invalidate(string prefix = null)
         {
             IReadOnlyCollection<string> keys = GetCachedKeys();
 
+            if (!keys.Any())
+            {
+                _logger.Debug("No items were removed from in-memory cache since there were no cached items");
+                return;
+            }
+
+            IReadOnlyCollection<string> filteredKeys = keys;
+
             if (prefix.HasValue())
             {
-                keys = keys
+                filteredKeys = keys
                     .Where(key => key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                     .ToArray();
             }
 
-            foreach (string key in keys)
+            _logger.Debug("Removing {ToRemoveCount} items of {TotalCount} from in-memory cache matching prefix {Prefix}", filteredKeys.Count, keys.Count, prefix);
+
+            foreach (string key in filteredKeys)
             {
                 _memoryCache.Remove(key);
-                _keys.TryRemove(key, out _);
+                _Keys.TryRemove(key, out _);
+                _logger.Debug("Removed item with key {CacheKey} from in-memory cache", key);
             }
         }
 
         private IReadOnlyCollection<string> GetCachedKeys()
         {
-            (string key, bool exists)[] keys = _keys.Select(key => (key.Key, _memoryCache.TryGetValue(key, out _)))
+            (string key, bool exists)[] keys = _Keys.Select(key => (key.Key, _memoryCache.TryGetValue(key.Key, out _)))
                 .ToArray();
 
             string[] toRemove = keys.Where(item => !item.exists).Select(item => item.key).ToArray();
 
             foreach (string nonCachedKey in toRemove)
             {
-                _keys.TryRemove(nonCachedKey, out _);
+                bool removed = _Keys.TryRemove(nonCachedKey, out _);
+
+                if (!removed)
+                {
+                    _logger.Debug("Could not remove cached item with key {CacheKey}", nonCachedKey);
+                }
             }
 
-            return _keys.Keys.ToArray();
+            return _Keys.Keys.ToArray();
         }
     }
 }

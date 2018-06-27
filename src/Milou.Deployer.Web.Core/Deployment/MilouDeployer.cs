@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Arbor.KVConfiguration.Core;
@@ -40,13 +41,14 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public async Task<ExitCode> ExecuteAsync(
             DeploymentTask deploymentTask,
-            ILogger logger)
+            ILogger logger,
+            CancellationToken cancellationToken = default)
         {
             string jobId = "MDep_" + Guid.NewGuid();
 
             logger.Information("Starting job {JobId}", jobId);
 
-            DeploymentTarget deploymentTarget = await GetDeploymentTarget(deploymentTask.DeploymentTargetId);
+            DeploymentTarget deploymentTarget = await GetDeploymentTarget(deploymentTask.DeploymentTargetId, cancellationToken);
 
             FileInfo exeFile = CheckExecutableExists();
 
@@ -72,6 +74,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 logger.Information("Using manifest file for job {JobId}", jobId);
 
                 string publishSettingsFile = deploymentTarget.PublishSettingFile;
+
                 bool useManifest = bool.TryParse(
                                        _keyValueConfiguration[
                                            ConfigurationConstants.DeployerManifestEnabled],
@@ -107,6 +110,17 @@ namespace Milou.Deployer.Web.Core.Deployment
                     }
 
                     ImmutableDictionary<string, string[]> parameters = parameterDictionary;
+
+                    if (deploymentTarget.PublishSettingsXml.HasValue())
+                    {
+                        string tempFileName = Path.GetTempFileName();
+
+                        await File.WriteAllTextAsync(tempFileName, deploymentTarget.PublishSettingsXml, Encoding.UTF8, cancellationToken);
+
+                        deploymentTask.TempFiles.Add(new FileInfo(tempFileName));
+
+                        publishSettingsFile = tempFileName;
+                    }
 
                     if (!File.Exists(publishSettingsFile))
                     {
@@ -167,7 +181,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                     logger.Information("Using temp manifest file '{ManifestFile}'", tempManifestFile.FullName);
 
-                    File.WriteAllText(tempManifestFile.FullName, json, Encoding.UTF8);
+                    await File.WriteAllTextAsync(tempManifestFile.FullName, json, Encoding.UTF8, cancellationToken);
 
                     arguments.Add($"\"{tempManifestFile.FullName}\"");
                 }
@@ -192,7 +206,8 @@ namespace Milou.Deployer.Web.Core.Deployment
                 ExitCode milouExitCode = await ProcessRunner.ExecuteAsync(
                     _milouDeployerConfiguration.MilouDeployerExePath,
                     logger,
-                    arguments);
+                    arguments,
+                    cancellationToken: cancellationToken);
 
                 ClearTemporaryDirectoriesAndFiles(deploymentTask);
 
@@ -205,7 +220,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
         }
 
-        public async Task<DeploymentTarget> GetDeploymentTarget([NotNull] string deploymentTargetId)
+        public async Task<DeploymentTarget> GetDeploymentTarget([NotNull] string deploymentTargetId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(deploymentTargetId))
             {
@@ -213,7 +228,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
 
             DeploymentTarget deploymentTarget =
-                await _deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+                await _deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId, cancellationToken);
 
             return deploymentTarget;
         }

@@ -19,13 +19,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
     [Route("deployment")]
     public class DeploymentController : BaseApiController
     {
-        private readonly DeploymentService _deploymentService;
-
         private readonly IDeploymentTargetReadService _getTargets;
 
         public DeploymentController(
             [NotNull] ILogger logger,
-            [NotNull] DeploymentService deploymentService,
             [NotNull] IDeploymentTargetReadService getTargets)
         {
             if (logger == null)
@@ -38,7 +35,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 throw new ArgumentNullException(nameof(logger));
             }
 
-            _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
             _getTargets = getTargets ?? throw new ArgumentNullException(nameof(getTargets));
         }
 
@@ -52,19 +48,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
                 .SafeToReadOnlyCollection();
 
-            ImmutableArray<string> allAllowedPackageNames =
-                targets.Select(target => target.PackageId).ToImmutableArray();
-
             IReadOnlyCollection<PackageVersion> items = ImmutableArray<PackageVersion>.Empty;
 
             return View(new DeploymentViewOutputModel(items, targets));
         }
 
         [HttpGet]
-        [Route("invalidate")]
+        [Route("~/invalidatecache")]
         public ActionResult InvalidateCache([FromServices] ICustomMemoryCache customMemoryCache)
         {
-            customMemoryCache.Invalidate();
+            customMemoryCache.Invalidate(Request.Query["prefix"]);
 
             return RedirectToAction(nameof(Index));
         }

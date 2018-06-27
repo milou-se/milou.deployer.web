@@ -11,6 +11,7 @@ using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Application;
+using Milou.Deployer.Web.Marten;
 using Serilog;
 using Xunit;
 

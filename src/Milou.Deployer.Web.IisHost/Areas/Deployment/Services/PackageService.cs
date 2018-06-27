@@ -17,9 +17,11 @@ using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
+    [UsedImplicitly]
     public class PackageService
     {
-        private const string AllPackagesCacheKey = "urn:packages:all";
+        private const string AllPackagesCacheKey = PackagesCacheKeyBaseUrn + ":AnyConfig";
+        private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
         private readonly NuGetListConfiguration _deploymentConfiguration;
         private readonly ICustomMemoryCache _memoryCache;
         [NotNull]
@@ -58,28 +60,37 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 return ImmutableArray<PackageVersion>.Empty;
             }
 
+            string NormalizeKey(string key)
+            {
+                return key.Replace(":", "_")
+                    .Replace("/", "")
+                    .Replace(".", "")
+                    .Replace(Path.DirectorySeparatorChar.ToString(), "_");
+            }
+
             string cacheKey = AllPackagesCacheKey;
 
-            if (nugetConfigFile.HasValue())
+            if (!string.IsNullOrWhiteSpace(nugetConfigFile))
             {
-                string configCachePart =
-                    "urn:packages:" + nugetConfigFile.Replace(Path.DirectorySeparatorChar.ToString(), "");
+                string configCachePart = $"{PackagesCacheKeyBaseUrn}:{NormalizeKey(nugetConfigFile)}";
 
-                if (nugetPackageSource.HasValue())
+                if (!string.IsNullOrWhiteSpace(nugetPackageSource))
                 {
-                    cacheKey = configCachePart
-                               + ":" + nugetPackageSource
-                                   .Replace(":", "")
-                                   .Replace("/", "")
-                                   .Replace(".", "");
+                    cacheKey = $"{configCachePart}:{NormalizeKey(nugetPackageSource)}";
                 }
                 else
                 {
                     cacheKey = configCachePart;
                 }
             }
+            else if (!string.IsNullOrWhiteSpace(nugetPackageSource))
+            {
+                cacheKey = $"{PackagesCacheKeyBaseUrn}:{NormalizeKey(nugetPackageSource)}";
+            }
 
-            cacheKey += ":" + packageId;
+            cacheKey += $":{packageId}";
+
+            _logger.Verbose("Using package cache key {Key}", cacheKey);
 
             if (useCache)
             {
@@ -87,6 +98,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     if (packages.Count > 0)
                     {
+                        _logger.Debug("Returning packages from cache with key {Key} for package id {PackageId}", cacheKey, packageId);
                         return packages;
                     }
                 }
@@ -117,7 +129,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (!string.IsNullOrWhiteSpace(packageSource))
             {
-                logger?.Debug("Using package source '{PackageSource}'", packageSource);
+                logger?.Debug("Using package source '{PackageSource}' for package {Package}", packageSource, packageId);
                 args.Add("-source");
                 args.Add(packageSource);
             }
@@ -135,6 +147,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (configFile.HasValue() && File.Exists(configFile))
             {
+                _logger.Debug("Using NuGet config file {NuGetConfigFile} for package {Package}", configFile, packageId);
                 args.Add("-ConfigFile");
                 args.Add(configFile);
             }
@@ -157,7 +170,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         arguments: args,
                         standardOutLog: (s, _) => builder.Add(s),
                         standardErrorAction: (s, _) => errorBuild.Add(s),
-                        toolAction: (s, _) => _logger.Information("{ProcessToolMessage}", s),
+                        toolAction: (s, _) => _logger.Debug("{ProcessToolMessage}", s),
                         verboseAction: (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
                         cancellationToken: linked.Token);
                 }
@@ -199,6 +212,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     string.Join(" ", args),
                     sourcesOut,
                     sourcesErrorOut);
+
                 return Array.Empty<PackageVersion>();
             }
 
@@ -222,11 +236,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                             if (!SemanticVersion.TryParse(version, out SemanticVersion semanticVersion))
                             {
+                                _logger.Debug("Found package version {Version} for package {Package}, skipping because it could not be parsed as semantic version", version, currentPackageId);
                                 return null;
                             }
 
                             if (!packageId.Equals(currentPackageId, StringComparison.OrdinalIgnoreCase))
                             {
+                                _logger.Debug("Found package {Package}, skipping because it does match requested package {RequestedPackage}", currentPackageId, packageId);
+
                                 return null;
                             }
 
@@ -234,6 +251,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         }
                         catch (Exception ex) when (!ex.IsFatal())
                         {
+                            _logger.Warning(ex, "Error parsing package '{Package}'", package);
                             return null;
                         }
                     })
@@ -251,17 +269,33 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (_logger.IsEnabled(LogEventLevel.Verbose))
             {
-                _logger.Verbose("Added {Count} packages to in-memory cache {PackageVersions}",
+                _logger.Verbose("Added {Count} packages to in-memory cache with cache key {CacheKey} {PackageVersions}",
                     addedPackages.Count,
+                    cacheKey,
                     addedPackages);
+            }
+            else if (addedPackages.Count > 0 && addedPackages.Count < 20)
+            {
+                _logger.Information("Added {Count} packages to in-memory cache with cache key {CacheKey} {PackageVersions}",
+                    addedPackages.Count,
+                    cacheKey,
+                    addedPackages);
+            }
+            else if (addedPackages.Any())
+            {
+                _logger.Information("Added {Count} packages to in-memory cache with cache key {CacheKey}",
+                    addedPackages.Count,
+                    cacheKey);
+            }
+
+            if (addedPackages.Any())
+            {
+                _memoryCache.Set(cacheKey, items);
             }
             else
             {
-                _logger.Information("Added {Count} packages to in-memory cache",
-                    addedPackages.Count);
+                _logger.Debug("Added no packages to in-memory cache for cache key {CacheKey}", cacheKey);
             }
-
-            _memoryCache.Set(cacheKey, addedPackages);
 
             return items;
         }

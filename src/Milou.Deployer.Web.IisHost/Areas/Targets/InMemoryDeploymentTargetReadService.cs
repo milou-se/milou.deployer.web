@@ -82,6 +82,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
                                 new DeploymentTarget("TestTarget",
                                     "Test target",
                                     "MilouDeployer",
+                                    null,
                                     true,
                                     new StringValues("*"),
                                     targetDirectory: Path.Combine(

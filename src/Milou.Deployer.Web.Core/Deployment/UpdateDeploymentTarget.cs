@@ -14,7 +14,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             string iisSiteName = null,
             string nugetPackageSource = null,
             string nugetConfigFile = null,
-            bool autoDeployEnabled = false)
+            bool autoDeployEnabled = false,
+            string publishSettingsXml = null)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
@@ -24,6 +25,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             NugetPackageSource = nugetPackageSource;
             NugetConfigFile = nugetConfigFile;
             AutoDeployEnabled = autoDeployEnabled;
+            PublishSettingsXml = publishSettingsXml;
         }
 
         public string Id { get; }
@@ -39,6 +41,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string NugetConfigFile { get; }
 
         public bool AutoDeployEnabled { get; }
+        public string PublishSettingsXml { get; }
 
         public string PackageId { get; }
     }

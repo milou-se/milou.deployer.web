@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="arbor.kvconfiguration.jsonconfiguration" Version="0.13.2" />
+    <PackageReference Include="arbor.kvconfiguration.urns" Version="0.13.2" />
+    <PackageReference Include="autofac" Version="4.8.1" />
+    <PackageReference Include="jetbrains.annotations" Version="11.1.0" />
+    <PackageReference Include="marten" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
+  </ItemGroup>
+
+</Project>

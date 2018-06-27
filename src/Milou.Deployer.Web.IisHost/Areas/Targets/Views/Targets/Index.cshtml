@@ -59,6 +59,18 @@
                                 }
                             </p>
 
+                            <p>
+                                PublishSettings XML:
+                                @if (item.Target.PublishSettingsXml.HasValue())
+                                {
+                                    <span>@item.Target.PublishSettingsXml</span>
+                                }
+                                else
+                                {
+                                    <span>N/A</span>
+                                }
+                            </p>
+
                             <ul>
                                 @foreach (StringPair configPair in item.ConfigurationPairs)
                                 {

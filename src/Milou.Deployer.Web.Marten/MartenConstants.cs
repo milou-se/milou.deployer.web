@@ -1,6 +1,6 @@
 ﻿using Arbor.KVConfiguration.Core.Metadata;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Targets
+namespace Milou.Deployer.Web.Marten
 {
     public static class MartenConstants
     {

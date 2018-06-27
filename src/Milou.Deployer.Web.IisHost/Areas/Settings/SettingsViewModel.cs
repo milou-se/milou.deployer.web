@@ -1,17 +1,24 @@
 ﻿using System.Collections.Immutable;
+using System.Linq;
+using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings
 {
     public class SettingsViewModel
     {
         public string TargetReadService { get; }
+        public ConfigurationInfo ConfigurationInfo { get; }
 
-        public ImmutableArray<(string Type, string Name, string Value)> Routes { get; }
+        public ImmutableArray<ControllerRouteInfo> Routes { get; }
 
-        public SettingsViewModel(string targetReadService, ImmutableArray<(string, string, string)> routes)
+        public SettingsViewModel(
+            string targetReadService,
+            ImmutableArray<ControllerRouteInfo> routes,
+            ConfigurationInfo configurationInfo)
         {
             TargetReadService = targetReadService;
-            Routes = routes;
+            ConfigurationInfo = configurationInfo;
+            Routes = routes.OrderBy(route => route.Route.Value).ToImmutableArray();
         }
     }
 }

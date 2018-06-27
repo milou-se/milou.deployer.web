@@ -30,6 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             if (!string.IsNullOrWhiteSpace(address))
             {
                 claims.Add(new Claim(CustomClaimTypes.IPAddress, address));
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, address));
 
                 authenticateResult = AuthenticateResult.Success(
                     new AuthenticationTicket(
@@ -42,8 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 authenticateResult = AuthenticateResult.Fail("Missing remote ip address");
             }
 
-            return Task.FromResult(
-                authenticateResult);
+            return Task.FromResult(authenticateResult);
         }
     }
 }

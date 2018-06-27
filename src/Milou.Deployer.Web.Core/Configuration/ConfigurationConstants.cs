@@ -15,6 +15,9 @@ namespace Milou.Deployer.Web.Core.Configuration
         [Metadata]
         public const string RestartTimeInSeconds = "urn:milou:deployer:web:restart-time-in-seconds";
 
+        [Metadata(defaultValue: "0")]
+        public const string ShutdownTimeInSeconds = "urn:milou:deployer:web:shutdown-time-in-seconds";
+
         [Metadata]
         public const string NuGetPackageSourceName = "tools:nuget:package-source-name";
 

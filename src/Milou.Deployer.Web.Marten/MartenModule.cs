@@ -9,9 +9,8 @@ using Marten;
 using Marten.Services;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Json;
-using Milou.Deployer.Web.Core.Targets;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Targets
+namespace Milou.Deployer.Web.Marten
 {
     [RegistrationOrder(1000)]
     [UsedImplicitly]

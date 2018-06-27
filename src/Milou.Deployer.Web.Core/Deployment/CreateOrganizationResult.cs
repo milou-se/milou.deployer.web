@@ -4,7 +4,7 @@ using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
-    public class CreateOrganizationResult : ApiResult
+    public class CreateOrganizationResult
     {
         public ImmutableArray<ValidationError> ValidationErrors { get; }
 

@@ -1,7 +1,7 @@
 ﻿using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Targets
+namespace Milou.Deployer.Web.Marten
 {
     [Urn(MartenConstants.MartenConfiguration)]
     [UsedImplicitly]

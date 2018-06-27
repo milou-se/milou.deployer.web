@@ -6,7 +6,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     {
         public const string Configuration = "urn:milou:deployer:web:nuget:list-configuration";
 
-        [Metadata(defaultValue: "30")]
+        [Metadata(defaultValue: "7")]
         public const string DefaultListTimeOutInSeconds =
             Configuration + ":default:" + nameof(NuGetListConfiguration.ListTimeOutInSeconds);
     }

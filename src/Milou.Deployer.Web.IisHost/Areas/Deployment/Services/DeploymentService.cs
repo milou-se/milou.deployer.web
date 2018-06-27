@@ -83,7 +83,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 result = await RunDeploymentToolAsync(deploymentTask,
                     deploymentJobsDirectory,
                     deploymentTarget,
-                    logger);
+                    logger,
+                    cancellationToken);
             }
             catch (Exception ex)
             {
@@ -195,7 +196,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTask deploymentTask,
             DirectoryInfo deploymentJobsDirectory,
             DeploymentTarget deploymentTarget,
-            ILogger logger)
+            ILogger logger, CancellationToken cancellationToken = default)
         {
             string contentFilePath = GetMainLogFilePath(deploymentTask,
                 deploymentJobsDirectory);
@@ -219,7 +220,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 try
                 {
-                    exitCode = await _deployer.ExecuteAsync(deploymentTask, log);
+                    exitCode = await _deployer.ExecuteAsync(deploymentTask, log, cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -230,7 +231,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             DateTime finishedAtUtc = _time.UtcNow().DateTime;
 
-            await _mediator.Publish(new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString(), finishedAtUtc));
+            await _mediator.Publish(new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString(), finishedAtUtc), cancellationToken);
 
             return (exitCode, finishedAtUtc);
         }

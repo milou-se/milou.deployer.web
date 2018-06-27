@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             string[] ipAddressesFromConfig = keyValueConfiguration[ConfigurationConstants.WhiteListedIPs]
                 .Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-            _whiteListed = new HashSet<string> { "::1", "127.0.0.1" };
+            _whiteListed = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "::1", "127.0.0.1" };
 
             foreach (string address in ipAddressesFromConfig)
             {

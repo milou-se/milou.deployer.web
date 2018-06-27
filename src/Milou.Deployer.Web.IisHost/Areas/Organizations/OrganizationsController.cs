@@ -33,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
         [HttpPost]
         [Route(OrganizationConstants.CreateOrganizationPostRoute,
             Name = OrganizationConstants.CreateOrganizationPostRouteName)]
-        public async Task<IActionResult> Post([FromBody] CreateOrganization createOrganization, [FromQuery] bool redirect = true)
+        public async Task<ActionResult<CreateOrganizationResult>> Post([FromBody] CreateOrganization createOrganization, [FromQuery] bool redirect = true)
         {
             CreateOrganizationResult createOrganizationResult = await _mediator.Send(createOrganization);
 
@@ -43,7 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
                 return RedirectToAction(nameof(Index));
             }
 
-            return createOrganizationResult.ToActionResult();
+            return createOrganizationResult;
         }
     }
 }

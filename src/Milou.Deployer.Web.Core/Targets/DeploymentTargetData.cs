@@ -26,5 +26,7 @@ namespace Milou.Deployer.Web.Core.Targets
         public bool AutoDeployEnabled { get; set; }
 
         public string PackageId { get; set; }
+
+        public string PublishSettingsXml { get; set; }
     }
 }

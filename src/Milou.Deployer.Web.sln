@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.IisHost"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tests.Unit", "Milou.Deployer.Web.Tests.Unit\Milou.Deployer.Web.Tests.Unit.csproj", "{34E7DED9-6B88-414F-9CDB-604009CE0FFD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Web.Tests.Integration", "Milou.Deployer.Web.Tests.Integration\Milou.Deployer.Web.Tests.Integration.csproj", "{339ADB48-6740-4CA8-A913-98B8F93512D6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tests.Integration", "Milou.Deployer.Web.Tests.Integration\Milou.Deployer.Web.Tests.Integration.csproj", "{339ADB48-6740-4CA8-A913-98B8F93512D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Web.Marten", "Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj", "{8C35B845-2F0E-4263-ACFE-C4A6FEDD0C31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,6 +45,10 @@ Global
 		{339ADB48-6740-4CA8-A913-98B8F93512D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{339ADB48-6740-4CA8-A913-98B8F93512D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{339ADB48-6740-4CA8-A913-98B8F93512D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C35B845-2F0E-4263-ACFE-C4A6FEDD0C31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C35B845-2F0E-4263-ACFE-C4A6FEDD0C31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C35B845-2F0E-4263-ACFE-C4A6FEDD0C31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C35B845-2F0E-4263-ACFE-C4A6FEDD0C31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

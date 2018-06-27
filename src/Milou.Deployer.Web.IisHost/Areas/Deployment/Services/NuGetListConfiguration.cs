@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public NuGetListConfiguration(int listTimeOutInSeconds)
         {
-            ListTimeOutInSeconds = listTimeOutInSeconds <= 0 ? 30 : listTimeOutInSeconds;
+            ListTimeOutInSeconds = listTimeOutInSeconds <= 0 ? 7 : listTimeOutInSeconds;
         }
     }
 }

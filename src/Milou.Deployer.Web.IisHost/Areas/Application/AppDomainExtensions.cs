@@ -27,6 +27,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 Console.WriteLine(type.Assembly.GetName().Name);
             }
         }
+
         public static ImmutableArray<Assembly> FilteredAssemblies(
             [NotNull] this AppDomain appDomain,
             string assemblyNameStartsWith = null,
