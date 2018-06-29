@@ -11,6 +11,7 @@
     <PackageReference Include="jetbrains.annotations" Version="11.1.0" />
     <PackageReference Include="Microsoft.Net.Compilers" Version="2.8.2" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.2" />
+    <PackageReference Include="MysticMind.PostgresEmbed" Version="1.0.0" />
     <PackageReference Include="ncrunch.framework" Version="3.17.0" />
     <PackageReference Include="Serilog.Sinks.XUnit" Version="1.0.5" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />

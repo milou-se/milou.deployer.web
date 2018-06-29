@@ -12,6 +12,7 @@ using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.Marten;
+using MysticMind.PostgresEmbed;
 using Serilog;
 using Xunit;
 
@@ -20,12 +21,16 @@ namespace Milou.Deployer.Web.Tests.Integration
     public abstract class WebFixtureBase : IDisposable, IAsyncLifetime
     {
         public Exception Exception { get; private set; }
+
         private const int CancellationTimeoutInSeconds = 120;
 
         private CancellationTokenSource _cancellationTokenSource;
 
         public readonly List<FileInfo> FilesToClean = new List<FileInfo>();
+
         public readonly List<DirectoryInfo> DirectoriesToClean = new List<DirectoryInfo>();
+
+        private PgServer _pgServer;
 
         public StringBuilder Builder { get; private set; }
 
@@ -35,14 +40,30 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
+        private const string PostgresqlUser = "postgres";
+
+        private const string ConnectionStringFormat = "Server=localhost;Port={0};User Id={1};Password=test;Database=postgres;Pooling=false";
+
+        private const bool AddLocalUserAccessPermission = true;
+
         public async Task InitializeAsync()
         {
             _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
 
             try
             {
-                Environment.SetEnvironmentVariable(RegistrationConstants.ExcludedType + ":marten:fullName",
-                    $"{typeof(MartenStore).FullName}, {typeof(MartenStore).Assembly.GetName().Name}");
+                _pgServer = new PgServer(
+                    "9.6.9.1",
+                    PostgresqlUser,
+                    addLocalUserAccessPermission: AddLocalUserAccessPermission,
+                    clearInstanceDirOnStop: true);
+
+                _pgServer.Start();
+
+                string connStr = string.Format(ConnectionStringFormat, _pgServer.PgPort, PostgresqlUser);
+
+                Environment.SetEnvironmentVariable("urn:milou:deployer:web:marten:singleton:connection-string", connStr);
+
                 await BeforeInitialize(_cancellationTokenSource.Token);
                 IReadOnlyCollection<string> args = await RunSetupAsync();
 
@@ -77,6 +98,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             _cancellationTokenSource?.Dispose();
             App?.Dispose();
+            _pgServer?.Dispose();
 
             FileInfo[] files = FilesToClean.ToArray();
 

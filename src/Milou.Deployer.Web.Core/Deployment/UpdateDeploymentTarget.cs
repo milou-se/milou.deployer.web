@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using MediatR;
 
 namespace Milou.Deployer.Web.Core.Deployment
@@ -15,7 +14,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             string nugetPackageSource = null,
             string nugetConfigFile = null,
             bool autoDeployEnabled = false,
-            string publishSettingsXml = null)
+            string publishSettingsXml = null,
+            string targetDirectory = null)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
@@ -26,6 +26,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             NugetConfigFile = nugetConfigFile;
             AutoDeployEnabled = autoDeployEnabled;
             PublishSettingsXml = publishSettingsXml;
+            TargetDirectory = targetDirectory;
         }
 
         public string Id { get; }
@@ -41,7 +42,10 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string NugetConfigFile { get; }
 
         public bool AutoDeployEnabled { get; }
+
         public string PublishSettingsXml { get; }
+
+        public string TargetDirectory { get; }
 
         public string PackageId { get; }
     }

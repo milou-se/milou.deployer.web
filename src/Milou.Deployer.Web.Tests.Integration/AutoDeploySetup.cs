@@ -10,8 +10,10 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Schema.Json;
 using Autofac;
 using JetBrains.Annotations;
+using MediatR;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Processing;
@@ -104,6 +106,19 @@ namespace Milou.Deployer.Web.Tests.Integration
         protected override async Task BeforeStartAsync(IReadOnlyCollection<string> args)
         {
             var deploymentService = App.AppRootScope.Deepest().Lifetime.Resolve<DeploymentService>();
+            var mediator = App.AppRootScope.Deepest().Lifetime.Resolve<IMediator>();
+
+            var testTarget = new DeploymentTarget(id: "TestTarget",
+                name: "Test target",
+                packageId: "MilouDeployerWebTest",
+                allowExplicitPreRelease: false,
+                autoDeployEnabled: true,
+                targetDirectory: Environment.GetEnvironmentVariable("TestDeploymentTargetPath"),
+                uri: Environment.GetEnvironmentVariable("TestDeploymentUri"),
+                emailNotificationAddresses: new StringValues("noreply@localhost.local"));
+
+            await mediator.Send(new CreateTarget(testTarget.Id, testTarget.Name));
+            await mediator.Send(new UpdateDeploymentTarget(testTarget.Id, testTarget.AllowPrerelease, testTarget.Url, testTarget.PackageId, autoDeployEnabled: testTarget.AutoDeployEnabled, targetDirectory: testTarget.TargetDirectory));
 
             string packageVersion = "MilouDeployerWebTest 1.2.4";
 

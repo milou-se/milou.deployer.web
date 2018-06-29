@@ -172,6 +172,7 @@ namespace Milou.Deployer.Web.Marten
                 data.NuGetConfigFile = request.NugetConfigFile;
                 data.AutoDeployEnabled = request.AutoDeployEnabled;
                 data.PublishSettingsXml = request.PublishSettingsXml;
+                data.TargetDirectory = request.TargetDirectory;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);
@@ -226,7 +227,8 @@ namespace Milou.Deployer.Web.Marten
                 nuGetConfigFile: deploymentTargetData.NuGetConfigFile,
                 nuGetPackageSource: deploymentTargetData.NuGetPackageSource,
                 iisSiteName: deploymentTargetData.IisSiteName,
-                autoDeployEnabled: deploymentTargetData.AutoDeployEnabled);
+                autoDeployEnabled: deploymentTargetData.AutoDeployEnabled,
+                targetDirectory: deploymentTargetData.TargetDirectory);
 
             return deploymentTargetAsync;
         }

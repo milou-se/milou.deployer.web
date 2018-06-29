@@ -28,5 +28,7 @@ namespace Milou.Deployer.Web.Core.Targets
         public string PackageId { get; set; }
 
         public string PublishSettingsXml { get; set; }
+
+        public string TargetDirectory { get; set; }
     }
 }
