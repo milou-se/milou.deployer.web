@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="arbor.kvconfiguration.jsonconfiguration" Version="0.13.2" />
-    <PackageReference Include="arbor.kvconfiguration.urns" Version="0.13.2" />
-    <PackageReference Include="autofac" Version="4.8.1" />
-    <PackageReference Include="jetbrains.annotations" Version="11.1.0" />
-    <PackageReference Include="marten" Version="2.8.2" />
+    <PackageReference Include="Arbor.KVconfiguration.jsonconfiguration" Version="0.14.0" />
+    <PackageReference Include="Arbor.KVconfiguration.urns" Version="0.14.0" />
+    <PackageReference Include="Autofac" Version="4.8.1" />
+    <PackageReference Include="Jetbrains.Annotations" Version="2018.2.1" />
+    <PackageReference Include="Marten" Version="2.9.0" />
   </ItemGroup>
 
   <ItemGroup>

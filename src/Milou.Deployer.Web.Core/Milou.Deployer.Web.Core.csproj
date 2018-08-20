@@ -6,19 +6,22 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.13.2" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.13.2" />
-    <PackageReference Include="Arbor.KVConfiguration.userconfiguration" Version="0.13.2" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.14.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.14.0" />
+    <PackageReference Include="Arbor.KVConfiguration.userconfiguration" Version="0.14.0" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
     <PackageReference Include="Autofac" Version="4.8.1" />
-    <PackageReference Include="Jetbrains.annotations" Version="11.1.0" />
-    <PackageReference Include="mailkit" Version="2.0.4" />
-    <PackageReference Include="Marten" Version="2.8.2" />
+    <PackageReference Include="Jetbrains.annotations" Version="2018.2.1" />
+    <PackageReference Include="mailkit" Version="2.0.6" />
+    <PackageReference Include="Marten" Version="2.9.0" />
     <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
-    <PackageReference Include="mediatr" Version="5.0.1" />
+    <PackageReference Include="mediatr" Version="5.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Net.Compilers" Version="2.8.2" />
+    <PackageReference Include="Microsoft.Net.Compilers" Version="2.9.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Nuget.versioning" Version="4.7.0" />
     <PackageReference Include="serilog" Version="2.7.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
@@ -26,5 +29,6 @@
     <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.2" />
   </ItemGroup>
 </Project>
