@@ -16,9 +16,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Processing;
 using Milou.Deployer.Web.Core.Targets;
-using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 
@@ -46,7 +44,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)
         {
-            var portPoolRange = new PortPoolRange(5100, 5199);
+            var portPoolRange = new PortPoolRange(5200, 5299);
             TestSiteHttpPort = TcpHelper.GetAvailablePort(portPoolRange);
 
             TestConfiguration = await new TestPathHelper().CreateTestConfiguration(cancellationToken);
@@ -108,9 +106,9 @@ namespace Milou.Deployer.Web.Tests.Integration
             var deploymentService = App.AppRootScope.Deepest().Lifetime.Resolve<DeploymentService>();
             var mediator = App.AppRootScope.Deepest().Lifetime.Resolve<IMediator>();
 
-            var testTarget = new DeploymentTarget(id: "TestTarget",
-                name: "Test target",
-                packageId: "MilouDeployerWebTest",
+            var testTarget = new DeploymentTarget("TestTarget",
+                "Test target",
+                "MilouDeployerWebTest",
                 allowExplicitPreRelease: false,
                 autoDeployEnabled: true,
                 targetDirectory: Environment.GetEnvironmentVariable("TestDeploymentTargetPath"),
@@ -118,7 +116,12 @@ namespace Milou.Deployer.Web.Tests.Integration
                 emailNotificationAddresses: new StringValues("noreply@localhost.local"));
 
             await mediator.Send(new CreateTarget(testTarget.Id, testTarget.Name));
-            await mediator.Send(new UpdateDeploymentTarget(testTarget.Id, testTarget.AllowPrerelease, testTarget.Url, testTarget.PackageId, autoDeployEnabled: testTarget.AutoDeployEnabled, targetDirectory: testTarget.TargetDirectory));
+            await mediator.Send(new UpdateDeploymentTarget(testTarget.Id,
+                testTarget.AllowPrerelease,
+                testTarget.Url,
+                testTarget.PackageId,
+                autoDeployEnabled: testTarget.AutoDeployEnabled,
+                targetDirectory: testTarget.TargetDirectory));
 
             string packageVersion = "MilouDeployerWebTest 1.2.4";
 

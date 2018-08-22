@@ -35,13 +35,23 @@ namespace Milou.Deployer.Web.Tests.Integration
                     while (!cancellationTokenSource.IsCancellationRequested &&
                            semanticVersion != expectedVersion)
                     {
-                        HttpResponseMessage responseMessage = await httpClient.GetAsync(
-                            $"http://localhost:{WebFixture.TestSiteHttpPort.Port}/applicationmetadata.json",
-                            cancellationTokenSource.Token);
+                        string url = $"http://localhost:{WebFixture.TestSiteHttpPort.Port}/applicationmetadata.json";
+                        string json;
+                        try
+                        {
+                            using (HttpResponseMessage responseMessage = await httpClient.GetAsync(
+                                url,
+                                cancellationTokenSource.Token))
+                            {
+                                Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
 
-                        Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
-
-                        string json = await responseMessage.Content.ReadAsStringAsync();
+                                json = await responseMessage.Content.ReadAsStringAsync();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new InvalidOperationException($"Could not get a valid response from request to '{url}'", ex);
+                        }
 
                         string tempFileName = Path.GetTempFileName();
                         await File.WriteAllTextAsync(tempFileName, json, Encoding.UTF8, cancellationTokenSource.Token);

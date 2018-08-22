@@ -19,7 +19,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (webFixture.Exception != null)
             {
-                output.WriteLine(webFixture.Builder.ToString());
+                if (webFixture.Builder != null)
+                {
+                    output.WriteLine(webFixture.Builder?.ToString() ?? "");
+                }
+
                 output.WriteLine(webFixture.Exception.ToString());
             }
         }
