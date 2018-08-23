@@ -3,7 +3,7 @@
 <package>
   <metadata>
     <id>MilouDeployerWebTest</id>
-    <version>$version$</version>
+    <version>1.2.0</version>
     <title>MilouDeployerWebTest</title>
     <authors>Milou Communication AB</authors>
     <owners></owners>
