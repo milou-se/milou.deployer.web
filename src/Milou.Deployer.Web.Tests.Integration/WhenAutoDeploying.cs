@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             SemanticVersion semanticVersion = null;
 
-            TimeSpan timeout = TimeSpan.FromSeconds(60);
+            TimeSpan timeout = TimeSpan.FromSeconds(80);
 
             var expectedVersion = new SemanticVersion(1,2,5);
 
