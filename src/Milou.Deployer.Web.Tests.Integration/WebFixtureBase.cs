@@ -68,13 +68,33 @@ namespace Milou.Deployer.Web.Tests.Integration
                 await BeforeInitialize(_cancellationTokenSource.Token);
                 IReadOnlyCollection<string> args = await RunSetupAsync();
 
+                if (CancellationToken.IsCancellationRequested)
+                {
+                    throw new InvalidOperationException("The cancellation token is already cancelled, skipping before start");
+                }
+
                 await BeforeStartAsync(args);
+
+                if (CancellationToken.IsCancellationRequested)
+                {
+                    throw new InvalidOperationException("The cancellation token is already cancelled, skipping start");
+                }
 
                 await StartAsync(args);
 
-                await Task.Delay(TimeSpan.FromSeconds(1), CancellationToken);
+                await Task.Delay(TimeSpan.FromSeconds(1));
+
+                if (CancellationToken.IsCancellationRequested)
+                {
+                    throw new InvalidOperationException("The cancellation token is already cancelled, skipping run");
+                }
 
                 await RunAsync();
+
+                if (CancellationToken.IsCancellationRequested)
+                {
+                    throw new InvalidOperationException("The cancellation token is already cancelled, skipping after run");
+                }
 
                 await AfterRunAsync();
             }
