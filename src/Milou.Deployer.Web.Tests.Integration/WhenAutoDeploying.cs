@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             SemanticVersion semanticVersion = null;
 
-            TimeSpan timeout = TimeSpan.FromSeconds(80);
+            TimeSpan timeout = TimeSpan.FromSeconds(120);
 
             var expectedVersion = new SemanticVersion(1,2,5);
 
@@ -47,7 +47,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 using (var cancellationTokenSource = new CancellationTokenSource(timeout))
                 {
-                    while (!cancellationTokenSource.IsCancellationRequested &&
+                    while (!cancellationTokenSource.Token.IsCancellationRequested &&
                            semanticVersion != expectedVersion)
                     {
                         string url = $"http://localhost:{WebFixture.TestSiteHttpPort.Port}/applicationmetadata.json";

@@ -8,7 +8,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
     [UsedImplicitly]
     public class AutoDeployConfiguration
     {
-        public AutoDeployConfiguration(int startupDelayInSeconds, int metadataTimeoutInSeconds, bool enabled, int defaultTimeoutInSeconds, int afterDeployDelayInSeconds)
+        public AutoDeployConfiguration(
+            int startupDelayInSeconds,
+            int metadataTimeoutInSeconds,
+            bool enabled,
+            int defaultTimeoutInSeconds,
+            int afterDeployDelayInSeconds)
         {
             StartupDelayInSeconds = startupDelayInSeconds >= 0 ? metadataTimeoutInSeconds : 0;
             MetadataTimeoutInSeconds = metadataTimeoutInSeconds > 0 ? metadataTimeoutInSeconds : 5;
@@ -25,6 +30,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
         public int DefaultTimeoutInSeconds { get; }
 
-        public int AfterDeployDelayInSeconds { get; private set; }
+        public int AfterDeployDelayInSeconds { get; }
     }
 }
