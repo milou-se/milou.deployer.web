@@ -47,7 +47,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var portPoolRange = new PortPoolRange(5200, 5299);
             TestSiteHttpPort = TcpHelper.GetAvailablePort(portPoolRange);
 
-            TestConfiguration = await new TestPathHelper().CreateTestConfiguration(cancellationToken);
+            TestConfiguration = await new TestPathHelper().CreateTestConfigurationAsync(cancellationToken);
 
             Environment.SetEnvironmentVariable("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
             Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port}");
@@ -69,6 +69,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             string settingsFile = Path.Combine(deployerDir, $"{Environment.MachineName}.settings.json");
 
             FilesToClean.Add(new FileInfo(settingsFile));
+
             File.WriteAllText(settingsFile, serialized, Encoding.UTF8);
 
             FileInfo[] nugetPackages = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),

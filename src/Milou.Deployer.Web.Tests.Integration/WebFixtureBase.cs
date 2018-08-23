@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         public Exception Exception { get; private set; }
 
-        private const int CancellationTimeoutInSeconds = 120;
+        private const int CancellationTimeoutInSeconds = 160;
 
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -97,6 +97,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public virtual void Dispose()
         {
+            App?.Logger?.Information("Stopping app");
             _cancellationTokenSource?.Dispose();
             App?.Dispose();
             _pgServer?.Dispose();
@@ -167,8 +168,6 @@ namespace Milou.Deployer.Web.Tests.Integration
             await App.RunAsync(args.ToArray());
 
             App.Logger.Information("Started app, waiting for web host shutdown");
-
-            App.Logger.Information("Stopping app");
         }
 
         private async Task<IReadOnlyCollection<string>> RunSetupAsync()
