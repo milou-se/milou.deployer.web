@@ -63,6 +63,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 string connStr = string.Format(ConnectionStringFormat, _pgServer.PgPort, PostgresqlUser);
 
                 Environment.SetEnvironmentVariable("urn:milou:deployer:web:marten:singleton:connection-string", connStr);
+                Environment.SetEnvironmentVariable("urn:milou:deployer:web:marten:singleton:enabled", "true");
 
                 await BeforeInitialize(_cancellationTokenSource.Token);
                 IReadOnlyCollection<string> args = await RunSetupAsync();
