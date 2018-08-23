@@ -82,7 +82,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                         string actual = jsonKeyValueConfiguration["urn:versioning:semver2:normalized"];
 
                         semanticVersion = SemanticVersion.Parse(actual);
-                        await Task.Delay(TimeSpan.FromSeconds(1), cancellationTokenSource.Token);
+                        // ReSharper disable once MethodSupportsCancellation
+                        await Task.Delay(TimeSpan.FromSeconds(1));
                     }
                 }
             }
