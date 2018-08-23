@@ -60,6 +60,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 new KeyValue("urn:milou-deployer:tools:nuget:source", "Milou.Deployer.Web.Tests.Integration", null),
                 new KeyValue("urn:milou-deployer:tools:nuget:config", TestConfiguration.NugetConfigFile.FullName, null),
+                new KeyValue("tools:nuget:config-file", TestConfiguration.NugetConfigFile.FullName, null),
                 new KeyValue("urn:milou-deployer:tools:nuget:exe-path", nugetExePath, null)
             }.ToImmutableArray();
 

@@ -155,7 +155,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             var builder = new List<string>();
             var errorBuild = new List<string>();
 
-            logger?.Debug("Running NuGet to find packages with timeout {Seconds} seconds",
+            logger?.Debug("Running NuGet from package service to find packages with timeout {Seconds} seconds",
                 _deploymentConfiguration.ListTimeOutInSeconds);
 
             ExitCode exitCode;

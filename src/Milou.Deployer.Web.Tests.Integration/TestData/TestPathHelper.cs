@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
 {
     public class TestPathHelper
     {
-        public async Task<TestConfiguration> CreateTestConfiguration(CancellationToken cancellationToken)
+        public async Task<TestConfiguration> CreateTestConfigurationAsync(CancellationToken cancellationToken)
         {
             string projectName = "Milou.Deployer.Web.Tests.Integration";
 
