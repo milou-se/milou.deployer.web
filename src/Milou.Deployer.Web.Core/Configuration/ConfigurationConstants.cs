@@ -74,6 +74,9 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         public const string AutoDeployConfiguration = "urn:milou:deployer:auto-deploy:configuration";
 
+        [Metadata(defaultValue: "false")]
+        public const string AutoDeployConfigurationDefaultEnabled = "urn:milou:deployer:auto-deploy:configuration:default:enabled";
+
         [Metadata]
         public static string WhiteListedIPs = "urn:milou:deployer:authorization:white-listed-ips";
 
