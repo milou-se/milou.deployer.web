@@ -19,10 +19,10 @@ namespace Milou.Deployer.Web.Tests.Integration
         public async Task Then_It_Should_Return_Html_In_Response_Body()
         {
             string headers = string.Join(Environment.NewLine,
-                WebFixture.ResponseMessage.Headers.Select(pair => $"{pair.Key}:{string.Join(",", pair.Value)}"));
+                WebFixture?.ResponseMessage?.Headers?.Select(pair => $"{pair.Key}:{string.Join(",", pair.Value)}") ?? Array.Empty<string>());
             Output.WriteLine($"Response headers: {headers}");
 
-            string body = await WebFixture.ResponseMessage.Content.ReadAsStringAsync();
+            string body = WebFixture?.ResponseMessage?.Content != null ? await WebFixture.ResponseMessage.Content?.ReadAsStringAsync() : "N/A";
             Output.WriteLine($"Response body: {body}");
 
             Assert.Contains("<html", body);
