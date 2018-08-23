@@ -90,10 +90,11 @@ namespace Milou.Deployer.Web.Tests.Integration
                 "Milou.Deployer.Web.Tests.Integration");
 
             Environment.SetEnvironmentVariable(
-                "urn:milou:deployer:auto-deploy:configuration:default:StartupDelayInSeconds",
+                $"{ConfigurationConstants.AutoDeployConfiguration}:default:StartupDelayInSeconds",
                 "0");
+
             Environment.SetEnvironmentVariable(
-                "urn:milou:deployer:auto-deploy:configuration:default:MetadataTimeoutInSeconds",
+                $"{ConfigurationConstants.AutoDeployConfiguration}:default:MetadataTimeoutInSeconds",
                 "10");
 
             DirectoriesToClean.Add(TestConfiguration.BaseDirectory);
