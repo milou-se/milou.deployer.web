@@ -28,6 +28,21 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var expectedVersion = new SemanticVersion(1,2,5);
 
+            if (WebFixture is null)
+            {
+                throw new InvalidOperationException($"{nameof(WebFixture)} is null");
+            }
+
+            if (WebFixture.TestSiteHttpPort is null)
+            {
+                throw new InvalidOperationException($"{nameof(WebFixture.TestSiteHttpPort)} is null");
+            }
+
+            if (WebFixture is null)
+            {
+                throw new InvalidOperationException($"{nameof(WebFixture)} is null");
+            }
+
             using (var httpClient = new HttpClient())
             {
                 using (var cancellationTokenSource = new CancellationTokenSource(timeout))

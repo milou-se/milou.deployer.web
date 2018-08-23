@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using JetBrains.Annotations;
 using Serilog;
 using Xunit;
 using Xunit.Abstractions;
@@ -10,10 +11,10 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         protected T WebFixture;
 
-        protected TestBase(T webFixture, ITestOutputHelper output)
+        protected TestBase([NotNull] T webFixture, [NotNull] ITestOutputHelper output)
         {
-            Output = output;
-            WebFixture = webFixture;
+            Output = output ?? throw new ArgumentNullException(nameof(output));
+            WebFixture = webFixture ?? throw new ArgumentNullException(nameof(webFixture));
 
             CancellationTokenSource = WebFixture?.App?.CancellationTokenSource;
 
@@ -34,6 +35,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public virtual void Dispose()
         {
+            Output?.WriteLine($"Disposing {nameof(TestBase<T>)}");
+
             if (CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
             {
                 CancellationTokenSource.Cancel(false);
@@ -41,6 +44,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (WebFixture != null)
             {
+                Output?.WriteLine($"Disposing {WebFixture}");
+
                 WebFixture.App?.Dispose();
 
                 if (WebFixture is IDisposable disposable)
