@@ -97,6 +97,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                 $"{ConfigurationConstants.AutoDeployConfiguration}:default:MetadataTimeoutInSeconds",
                 "10");
 
+            Environment.SetEnvironmentVariable(
+                $"{ConfigurationConstants.AutoDeployConfiguration}:default:enabled",
+                "true");
+
             DirectoriesToClean.Add(TestConfiguration.BaseDirectory);
         }
 

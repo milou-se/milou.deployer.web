@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         public Exception Exception { get; private set; }
 
-        private const int CancellationTimeoutInSeconds = 160;
+        private const int CancellationTimeoutInSeconds = 180;
 
         private CancellationTokenSource _cancellationTokenSource;
 
