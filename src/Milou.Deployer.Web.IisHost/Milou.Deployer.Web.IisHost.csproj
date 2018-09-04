@@ -15,15 +15,16 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.5.1" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.14.0" />
-    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.14.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.14.0" />
-    <PackageReference Include="Arbor.KVConfiguration.userconfiguration" Version="0.14.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.15.0" />
+    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.15.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.15.0" />
+    <PackageReference Include="Arbor.KVConfiguration.userconfiguration" Version="0.15.0" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
+    <PackageReference Include="Arbor.Tooler" Version="0.1.0-build.14" />
     <PackageReference Include="autofac" Version="4.8.1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.0" />
     <PackageReference Include="Jetbrains.annotations" Version="2018.2.1" />
-    <PackageReference Include="Marten" Version="2.9.0" />
+    <PackageReference Include="Marten" Version="2.10.0" />
     <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
     <PackageReference Include="MediatR" Version="5.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.1.1" />
@@ -32,6 +33,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.0-build.44" />
     <PackageReference Include="Npgsql" Version="3.2.7" />
     <PackageReference Include="Nuget.versioning" Version="4.8.0" />
     <PackageReference Include="Serilog" Version="2.7.1" />

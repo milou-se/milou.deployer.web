@@ -109,7 +109,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return deploymentTaskResult;
         }
 
-        private string LogJobMetadata(
+        private static string LogJobMetadata(
             DeploymentTask deploymentTask,
             DateTime start,
             DateTime end,
@@ -120,13 +120,31 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             var metadata = new StringBuilder();
 
-            metadata.AppendLine(
-                $"Started job {deploymentTask.DeploymentTaskId} at {start:O} and finished at {end:O}");
+            metadata
+                .Append("Started job ")
+                .Append(deploymentTask.DeploymentTaskId)
+                .Append(" at ")
+                .AppendFormat("{0:O}", start)
+                .Append(" and finished at ")
+                .AppendFormat("{0:O}", end).AppendLine();
 
-            metadata.AppendLine($"Total time {stopwatch.Elapsed.TotalSeconds:f} seconds");
-            metadata.AppendLine($"Package version: {deploymentTask.SemanticVersion}");
-            metadata.AppendLine($"Package id: {deploymentTask.PackageId}");
-            metadata.AppendLine($"Target id: {deploymentTask.DeploymentTargetId}");
+            metadata
+                .Append("Total time ")
+                .AppendFormat("{0:f}", stopwatch.Elapsed.TotalSeconds)
+                .AppendLine(" seconds");
+
+            metadata
+                .Append("Package version: ")
+                .Append(deploymentTask.SemanticVersion)
+                .AppendLine();
+
+            metadata
+                .Append("Package id: ")
+                .AppendLine(deploymentTask.PackageId);
+
+            metadata
+                .Append("Target id: ")
+                .AppendLine(deploymentTask.DeploymentTargetId);
 
             if (deploymentTarget is null)
             {
@@ -134,12 +152,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             else
             {
-                metadata.AppendLine($"Publish settings file: {deploymentTarget.PublishSettingFile}");
-                metadata.AppendLine($"Target directory: {deploymentTarget.TargetDirectory}");
-                metadata.AppendLine($"Target URI: {deploymentTarget.Url}");
+                metadata.Append("Publish settings file: ").AppendLine(deploymentTarget.PublishSettingFile);
+                metadata.Append("Target directory: ").AppendLine(deploymentTarget.TargetDirectory);
+                metadata.Append("Target URI: ").Append(deploymentTarget.Url).AppendLine();
             }
 
-            metadata.AppendLine($"Exit code {exitCode}");
+            metadata.Append("Exit code ").Append(exitCode).AppendLine();
 
             string metadataContent = metadata.ToString();
 
@@ -209,6 +227,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 .WriteTo.File(contentFilePath)
                 .WriteTo.DelegateSink(deploymentTask.Log)
                 .WriteTo.DelegateSink(message => logBuilder.AppendLine(message))
+                .MinimumLevel.Verbose()
                 .CreateLogger())
             {
                 logger.Debug(
@@ -236,7 +255,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return (exitCode, finishedAtUtc);
         }
 
-        private void VerifyPreReleaseAllowed(
+        private static void VerifyPreReleaseAllowed(
             SemanticVersion version,
             DeploymentTarget deploymentTarget,
             string packageId,
@@ -258,7 +277,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        private void VerifyAllowedPackageIsAllowed(DeploymentTarget deploymentTarget, string packageId, ILogger logger)
+        private static void VerifyAllowedPackageIsAllowed(DeploymentTarget deploymentTarget, string packageId, ILogger logger)
         {
             if (deploymentTarget.PackageId.Any())
             {

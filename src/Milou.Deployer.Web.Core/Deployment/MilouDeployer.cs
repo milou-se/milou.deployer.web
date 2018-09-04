@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Arbor.KVConfiguration.Core;
+using Arbor.Tooler;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
@@ -36,7 +38,8 @@ namespace Milou.Deployer.Web.Core.Deployment
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _credentialReadService =
                 credentialReadService ?? throw new ArgumentNullException(nameof(credentialReadService));
-            _keyValueConfiguration = keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+            _keyValueConfiguration =
+                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
         }
 
         public async Task<ExitCode> ExecuteAsync(
@@ -48,7 +51,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             logger.Information("Starting job {JobId}", jobId);
 
-            DeploymentTarget deploymentTarget = await GetDeploymentTarget(deploymentTask.DeploymentTargetId, cancellationToken);
+            DeploymentTarget deploymentTarget =
+                await GetDeploymentTarget(deploymentTask.DeploymentTargetId, cancellationToken);
 
             FileInfo exeFile = CheckExecutableExists();
 
@@ -115,7 +119,10 @@ namespace Milou.Deployer.Web.Core.Deployment
                     {
                         string tempFileName = Path.GetTempFileName();
 
-                        await File.WriteAllTextAsync(tempFileName, deploymentTarget.PublishSettingsXml, Encoding.UTF8, cancellationToken);
+                        await File.WriteAllTextAsync(tempFileName,
+                            deploymentTarget.PublishSettingsXml,
+                            Encoding.UTF8,
+                            cancellationToken);
 
                         deploymentTask.TempFiles.Add(new FileInfo(tempFileName));
 
@@ -203,21 +210,36 @@ namespace Milou.Deployer.Web.Core.Deployment
                     }
                 }
 
-                ExitCode milouExitCode = await ProcessRunner.ExecuteAsync(
-                    _milouDeployerConfiguration.MilouDeployerExePath,
-                    logger,
-                    arguments,
-                    cancellationToken: cancellationToken);
-
-                ClearTemporaryDirectoriesAndFiles(deploymentTask);
-
-                if (!milouExitCode.IsSuccess)
+                using (var httpClient = new HttpClient())
                 {
-                    return milouExitCode;
-                }
+                    //TODO propagate properties by direct command or default
+                    Environment.SetEnvironmentVariable("urn:milou-deployer:tools:nuget:exe-path",
+                        _keyValueConfiguration["urn:milou-deployer:tools:nuget:exe-path"]);
 
-                return ExitCode.Success;
+                    arguments.Add("--prerelease");
+                    string[] deployerArgs = arguments.ToArray();
+                    using (Deployer.Bootstrapper.Common.App deployerApp =
+                        await Deployer.Bootstrapper.Common.App.CreateAsync(deployerArgs,
+                            logger,
+                            httpClient,
+                            disposeNested: false))
+                    {
+                        NuGetPackageInstallResult result =
+                            await deployerApp.ExecuteAsync(deployerArgs.ToImmutableArray(), cancellationToken);
+
+                        if (result.PackageDirectory is null || result.SemanticVersion is null)
+                        {
+                            logger.Warning("Could not fetch Milou.Deployer");
+                            return ExitCode.Failure;
+                        }
+                    }
+                }
             }
+
+            ClearTemporaryDirectoriesAndFiles(deploymentTask);
+
+            return ExitCode.Success;
+
         }
 
         public async Task<DeploymentTarget> GetDeploymentTarget([NotNull] string deploymentTargetId, CancellationToken cancellationToken = default)

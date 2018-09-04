@@ -12,8 +12,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             string logLevel = "")
         {
             MilouDeployerExePath = milouDeployerExePath.WithDefault(
-                keyValueConfiguration[ConfigurationConstants.DeployerExePath]
-                    .ThrowIfEmpty(ConfigurationConstants.DeployerExePath));
+                keyValueConfiguration[ConfigurationConstants.DeployerExePath]);
 
             LogLevel = logLevel.WithDefault(keyValueConfiguration[ConfigurationConstants.Logging.LogLevel]);
         }
