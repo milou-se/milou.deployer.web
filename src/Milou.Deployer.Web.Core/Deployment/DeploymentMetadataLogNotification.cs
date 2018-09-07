@@ -28,5 +28,10 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         [NotNull]
         public DeploymentTaskResult Result { get; }
+
+        public override string ToString()
+        {
+            return $"{nameof(DeploymentTask)}: {DeploymentTask}, {nameof(Result)}: {Result}";
+        }
     }
 }

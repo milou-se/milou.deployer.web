@@ -24,7 +24,7 @@
         <label for="target">Target</label>
         <select name="targetId" id="target">
 
-            @foreach (var item in Model.Targets)
+            @foreach (DeploymentTarget item in Model.Targets)
             {
                 <option value="@item.Id">@item.Name</option>
             }

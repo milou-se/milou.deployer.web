@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Email;
 using Milou.Deployer.Web.Core.Structure;
 using Milou.Deployer.Web.Core.Targets;
 using Serilog;
@@ -22,8 +21,6 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<CreateProject, CreateProjectResult>,
         IRequestHandler<CreateTarget, CreateTargetResult>,
         IRequestHandler<UpdateDeploymentTarget, UpdateDeploymentTargetResult>,
-        INotificationHandler<DeploymentMetadataLogNotification>,
-        INotificationHandler<DeploymentFinishedNotification>,
         IRequestHandler<DeploymentHistoryRequest, DeploymentHistoryResponse>,
         IRequestHandler<DeploymentLogRequest, DeploymentLogResponse>
     {
@@ -148,6 +145,47 @@ namespace Milou.Deployer.Web.Marten
             _logger.Information("Created target with id {Id}", request.Id);
 
             return new CreateTargetResult(request.Id);
+        }
+
+        public async Task<DeploymentHistoryResponse> Handle(
+            DeploymentHistoryRequest request,
+            CancellationToken cancellationToken)
+        {
+            IReadOnlyList<TaskMetadata> taskMetadata;
+            using (IDocumentSession session = _documentStore.LightweightSession())
+            {
+                taskMetadata = await session.Query<TaskMetadata>().Where(item =>
+                        item.DeploymentTargetId.Equals(request.DeploymentTargetId, StringComparison.OrdinalIgnoreCase))
+                    .ToListAsync(cancellationToken);
+            }
+
+            return new DeploymentHistoryResponse(taskMetadata.Select(item =>
+                new DeploymentTaskInfo(item.DeploymentTaskId,
+                    item.Metadata,
+                    item.StartedAtUtc,
+                    item.FinishedAtUtc,
+                    item.ExitCode)).ToImmutableArray());
+        }
+
+        public async Task<DeploymentLogResponse> Handle(
+            DeploymentLogRequest request,
+            CancellationToken cancellationToken)
+        {
+            TaskLog taskLog;
+
+            string id = $"deploymentTaskLog/{request.DeploymentTaskId}";
+
+            using (IDocumentSession session = _documentStore.LightweightSession())
+            {
+                taskLog = await session.LoadAsync<TaskLog>(id, cancellationToken);
+            }
+
+            if (taskLog is null)
+            {
+                return new DeploymentLogResponse(string.Empty);
+            }
+
+            return new DeploymentLogResponse(taskLog.Log);
         }
 
         public async Task<UpdateDeploymentTargetResult> Handle(
@@ -290,79 +328,6 @@ namespace Milou.Deployer.Web.Marten
                         })
                 })
                 .ToImmutableArray();
-        }
-
-        public async Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
-        {
-            using (IDocumentSession session = _documentStore.OpenSession())
-            {
-                var taskMetadata = new TaskMetadata
-                {
-                    DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
-                    DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
-                    Id = $"deploymentTaskMetadata/{notification.DeploymentTask.DeploymentTaskId}",
-                    StartedAtUtc = notification.Result.StartedAtUtc,
-                    FinishedAtUtc = notification.Result.FinishedAtUtc,
-                    Metadata = notification.Result.Metadata,
-                    ExitCode = notification.Result.ExitCode.Code
-                };
-
-                session.Store(taskMetadata);
-
-                await session.SaveChangesAsync(cancellationToken);
-            }
-        }
-
-        public async Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
-        {
-            using (IDocumentSession session = _documentStore.OpenSession())
-            {
-                var taskMetadata = new TaskLog
-                {
-                    DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,
-                    DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
-                    Id = $"deploymentTaskLog/{notification.DeploymentTask.DeploymentTaskId}",
-                    Log = notification.Log,
-                    FinishedAtUtc = notification.FinishedAtUtc
-                };
-
-                session.Store(taskMetadata);
-
-                await session.SaveChangesAsync(cancellationToken);
-            }
-
-        }
-
-        public async Task<DeploymentHistoryResponse> Handle(DeploymentHistoryRequest request, CancellationToken cancellationToken)
-        {
-            IReadOnlyList<TaskMetadata> taskMetadata;
-            using (IDocumentSession session = _documentStore.LightweightSession())
-            {
-                taskMetadata = await session.Query<TaskMetadata>().Where(item =>
-                        item.DeploymentTargetId.Equals(request.DeploymentTargetId, StringComparison.OrdinalIgnoreCase))
-                    .ToListAsync(token: cancellationToken);
-            }
-
-            return new DeploymentHistoryResponse(taskMetadata.Select(item => new DeploymentTaskInfo(item.DeploymentTaskId, item.Metadata, item.StartedAtUtc, item.FinishedAtUtc, item.ExitCode)).ToImmutableArray());
-        }
-
-        public async Task<DeploymentLogResponse> Handle(DeploymentLogRequest request, CancellationToken cancellationToken)
-        {
-            TaskLog taskLog;
-
-            string id = $"deploymentTaskLog/{request.DeploymentTaskId}";
-
-            using (IDocumentSession session = _documentStore.LightweightSession())
-            {
-                taskLog = await session.LoadAsync<TaskLog>(id, cancellationToken);
-            }
-
-            if (taskLog is null)
-            {
-                return new DeploymentLogResponse(string.Empty);
-            }
-
-            return new DeploymentLogResponse(taskLog.Log);
         }
     }
 }

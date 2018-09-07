@@ -5,51 +5,40 @@
 
 <div id="messages"></div>
 
-<script src="/Scripts/signalr.js" type="text/javascript"></script>
+@section scripts
+{
+    <script src="/Scripts/signalr.js" type="text/javascript"></script>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    var messages = document.getElementById('messages');
+        var messages = document.getElementById('messages');
 
-    let connection = new signalR.HubConnectionBuilder()
-        .withUrl('@DeploymentLogConstants.HubRoute')
-        .build();
+        let connection = new signalR.HubConnectionBuilder()
+            .withUrl('@DeploymentLogConstants.HubRoute')
+            .build();
 
-    connection.on('@DeploymentLoggingHub.MessageMethod',
-        data => {
+        connection.on('@DeploymentLoggingHub.MessageMethod',
+            data => {
 
-            var para = document.createElement("span");
+                console.log(data);
 
-            var eventData = JSON.parse(data);
+                const para = createSpanLogItemElement(data);
 
-            if (eventData.Message) {
-                para.innerHTML = eventData.Message;
-            } else {
-                para.innerHTML = '<span class="timestamp">' +
-                    eventData.FormattedTimestamp +
-                    '</span> <span class="level-' +
-                    eventData.Level +
-                    '">' +
-                    eventData.Level +
-                    '</span> <span class="message">' +
-                    eventData.RenderedTemplate +
-                    '</span><br />';
-            }
+                messages.appendChild(para);
 
-            messages.appendChild(para);
+                window.scrollTo(0, document.body.scrollHeight);
+            });
 
-            window.scrollTo(0, document.body.scrollHeight);
-        });
+        function htmlEscape(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
 
-    function htmlEscape(str) {
-        return str
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
-    }
+        connection.start().then(() => connection.invoke('subscribe', '@Model.DeploymentTargetId'));
 
-    connection.start().then(() => connection.invoke('subscribe', '@Model.DeploymentTargetId'));
-
-</script>
+    </script>
+}

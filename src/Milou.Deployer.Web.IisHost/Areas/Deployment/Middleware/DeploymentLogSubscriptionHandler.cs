@@ -1,41 +1,39 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
 {
     [UsedImplicitly]
-    public class DeploymentLogHandler : INotificationHandler<DeploymentLogNotification>,
+    public class DeploymentLogSubscriptionHandler :
         IRequestHandler<SubscribeToDeploymentLog>,
         IRequestHandler<UnsubscribeToDeploymentLog>
     {
-        private readonly IHubContext<DeploymentLoggingHub> _hubContext;
-
         private static readonly ConcurrentDictionary<string, HashSet<string>> _TargetMapping =
             new ConcurrentDictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
-        public DeploymentLogHandler([NotNull] IHubContext<DeploymentLoggingHub> hubContext)
+        public static ImmutableHashSet<string> TryGetTargetSubscribers([NotNull] string deploymentTargetId)
         {
-            _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
-        }
-
-        public async Task Handle(DeploymentLogNotification notification, CancellationToken cancellationToken)
-        {
-            if (!_TargetMapping.TryGetValue(notification.DeploymentTargetId, out HashSet<string> subscribers))
+            if (string.IsNullOrWhiteSpace(deploymentTargetId))
             {
-                return;
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
             }
 
-            string[] clients = subscribers.ToArray();
-            IClientProxy clientProxy = _hubContext.Clients.Clients(clients);
+            bool tryGetTargetSubscribers =
+                _TargetMapping.TryGetValue(deploymentTargetId, out HashSet<string> subscribers);
 
-            await clientProxy.SendAsync(DeploymentLoggingHub.MessageMethod, notification.Message, cancellationToken);
+            if (!tryGetTargetSubscribers)
+            {
+                return ImmutableHashSet<string>.Empty;
+            }
+
+            return subscribers.ToImmutableHashSet(StringComparer.Ordinal);
         }
 
         public Task<Unit> Handle(SubscribeToDeploymentLog request, CancellationToken cancellationToken)
@@ -46,7 +44,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
             }
             else
             {
-                _TargetMapping.TryAdd(request.DeploymentTargetId, new HashSet<string>(StringComparer.OrdinalIgnoreCase) {request.ConnectionId});
+                _TargetMapping.TryAdd(request.DeploymentTargetId,
+                    new HashSet<string>(StringComparer.OrdinalIgnoreCase) { request.ConnectionId });
             }
 
             return Task.FromResult(Unit.Value);

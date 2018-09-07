@@ -227,6 +227,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 .WriteTo.File(contentFilePath)
                 .WriteTo.DelegateSink(deploymentTask.Log)
                 .WriteTo.DelegateSink(message => logBuilder.AppendLine(message))
+                .WriteTo.Logger(logger)
                 .MinimumLevel.Verbose()
                 .CreateLogger())
             {

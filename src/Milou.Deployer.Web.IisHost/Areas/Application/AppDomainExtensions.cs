@@ -45,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             ForceLoadReferenceAssemblies();
 
-            string[] whiteListed = { assemblyNameStartsWith ?? "milou" };
+            string[] whiteListed = { assemblyNameStartsWith ?? "Milou.Deployer.Web" };
 
             ImmutableArray<RuntimeLibrary> defaultRuntimeLibraries =
                 DependencyContext.Default?.RuntimeLibraries?.ToImmutableArray() ?? ImmutableArray<RuntimeLibrary>.Empty;

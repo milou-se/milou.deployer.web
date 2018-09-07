@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Autofac;
+using Autofac.Features.Variance;
 using JetBrains.Annotations;
 using MediatR;
 using MediatR.Pipeline;
@@ -53,7 +54,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
 
                         if (isClosedType)
                         {
-                            _logger.Verbose("Registering type {Type}", type.FullName);
+                            _logger.Verbose("Registering closed type {Type}", type.FullName);
                         }
 
                         return isClosedType;
