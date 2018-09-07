@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Configuration
         public const string NuGetPackageSourceName = "tools:nuget:package-source-name";
 
         [Metadata]
-        public const string NugetConfigFile = "tools:nuget:config-file";
+        public const string NugetConfigFile = "urn:milou-deployer:tools:nuget:config";
 
         [Metadata]
         public const string NuGetExePath = "tools:nuget:exe-path";

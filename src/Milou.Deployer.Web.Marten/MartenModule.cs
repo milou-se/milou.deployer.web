@@ -18,9 +18,9 @@ namespace Milou.Deployer.Web.Marten
     {
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
-        public MartenModule(IKeyValueConfiguration keyValueConfiguration)
+        public MartenModule([NotNull] IKeyValueConfiguration keyValueConfiguration)
         {
-            _keyValueConfiguration = keyValueConfiguration;
+            _keyValueConfiguration = keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
         }
 
         protected override void Load(ContainerBuilder builder)
