@@ -244,7 +244,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, "Failed to deploy");
+                    _logger.Error(ex, "Failed to deploy task {DeploymentTask}", deploymentTask);
                     exitCode = ExitCode.Failure;
                 }
             }

@@ -79,19 +79,12 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 string publishSettingsFile = deploymentTarget.PublishSettingFile;
 
-                bool useManifest = bool.TryParse(
-                                       _keyValueConfiguration[
-                                           ConfigurationConstants.DeployerManifestEnabled],
-                                       out bool useManitest) && useManitest;
-
                 string deploymentTargetParametersFile = deploymentTarget.ParameterFile;
 
                 var tempManifestFile = new FileInfo(Path.Combine(Path.GetTempPath(), $"{jobId}.manifest"));
 
                 deploymentTask.TempFiles.Add(tempManifestFile);
 
-                if (useManifest)
-                {
                     ImmutableDictionary<string, string[]> parameterDictionary;
 
                     if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile) &&
@@ -191,24 +184,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                     await File.WriteAllTextAsync(tempManifestFile.FullName, json, Encoding.UTF8, cancellationToken);
 
                     arguments.Add($"\"{tempManifestFile.FullName}\"");
-                }
-                else
-                {
-                    logger.Information("Using direct arguments for job {JobId}", jobId);
 
-                    arguments = new List<string>
-                    {
-                        deploymentTask.PackageId,
-                        deploymentTask.SemanticVersion.ToNormalizedString(),
-                        targetDirectoryPath,
-                        deploymentTask.SemanticVersion.IsPrerelease.ToString()
-                    };
-
-                    if (!string.IsNullOrWhiteSpace(targetEnvironmentConfigName))
-                    {
-                        arguments.Add(targetEnvironmentConfigName);
-                    }
-                }
 
                 using (var httpClient = new HttpClient())
                 {
@@ -217,9 +193,11 @@ namespace Milou.Deployer.Web.Core.Deployment
                         _keyValueConfiguration["urn:milou-deployer:tools:nuget:exe-path"]);
 
                     arguments.Add("--prerelease");
+
                     string[] deployerArgs = arguments.ToArray();
-                    using (Deployer.Bootstrapper.Common.App deployerApp =
-                        await Deployer.Bootstrapper.Common.App.CreateAsync(deployerArgs,
+
+                    using (Bootstrapper.Common.App deployerApp =
+                        await Bootstrapper.Common.App.CreateAsync(deployerArgs,
                             logger,
                             httpClient,
                             disposeNested: false))
