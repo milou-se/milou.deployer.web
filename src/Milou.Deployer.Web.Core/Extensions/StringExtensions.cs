@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 
@@ -6,6 +8,33 @@ namespace Milou.Deployer.Web.Core.Extensions
 {
     public static class StringExtensions
     {
+        public static string MakeAnonymous(this string value, params string[] keyWords)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            if (keyWords is null || keyWords.Length == 0)
+            {
+                return value;
+            }
+
+            IEnumerable<KeyValuePair<string, string>> pairs = value.ParseValues(';', '=').Select(pair =>
+            {
+                if (keyWords.Any(keyWord => keyWord.Equals(pair.Key, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return pair.MakeAnonymousValue();
+                }
+
+                return pair;
+            });
+
+            string final = string.Join("; ", pairs.Select(pair => $"{pair.Key}={pair.Value}"));
+
+            return final;
+        }
+
         public static string ThrowIfEmpty(this string value, string message = "")
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -19,6 +48,31 @@ namespace Milou.Deployer.Web.Core.Extensions
             }
 
             return value;
+        }
+
+        public static ImmutableArray<KeyValuePair<string, string>> ParseValues(
+            this string value,
+            char delimiter,
+            char assignment)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return ImmutableArray<KeyValuePair<string, string>>.Empty;
+            }
+
+            string[] pairs = value.Split(delimiter);
+
+            ImmutableArray<KeyValuePair<string, string>> keyValuePairs = pairs
+                .Select(pair =>
+                {
+                    string[] parts = pair.Split(assignment);
+
+                    return parts.Length != 2 ? default : new KeyValuePair<string, string>(parts[0], parts[1]);
+                })
+                .Where(pair => pair.Key != default)
+                .ToImmutableArray();
+
+            return keyValuePairs;
         }
 
         public static string Wrap(this string wrappedText, string wrapText)

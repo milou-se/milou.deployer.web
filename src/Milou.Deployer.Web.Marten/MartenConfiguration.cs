@@ -1,5 +1,6 @@
 ﻿using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Marten
 {
@@ -16,5 +17,10 @@ namespace Milou.Deployer.Web.Marten
         public string ConnectionString { get; }
 
         public bool Enabled { get; }
+
+        public override string ToString()
+        {
+            return $"{nameof(ConnectionString)}: [{ConnectionString.MakeAnonymous("user id", "password")}], {nameof(Enabled)}: {Enabled.ToString().ToLowerInvariant()}";
+        }
     }
 }
