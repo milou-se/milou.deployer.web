@@ -8,7 +8,6 @@ namespace Milou.Deployer.Web.Core.Processing
     {
         public static bool IsWin64(this Process process)
         {
-#if !DNXCORE50
             if ((Environment.OSVersion.Version.Major > 5)
                 || ((Environment.OSVersion.Version.Major == 5) && (Environment.OSVersion.Version.Minor >= 1)))
             {
@@ -30,7 +29,6 @@ namespace Milou.Deployer.Web.Core.Processing
 
                 return NativeMethods.IsWow64Process(processHandle, out retVal) && retVal;
             }
-#endif
 
             return false;
         }
