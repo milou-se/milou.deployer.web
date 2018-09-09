@@ -1,5 +1,5 @@
 ﻿using System;
-using Milou.Deployer.Web.Core.Processing;
+using Milou.Deployer.Core.Processes;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {

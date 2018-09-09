@@ -7,10 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
+using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Processing;
 using NuGet.Versioning;
 using Serilog;
 using Serilog.Events;
@@ -169,7 +169,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 using (CancellationTokenSource linked =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
-                    exitCode = await ProcessRunner.ExecuteAsync(nugetExe,
+                    exitCode = await ProcessRunner.ExecuteProcessAsync(nugetExe,
                         arguments: args,
                         standardOutLog: (s, _) =>
                         {
@@ -211,7 +211,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     sourcesArgs.Add("detailed");
                 }
 
-                await ProcessRunner.ExecuteAsync(nugetExe,
+                await ProcessRunner.ExecuteProcessAsync(nugetExe,
                     arguments: sourcesArgs,
                     standardOutLog: (s, _) => sources.Add(s),
                     standardErrorAction: (s, _) => sourcesError.Add(s),

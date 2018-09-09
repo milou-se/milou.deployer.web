@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Processing;
+
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware;
 using Serilog;
 

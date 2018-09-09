@@ -10,9 +10,9 @@ using System.Xml.Linq;
 using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 using JetBrains.Annotations;
+using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Processing;
 using Newtonsoft.Json;
 using Serilog;
 
