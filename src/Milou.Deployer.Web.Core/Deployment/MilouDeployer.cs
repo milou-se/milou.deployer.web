@@ -87,7 +87,14 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                     ImmutableDictionary<string, string[]> parameterDictionary;
 
-                    if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile) &&
+                if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile) &&
+                    !Path.IsPathRooted(deploymentTargetParametersFile))
+                {
+                    throw new InvalidOperationException(
+                        $"The deployment target {deploymentTarget} parameter file '{deploymentTargetParametersFile}' is not a rooted path");
+                }
+
+                if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile) &&
                         File.Exists(deploymentTargetParametersFile))
                     {
                         string parametersJson = File.ReadAllText(deploymentTargetParametersFile, Encoding.UTF8);
