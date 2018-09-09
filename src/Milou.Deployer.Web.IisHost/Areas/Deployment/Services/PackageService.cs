@@ -141,6 +141,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
 
             args.Add("-AllVersions");
+            args.Add("-NonInteractive");
+            args.Add("-Verbosity");
+            args.Add("normal");
 
             string configFile =
                 nugetConfigFile.WithDefault(_keyValueConfiguration[ConfigurationConstants.NugetConfigFile]);
@@ -168,8 +171,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     exitCode = await ProcessRunner.ExecuteAsync(nugetExe,
                         arguments: args,
-                        standardOutLog: (s, _) => builder.Add(s),
-                        standardErrorAction: (s, _) => errorBuild.Add(s),
+                        standardOutLog: (s, _) =>
+                        {
+                            builder.Add(s);
+                            _logger.Debug("{Message}", s);
+                        },
+                        standardErrorAction: (s, _) =>
+                        {
+                            errorBuild.Add(s);
+                            _logger.Error("{Message}", s);
+                        },
                         toolAction: (s, _) => _logger.Debug("{ProcessToolMessage}", s),
                         verboseAction: (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
                         cancellationToken: linked.Token);
@@ -190,6 +201,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     sourcesArgs.Add("-ConfigFile");
                     sourcesArgs.Add(configFile);
+                }
+
+                sourcesArgs.Add("-NonInteractive");
+
+                if (_logger.IsEnabled(LogEventLevel.Debug) || _logger.IsEnabled(LogEventLevel.Verbose))
+                {
+                    sourcesArgs.Add("-Verbosity");
+                    sourcesArgs.Add("detailed");
                 }
 
                 await ProcessRunner.ExecuteAsync(nugetExe,
