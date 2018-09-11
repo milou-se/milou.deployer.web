@@ -82,14 +82,27 @@ td, th {
 
 .level-Error {
     color: red;
+    font-weight: bold;
 }
 
 .level-Information {
     color: green;
+    font-weight: bold;
 }
 
 .level-Warning {
-    color: orange
+    color: orange;
+    font-weight: bold;
+}
+
+.level-Debug {
+    color: gray;
+    font-weight: bold;
+}
+
+.level-Verbose {
+    font-weight: bold;
+    color: lightgray;
 }
 
 .input-field {
@@ -101,4 +114,8 @@ td, th {
     text-align: right;
     padding-bottom: 7px;
     padding-top: 7px;
+}
+
+.timestamp {
+    color: lightgray;
 }

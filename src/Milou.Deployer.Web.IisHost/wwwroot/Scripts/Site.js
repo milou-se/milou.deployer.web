@@ -14,7 +14,7 @@ function createSpanLogItemElementFromJson(jsonData) {
         logElement.innerHTML = eventData.Message;
     } else {
         logElement.innerHTML = `<span class="timestamp">${eventData.FormattedTimestamp}</span>
-<span class="level-${eventData.Level}">${eventData.Level}</span>
+<span class="level-${eventData.Level}">[${eventData.Level}]</span>
 <span class="message">${eventData.RenderedTemplate}</span><br />`;
     }
 
