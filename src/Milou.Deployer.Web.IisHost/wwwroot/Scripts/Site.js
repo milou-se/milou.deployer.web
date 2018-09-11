@@ -1,8 +1,14 @@
 ﻿function createSpanLogItemElement(data) {
 
+    const eventData = JSON.parse(data);
+
+    return createSpanLogItemElementFromJson(eventData);
+}
+function createSpanLogItemElementFromJson(jsonData) {
+
     const logElement = document.createElement("span");
 
-    const eventData = JSON.parse(data);
+    const eventData = jsonData;
 
     if (eventData.Message) {
         logElement.innerHTML = eventData.Message;
@@ -13,6 +19,22 @@
     }
 
     return logElement;
+}
+
+function parseLogLines(jsonLogs) {
+
+    const lines = JSON.parse(jsonLogs);
+
+    const logElements = document.createElement("div");
+
+    lines.items.forEach(function(element) {
+
+        var spanElement = createSpanLogItemElementFromJson(element);
+
+        logElements.appendChild(spanElement);
+    });
+
+    return logElements;
 }
 
 $(function () {

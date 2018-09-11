@@ -18,9 +18,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             return View(new DeploymentHistoryViewOutputModel(response.DeploymentTasks));
         }
+
         [Route(DeploymentConstants.HistoryLogRoute, Name = DeploymentConstants.HistoryLogRouteName)]
         [HttpGet]
-        public async Task<IActionResult> Log([FromServices] IMediator mediator, [FromRoute] string deploymentTaskId)
+        public async Task<IActionResult> Log(
+            [FromServices] IMediator mediator,
+            [FromRoute] string deploymentTaskId)
         {
             DeploymentLogResponse response = await mediator.Send(new DeploymentLogRequest(deploymentTaskId));
 
