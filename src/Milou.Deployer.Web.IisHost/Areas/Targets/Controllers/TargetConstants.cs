@@ -28,7 +28,7 @@
 
         public const string EditTargetRouteName = nameof(EditTargetRoute);
 
-        public const string InvalidateCacheRoute = "~/invalidatecache";
+        public const string InvalidateCacheRoute = "/invalidatecache";
 
         public const string InvalidateCacheRouteName = nameof(InvalidateCacheRoute);
     }

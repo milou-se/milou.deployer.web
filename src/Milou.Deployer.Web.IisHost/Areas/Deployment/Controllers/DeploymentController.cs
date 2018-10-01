@@ -17,7 +17,6 @@ using Serilog;
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 {
     [Area(DeploymentConstants.AreaName)]
-    [Route("deployment")]
     public class DeploymentController : BaseApiController
     {
         private readonly IDeploymentTargetReadService _getTargets;
@@ -40,7 +39,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
-        [Route("")]
+        [Route("/deployment")]
         public async Task<IActionResult> Index(string prefix = null)
         {
             IReadOnlyCollection<DeploymentTarget> targets =
