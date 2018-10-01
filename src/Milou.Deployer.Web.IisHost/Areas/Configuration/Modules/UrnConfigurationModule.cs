@@ -95,7 +95,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
                 if (treatWarningsAsErrors)
                 {
-                    throw new InvalidOperationException($"Coult not get any instance of type {type.FullName}");
+                    throw new InvalidOperationException($"Could not get any instance of type {type.FullName}");
                 }
 
                 _logger.Warning("Could not get any instance of type {Type}", type);

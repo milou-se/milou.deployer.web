@@ -10,6 +10,7 @@ using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
+using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers;
 using Milou.Deployer.Web.IisHost.Controllers;
 using Serilog;
 
@@ -54,7 +55,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
-        [Route("~/invalidatecache")]
+        [Route(TargetConstants.InvalidateCacheRoute, Name = TargetConstants.InvalidateCacheRouteName)]
         public ActionResult InvalidateCache([FromServices] ICustomMemoryCache customMemoryCache)
         {
             customMemoryCache.Invalidate(Request.Query["prefix"]);
