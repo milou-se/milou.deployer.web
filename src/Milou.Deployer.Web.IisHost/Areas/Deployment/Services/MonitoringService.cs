@@ -214,8 +214,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             try
             {
                 IReadOnlyCollection<PackageVersion> allPackageVersions =
-                    await _packageService.GetPackageVersionsAsync(target.PackageId, nugetConfigFile: target.NuGetConfigFile,
+                    await _packageService.GetPackageVersionsAsync(
+                        target.PackageId, nugetConfigFile: target.NuGetConfigFile,
                         nugetPackageSource: target.NuGetPackageSource, logger: _logger,
+                        includePreReleased: target.AllowExplicitExplicitPreRelease == true || target.AllowPrerelease,
                         cancellationToken: cancellationToken);
 
                 IReadOnlyCollection<PackageVersion> allTargetPackageVersions = allPackageVersions.Where(
