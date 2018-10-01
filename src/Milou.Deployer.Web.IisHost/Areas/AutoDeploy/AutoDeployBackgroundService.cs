@@ -72,6 +72,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 if (deploymentTargets.IsDefaultOrEmpty)
                 {
+                    await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
                     continue;
                 }
 
