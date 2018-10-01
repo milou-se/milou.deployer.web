@@ -73,19 +73,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 {
                     IHostingEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
 
-                    config
-                        .AddJsonFile("appsettings.json", true, true)
-                        .AddJsonFile(
-                            $"appsettings.{hostingEnvironment.EnvironmentName}.json",
-                            true,
-                            true);
-
-                    if (hostingEnvironment.IsDevelopment())
-                    {
-                        Assembly assembly = typeof(CustomWebHostBuilder).Assembly;
-                        config.AddUserSecrets(assembly, true);
-                    }
-
                     config.AddEnvironmentVariables();
                 })
                 .UseIISIntegration()
