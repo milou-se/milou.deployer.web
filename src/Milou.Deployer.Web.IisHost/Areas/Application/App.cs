@@ -248,7 +248,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             var urnModule = new UrnConfigurationModule(configuration, logger, scanAssemblies);
 
             Type[] excludedTypes = configuration.GetInstances<ExcludedAutoRegistrationType>()
-                .Select(excluded => Type.GetType(excluded.FullName))
+                .Select(TryGetType)
                 .Where(type => type != null)
                 .ToArray();
 
@@ -258,6 +258,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             modules.Add(new MediatRModule(scanAssemblies, excludedTypes, logger));
 
             return modules;
+        }
+
+        private static Type TryGetType(ExcludedAutoRegistrationType excluded)
+        {
+            try
+            {
+                return Type.GetType(excluded.FullName);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         private static string GetBaseDirectoryFile(string basePath, string fileName)
