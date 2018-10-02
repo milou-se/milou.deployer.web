@@ -199,7 +199,8 @@ namespace Milou.Deployer.Web.Core.Deployment
                     Environment.SetEnvironmentVariable("urn:milou-deployer:tools:nuget:exe-path",
                         _keyValueConfiguration["urn:milou-deployer:tools:nuget:exe-path"]);
 
-                    arguments.Add("--prerelease");
+                    arguments.Add(Bootstrapper.Common.Constants.AllowPreRelease);
+                    arguments.Add(Milou.Deployer.Core.LoggingConstants.PlainOutputFormatEnabled);
 
                     string[] deployerArgs = arguments.ToArray();
 

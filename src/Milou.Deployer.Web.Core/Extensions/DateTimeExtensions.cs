@@ -1,9 +1,71 @@
 ﻿using System;
+using Milou.Deployer.Web.IisHost.Areas.Deployment;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
+    public static class IntExtensions
+    {
+        public static string ToStatusColor(this int value)
+        {
+            if (value == 0)
+            {
+                return "success";
+            }
+
+            return "failure";
+        }
+    }
+
     public static class DateTimeExtensions
     {
+        public static DeploymentInterval IntervalAgo(this DateTime? dateTimeUtc, ITime time)
+        {
+            if (!dateTimeUtc.HasValue)
+            {
+                return DeploymentInterval.Invalid;
+            }
+
+            TimeSpan diff = time.LocalNow() - time.ToLocalTime(dateTimeUtc.Value);
+
+            if (diff.TotalSeconds < 0)
+            {
+                return DeploymentInterval.Invalid;
+            }
+
+            return DeploymentInterval.Parse(diff);
+        }
+
+        public static string RelativeUtcToLocalTime(this DateTime? dateTime, ITime time)
+        {
+            if (!dateTime.HasValue)
+            {
+                return "N/A";
+            }
+
+            DateTime localThen = time.ToLocalTime(dateTime.Value);
+
+            DateTime localNow = time.LocalNow();
+
+            return localNow.Since(localThen);
+        }
+
+        public static string ToLocalTimeFormatted(this DateTime? dateTime, ITime time)
+        {
+            if (!dateTime.HasValue)
+            {
+                return "";
+            }
+
+            return ToLocalTimeFormatted(dateTime.Value, time);
+        }
+
+        public static string ToLocalTimeFormatted(this DateTime dateTimeUtc, ITime time)
+        {
+            var utcTime = new DateTime(dateTimeUtc.Ticks, DateTimeKind.Utc);
+
+            return time.ToLocalTime(utcTime).ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
         public static string Since(this DateTime to, DateTime from)
         {
             TimeSpan diff = to - from;

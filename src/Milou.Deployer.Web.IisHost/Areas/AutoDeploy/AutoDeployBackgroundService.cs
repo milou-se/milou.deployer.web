@@ -72,7 +72,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 if (deploymentTargets.IsDefaultOrEmpty)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+                    _logger.Verbose("Found no deployment targets with auto deployment enabled, waiting {DelayInSeconds} seconds", _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
+                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds), stoppingToken);
+
                     continue;
                 }
 
@@ -100,9 +102,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     AppVersion appVersion = appVersions.SingleOrDefault(v =>
                         v.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
 
-                    if (appVersion is null ||
-                        appVersion.SemanticVersion is null ||
-                        appVersion.PackageId.IsNullOrWhiteSpace())
+                    if (appVersion?.SemanticVersion is null || appVersion.PackageId.IsNullOrWhiteSpace())
                     {
                         continue;
                     }

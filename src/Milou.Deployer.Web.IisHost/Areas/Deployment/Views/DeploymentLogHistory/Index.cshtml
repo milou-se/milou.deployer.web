@@ -1,15 +1,44 @@
-﻿@using Milou.Deployer.Web.Core.Deployment
+﻿@using Milou.Deployer.Web.Core
+@using Milou.Deployer.Web.Core.Deployment
+@using Milou.Deployer.Web.Core.Extensions
 @using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
-@using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentHistoryViewOutputModel
+@inject ITime Time;
 
-@foreach (DeploymentTaskInfo item in Model.DeploymentTasks)
-{
-    <h2>
-        @item.FinishedAtUtc
-    </h2>
+<table>
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Result</th>
+            <th>Duration</th>
+            <th><span class="text-nowrap">Package id</span></th>
+            <th>Version</th>
+            <th>Log</th>
+            <th>Metadata</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (DeploymentTaskInfo item in Model.DeploymentTasks)
+        {
+            <tr>
+                <td>
+                    <a href="@Url.RouteUrl(DeploymentConstants.HistoryLogRouteName, new { deploymentTaskId = item.DeploymentTaskId })"><span class="text-nowrap">@item.FinishedAtUtc.ToLocalTimeFormatted(Time)</span></a>
+                </td>
+                <td>
+                    <span class="deployment-status @item.ExitCode.ToStatusColor()">@item.ExitCode.ToStatusColor()</span>
+                </td>
+                <td>@item.Duration.ToString("c")</td>
+                <td>
+                    <span class="text-nowrap">@item.PackageId</span>
+                </td>
+                <td>
+                    <span class="text-nowrap">@item.Version</span>
+                </td>
+                <td>
+                    @item.Metadata
+                </td>
+            </tr>
+        }
+    </tbody>
 
-    <a href="@Url.RouteUrl(DeploymentConstants.HistoryLogRouteName, new {deploymentTaskId=item.DeploymentTaskId})">Log</a>
-
-    <p>@item.Metadata</p>
-}
+</table>

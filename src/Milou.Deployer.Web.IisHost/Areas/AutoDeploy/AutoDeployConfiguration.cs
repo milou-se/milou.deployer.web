@@ -13,14 +13,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             int metadataTimeoutInSeconds,
             bool enabled,
             int defaultTimeoutInSeconds,
-            int afterDeployDelayInSeconds)
+            int afterDeployDelayInSeconds,
+            int emptyTargetsDelayInSeconds)
         {
             StartupDelayInSeconds = startupDelayInSeconds >= 0 ? metadataTimeoutInSeconds : 0;
             MetadataTimeoutInSeconds = metadataTimeoutInSeconds > 0 ? metadataTimeoutInSeconds : 5;
             Enabled = enabled;
             AfterDeployDelayInSeconds = afterDeployDelayInSeconds <= 0 ? 10 : afterDeployDelayInSeconds;
             DefaultTimeoutInSeconds = defaultTimeoutInSeconds <= 0 ? 30 : defaultTimeoutInSeconds;
+            EmptyTargetsDelayInSeconds = emptyTargetsDelayInSeconds <= 0 ? 60 : emptyTargetsDelayInSeconds;
         }
+
+        public int EmptyTargetsDelayInSeconds { get; }
 
         public bool Enabled { get; }
 

@@ -46,7 +46,7 @@ textarea {
 }
 
 .ThisWeek {
-    background-color: #006400;
+    background-color: green;
     color: white;
 }
 .ThisMonth {
@@ -69,7 +69,8 @@ td, th {
 }
 
 .prerelease {
-    color: orangered;
+    color: #7d7d7d;
+    font-style: italic;
 }
 
 .stable {
@@ -118,4 +119,56 @@ td, th {
 
 .timestamp {
     color: lightgray;
+}
+
+.deployment-status {
+    text-transform: capitalize;
+    display: inline-block;
+    padding: 5px;
+}
+
+.failure {
+    background-color: red;
+    color: white;
+}
+
+.success {
+    background-color: green;
+    color: white;
+}
+
+.action-link {
+    display: inline-block;
+    background-color: #7d7d7d;
+    color: white;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.action-link:link,
+.action-link:visited,
+.action-link:hover,
+.action-link:active {
+    color: white;
+}
+
+.package-select {
+    max-width: 300px;
+    display: inline-block;
+}
+.package-select select {
+    width: 300px;
+}
+
+.deploy-status-latest {
+    background-color: green;
+    color: white;
+    display: inline-block;
+    padding: 5px;
+}
+
+.deploy-status-unavailable {
+    color: #7d7d7d;
+    font-style: italic;
 }

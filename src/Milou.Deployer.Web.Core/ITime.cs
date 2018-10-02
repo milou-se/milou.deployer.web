@@ -7,5 +7,7 @@ namespace Milou.Deployer.Web.Core
         DateTimeOffset UtcNow();
 
         DateTime LocalNow();
+
+        DateTime ToLocalTime(DateTime dateTimeValue);
     }
 }

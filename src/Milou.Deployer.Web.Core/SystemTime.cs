@@ -22,7 +22,8 @@ namespace Milou.Deployer.Web.Core
 
             if (timeZoneId.HasValue())
             {
-                TimeZoneInfo foundTimeZone = TimeZoneInfo.GetSystemTimeZones().SingleOrDefault(zone => zone.Id.Equals(timeZoneId, StringComparison.OrdinalIgnoreCase));
+                TimeZoneInfo foundTimeZone = TimeZoneInfo.GetSystemTimeZones()
+                    .SingleOrDefault(zone => zone.Id.Equals(timeZoneId, StringComparison.OrdinalIgnoreCase));
 
                 if (foundTimeZone != null)
                 {
@@ -41,7 +42,8 @@ namespace Milou.Deployer.Web.Core
                 return DateTimeOffset.UtcNow;
             }
 
-            DateTimeOffset utcDateTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTimeOffset.UtcNow, _timeZone.Id);
+            DateTimeOffset utcDateTime =
+                TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTimeOffset.UtcNow, _timeZone.Id);
 
             return utcDateTime;
         }
@@ -56,6 +58,13 @@ namespace Milou.Deployer.Web.Core
             DateTime localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _timeZone);
 
             return localNow;
+        }
+
+        public DateTime ToLocalTime(DateTime dateTimeValue)
+        {
+            var withKindUtc = new DateTime(dateTimeValue.Ticks, DateTimeKind.Utc);
+
+            return TimeZoneInfo.ConvertTimeFromUtc(withKindUtc, _timeZone);
         }
     }
 }

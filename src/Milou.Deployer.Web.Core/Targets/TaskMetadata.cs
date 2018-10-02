@@ -5,6 +5,8 @@ namespace Milou.Deployer.Web.Core.Targets
 {
     public class TaskMetadata
     {
+        public string PackageId { get; set; }
+
         public string DeploymentTaskId { get; set; }
 
         public string DeploymentTargetId { get; set; }
@@ -18,5 +20,7 @@ namespace Milou.Deployer.Web.Core.Targets
         public DateTime FinishedAtUtc { get; set; }
 
         public int ExitCode { get; set; }
+
+        public string Version { get; set; }
     }
 }

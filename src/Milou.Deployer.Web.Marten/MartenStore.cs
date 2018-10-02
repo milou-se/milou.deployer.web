@@ -156,6 +156,7 @@ namespace Milou.Deployer.Web.Marten
             {
                 taskMetadata = await session.Query<TaskMetadata>().Where(item =>
                         item.DeploymentTargetId.Equals(request.DeploymentTargetId, StringComparison.OrdinalIgnoreCase))
+                    .OrderByDescending(item => item.FinishedAtUtc)
                     .ToListAsync(cancellationToken);
             }
 
@@ -164,7 +165,9 @@ namespace Milou.Deployer.Web.Marten
                     item.Metadata,
                     item.StartedAtUtc,
                     item.FinishedAtUtc,
-                    item.ExitCode)).ToImmutableArray());
+                    item.ExitCode,
+                    item.PackageId,
+                    item.Version)).ToImmutableArray());
         }
 
         public async Task<DeploymentLogResponse> Handle(

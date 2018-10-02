@@ -23,8 +23,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.0-build.55" />
-    <PackageReference Include="Milou.Deployer.Core" Version="4.0.0-build.55" />
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.0-build.57" />
+    <PackageReference Include="Milou.Deployer.Core" Version="4.0.0-build.57" />
     <PackageReference Include="Nuget.versioning" Version="4.8.0" />
     <PackageReference Include="Serilog" Version="2.7.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />

@@ -9,13 +9,17 @@ namespace Milou.Deployer.Web.Core.Deployment
             string metadata,
             DateTime startedAtUtc,
             DateTime finishedAtUtc,
-            int exitCode)
+            int exitCode,
+            string packageId,
+            string version)
         {
             DeploymentTaskId = deploymentTaskId;
             Metadata = metadata;
             StartedAtUtc = startedAtUtc;
             FinishedAtUtc = finishedAtUtc;
             ExitCode = exitCode;
+            PackageId = packageId;
+            Version = version;
         }
 
         public string DeploymentTaskId { get; }
@@ -27,5 +31,9 @@ namespace Milou.Deployer.Web.Core.Deployment
         public DateTime FinishedAtUtc { get; }
 
         public int ExitCode { get; }
+        public string PackageId { get; }
+        public string Version { get; }
+
+        public TimeSpan Duration => TimeSpan.FromSeconds((int)(FinishedAtUtc - StartedAtUtc).TotalSeconds);
     }
 }
