@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using MysticMind.PostgresEmbed;
 using Serilog;
@@ -55,11 +56,16 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
 
+            DirectoryInfo postgresqlDbDir = new DirectoryInfo(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                "tools",
+                "MysticMind.PostgresEmbed")).EnsureExists();
+
             try
             {
                 _pgServer = new PgServer(
                     "9.6.9.1",
                     PostgresqlUser,
+                    dbDir: postgresqlDbDir.FullName,
                     addLocalUserAccessPermission: AddLocalUserAccessPermission,
                     clearInstanceDirOnStop: true);
 
