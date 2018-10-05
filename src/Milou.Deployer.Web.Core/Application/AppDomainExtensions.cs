@@ -6,7 +6,6 @@ using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyModel;
 using Milou.Deployer.Web.Core.Time;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
@@ -119,7 +118,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Type[] types =
             {
                 typeof(ICustomClock),
-                typeof(DeployController)
             };
 
             foreach (Type type in types)
