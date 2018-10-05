@@ -17,19 +17,16 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Time;
-using Milou.Deployer.Web.IisHost.Areas.Application;
-using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
-using Milou.Deployer.Web.IisHost.Areas.NuGet;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Newtonsoft.Json;
 using Serilog.AspNetCore;
@@ -53,6 +50,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
+            //IHttpClientFactory httpClientFactory = _webHostScope.Lifetime.Resolve<Func<IHttpClientFactory>>().Invoke();
+
+            //httpClientFactory.DisposeIfPossible();
+
+            services.AddHttpClient();
+            //services.TryAddSingleton(provider => (Func<IHttpClientFactory>) provider.GetService(typeof(Func<IHttpClientFactory>)));
+
             services.AddMvc();
 
             services.AddSignalR(options =>
@@ -146,6 +150,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 {
                     builder.RegisterModule(module);
                 }
+
 
                 builder.Populate(services);
             });

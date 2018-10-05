@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
-using Arbor.Tooler;
 using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
@@ -189,28 +187,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             AppContainerScope container = Bootstrapper.Start(basePath, contentBasePath, modules, appLogger, scanAssemblies, excludedModuleTypes, loggingLevelSwitch);
 
-            var appRootScope = new Scope(container.AppRootScope);
-
-            DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(container.AppRootScope, cancellationTokenSource.Token);
+            DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(container.AppRootScope.Deepest().Lifetime, cancellationTokenSource.Token);
 
             ILifetimeScope webHostScope =
-                container.AppRootScope.BeginLifetimeScope(builder =>
+                container.AppRootScope.Deepest().Lifetime.BeginLifetimeScope(builder =>
                 {
                     builder.RegisterInstance(deploymentTargetIds).AsSelf().SingleInstance();
                     builder.RegisterType<Startup>().AsSelf();
-                    builder.RegisterInstance(appRootScope);
+                    builder.RegisterInstance(container.AppRootScope);
                 });
 
             var webHostScopeWrapper = new Scope(webHostScope);
-            appRootScope.SubScope = webHostScopeWrapper;
+            container.AppRootScope.Deepest().SubScope = webHostScopeWrapper;
 
             IWebHostBuilder webHostBuilder =
-                CustomWebHostBuilder.GetWebHostBuilder(appRootScope, webHostScopeWrapper, appLogger);
+                CustomWebHostBuilder.GetWebHostBuilder(container.AppRootScope, webHostScopeWrapper, appLogger);
 
             var app = new App(webHostBuilder, cancellationTokenSource, appLogger)
             {
                 Container = container.Container,
-                AppRootScope = appRootScope
+                AppRootScope = container.AppRootScope
             };
 
             return app;

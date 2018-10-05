@@ -6,22 +6,17 @@ using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using NuGet.Versioning;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     public class AppVersion
     {
-        private readonly DateTimeOffset _utcNow;
-
         public AppVersion(
             [NotNull] DeploymentTarget target,
             [NotNull] IKeyValueConfiguration manifestProperties,
-            IReadOnlyCollection<PackageVersion> availablePackageVersions, DateTimeOffset utcNow)
+            IReadOnlyCollection<PackageVersion> availablePackageVersions)
         {
-            _utcNow = utcNow;
             Properties =
                 manifestProperties ?? throw new ArgumentNullException(nameof(manifestProperties));
             AvailablePackageVersions = availablePackageVersions;
@@ -29,28 +24,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Status = GetStatus();
         }
 
-        public AppVersion([NotNull] DeploymentTarget target, string message, IReadOnlyCollection<PackageVersion> availablePackgages)
+        public AppVersion(
+            [NotNull] DeploymentTarget target,
+            string message,
+            IReadOnlyCollection<PackageVersion> availablePackgages)
         {
             Properties = new InMemoryKeyValueConfiguration(new NameValueCollection());
             Target = target;
             Message = message;
             AvailablePackageVersions = availablePackgages;
             Status = GetStatus();
-        }
-
-        private DeployStatus GetStatus()
-        {
-            if (SemanticVersion is null)
-            {
-                return DeployStatus.Unavailable;
-            }
-
-            if (AvailablePackageVersions.Count == 0)
-            {
-                return DeployStatus.NoPackagesAvailable;
-            }
-
-            return SemanticVersion == AvailablePackageVersions.Latest() ? DeployStatus.Latest : DeployStatus.UpdateAvailable;
         }
 
         public string Message { get; }
@@ -117,6 +100,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public IReadOnlyCollection<PackageVersion> AvailablePackageVersions { get; }
 
-        public DeployStatus Status { get;}
+        public DeployStatus Status { get; }
+
+        private DeployStatus GetStatus()
+        {
+            if (SemanticVersion is null)
+            {
+                return DeployStatus.Unavailable;
+            }
+
+            if (AvailablePackageVersions.Count == 0)
+            {
+                return DeployStatus.NoPackagesAvailable;
+            }
+
+            return SemanticVersion == AvailablePackageVersions.Latest()
+                ? DeployStatus.Latest
+                : DeployStatus.UpdateAvailable;
+        }
     }
 }

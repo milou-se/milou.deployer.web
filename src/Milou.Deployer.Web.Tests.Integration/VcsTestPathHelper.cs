@@ -3,7 +3,7 @@ using Arbor.Aesculus.Core;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    public class VcsTestPathHelper
+    public static class VcsTestPathHelper
     {
         public static string GetRootDirectory()
         {
@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             if (!string.IsNullOrWhiteSpace(originalSolutionPath))
             {
                 var fileInfo = new FileInfo(originalSolutionPath);
-                return VcsPathHelper.FindVcsRootPath(fileInfo.Directory.FullName);
+                return VcsPathHelper.FindVcsRootPath(fileInfo.Directory?.FullName);
             }
 
             return VcsPathHelper.FindVcsRootPath();

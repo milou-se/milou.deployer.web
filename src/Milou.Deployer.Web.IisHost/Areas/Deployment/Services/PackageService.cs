@@ -109,12 +109,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (string.IsNullOrWhiteSpace(nugetExe))
             {
-                throw new InvalidOperationException("The nuget.exe path is not set");
+                throw new DeployerAppException("The nuget.exe path is not set");
             }
 
             if (!File.Exists(nugetExe))
             {
-                throw new InvalidOperationException($"The nuget.exe path '{nugetExe}' does not exist");
+                throw new DeployerAppException($"The nuget.exe path '{nugetExe}' does not exist");
             }
 
             string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Marten.Schema;
 
 namespace Milou.Deployer.Web.Core.Targets

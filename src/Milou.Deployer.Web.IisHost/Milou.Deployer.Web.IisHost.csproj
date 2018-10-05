@@ -17,12 +17,12 @@
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.15.1" />
     <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.15.1" />
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.15.1" />
-    <PackageReference Include="Arbor.KVConfiguration.Userconfiguration" Version="0.15.1" />
+    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.15.1" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
-    <PackageReference Include="Arbor.Tooler" Version="0.1.0-build.16" />
+    <PackageReference Include="Arbor.Tooler" Version="0.1.0-build.17" />
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.0" />
-    <PackageReference Include="Jetbrains.annotations" Version="2018.2.1" />
+    <PackageReference Include="Jetbrains.Annotations" Version="2018.2.1" />
     <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
     <PackageReference Include="MediatR" Version="5.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
@@ -40,8 +40,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.0-build.57" />
-    <PackageReference Include="Milou.Deployer.Core" Version="4.0.0-build.57" />
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.0-build.60" />
+    <PackageReference Include="Milou.Deployer.Core" Version="4.0.0-build.60" />
     <PackageReference Include="Nuget.Versioning" Version="4.8.0" />
     <PackageReference Include="Serilog" Version="2.7.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />

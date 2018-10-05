@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 
@@ -11,7 +10,7 @@ namespace Milou.Deployer.Web.Core.Extensions
         {
             if (array.IsDefault)
             {
-                throw new InvalidOperationException($"The immutable array of {typeof(T).FullName} must not be default");
+                throw new DeployerAppException($"The immutable array of {typeof(T).FullName} must not be default");
             }
 
             return array;

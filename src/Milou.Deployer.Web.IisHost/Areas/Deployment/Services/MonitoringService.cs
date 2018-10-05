@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -24,7 +23,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     public class MonitoringService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ICustomClock _customClock;
         private readonly ILogger _logger;
         private readonly PackageService _packageService;
         [NotNull]
@@ -33,13 +31,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public MonitoringService(
             [NotNull] ILogger logger,
             [NotNull] IHttpClientFactory httpClientFactory,
-            [NotNull] ICustomClock customClock,
             [NotNull] PackageService packageService,
             [NotNull] MonitorConfiguration monitorConfiguration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-            _customClock = customClock ?? throw new ArgumentNullException(nameof(customClock));
             _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
             _monitorConfiguration = monitorConfiguration ?? throw new ArgumentNullException(nameof(monitorConfiguration));
         }
@@ -204,7 +200,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 nameValueCollection.Add(configurationItem.Key, configurationItem.Value);
             }
 
-            var appVersion = new AppVersion(target, new InMemoryKeyValueConfiguration(nameValueCollection), filtered, _customClock.UtcNow());
+            var appVersion = new AppVersion(target, new InMemoryKeyValueConfiguration(nameValueCollection), filtered);
 
             return appVersion;
         }

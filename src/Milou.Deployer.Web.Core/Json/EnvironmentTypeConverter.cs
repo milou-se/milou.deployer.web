@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.Core.Json
                 return;
             }
 
-            throw new InvalidOperationException($"Type must be {typeof(EnvironmentType).FullName}");
+            throw new DeployerAppException($"Type must be {typeof(EnvironmentType).FullName}");
         }
 
         public override bool CanConvert(Type objectType)

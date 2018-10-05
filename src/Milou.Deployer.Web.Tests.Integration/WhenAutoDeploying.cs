@@ -30,17 +30,17 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (WebFixture is null)
             {
-                throw new InvalidOperationException($"{nameof(WebFixture)} is null");
+                throw new Core.DeployerAppException($"{nameof(WebFixture)} is null");
             }
 
             if (WebFixture.TestSiteHttpPort is null)
             {
-                throw new InvalidOperationException($"{nameof(WebFixture.TestSiteHttpPort)} is null");
+                throw new Core.DeployerAppException($"{nameof(WebFixture.TestSiteHttpPort)} is null");
             }
 
             if (WebFixture is null)
             {
-                throw new InvalidOperationException($"{nameof(WebFixture)} is null");
+                throw new Core.DeployerAppException($"{nameof(WebFixture)} is null");
             }
 
             using (var httpClient = new HttpClient())
@@ -65,7 +65,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                         }
                         catch (Exception ex)
                         {
-                            throw new InvalidOperationException($"Could not get a valid response from request to '{url}'", ex);
+                            throw new Core.DeployerAppException($"Could not get a valid response from request to '{url}'", ex);
                         }
 
                         string tempFileName = Path.GetTempFileName();

@@ -4,10 +4,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
-using TypeExtensions = Milou.Deployer.Web.Core.Extensions.TypeExtensions;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 {

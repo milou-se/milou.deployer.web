@@ -1,5 +1,3 @@
-using System;
-
 namespace Milou.Deployer.Web.Core.Extensions
 {
     internal static class CharExtensions
@@ -49,7 +47,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 case '9':
                     return 9;
                 default:
-                    throw new InvalidOperationException("The character is not a single digit");
+                    throw new DeployerAppException("The character is not a single digit");
             }
         }
     }

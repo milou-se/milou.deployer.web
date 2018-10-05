@@ -1,5 +1,6 @@
 ﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 @using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,7 +21,7 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="/targets">Targets</a></li>
+                    <li><a href="/@Url.RouteUrl(TargetConstants.TargetsRoute)">Targets</a></li>
                     <li><a href="/@MonitoringController.BaseRoute">Monitor and deploy</a></li>
                     <li><a href="/@SettingsController.BaseRoute">Settings</a></li>
                 </ul>

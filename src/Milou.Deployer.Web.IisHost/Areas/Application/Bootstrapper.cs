@@ -6,6 +6,7 @@ using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
@@ -83,6 +84,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     return false;
                 }
 
+                if (registrationOrderAttribute.ReRegisterEnabled)
+                {
+                    return false;
+                }
+
                 return true;
             }
 
@@ -100,7 +106,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 .Where(moduleTypes.Contains)
                 .As<IModule>();
 
+
+            var rootScope = new Scope();
+            builder.RegisterInstance(rootScope);
+
             IContainer container = builder.Build();
+
+            rootScope.Lifetime = container;
 
             ILifetimeScope appRootScope = container.BeginLifetimeScope(appScopeBuilder =>
             {
@@ -126,7 +138,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
             });
 
-            return new AppContainerScope(container, appRootScope);
+            rootScope.SubScope = new Scope(appRootScope);
+
+            return new AppContainerScope(container, rootScope);
         }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using JetBrains.Annotations;
-using Serilog;
 using Xunit;
 using Xunit.Abstractions;
 

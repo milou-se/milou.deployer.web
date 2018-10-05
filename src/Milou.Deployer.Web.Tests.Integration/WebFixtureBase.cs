@@ -68,7 +68,6 @@ namespace Milou.Deployer.Web.Tests.Integration
                     dbDir: postgresqlDbDir.FullName,
                     addLocalUserAccessPermission: AddLocalUserAccessPermission,
                     clearInstanceDirOnStop: true);
-
                 _pgServer.Start();
 
                 string connStr = string.Format(ConnectionStringFormat, _pgServer.PgPort, PostgresqlUser);
@@ -81,7 +80,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 if (CancellationToken.IsCancellationRequested)
                 {
-                    throw new InvalidOperationException("The cancellation token is already cancelled, skipping before start");
+                    throw new Core.DeployerAppException("The cancellation token is already cancelled, skipping before start");
                 }
 
                 try
@@ -94,12 +93,12 @@ namespace Milou.Deployer.Web.Tests.Integration
                 {
                     _diagnosticMessageSink.OnMessage(new DiagnosticMessage(ex.ToString()));
                     _cancellationTokenSource.Cancel();
-                    throw new InvalidOperationException("Before start exception", ex);
+                    throw new Core.DeployerAppException("Before start exception", ex);
                 }
 
                 if (CancellationToken.IsCancellationRequested)
                 {
-                    throw new InvalidOperationException("The cancellation token is already cancelled, skipping start");
+                    throw new Core.DeployerAppException("The cancellation token is already cancelled, skipping start");
                 }
 
                 await StartAsync(args);
@@ -108,14 +107,14 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 if (CancellationToken.IsCancellationRequested)
                 {
-                    throw new InvalidOperationException("The cancellation token is already cancelled, skipping run");
+                    throw new Core.DeployerAppException("The cancellation token is already cancelled, skipping run");
                 }
 
                 await RunAsync();
 
                 if (CancellationToken.IsCancellationRequested)
                 {
-                    throw new InvalidOperationException("The cancellation token is already cancelled, skipping after run");
+                    throw new Core.DeployerAppException("The cancellation token is already cancelled, skipping after run");
                 }
 
                 await AfterRunAsync();

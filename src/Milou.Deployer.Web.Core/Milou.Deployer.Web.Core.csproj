@@ -10,7 +10,7 @@
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.15.1" />
     <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.15.1" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
-    <PackageReference Include="Arbor.Tooler" Version="0.1.0-build.16" />
+    <PackageReference Include="Arbor.Tooler" Version="0.1.0-build.17" />
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="Jetbrains.Annotations" Version="2018.2.1" />
     <PackageReference Include="MailKit" Version="2.0.6" />
@@ -18,13 +18,14 @@
     <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
     <PackageReference Include="MediatR" Version="5.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Net.Compilers" Version="2.9.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.0-build.57" />
-    <PackageReference Include="Milou.Deployer.Core" Version="4.0.0-build.57" />
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.0-build.60" />
+    <PackageReference Include="Milou.Deployer.Core" Version="4.0.0-build.60" />
     <PackageReference Include="Nuget.Versioning" Version="4.8.0" />
     <PackageReference Include="Serilog" Version="2.7.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />

@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.Marten
 
             if (configurations.Length > 1)
             {
-                throw new InvalidOperationException(
+                throw new Core.DeployerAppException(
                     $"Expected exactly 1 instance of type {nameof(MartenConfiguration)} but got {configurations.Length}");
             }
 

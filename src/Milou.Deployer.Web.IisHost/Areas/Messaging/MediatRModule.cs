@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Autofac;
-using Autofac.Features.Variance;
 using JetBrains.Annotations;
 using MediatR;
 using MediatR.Pipeline;

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Schema.Json;
 using Autofac;
 using JetBrains.Annotations;
-using MediatR;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
@@ -123,7 +122,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (targets.Length != 1)
             {
-                throw new InvalidOperationException("The target has not been created");
+                throw new Core.DeployerAppException("The target has not been created");
             }
 
             string packageVersion = "MilouDeployerWebTest 1.2.4";
@@ -139,7 +138,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (!deploymentTaskResult.ExitCode.IsSuccess)
             {
-                throw new InvalidOperationException($"Initial deploy failed: {deploymentTaskResult.Metadata}");
+                throw new Core.DeployerAppException($"Initial deploy failed: {deploymentTaskResult.Metadata}");
             }
 
             TestStartup.TestConfiguration = TestConfiguration;

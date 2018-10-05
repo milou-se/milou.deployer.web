@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,7 +66,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             if (exeFile.Directory is null)
             {
-                throw new InvalidOperationException("Invalid file directory");
+                throw new DeployerAppException($"Invalid file directory of executable {exeFile.FullName}");
             }
 
             using (CurrentDirectoryContext.Create(exeFile.Directory))
@@ -92,7 +93,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile) &&
                     !Path.IsPathRooted(deploymentTargetParametersFile))
                 {
-                    throw new InvalidOperationException(
+                    throw new DeployerAppException(
                         $"The deployment target {deploymentTarget} parameter file '{deploymentTargetParametersFile}' is not a rooted path");
                 }
 
@@ -207,10 +208,12 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                     logger.Verbose("Running Milou Deployer bootstrapper");
 
-                    using (Bootstrapper.Common.App deployerApp =
+                HttpClient httpClient = _bootstrapperClient.HttpClientFactory.CreateClient("Bootstrapper");
+
+                using (Bootstrapper.Common.App deployerApp =
                         await Bootstrapper.Common.App.CreateAsync(deployerArgs,
                             logger,
-                            _bootstrapperClient.HttpClient,
+                            httpClient,
                             disposeNested: false))
                     {
                         NuGetPackageInstallResult result =
@@ -334,7 +337,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             if (!exeFile.Exists)
             {
-                throw new InvalidOperationException(
+                throw new DeployerAppException(
                     $"The file '{_milouDeployerConfiguration.MilouDeployerExePath}' does not exist");
             }
 

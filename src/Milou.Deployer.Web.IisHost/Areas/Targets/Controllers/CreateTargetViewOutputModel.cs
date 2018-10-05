@@ -2,8 +2,5 @@
 {
     public class CreateTargetViewOutputModel
     {
-        public CreateTargetViewOutputModel()
-        {
-        }
     }
 }

@@ -1,16 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
 using Serilog.Extensions.Logging;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore
@@ -71,8 +70,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 .UseContentRoot(contentRoot)
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    IHostingEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
-
                     config.AddEnvironmentVariables();
                 })
                 .UseIISIntegration()

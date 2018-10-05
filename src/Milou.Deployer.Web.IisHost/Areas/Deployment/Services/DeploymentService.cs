@@ -18,6 +18,7 @@ using Milou.Deployer.Web.IisHost.Areas.Logging;
 using NuGet.Versioning;
 using Serilog;
 using Serilog.Core;
+using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
@@ -185,7 +186,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 string allPackageIds = string.Join(", ",
                     deploymentTarget.PackageId.Select(name => $"'{name}'"));
 
-                throw new InvalidOperationException(
+                throw new DeployerAppException(
                     $"The package id '{packageId}' is not in the list of allowed package ids: {allPackageIds}");
             }
         }
@@ -228,6 +229,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 .WriteTo.DelegateSink(deploymentTask.Log)
                 .WriteTo.DelegateSink(message => logBuilder.AppendLine(message))
                 .WriteTo.Logger(logger)
+                .WriteTo.Debug(LogEventLevel.Verbose)
                 .MinimumLevel.Verbose()
                 .CreateLogger())
             {
@@ -264,7 +266,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             if (version.IsPrerelease && !deploymentTarget.AllowPrerelease)
             {
-                throw new InvalidOperationException(
+                throw new DeployerAppException(
                     $"Could not deploy package with id '{packageId}' to target '{deploymentTarget}' because the package is a pre-release version and the target does not support it");
             }
 
@@ -311,7 +313,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (deploymentTarget == null)
             {
-                throw new InvalidOperationException(
+                throw new DeployerAppException(
                     $"Deployment target with id '{deploymentTask.DeploymentTargetId}' was not found using source {_targetSource.GetType().FullName}");
             }
 

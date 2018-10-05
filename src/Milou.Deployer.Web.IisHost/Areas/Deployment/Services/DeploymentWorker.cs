@@ -33,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (_workers.Length == 0)
             {
-                throw new InvalidOperationException("There are no registered deployment workers");
+                throw new Core.DeployerAppException("There are no registered deployment workers");
             }
 
             DeploymentTargetWorker workerByTargetId = _workers.SingleOrDefault(worker => worker.TargetId.Equals(targetId, StringComparison.OrdinalIgnoreCase));
@@ -52,7 +52,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (foundWorker is null)
             {
-                throw new InvalidOperationException(
+                throw new Core.DeployerAppException(
                     $"Could not find worker for deployment target id {deploymentTask.DeploymentTargetId}");
             }
 

@@ -231,3 +231,4 @@ pip-log.txt
 .mr.developer.cfg
 
 **/PostgreSql.Binaries.Lite.*.nupkg
+**/nCrunchTemp_*

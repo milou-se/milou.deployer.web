@@ -95,7 +95,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
                 if (treatWarningsAsErrors)
                 {
-                    throw new InvalidOperationException($"Could not get any instance of type {type.FullName}");
+                    throw new Core.DeployerAppException($"Could not get any instance of type {type.FullName}");
                 }
 
                 _logger.Warning("Could not get any instance of type {Type}", type);
@@ -116,7 +116,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
                 if (treatWarningsAsErrors)
                 {
-                    throw new InvalidOperationException(
+                    throw new Core.DeployerAppException(
                         $"Could not create instance of type {type.FullName}, the instance is invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
                 }
             }

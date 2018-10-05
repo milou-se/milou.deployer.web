@@ -10,6 +10,8 @@
     </li>
 </ul>
 
+<h2>Routes</h2>
+
 <table>
     <thead>
     <tr>
@@ -41,7 +43,7 @@
     </tbody>
 </table>
 
-<h3>Configuration info</h3>
+<h2>Configuration info</h2>
 
 <div>
 @Model.ConfigurationInfo.ConfigurationSourceChain
@@ -62,6 +64,27 @@
             <td>@item.Key</td>
             <td>@item.Value</td>
             <td>@item.Source</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Container registrations</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Service</th>
+        <th>Scope</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.ContainerRegistrations)
+    {
+        <tr>
+            <td>@item.Service</td>
+            <td>@item.Scope</td>
         </tr>
     }
     </tbody>
