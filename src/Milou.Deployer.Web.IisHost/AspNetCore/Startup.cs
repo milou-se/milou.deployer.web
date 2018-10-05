@@ -80,6 +80,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             services.AddSingleton<IAuthorizationHandler, DefaultAuthorizationHandler>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+            services.AddSingleton<IServerAddressesFeature, ServerAddressesFeature>();
 
             services
                 .AddMvc(options =>
