@@ -20,6 +20,8 @@ namespace Milou.Deployer.Web.Core.Extensions
                 directoryInfo.Create();
             }
 
+            directoryInfo.Refresh();
+
             return directoryInfo;
         }
     }
