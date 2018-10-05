@@ -2,7 +2,7 @@ using System;
 
 namespace Milou.Deployer.Web.Core
 {
-    public interface ITime
+    public interface ICustomClock
     {
         DateTimeOffset UtcNow();
 

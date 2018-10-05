@@ -6,20 +6,25 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Application;
-using Milou.Deployer.Web.Marten;
 using MysticMind.PostgresEmbed;
 using Serilog;
 using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
     public abstract class WebFixtureBase : IDisposable, IAsyncLifetime
     {
+        private readonly IMessageSink _diagnosticMessageSink;
+
+        protected WebFixtureBase(IMessageSink diagnosticMessageSink)
+        {
+            _diagnosticMessageSink = diagnosticMessageSink;
+        }
         public Exception Exception { get; private set; }
 
         private const int CancellationTimeoutInSeconds = 180;
@@ -73,7 +78,18 @@ namespace Milou.Deployer.Web.Tests.Integration
                     throw new InvalidOperationException("The cancellation token is already cancelled, skipping before start");
                 }
 
-                await BeforeStartAsync(args);
+                try
+                {
+                    _diagnosticMessageSink.OnMessage(new DiagnosticMessage("Running before start"));
+
+                    await BeforeStartAsync(args);
+                }
+                catch (Exception ex)
+                {
+                    _diagnosticMessageSink.OnMessage(new DiagnosticMessage(ex.ToString()));
+                    _cancellationTokenSource.Cancel();
+                    throw new InvalidOperationException("Before start exception", ex);
+                }
 
                 if (CancellationToken.IsCancellationRequested)
                 {
@@ -205,12 +221,14 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Builder = new StringBuilder();
             var writer = new StringWriter(Builder);
-            void AddXunitLogging(LoggerConfiguration loggerConfiguration)
+            void AddTestLogging(LoggerConfiguration loggerConfiguration)
             {
-                loggerConfiguration.WriteTo.TextWriter(writer);
+                loggerConfiguration
+                    .WriteTo.TextWriter(writer)
+                    .WriteTo.Debug();
             }
 
-            App = await App.CreateAsync(_cancellationTokenSource, AddXunitLogging, args);
+            App = await App.CreateAsync(_cancellationTokenSource, AddTestLogging, args);
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);

@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly IMediator _mediator;
 
         private readonly IDeploymentTargetReadService _targetSource;
-        private readonly ITime _time;
+        private readonly ICustomClock _customClock;
 
         public DeploymentService(
             [NotNull] ILogger logger,
@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] IMediator mediator,
             [NotNull] MilouDeployer deployer,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
-            ITime time)
+            [NotNull] ICustomClock customClock)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _deployer = deployer ?? throw new ArgumentNullException(nameof(deployer));
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
-            _time = time;
+            _customClock = customClock ?? throw new ArgumentNullException(nameof(customClock));
         }
 
         public async Task<DeploymentTaskResult> ExecuteDeploymentAsync(
@@ -59,7 +59,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
-            DateTime start = _time.UtcNow().DateTime;
+            DateTime start = _customClock.UtcNow().DateTime;
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             (ExitCode, DateTime) result;
@@ -88,7 +88,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             catch (Exception ex)
             {
-                result = (ExitCode.Failure, _time.UtcNow().DateTime);
+                result = (ExitCode.Failure, _customClock.UtcNow().DateTime);
                 logger.Error(ex, "Error deploying");
             }
 
@@ -249,7 +249,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
             }
 
-            DateTime finishedAtUtc = _time.UtcNow().DateTime;
+            DateTime finishedAtUtc = _customClock.UtcNow().DateTime;
 
             await _mediator.Publish(new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString(), finishedAtUtc), cancellationToken);
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
-using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,12 +24,14 @@ namespace Milou.Deployer.Web.Core.Deployment
         private readonly IKeyValueConfiguration _keyValueConfiguration;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly MilouDeployerConfiguration _milouDeployerConfiguration;
+        private readonly BootstrapperClient _bootstrapperClient;
 
         public MilouDeployer(
             [NotNull] MilouDeployerConfiguration milouDeployerConfiguration,
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] ICredentialReadService credentialReadService,
-            [NotNull] IKeyValueConfiguration keyValueConfiguration)
+            [NotNull] IKeyValueConfiguration keyValueConfiguration,
+            [NotNull] BootstrapperClient client)
         {
             _milouDeployerConfiguration = milouDeployerConfiguration ??
                                           throw new ArgumentNullException(nameof(milouDeployerConfiguration));
@@ -40,6 +41,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 credentialReadService ?? throw new ArgumentNullException(nameof(credentialReadService));
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+            _bootstrapperClient = client ?? throw new ArgumentNullException(nameof(client));
         }
 
         public async Task<ExitCode> ExecuteAsync(
@@ -135,10 +137,10 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                         string id = deploymentTarget.Id;
 
-                        string usernameKey = secretKeyPrefix + ":username";
-                        string passwordKey = secretKeyPrefix + ":password";
-                        string publishUrlKey = secretKeyPrefix + ":publish-url";
-                        string msdeploySiteKey = secretKeyPrefix + ":msdeploySite";
+                        const string usernameKey = secretKeyPrefix + ":username";
+                        const string passwordKey = secretKeyPrefix + ":password";
+                        const string publishUrlKey = secretKeyPrefix + ":publish-url";
+                        const string msdeploySiteKey = secretKeyPrefix + ":msdeploySite";
 
                         string username = _credentialReadService.GetSecretAsync(id, usernameKey);
                         string password = _credentialReadService.GetSecretAsync(id, passwordKey);
@@ -193,8 +195,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                     arguments.Add($"\"{tempManifestFile.FullName}\"");
 
 
-                using (var httpClient = new HttpClient())
-                {
+
                     //TODO propagate properties by direct command or default
                     Environment.SetEnvironmentVariable("urn:milou-deployer:tools:nuget:exe-path",
                         _keyValueConfiguration["urn:milou-deployer:tools:nuget:exe-path"]);
@@ -207,7 +208,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                     using (Bootstrapper.Common.App deployerApp =
                         await Bootstrapper.Common.App.CreateAsync(deployerArgs,
                             logger,
-                            httpClient,
+                            _bootstrapperClient.HttpClient,
                             disposeNested: false))
                     {
                         NuGetPackageInstallResult result =
@@ -219,7 +220,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                             return ExitCode.Failure;
                         }
                     }
-                }
+
             }
 
             ClearTemporaryDirectoriesAndFiles(deploymentTask);

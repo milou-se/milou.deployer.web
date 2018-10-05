@@ -8,7 +8,10 @@ namespace Milou.Deployer.Web.Core
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<SystemTime>().AsImplementedInterfaces().SingleInstance().PreserveExistingDefaults();
+            builder.RegisterType<CustomSystemClock>()
+                .AsImplementedInterfaces()
+                .SingleInstance()
+                .PreserveExistingDefaults();
         }
     }
 }

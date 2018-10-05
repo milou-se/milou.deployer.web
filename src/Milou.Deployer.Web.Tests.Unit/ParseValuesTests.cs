@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         public void MakeAnonymousValues()
         {
             const string connectionString = "Server=localhost;password=p@ssword;user=root;";
-            string anonymous = connectionString.MakeAnonymous("user", "password");
+            string anonymous = connectionString.MakeKeyValuePairAnonymous("user", "password");
 
             Assert.Equal("Server=localhost; password=*****; user=*****", anonymous);
         }

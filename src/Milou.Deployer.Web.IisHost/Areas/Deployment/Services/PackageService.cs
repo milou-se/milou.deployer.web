@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Processes;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
@@ -55,7 +56,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageId));
             }
 
-            if (packageId.Equals("N/A"))
+            if (packageId.Equals(Constants.NotAvailable))
             {
                 return ImmutableArray<PackageVersion>.Empty;
             }

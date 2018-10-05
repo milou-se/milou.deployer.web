@@ -31,6 +31,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(targetId));
             }
 
+            if (_workers.Length == 0)
+            {
+                throw new InvalidOperationException("There are no registered deployment workers");
+            }
+
             DeploymentTargetWorker workerByTargetId = _workers.SingleOrDefault(worker => worker.TargetId.Equals(targetId, StringComparison.OrdinalIgnoreCase));
 
             return workerByTargetId;

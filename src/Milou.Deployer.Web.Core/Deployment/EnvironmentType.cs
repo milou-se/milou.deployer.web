@@ -97,7 +97,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         {
             if (Equals(Invalid))
             {
-                return "N/A";
+                return Constants.NotAvailable;
             }
             return Name;
         }

@@ -3,12 +3,17 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
     [UsedImplicitly]
     public class HttpGetRequestToRoot : WebFixtureBase, IAppHost
     {
+        public HttpGetRequestToRoot(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink)
+        {
+        }
+
         public HttpResponseMessage ResponseMessage { get; private set; }
 
         protected override async Task RunAsync()

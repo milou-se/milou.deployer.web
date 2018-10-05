@@ -25,7 +25,6 @@ namespace Milou.Deployer.Web.Core.Logging
 
             SerilogConfiguration serilogConfiguration =
                 multiSourceKeyValueConfiguration.GetInstances<SerilogConfiguration>().FirstOrDefault();
-
             if (!serilogConfiguration.HasValue())
             {
                 logger.Error("Could not get any instance of type {Type}", typeof(SerilogConfiguration));
@@ -42,6 +41,11 @@ namespace Milou.Deployer.Web.Core.Logging
             LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.ControlledBy(loggingLevelSwitch)
                 .Enrich.WithProperty("Application", ApplicationConstants.ApplicationName);
+
+            if (serilogConfiguration.DebugConsoleEnabled)
+            {
+                loggerConfiguration = loggerConfiguration.WriteTo.Debug();
+            }
 
             bool seqEnabled = false;
 

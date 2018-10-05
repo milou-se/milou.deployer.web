@@ -14,20 +14,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         private static ImmutableArray<Assembly> _cache;
 
-        private static void ForceLoadReferenceAssemblies()
-        {
-            Type[] types =
-            {
-                typeof(ITime),
-                typeof(DeployController)
-            };
-
-            foreach (Type type in types)
-            {
-                Console.WriteLine(type.Assembly.GetName().Name);
-            }
-        }
-
         public static ImmutableArray<Assembly> FilteredAssemblies(
             [NotNull] this AppDomain appDomain,
             string assemblyNameStartsWith = null,
@@ -45,20 +31,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             ForceLoadReferenceAssemblies();
 
-            string[] whiteListed = { assemblyNameStartsWith ?? "Milou.Deployer.Web" };
+            string[] allowedAssemblies = { assemblyNameStartsWith ?? "Milou.Deployer.Web" };
 
             ImmutableArray<RuntimeLibrary> defaultRuntimeLibraries =
                 DependencyContext.Default?.RuntimeLibraries?.ToImmutableArray() ?? ImmutableArray<RuntimeLibrary>.Empty;
 
             RuntimeLibrary[] whiteListedLibraries = defaultRuntimeLibraries
                 .Where(item =>
-                    whiteListed.Any(listed => item.Name.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
+                    allowedAssemblies.Any(listed => item.Name.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
                 .ToArray();
 
             Assembly[] loadedAssemblies = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .Where(assembly => !assembly.IsDynamic)
-                .Where(AssemblyFilter.FilterAssemblies)
+                .Where(assembly => allowedAssemblies.Any(allowed =>
+                    assembly.GetName().Name.StartsWith(allowed, StringComparison.OrdinalIgnoreCase)))
                 .ToArray();
 
             AssemblyName[] loadedAssemblyNames = loadedAssemblies
@@ -107,7 +94,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             }
 
             ImmutableArray<Assembly> filteredAssemblies = AppDomain.CurrentDomain.GetAssemblies()
-                .Where(assembly => !assembly.IsDynamic && whiteListed.Any(listed =>
+                .Where(assembly => !assembly.IsDynamic && allowedAssemblies.Any(listed =>
                                        assembly.FullName.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
                 .Select(assembly =>
                 {
@@ -125,6 +112,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             }
 
             return filteredAssemblies;
+        }
+
+        private static void ForceLoadReferenceAssemblies()
+        {
+            Type[] types =
+            {
+                typeof(ICustomClock),
+                typeof(DeployController)
+            };
+
+            foreach (Type type in types)
+            {
+                Console.WriteLine(type.Assembly.GetName().Name);
+            }
         }
     }
 }

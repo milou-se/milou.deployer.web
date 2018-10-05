@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.Core.Targets
                         {
                             Organization = organizationGroup.Key,
                             Projects = organizationGroup
-                                .GroupBy(target => target.ProjectInvariantName.WithDefault("N/A"))
+                                .GroupBy(target => target.ProjectInvariantName.WithDefault(Constants.NotAvailable))
                                 .Select(
                                     projectGroup => new ProjectInfo(organizationGroup.Key,
                                         projectGroup.Key,

@@ -8,7 +8,27 @@ namespace Milou.Deployer.Web.Core.Extensions
 {
     public static class StringExtensions
     {
-        public static string MakeAnonymous(this string value, params string[] keyWords)
+        public static string MakeAnonymous(this string value, string key, params string[] keyWords)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            if (keyWords is null || keyWords.Length == 0)
+            {
+                return value;
+            }
+
+            if (keyWords.Any(keyWord => key.Equals(keyWord, StringComparison.OrdinalIgnoreCase)))
+            {
+                return new string('*', 5);
+            }
+
+            return value;
+        }
+
+        public static string MakeKeyValuePairAnonymous(this string value, params string[] keyWords)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -80,7 +100,7 @@ namespace Milou.Deployer.Web.Core.Extensions
             return $"{wrapText}{wrappedText}{wrapText}";
         }
 
-        public static string MakeAnonymous(this string value, char separator, char replacementChar)
+        public static string MakeKeyValuePairAnonymous(this string value, char separator, char replacementChar)
         {
             if (!value.HasValue())
             {

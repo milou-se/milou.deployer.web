@@ -1,31 +1,23 @@
 ﻿using System;
-using Milou.Deployer.Web.IisHost.Areas.Deployment;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
-    public static class IntExtensions
-    {
-        public static string ToStatusColor(this int value)
-        {
-            if (value == 0)
-            {
-                return "success";
-            }
-
-            return "failure";
-        }
-    }
-
     public static class DateTimeExtensions
     {
-        public static DeploymentInterval IntervalAgo(this DateTime? dateTimeUtc, ITime time)
+        public static DeploymentInterval IntervalAgo(this DateTime? dateTimeUtc, [NotNull] ICustomClock customClock)
         {
+            if (customClock == null)
+            {
+                throw new ArgumentNullException(nameof(customClock));
+            }
+
             if (!dateTimeUtc.HasValue)
             {
                 return DeploymentInterval.Invalid;
             }
 
-            TimeSpan diff = time.LocalNow() - time.ToLocalTime(dateTimeUtc.Value);
+            TimeSpan diff = customClock.LocalNow() - customClock.ToLocalTime(dateTimeUtc.Value);
 
             if (diff.TotalSeconds < 0)
             {
@@ -35,35 +27,50 @@ namespace Milou.Deployer.Web.Core.Extensions
             return DeploymentInterval.Parse(diff);
         }
 
-        public static string RelativeUtcToLocalTime(this DateTime? dateTime, ITime time)
+        public static string RelativeUtcToLocalTime(this DateTime? dateTime, [NotNull] ICustomClock customClock)
         {
-            if (!dateTime.HasValue)
+            if (customClock == null)
             {
-                return "N/A";
+                throw new ArgumentNullException(nameof(customClock));
             }
 
-            DateTime localThen = time.ToLocalTime(dateTime.Value);
+            if (!dateTime.HasValue)
+            {
+                return Constants.NotAvailable;
+            }
 
-            DateTime localNow = time.LocalNow();
+            DateTime localThen = customClock.ToLocalTime(dateTime.Value);
+
+            DateTime localNow = customClock.LocalNow();
 
             return localNow.Since(localThen);
         }
 
-        public static string ToLocalTimeFormatted(this DateTime? dateTime, ITime time)
+        public static string ToLocalTimeFormatted(this DateTime? dateTime, [NotNull] ICustomClock customClock)
         {
+            if (customClock == null)
+            {
+                throw new ArgumentNullException(nameof(customClock));
+            }
+
             if (!dateTime.HasValue)
             {
                 return "";
             }
 
-            return ToLocalTimeFormatted(dateTime.Value, time);
+            return ToLocalTimeFormatted(dateTime.Value, customClock);
         }
 
-        public static string ToLocalTimeFormatted(this DateTime dateTimeUtc, ITime time)
+        public static string ToLocalTimeFormatted(this DateTime dateTimeUtc, [NotNull] ICustomClock customClock)
         {
+            if (customClock == null)
+            {
+                throw new ArgumentNullException(nameof(customClock));
+            }
+
             var utcTime = new DateTime(dateTimeUtc.Ticks, DateTimeKind.Utc);
 
-            return time.ToLocalTime(utcTime).ToString("yyyy-MM-dd HH:mm:ss");
+            return customClock.ToLocalTime(utcTime).ToString("yyyy-MM-dd HH:mm:ss");
         }
 
         public static string Since(this DateTime to, DateTime from)
@@ -97,7 +104,7 @@ namespace Milou.Deployer.Web.Core.Extensions
 
             if (diff.TotalSeconds < 0)
             {
-                return "N/A";
+                return Constants.NotAvailable;
             }
 
             return ((int)diff.TotalSeconds) + " seconds ago";

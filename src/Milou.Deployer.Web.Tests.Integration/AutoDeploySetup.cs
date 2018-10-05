@@ -13,12 +13,11 @@ using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.Tests.Integration.TestData;
+using Xunit.Abstractions;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
@@ -28,6 +27,10 @@ namespace Milou.Deployer.Web.Tests.Integration
         private IWebHost _webHost;
 
         protected TestConfiguration TestConfiguration;
+
+        public AutoDeploySetup(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink)
+        {
+        }
 
         public HttpResponseMessage ResponseMessage { get; private set; }
 
@@ -93,6 +96,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                 "0");
 
             Environment.SetEnvironmentVariable(
+                $"{ConfigurationConstants.AutoDeployConfiguration}:default:afterDeployDelayInSeconds",
+                "1");
+
+            Environment.SetEnvironmentVariable(
                 $"{ConfigurationConstants.AutoDeployConfiguration}:default:MetadataTimeoutInSeconds",
                 "10");
 
@@ -110,24 +117,14 @@ namespace Milou.Deployer.Web.Tests.Integration
         protected override async Task BeforeStartAsync(IReadOnlyCollection<string> args)
         {
             var deploymentService = App.AppRootScope.Deepest().Lifetime.Resolve<DeploymentService>();
-            var mediator = App.AppRootScope.Deepest().Lifetime.Resolve<IMediator>();
+            var readService = App.AppRootScope.Deepest().Lifetime.Resolve<IDeploymentTargetReadService>();
 
-            var testTarget = new DeploymentTarget("TestTarget",
-                "Test target",
-                "MilouDeployerWebTest",
-                allowExplicitPreRelease: false,
-                autoDeployEnabled: true,
-                targetDirectory: Environment.GetEnvironmentVariable("TestDeploymentTargetPath"),
-                uri: Environment.GetEnvironmentVariable("TestDeploymentUri"),
-                emailNotificationAddresses: new StringValues("noreply@localhost.local"));
+            ImmutableArray<DeploymentTarget> targets = await readService.GetDeploymentTargetsAsync(CancellationToken);
 
-            await mediator.Send(new CreateTarget(testTarget.Id, testTarget.Name));
-            await mediator.Send(new UpdateDeploymentTarget(testTarget.Id,
-                testTarget.AllowPrerelease,
-                testTarget.Url,
-                testTarget.PackageId,
-                autoDeployEnabled: testTarget.AutoDeployEnabled,
-                targetDirectory: testTarget.TargetDirectory));
+            if (targets.Length != 1)
+            {
+                throw new InvalidOperationException("The target has not been created");
+            }
 
             string packageVersion = "MilouDeployerWebTest 1.2.4";
 
@@ -160,5 +157,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             CancellationToken.Register(() => _webHost.StopAsync());
         }
+
     }
 }

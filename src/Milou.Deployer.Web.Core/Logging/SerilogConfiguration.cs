@@ -14,7 +14,8 @@ namespace Milou.Deployer.Web.Core.Logging
             string rollingLogFilePath,
             bool seqEnabled = false,
             bool rollingLogFilePathEnabled = false,
-            bool consoleEnabled = false)
+            bool consoleEnabled = false,
+            bool debugConsoleEnabled = false)
         {
             SeqUrl = seqUrl;
             StartupLogFilePath = startupLogFilePath;
@@ -22,6 +23,7 @@ namespace Milou.Deployer.Web.Core.Logging
             SeqEnabled = seqEnabled;
             RollingLogFilePathEnabled = rollingLogFilePathEnabled;
             ConsoleEnabled = consoleEnabled;
+            DebugConsoleEnabled = debugConsoleEnabled;
         }
 
         public bool SeqEnabled { get; }
@@ -29,6 +31,7 @@ namespace Milou.Deployer.Web.Core.Logging
         public bool RollingLogFilePathEnabled { get; }
 
         public bool ConsoleEnabled { get; }
+        public bool DebugConsoleEnabled { get; }
 
         public string SeqUrl { get; }
 

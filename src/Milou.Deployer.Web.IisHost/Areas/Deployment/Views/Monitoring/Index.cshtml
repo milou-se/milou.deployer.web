@@ -5,7 +5,7 @@
 @using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.MonitoringViewOutputModel
-@inject ITime Time;
+@inject ICustomClock Time;
 
 <h2>Deployed monitored applications</h2>
 
@@ -51,7 +51,7 @@
                 </td>
                 <td>@item.Message</td>
                 <td>
-                    <span class="@item.PreReleaseClass">@(item.SemanticVersion?.ToNormalizedString() ?? "N/A")</span>
+                    <span class="@item.PreReleaseClass">@(item.SemanticVersion?.ToNormalizedString() ?? "Milou.Deployer.Web.Core.Constants.NotAvailable")</span>
                 </td>
                 <td class="traffic-light @item.DeployedAtUtc.IntervalAgo(Time).Name">
                     <span title="@(item.DeployedAtUtc.ToLocalTimeFormatted(Time))">@item.DeployedAtUtc.RelativeUtcToLocalTime(Time)</span>
@@ -65,7 +65,7 @@
                     }
                     else
                     {
-                        <text>N/A</text>
+                        <text>Milou.Deployer.Web.Core.Constants.NotAvailable</text>
                     }
                 </td>
                 <td>

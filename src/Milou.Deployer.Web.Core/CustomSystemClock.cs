@@ -7,11 +7,11 @@ using Milou.Deployer.Web.Core.Extensions;
 namespace Milou.Deployer.Web.Core
 {
     [UsedImplicitly]
-    public class SystemTime : ITime
+    public class CustomSystemClock : ICustomClock
     {
         private TimeZoneInfo _timeZone;
 
-        public SystemTime([NotNull] IKeyValueConfiguration keyValueConfiguration)
+        public CustomSystemClock([NotNull] IKeyValueConfiguration keyValueConfiguration)
         {
             if (keyValueConfiguration == null)
             {

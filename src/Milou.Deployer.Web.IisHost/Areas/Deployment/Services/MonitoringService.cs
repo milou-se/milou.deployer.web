@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     public class MonitoringService
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly ITime _time;
+        private readonly ICustomClock _customClock;
         private readonly ILogger _logger;
         private readonly PackageService _packageService;
         [NotNull]
@@ -33,13 +33,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public MonitoringService(
             [NotNull] ILogger logger,
             [NotNull] IHttpClientFactory httpClientFactory,
-            [NotNull] ITime time,
+            [NotNull] ICustomClock customClock,
             [NotNull] PackageService packageService,
             [NotNull] MonitorConfiguration monitorConfiguration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-            _time = time ?? throw new ArgumentNullException(nameof(time));
+            _customClock = customClock ?? throw new ArgumentNullException(nameof(customClock));
             _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
             _monitorConfiguration = monitorConfiguration ?? throw new ArgumentNullException(nameof(monitorConfiguration));
         }
@@ -150,20 +150,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                                 IReadOnlyCollection<PackageVersion> packages = await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
                                 appVersion = new AppVersion(target, message, packages);
 
-                                _logger.Error("Could not get metadata for target {Name} ({Url}), http status code {V}",
+                                _logger.Error("Could not get metadata for target {Name} ({Url}), http status code {StatusCode}",
                                     target.Name,
                                     target.Url,
-                                    response?.StatusCode.ToString() ?? "N/A");
+                                    response?.StatusCode.ToString() ?? Constants.NotAvailable);
                             }
                             else
                         {
                             IReadOnlyCollection<PackageVersion> packages = await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
                             appVersion = new AppVersion(target, "Unknown error", packages);
 
-                                _logger.Error("Could not get metadata for target {Name} ({Url}), http status code {V}",
+                                _logger.Error("Could not get metadata for target {Name} ({Url}), http status code {StatusCode}",
                                     target.Name,
                                     target.Url,
-                                    response?.StatusCode.ToString() ?? "N/A");
+                                    response?.StatusCode.ToString() ?? Constants.NotAvailable);
                             }
                         }
 
@@ -204,7 +204,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 nameValueCollection.Add(configurationItem.Key, configurationItem.Value);
             }
 
-            var appVersion = new AppVersion(target, new InMemoryKeyValueConfiguration(nameValueCollection), filtered, _time.UtcNow());
+            var appVersion = new AppVersion(target, new InMemoryKeyValueConfiguration(nameValueCollection), filtered, _customClock.UtcNow());
 
             return appVersion;
         }

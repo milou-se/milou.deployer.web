@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
-            AppDomain.CurrentDomain.FilteredAssemblies(useCache: false).SelectMany(assembly => assembly.GetLoadableTypes())
+            Assemblies.FilteredAssemblies(useCache: false).SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
                 .Select(controllerType => (Controller:controllerType, Actions:controllerType.GetMethods(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly)))
                 .SelectMany(item => item.Actions.Select(action => (item.Controller, Action:action)))

@@ -20,7 +20,7 @@ namespace Milou.Deployer.Web.Marten
 
         public override string ToString()
         {
-            return $"{nameof(ConnectionString)}: [{ConnectionString.MakeAnonymous("user id", "password")}], {nameof(Enabled)}: {Enabled.ToString().ToLowerInvariant()}";
+            return $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous("user id", "password")}], {nameof(Enabled)}: {Enabled.ToString().ToLowerInvariant()}";
         }
     }
 }

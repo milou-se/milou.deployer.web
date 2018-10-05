@@ -76,7 +76,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     options => { });
 
             services.AddSingleton<IAuthorizationHandler, DefaultAuthorizationHandler>();
-            services.AddSingleton<IHostedService, RefreshCacheBackgroundService>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services
@@ -94,8 +93,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 });
 
             services.AddSingleton<IServerAddressesFeature, ServerAddressesFeature>();
-            services.AddSingleton<IHostedService, ConfigurationBackgroundService>();
-            services.AddSingleton<IHostedService, AutoDeployBackgroundService>();
 
             var deploymentTargetIds = _webHostScope.Lifetime.Resolve<DeploymentTargetIds>();
 

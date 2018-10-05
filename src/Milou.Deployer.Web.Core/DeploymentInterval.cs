@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment
+namespace Milou.Deployer.Web.Core
 {
     public struct DeploymentInterval
     {
@@ -48,6 +48,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment
         {
             return All.Single(
                 interval => timeSpan.TotalDays > interval.FromExclusive && timeSpan.TotalDays <= interval.ToInclusive);
+        }
+
+        public override string ToString()
+        {
+            if (Equals(Invalid))
+            {
+                return Constants.NotAvailable;
+            }
+
+            return Name;
         }
     }
 }

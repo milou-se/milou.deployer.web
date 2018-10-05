@@ -87,7 +87,9 @@ namespace Milou.Deployer.Web.Marten
                 IReadOnlyList<DeploymentTargetData> targets = await session.Query<DeploymentTargetData>()
                     .ToListAsync<DeploymentTargetData>(stoppingToken);
 
-                return targets.Select(MapDataToTarget).ToImmutableArray();
+                ImmutableArray<DeploymentTarget> deploymentTargets = targets.Select(MapDataToTarget).ToImmutableArray();
+
+                return deploymentTargets;
             }
         }
 
@@ -261,7 +263,7 @@ namespace Milou.Deployer.Web.Marten
             var deploymentTargetAsync = new DeploymentTarget(
                 deploymentTargetData.Id,
                 deploymentTargetData.Name,
-                deploymentTargetData.PackageId ?? "N/A",
+                deploymentTargetData.PackageId ?? Core.Constants.NotAvailable,
                 deploymentTargetData.PublishSettingsXml,
                 deploymentTargetData.AllowExplicitPreRelease,
                 uri: deploymentTargetData.Url?.ToString(),

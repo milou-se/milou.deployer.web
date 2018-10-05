@@ -69,6 +69,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 .Select(item => item.GetType())
                 .ToArray();
 
+            bool HasTagAttribute(Type type)
+            {
+                var registrationOrderAttribute = type.GetCustomAttribute<RegistrationOrderAttribute>();
+
+                if (registrationOrderAttribute is null)
+                {
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(registrationOrderAttribute.Tag))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
             Type[] moduleTypes = scanAssemblies
                 .Select(assembly =>
                     assembly.GetLoadableTypes()
@@ -87,7 +104,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             ILifetimeScope appRootScope = container.BeginLifetimeScope(appScopeBuilder =>
             {
-                ImmutableArray<IModule> modules = container.Resolve<IReadOnlyCollection<IModule>>()
+                var allModules = container.Resolve<IReadOnlyCollection<IModule>>();
+
+                ImmutableArray<IModule> modules = allModules
+                    .Where(s => !HasTagAttribute(s.GetType()))
                     .Select(module =>
                     {
                         var customAttribute = module.GetType().GetCustomAttribute<RegistrationOrderAttribute>();
@@ -96,6 +116,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     })
                     .OrderBy(tuple => tuple.Order)
                     .Select(tuple => tuple.Module)
+
                     .ToImmutableArray();
 
                 foreach (IModule module in modules)

@@ -156,7 +156,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Action<LoggerConfiguration> loggerConfigurationAction,
             string[] args)
         {
-            ImmutableArray<Assembly> scanAssemblies = AppDomain.CurrentDomain.FilteredAssemblies();
+            ImmutableArray<Assembly> scanAssemblies = Assemblies.FilteredAssemblies();
 
             string basePathFromArg = args.ParseParameter(ConfigurationConstants.ApplicationBasePath);
 
@@ -191,7 +191,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             var appRootScope = new Scope(container.AppRootScope);
 
-            DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(container.AppRootScope);
+            DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(container.AppRootScope, cancellationTokenSource.Token);
 
             ILifetimeScope webHostScope =
                 container.AppRootScope.BeginLifetimeScope(builder =>
@@ -216,8 +216,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             return app;
         }
 
-        private static async Task<DeploymentTargetIds> GetDeploymentWorkerIdsAsync(ILifetimeScope scope)
+        private static async Task<DeploymentTargetIds> GetDeploymentWorkerIdsAsync(ILifetimeScope scope, CancellationToken cancellationToken)
         {
+            var dataSeeders = scope.Resolve<IReadOnlyCollection<IDataSeeder>>();
+
+            foreach (IDataSeeder dataSeeder in dataSeeders)
+            {
+                await dataSeeder.SeedAsync(cancellationToken);
+            }
+
             var deploymentTargetReadService = scope.Resolve<IDeploymentTargetReadService>();
 
             IReadOnlyCollection<string> targetIds =
