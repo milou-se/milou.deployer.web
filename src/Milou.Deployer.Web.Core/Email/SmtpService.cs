@@ -64,8 +64,8 @@ namespace Milou.Deployer.Web.Core.Email
 
                 client.AuthenticationMechanisms.Remove("XOAUTH2");
 
-                if (!string.IsNullOrWhiteSpace(_emailConfiguration.Username) &&
-                    !string.IsNullOrWhiteSpace(_emailConfiguration.Password))
+                if (!string.IsNullOrWhiteSpace(_emailConfiguration.Username)
+                    && !string.IsNullOrWhiteSpace(_emailConfiguration.Password))
                 {
                     await client.AuthenticateAsync(_emailConfiguration.Username,
                         _emailConfiguration.Password,

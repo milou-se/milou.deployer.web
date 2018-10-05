@@ -147,8 +147,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                     ImmutableHashSet<PackageVersion> newerPackages = filteredPackages
                         .Where(package =>
-                            package.PackageId.Equals(appVersion.PackageId, StringComparison.OrdinalIgnoreCase) &&
-                            package.Version > appVersion.SemanticVersion)
+                            package.PackageId.Equals(appVersion.PackageId, StringComparison.OrdinalIgnoreCase)
+                            && package.Version > appVersion.SemanticVersion)
                         .ToImmutableHashSet();
 
                     PackageVersion packageToDeploy = newerPackages

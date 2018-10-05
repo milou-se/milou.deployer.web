@@ -1,6 +1,6 @@
 using System;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Time
 {
     public interface ICustomClock
     {

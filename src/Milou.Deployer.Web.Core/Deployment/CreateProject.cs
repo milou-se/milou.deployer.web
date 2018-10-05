@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {

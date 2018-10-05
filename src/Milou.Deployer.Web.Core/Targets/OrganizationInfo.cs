@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.Core.Structure
+namespace Milou.Deployer.Web.Core.Targets
 {
     public class OrganizationInfo
     {

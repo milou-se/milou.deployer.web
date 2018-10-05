@@ -173,7 +173,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     }
                 }
 
-
             return appVersions;
         }
 
@@ -182,8 +181,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTarget target,
             IReadOnlyCollection<PackageVersion> filtered, CancellationToken cancellationToken)
         {
-            if (response.Content.Headers.ContentType is null ||
-                !response.Content.Headers.ContentType.MediaType.Equals("application/json",
+            if (response.Content.Headers.ContentType is null
+                || !response.Content.Headers.ContentType.MediaType.Equals("application/json",
                     StringComparison.OrdinalIgnoreCase))
             {
                 return new AppVersion(target, "Response not JSON", filtered);

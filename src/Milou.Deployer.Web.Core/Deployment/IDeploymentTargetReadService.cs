@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using Milou.Deployer.Web.Core.Structure;
+using Milou.Deployer.Web.Core.Targets;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {

@@ -4,12 +4,12 @@ using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Time
 {
     [UsedImplicitly]
     public class CustomSystemClock : ICustomClock
     {
-        private TimeZoneInfo _timeZone;
+        private readonly TimeZoneInfo _timeZone;
 
         public CustomSystemClock([NotNull] IKeyValueConfiguration keyValueConfiguration)
         {

@@ -107,8 +107,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 .Where(item => item != null)
                 .ToImmutableArray();
 
-            if (!validationObjects.IsDefaultOrEmpty && validationObjects.Length > 0 &&
-                !validationObjects.Any(validatedObject => validatedObject.Value.IsValid))
+            if (!validationObjects.IsDefaultOrEmpty && validationObjects.Length > 0
+                && !validationObjects.Any(validatedObject => validatedObject.Value.IsValid))
             {
                 _logger.Warning("There are [{ValidationObjectCount}] but no valid instance of type {Type}",
                     validationObjects.Length,

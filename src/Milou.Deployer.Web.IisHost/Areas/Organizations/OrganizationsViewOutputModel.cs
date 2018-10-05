@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Structure;
+using Milou.Deployer.Web.Core.Targets;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Organizations
 {

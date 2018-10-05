@@ -4,6 +4,7 @@ using System.Linq;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
 using Serilog.Core;
@@ -51,8 +52,8 @@ namespace Milou.Deployer.Web.Core.Logging
 
             if (serilogConfiguration.SeqEnabled && serilogConfiguration.IsValid)
             {
-                if (!string.IsNullOrWhiteSpace(serilogConfiguration.SeqUrl) &&
-                    Uri.TryCreate(serilogConfiguration.SeqUrl, UriKind.Absolute, out Uri serilogUrl))
+                if (!string.IsNullOrWhiteSpace(serilogConfiguration.SeqUrl)
+                    && Uri.TryCreate(serilogConfiguration.SeqUrl, UriKind.Absolute, out Uri serilogUrl))
                 {
                     logger.Debug("Serilog configured to use Seq with URL {Url}", serilogUrl.AbsolutePath);
                     loggerConfiguration = loggerConfiguration.WriteTo.Seq(serilogUrl.AbsoluteUri);
@@ -149,7 +150,6 @@ namespace Milou.Deployer.Web.Core.Logging
             LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Is(LogEventLevel.Verbose)
                 .WriteTo.Console(LogEventLevel.Verbose);
-
 
             if (logFile.HasValue())
             {

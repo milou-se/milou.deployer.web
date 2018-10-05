@@ -1,7 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Targets
 {
     public interface IDataSeeder
     {

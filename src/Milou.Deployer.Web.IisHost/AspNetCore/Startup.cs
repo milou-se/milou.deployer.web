@@ -22,7 +22,7 @@ using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Time;
+using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware;
@@ -129,8 +129,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     {
                         var customAttribute = module.GetType().GetCustomAttribute<RegistrationOrderAttribute>();
 
-                        if (customAttribute is null || !customAttribute.Tag.HasValue() ||
-                            !customAttribute.Tag.Equals(Scope.AspNetCoreScope, StringComparison.OrdinalIgnoreCase))
+                        if (customAttribute?.Tag.HasValue() != true
+                            || !customAttribute.Tag.Equals(Scope.AspNetCoreScope, StringComparison.OrdinalIgnoreCase))
                         {
                             return null;
                         }
@@ -150,7 +150,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 {
                     builder.RegisterModule(module);
                 }
-
 
                 builder.Populate(services);
             });

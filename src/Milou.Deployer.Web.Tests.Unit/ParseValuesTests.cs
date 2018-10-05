@@ -27,6 +27,5 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             Assert.Equal("Server=localhost; password=*****; user=*****", anonymous);
         }
-
     }
 }

@@ -156,6 +156,5 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             CancellationToken.Register(() => _webHost.StopAsync());
         }
-
     }
 }

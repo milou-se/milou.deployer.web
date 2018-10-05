@@ -9,7 +9,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Secrets
     {
         public string GetSecretAsync(string id, string secretKey, CancellationToken cancellationToken = default)
         {
-
             return null;
         }
     }

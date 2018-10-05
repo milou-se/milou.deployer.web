@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog.Extensions.Logging;
 
@@ -51,9 +52,9 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                                 environmentConfiguration.HttpPort.Value);
                         }
 
-                        if (environmentConfiguration.HttpsPort.HasValue &&
-                            environmentConfiguration.PfxFile.HasValue() &&
-                            environmentConfiguration.PfxPassword.HasValue())
+                        if (environmentConfiguration.HttpsPort.HasValue
+                            && environmentConfiguration.PfxFile.HasValue()
+                            && environmentConfiguration.PfxPassword.HasValue())
                         {
                             options.Listen(IPAddress.Loopback,
                                 environmentConfiguration.HttpsPort.Value,

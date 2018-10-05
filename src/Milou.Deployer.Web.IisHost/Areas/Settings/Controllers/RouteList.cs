@@ -24,8 +24,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         public static ImmutableArray<ControllerRouteInfo> GetRoutesWithController(IReadOnlyCollection<Assembly> assemblies)
         {
             ImmutableArray<ControllerActions> controllerActions = assemblies.SelectMany(assembly =>
-                    assembly.GetLoadableTypes().Where(type => typeof(Controller).IsAssignableFrom(type) &&
-                                                              type.IsPublic && !type.IsAbstract))
+                    assembly.GetLoadableTypes().Where(type => typeof(Controller).IsAssignableFrom(type)
+                                                              && type.IsPublic && !type.IsAbstract))
                 .Select(GetControllerActions)
                 .ToImmutableArray();
 

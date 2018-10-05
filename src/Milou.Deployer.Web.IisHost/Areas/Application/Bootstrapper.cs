@@ -106,7 +106,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 .Where(moduleTypes.Contains)
                 .As<IModule>();
 
-
             var rootScope = new Scope();
             builder.RegisterInstance(rootScope);
 

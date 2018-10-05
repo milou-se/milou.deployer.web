@@ -1,6 +1,5 @@
 ﻿using System;
 
-
 namespace Milou.Deployer.Web.Core.Targets
 {
     public class TaskMetadata

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Structure;
+using Milou.Deployer.Web.Core.Targets;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Targets

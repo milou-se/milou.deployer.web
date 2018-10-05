@@ -47,8 +47,8 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 using (var cancellationTokenSource = new CancellationTokenSource(timeout))
                 {
-                    while (!cancellationTokenSource.Token.IsCancellationRequested &&
-                           semanticVersion != expectedVersion)
+                    while (!cancellationTokenSource.Token.IsCancellationRequested
+                           && semanticVersion != expectedVersion)
                     {
                         string url = $"http://localhost:{WebFixture.TestSiteHttpPort.Port}/applicationmetadata.json";
                         string json;

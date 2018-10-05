@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Structure;
 using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Controllers;
 

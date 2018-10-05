@@ -1,7 +1,7 @@
 using Autofac;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Time
 {
     [UsedImplicitly]
     public class TimeModule : Module

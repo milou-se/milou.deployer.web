@@ -32,8 +32,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             DefaulAuthorizationRequrement requirement)
         {
             if (context.User.HasClaim(claim =>
-                claim.Type == CustomClaimTypes.IPAddress &&
-                _whiteListed.Any(ip => claim.Value.StartsWith(ip, StringComparison.OrdinalIgnoreCase))))
+                claim.Type == CustomClaimTypes.IPAddress
+                && _whiteListed.Any(ip => claim.Value.StartsWith(ip, StringComparison.OrdinalIgnoreCase))))
             {
                 context.Succeed(requirement);
             }

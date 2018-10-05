@@ -2,7 +2,7 @@ using System;
 using Autofac;
 using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Configuration
 {
     public sealed class Scope : IDisposable
     {

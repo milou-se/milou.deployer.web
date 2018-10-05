@@ -3,8 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using Autofac;
+using Milou.Deployer.Web.Core.Configuration;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Http
 {
     public sealed class CustomHttpClientFactory : IHttpClientFactory, IDisposable
     {

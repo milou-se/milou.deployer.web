@@ -8,6 +8,7 @@ using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 

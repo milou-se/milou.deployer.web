@@ -10,6 +10,5 @@ namespace Milou.Deployer.Web.Core.Deployment
         {
             DeploymentTaskId = deploymentTaskId;
         }
-
     }
 }

@@ -35,8 +35,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 _keyValueConfiguration.GetInstance<JsonDeploymentTargetSourceConfiguration>() ??
                 new JsonDeploymentTargetSourceConfiguration("");
 
-            if (sourceConfiguration.SourceFile.HasValue() &&
-                (!bool.TryParse(jsonSourceValue, out bool jsonSource) || jsonSource))
+            if (sourceConfiguration.SourceFile.HasValue()
+                && (!bool.TryParse(jsonSourceValue, out bool jsonSource) || jsonSource))
             {
                 _logger.Information("Using JSON as primary target source");
 

@@ -20,7 +20,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
             builder.Register(context => new MilouDeployerConfiguration(context.Resolve<IKeyValueConfiguration>()))
                 .SingleInstance();
             builder.RegisterType<ConfigurationCredentialReadService>().AsImplementedInterfaces().SingleInstance();
-
         }
     }
 }

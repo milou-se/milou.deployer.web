@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Structure;
 using Milou.Deployer.Web.Core.Targets;
 using Serilog;
 
@@ -315,8 +314,8 @@ namespace Milou.Deployer.Web.Marten
                                 project.Id,
                                 targets
                                     .Where(target =>
-                                        target.ProjectId != null &&
-                                        target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase))
+                                        target.ProjectId != null
+                                        && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase))
                                     .Select(MapDataToTarget)))
                         .ToImmutableArray()))
                 .Concat(new[]

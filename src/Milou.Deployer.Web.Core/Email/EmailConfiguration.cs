@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Core.Email
 {

@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Structure;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Targets
@@ -21,7 +20,7 @@ namespace Milou.Deployer.Web.Core.Targets
     {
         private readonly ILogger _logger;
         private readonly JsonDeploymentTargetSourceConfiguration _configuration;
-        private EnvironmentConfiguration _environment;
+        private readonly EnvironmentConfiguration _environment;
 
         public JsonTargetSource(
             [NotNull] EnvironmentConfiguration environment,

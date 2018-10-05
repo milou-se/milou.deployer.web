@@ -14,12 +14,12 @@ namespace Milou.Deployer.Web.Core.Extensions
             }
 
             return
-                ex is OutOfMemoryException ||
-                ex is AccessViolationException ||
-                ex is AppDomainUnloadedException ||
-                ex is StackOverflowException ||
-                ex is ThreadAbortException ||
-                ex is SEHException;
+                ex is OutOfMemoryException
+                || ex is AccessViolationException
+                || ex is AppDomainUnloadedException
+                || ex is StackOverflowException
+                || ex is ThreadAbortException
+                || ex is SEHException;
         }
     }
 }

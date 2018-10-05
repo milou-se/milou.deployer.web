@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Structure;
 using Milou.Deployer.Web.Core.Targets;
 
 namespace Milou.Deployer.Web.Core.Deployment

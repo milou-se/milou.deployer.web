@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Time
 {
     public struct DeploymentInterval
     {

@@ -34,7 +34,6 @@ namespace Milou.Deployer.Web.Tests.Unit
                 { "urn:milou-deployer:target:instance2:name", "myName2" },
                 { "urn:milou-deployer:target:instance2:packageId", "myAllowedPackageId2.1" },
                 { "urn:milou-deployer:target:instance2:allow-Prerelease", "false" },
-
             };
 
             key_value_configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
