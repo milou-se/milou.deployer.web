@@ -1,7 +1,6 @@
 ﻿using Autofac;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting.Server.Features;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;

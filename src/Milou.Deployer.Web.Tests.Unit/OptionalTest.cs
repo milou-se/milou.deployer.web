@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Xunit;
 

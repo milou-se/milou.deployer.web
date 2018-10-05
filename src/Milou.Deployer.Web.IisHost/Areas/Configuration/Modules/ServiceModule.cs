@@ -1,7 +1,6 @@
 using Arbor.KVConfiguration.Core;
 using Autofac;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;

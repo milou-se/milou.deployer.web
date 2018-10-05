@@ -4,7 +4,6 @@ using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Targets;
 using Serilog;
