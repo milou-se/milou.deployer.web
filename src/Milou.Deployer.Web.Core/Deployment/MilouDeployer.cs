@@ -205,6 +205,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                     string[] deployerArgs = arguments.ToArray();
 
+                    logger.Verbose("Running Milou Deployer bootstrapper");
+
                     using (Bootstrapper.Common.App deployerApp =
                         await Bootstrapper.Common.App.CreateAsync(deployerArgs,
                             logger,

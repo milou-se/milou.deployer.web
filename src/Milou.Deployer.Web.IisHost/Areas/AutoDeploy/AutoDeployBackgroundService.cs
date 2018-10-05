@@ -18,7 +18,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
     public class AutoDeployBackgroundService : BackgroundService
     {
         private readonly AutoDeployConfiguration _autoDeployConfiguration;
-        private readonly DeploymentService _deploymentService;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly DeploymentWorker _deploymentWorker;
         private readonly MonitoringService _monitoringService;
@@ -27,7 +26,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
         public AutoDeployBackgroundService(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
-            [NotNull] DeploymentService deploymentService,
             [NotNull] MonitoringService monitoringService,
             [NotNull] DeploymentWorker deploymentWorker,
             [NotNull] AutoDeployConfiguration autoDeployConfiguration,
@@ -36,7 +34,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
-            _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
             _monitoringService = monitoringService ?? throw new ArgumentNullException(nameof(monitoringService));
             _deploymentWorker = deploymentWorker ?? throw new ArgumentNullException(nameof(deploymentWorker));
             _autoDeployConfiguration = autoDeployConfiguration ??
@@ -79,6 +76,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                 }
 
                 ImmutableArray<DeploymentTarget> targetsWithUrl = deploymentTargets.Where(target => target.Url.HasValue()).ToImmutableArray();
+
+                if (targetsWithUrl.IsDefaultOrEmpty)
+                {
+                    _logger.Verbose("Found no deployment targets with auto deployment enabled and URL defined, waiting {DelayInSeconds} seconds", _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
+                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds), stoppingToken);
+
+                    continue;
+                }
 
                 AppVersion[] appVersions;
                 using (var cancellationTokenSource =
