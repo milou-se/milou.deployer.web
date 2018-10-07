@@ -1,9 +1,10 @@
 ﻿using System;
 using MediatR;
+using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
-    public class UpdateDeploymentTarget : IRequest<UpdateDeploymentTargetResult>
+    public class UpdateDeploymentTarget : IRequest<UpdateDeploymentTargetResult>, IValidationObject
     {
         public UpdateDeploymentTarget(
             string id,
@@ -27,6 +28,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             AutoDeployEnabled = autoDeployEnabled;
             PublishSettingsXml = publishSettingsXml;
             TargetDirectory = targetDirectory;
+            IsValid = !string.IsNullOrWhiteSpace(Id);
         }
 
         public string Id { get; }
@@ -48,5 +50,13 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string TargetDirectory { get; }
 
         public string PackageId { get; }
+
+        public bool IsValid { get; }
+
+        public override string ToString()
+        {
+            return
+                $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
+        }
     }
 }
