@@ -46,6 +46,11 @@
     </div>
 
     <div class="input-field">
+        <label for="target-targetDirectory">Local target directory</label>
+        <input id="target-targetDirectory" type="text" name="targetDirectory" value="@Model.DeploymentTarget.TargetDirectory" />
+    </div>
+
+    <div class="input-field">
         <label for="target-publishSettingsXml">Publish settings XML</label>
         <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">
             @Model.DeploymentTarget.PublishSettingsXml
