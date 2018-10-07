@@ -31,6 +31,7 @@ namespace Milou.Deployer.Web.Core.Logging
         public bool RollingLogFilePathEnabled { get; }
 
         public bool ConsoleEnabled { get; }
+
         public bool DebugConsoleEnabled { get; }
 
         public string SeqUrl { get; }

@@ -6,6 +6,7 @@ using System.Reflection;
 using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
@@ -131,8 +132,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 foreach (IModule module in modules)
                 {
-                    logger.Debug("Registering module {Module} in scope {Scope}", module.GetType().FullName, nameof(AppContainerScope.AppRootScope));
-                    appScopeBuilder.RegisterModule(module);
+                    string moduleName = module.GetType().FullName;
+                    try
+                    {
+                        logger.Debug("Registering module {Module} in scope {Scope}",
+                            moduleName,
+                            nameof(AppContainerScope.AppRootScope));
+                        appScopeBuilder.RegisterModule(module);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error(ex, "Could not register module {Module}", moduleName);
+                        throw new DeployerAppException($"Could not register module {moduleName}", ex);
+                    }
                 }
             });
 
