@@ -1,64 +1,72 @@
-﻿@using Milou.Deployer.Web.Core.Html
+﻿@using Milou.Deployer.Web.Core
+@using Milou.Deployer.Web.Core.Html
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Targets.Controllers.EditTargetViewOutputModel
 
 <h1>Edit target @Model.DeploymentTarget.Name</h1>
 
-<form method="post" action="@Url.RouteUrl(TargetConstants.EditTargetPostRouteName)">
+@if (Model.DeploymentTarget.Id.Equals(Constants.NotAvailable))
+{
+    <h2>Target <span>@Model.DeploymentTarget.Id</span> could not be loaded</h2>
+}
+else
+{
+    <form method="post" action="@Url.RouteUrl(TargetConstants.EditTargetPostRouteName)">
 
-    <div class="input-field">
-        <label for="target-id">ID</label>
-        <input id="target-id" type="text" name="id" readonly="readonly" required="required" value="@Model.DeploymentTarget.Id" />
-    </div>
+        <div class="input-field">
+            <label for="target-id">ID</label>
+            <input id="target-id" type="text" name="id" readonly="readonly" required="required" value="@Model.DeploymentTarget.Id"/>
+        </div>
 
-    <div class="input-field">
-        <label for="target-name">Name</label>
-        <input id="target-name" type="text" name="name" readonly="readonly" value="@Model.DeploymentTarget.Name" />
-    </div>
-    <div class="input-field">
-        <label for="target-allowExplicitPreRelease">Allow pre-releases</label>
-        <input id="target-allowExplicitPreRelease" type="checkbox" name="allowExplicitPreRelease" @Model.DeploymentTarget.AllowExplicitExplicitPreRelease.Checked() />
-    </div>
-    <div class="input-field">
-        <label for="target-autoDeployEnabled">Auto-deploy enabled</label>
-        <input id="target-autoDeployEnabled" type="checkbox" name="autoDeployEnabled" @Model.DeploymentTarget.AutoDeployEnabled.Checked() />
-    </div>
-    <div class="input-field">
-        <label for="target-packageId">Allowed package name</label>
-        <input id="target-packageId" type="text" name="packageId" value="@Model.DeploymentTarget.PackageId" />
-    </div>
-    <div class="input-field">
-        <label for="target-url">URL</label>
-        <input id="target-url" type="text" name="url" value="@Model.DeploymentTarget.Url" />
-    </div>
-    <div class="input-field">
-        <label for="target-iisSiteName">IIS site name</label>
-        <input id="target-iisSiteName" type="text" name="iisSiteName" value="@Model.DeploymentTarget.IisSiteName" />
-    </div>
-    <div class="input-field">
-        <label for="target-nugetConfigFile">NuGet config file</label>
-        <input id="target-nugetConfigFile" type="text" name="nugetConfigFile" value="@Model.DeploymentTarget.NuGetConfigFile" />
-    </div>
+        <div class="input-field">
+            <label for="target-name">Name</label>
+            <input id="target-name" type="text" name="name" readonly="readonly" value="@Model.DeploymentTarget.Name"/>
+        </div>
+        <div class="input-field">
+            <label for="target-allowExplicitPreRelease">Allow pre-releases</label>
+            <input id="target-allowExplicitPreRelease" type="checkbox" name="allowExplicitPreRelease" @Model.DeploymentTarget.AllowExplicitExplicitPreRelease.Checked()/>
+        </div>
+        <div class="input-field">
+            <label for="target-autoDeployEnabled">Auto-deploy enabled</label>
+            <input id="target-autoDeployEnabled" type="checkbox" name="autoDeployEnabled" @Model.DeploymentTarget.AutoDeployEnabled.Checked()/>
+        </div>
+        <div class="input-field">
+            <label for="target-packageId">Allowed package name</label>
+            <input id="target-packageId" type="text" name="packageId" value="@Model.DeploymentTarget.PackageId"/>
+        </div>
+        <div class="input-field">
+            <label for="target-url">URL</label>
+            <input id="target-url" type="text" name="url" value="@Model.DeploymentTarget.Url"/>
+        </div>
+        <div class="input-field">
+            <label for="target-iisSiteName">IIS site name</label>
+            <input id="target-iisSiteName" type="text" name="iisSiteName" value="@Model.DeploymentTarget.IisSiteName"/>
+        </div>
+        <div class="input-field">
+            <label for="target-nugetConfigFile">NuGet config file</label>
+            <input id="target-nugetConfigFile" type="text" name="nugetConfigFile" value="@Model.DeploymentTarget.NuGetConfigFile"/>
+        </div>
 
-    <div class="input-field">
-        <label for="target-nugetPackageSource">NuGet package source</label>
-        <input id="target-nugetPackageSource" type="text" name="nugetPackageSource" value="@Model.DeploymentTarget.NuGetPackageSource" />
-    </div>
+        <div class="input-field">
+            <label for="target-nugetPackageSource">NuGet package source</label>
+            <input id="target-nugetPackageSource" type="text" name="nugetPackageSource" value="@Model.DeploymentTarget.NuGetPackageSource"/>
+        </div>
 
-    <div class="input-field">
-        <label for="target-targetDirectory">Local target directory</label>
-        <input id="target-targetDirectory" type="text" name="targetDirectory" value="@Model.DeploymentTarget.TargetDirectory" />
-    </div>
+        <div class="input-field">
+            <label for="target-targetDirectory">Local target directory</label>
+            <input id="target-targetDirectory" type="text" name="targetDirectory" value="@Model.DeploymentTarget.TargetDirectory"/>
+        </div>
 
-    <div class="input-field">
-        <label for="target-publishSettingsXml">Publish settings XML</label>
-        <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">
+        <div class="input-field">
+            <label for="target-publishSettingsXml">Publish settings XML</label>
+            <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">
             @Model.DeploymentTarget.PublishSettingsXml
         </textarea>
-    </div>
+        </div>
 
-    <div class="input-field">
-        <input type="submit" value="Edit project" />
-    </div>
+        <div class="input-field">
+            <input type="submit" value="Edit project"/>
+        </div>
 
-</form>
+    </form>
+}

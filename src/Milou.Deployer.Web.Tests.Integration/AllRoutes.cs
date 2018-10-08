@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.IisHost.Areas.Application;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers;
 using Xunit;
 using Xunit.Abstractions;

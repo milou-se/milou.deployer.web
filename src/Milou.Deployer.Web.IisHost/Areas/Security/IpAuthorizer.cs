@@ -31,8 +31,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             }
 
             bool isIncludedPrivate = privateAddresses.Any(
-                whiteListedAddress =>
-                    remoteIp.Equals(whiteListedAddress, StringComparison.InvariantCultureIgnoreCase));
+                allowedAddress =>
+                    remoteIp.Equals(allowedAddress, StringComparison.InvariantCultureIgnoreCase));
 
             if (isIncludedPrivate)
             {
@@ -40,8 +40,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             }
 
             bool isIncluded = whiteInternalListed.Any(
-                whiteListedAddress =>
-                    remoteIp.StartsWith(whiteListedAddress, StringComparison.InvariantCultureIgnoreCase));
+                allowedAddress =>
+                    remoteIp.StartsWith(allowedAddress, StringComparison.InvariantCultureIgnoreCase));
 
             return isIncluded;
         }

@@ -189,6 +189,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
 
             string json = await response.Content.ReadAsStringAsync();
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return new AppVersion(target, "Timeout", filtered);
+            }
+
             ConfigurationItems configuration =
                 new JsonConfigurationSerializer().Deserialize(json);
 

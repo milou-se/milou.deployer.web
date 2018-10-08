@@ -2,7 +2,7 @@ using System;
 using System.Collections.Immutable;
 using System.Reflection;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Milou.Deployer.Web.Core.Application
 {
     public static class Assemblies
     {

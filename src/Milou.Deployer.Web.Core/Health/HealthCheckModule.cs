@@ -2,9 +2,9 @@
 using System.Reflection;
 using Autofac;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
 using Module = Autofac.Module;
 
 namespace Milou.Deployer.Web.Core.Health

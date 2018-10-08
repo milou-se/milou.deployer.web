@@ -2,14 +2,10 @@
 using System.Reflection;
 using Autofac;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
-using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
-using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
-using Milou.Deployer.Web.IisHost.Areas.NuGet;
 using Module = Autofac.Module;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore

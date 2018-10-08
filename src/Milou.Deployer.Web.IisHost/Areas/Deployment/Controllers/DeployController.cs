@@ -11,7 +11,6 @@ using Serilog;
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 {
     [Area(DeploymentConstants.AreaName)]
-    [Route("deploy")]
     public class DeployController : BaseApiController
     {
         private readonly DeploymentWorker _deploymentService;
@@ -24,7 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             _deploymentService = deploymentService;
         }
 
-        [Route("")]
+        [Route(DeploymentConstants.DeployRoute,Name= DeploymentConstants.DeployRouteName)]
         [HttpPost]
         public IActionResult Index(
             DeploymentTaskInput deploymentTaskInput)
@@ -67,7 +66,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
-        [Route("/deployment/status/{deploymentTargetId}")]
+        [Route(DeploymentConstants.DeploymentStatusRoute, Name=DeploymentConstants.DeploymentStatusRouteName)]
         public IActionResult Status(string deploymentTargetId)
         {
             return View(new StatusViewOutputModel(deploymentTargetId));

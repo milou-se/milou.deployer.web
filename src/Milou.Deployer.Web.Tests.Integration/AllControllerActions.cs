@@ -4,8 +4,8 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
 using Xunit;
 using Xunit.Abstractions;
 

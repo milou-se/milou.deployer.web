@@ -73,7 +73,7 @@
 
                     @if (item.AvailablePackageVersions.Any() && !item.Target.IsReadOnly)
                     {
-                        <form method="POST" action="~/Deploy">
+                        <form method="POST" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
                             <input type="hidden" name="targetId" value="@item.Target.Id" />
                             <input type="hidden" name="current-version-major" value="@(item.SemanticVersion?.Major)" disabled="disabled" />
                             <input type="hidden" name="current-version-minor" value="@(item.SemanticVersion?.Minor)" disabled="disabled" />

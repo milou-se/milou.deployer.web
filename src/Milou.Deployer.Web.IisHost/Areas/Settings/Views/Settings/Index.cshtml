@@ -1,12 +1,14 @@
 ﻿@using Milou.Deployer.Web.Core.Configuration
+@using Milou.Deployer.Web.IisHost.Areas.Settings
 @using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
 
 <h2>Target read service: @Model.TargetReadService</h2>
 
 <ul>
     <li>
-        <a href="/deployment/invalidate">Invalidate package cache</a>
+        <a href="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">Invalidate package cache</a>
     </li>
 </ul>
 
@@ -80,7 +82,7 @@
     </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model.ContainerRegistrations)
+    @foreach (ContainerRegistrationInfo item in Model.ContainerRegistrations)
     {
         <tr>
             <td>@item.Service</td>

@@ -43,14 +43,22 @@ namespace Milou.Deployer.Web.Marten
 
             using (IQuerySession session = _documentStore.QuerySession())
             {
-                DeploymentTargetData deploymentTargetData = await session.Query<DeploymentTargetData>()
-                    .SingleOrDefaultAsync(target =>
-                            target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
-                        cancellationToken);
+                try
+                {
+                    DeploymentTargetData deploymentTargetData = await session.Query<DeploymentTargetData>()
+                        .SingleOrDefaultAsync(target =>
+                                target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
+                            cancellationToken);
 
-                DeploymentTarget deploymentTarget = MapDataToTarget(deploymentTargetData);
+                    DeploymentTarget deploymentTarget = MapDataToTarget(deploymentTargetData);
 
-                return deploymentTarget;
+                    return deploymentTarget;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warning(ex,"Could not get deployment target with id {Id}", deploymentTargetId);
+                    return DeploymentTarget.None;
+                }
             }
         }
 
@@ -59,23 +67,31 @@ namespace Milou.Deployer.Web.Marten
         {
             using (IQuerySession session = _documentStore.QuerySession())
             {
-                IReadOnlyList<DeploymentTargetData> targets =
-                    await session.Query<DeploymentTargetData>()
-                        .ToListAsync<DeploymentTargetData>(cancellationToken);
+                try
+                {
+                    IReadOnlyList<DeploymentTargetData> targets =
+                        await session.Query<DeploymentTargetData>()
+                            .ToListAsync<DeploymentTargetData>(cancellationToken);
 
-                IReadOnlyList<ProjectData> projects =
-                    await session.Query<ProjectData>()
-                        .ToListAsync<ProjectData>(cancellationToken);
+                    IReadOnlyList<ProjectData> projects =
+                        await session.Query<ProjectData>()
+                            .ToListAsync<ProjectData>(cancellationToken);
 
-                IReadOnlyList<OrganizationData> organizations =
-                    await session.Query<OrganizationData>()
-                        .ToListAsync<OrganizationData>(
-                            cancellationToken);
+                    IReadOnlyList<OrganizationData> organizations =
+                        await session.Query<OrganizationData>()
+                            .ToListAsync<OrganizationData>(
+                                cancellationToken);
 
-                ImmutableArray<OrganizationInfo> deploymentTarget =
-                    MapDataToOrganizations(organizations, projects, targets);
+                    ImmutableArray<OrganizationInfo> organizationsInfo =
+                        MapDataToOrganizations(organizations, projects, targets);
 
-                return deploymentTarget;
+                    return organizationsInfo;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warning(ex, "Could not get any organizations targets");
+                    return ImmutableArray<OrganizationInfo>.Empty;
+                }
             }
         }
 
@@ -83,12 +99,21 @@ namespace Milou.Deployer.Web.Marten
         {
             using (IQuerySession session = _documentStore.QuerySession())
             {
-                IReadOnlyList<DeploymentTargetData> targets = await session.Query<DeploymentTargetData>()
-                    .ToListAsync<DeploymentTargetData>(stoppingToken);
+                try
+                {
+                    IReadOnlyList<DeploymentTargetData> targets = await session.Query<DeploymentTargetData>()
+                        .ToListAsync<DeploymentTargetData>(stoppingToken);
 
-                ImmutableArray<DeploymentTarget> deploymentTargets = targets.Select(MapDataToTarget).ToImmutableArray();
+                    ImmutableArray<DeploymentTarget> deploymentTargets =
+                        targets.Select(MapDataToTarget).ToImmutableArray();
 
-                return deploymentTargets;
+                    return deploymentTargets;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Warning(ex, "Could not get any deployment targets");
+                    return ImmutableArray<DeploymentTarget>.Empty;
+                }
             }
         }
 

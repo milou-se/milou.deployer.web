@@ -12,18 +12,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     [UsedImplicitly]
     public class DefaultAuthorizationHandler : AuthorizationHandler<DefaulAuthorizationRequrement>
     {
-        private HashSet<string> _whiteListed;
+        private HashSet<string> _allowed;
 
         public DefaultAuthorizationHandler(IKeyValueConfiguration keyValueConfiguration)
         {
-            string[] ipAddressesFromConfig = keyValueConfiguration[ConfigurationConstants.WhiteListedIPs]
+            string[] ipAddressesFromConfig = keyValueConfiguration[ConfigurationConstants.AllowedIPs]
                 .Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-            _whiteListed = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "::1", "127.0.0.1" };
+            _allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "::1", "127.0.0.1" };
 
             foreach (string address in ipAddressesFromConfig)
             {
-                _whiteListed.Add(address);
+                _allowed.Add(address);
             }
         }
 
@@ -33,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         {
             if (context.User.HasClaim(claim =>
                 claim.Type == CustomClaimTypes.IPAddress
-                && _whiteListed.Any(ip => claim.Value.StartsWith(ip, StringComparison.OrdinalIgnoreCase))))
+                && _allowed.Any(ip => claim.Value.StartsWith(ip, StringComparison.OrdinalIgnoreCase))))
             {
                 context.Succeed(requirement);
             }

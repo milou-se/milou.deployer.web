@@ -1,11 +1,13 @@
 ﻿@using Milou.Deployer.Web.Core.Deployment
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@using DeploymentConstants = Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentConstants
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentViewOutputModel
 
 <p>
-    <a href="~/Deployment/InvalidateCache">Töm cache</a>
+    <a href="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">Töm cache</a>
 </p>
 
-<form method="POST" action="~/Deploy">
+<form method="POST" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
 
     <div>
 

@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyModel;
 using Milou.Deployer.Web.Core.Time;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Milou.Deployer.Web.Core.Application
 {
     public static class AppDomainExtensions
     {
@@ -35,7 +35,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ImmutableArray<RuntimeLibrary> defaultRuntimeLibraries =
                 DependencyContext.Default?.RuntimeLibraries?.ToImmutableArray() ?? ImmutableArray<RuntimeLibrary>.Empty;
 
-            RuntimeLibrary[] whiteListedLibraries = defaultRuntimeLibraries
+            RuntimeLibrary[] includedLibraries = defaultRuntimeLibraries
                 .Where(item =>
                     allowedAssemblies.Any(listed => item.Name.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
                 .ToArray();
@@ -51,7 +51,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 .Select(assembly => assembly.GetName())
                 .ToArray();
 
-            RuntimeLibrary[] toLoad = whiteListedLibraries
+            RuntimeLibrary[] toLoad = includedLibraries
                 .Where(lib =>
                     !loadedAssemblyNames.Any(loaded => loaded.Name.Equals(lib.Name, StringComparison.Ordinal)))
                 .ToArray();

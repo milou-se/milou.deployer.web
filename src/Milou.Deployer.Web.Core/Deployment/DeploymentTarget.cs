@@ -13,6 +13,9 @@ namespace Milou.Deployer.Web.Core.Deployment
     [Urn(ConfigurationConstants.DeployerTarget)]
     public class DeploymentTarget
     {
+        public static readonly DeploymentTarget None =
+            new DeploymentTarget(Constants.NotAvailable, Constants.NotAvailable, Constants.NotAvailable);
+
         public DeploymentTarget(
             [NotNull] string id,
             [NotNull] string name,

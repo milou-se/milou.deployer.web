@@ -40,6 +40,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             [FromServices] IMediator mediator,
             [FromQuery] bool redirect = true)
         {
+            if (createTarget is null)
+            {
+                return BadRequest($"Model of type {typeof(CreateTarget)} is null");
+            }
+
+            if (!createTarget.IsValid)
+            {
+                return BadRequest($"Model of type {typeof(CreateTarget)} {createTarget} is invalid");
+            }
+
             CreateTargetResult createTargetResult = await mediator.Send(createTarget);
 
             if (redirect)

@@ -6,7 +6,7 @@
             "value": ""
         },
         {
-            "key": "urn:milou:deployer:authorization:white-listed-ips",
+            "key": "urn:milou:deployer:authorization:allowed-ips",
             "value": ""
         },
         {
