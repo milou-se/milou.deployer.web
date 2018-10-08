@@ -49,12 +49,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            //IHttpClientFactory httpClientFactory = _webHostScope.Lifetime.Resolve<Func<IHttpClientFactory>>().Invoke();
-
-            //httpClientFactory.DisposeIfPossible();
-
             services.AddHttpClient();
-            //services.TryAddSingleton(provider => (Func<IHttpClientFactory>) provider.GetService(typeof(Func<IHttpClientFactory>)));
 
             services.AddMvc();
 

@@ -35,26 +35,25 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             tempData.TryGetValue(key, out object o);
 
-            if (o is T item)
+            switch (o)
             {
-                return item;
-            }
+                case T item:
+                    return item;
+                case string json:
+                    try
+                    {
+                        var deserializeObject = JsonConvert.DeserializeObject<T>(json);
 
-            if (o is string json)
-            {
-                try
-                {
-                    var deserializeObject = JsonConvert.DeserializeObject<T>(json);
+                        return deserializeObject;
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
 
-                    return deserializeObject;
-                }
-                catch (Exception)
-                {
+                default:
                     return null;
-                }
             }
-
-            return null;
         }
     }
 }
