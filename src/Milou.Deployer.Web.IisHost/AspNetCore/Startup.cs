@@ -63,7 +63,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             {
                 options.AddPolicy(AuthorizationPolicies.IPOrToken,
                     policy =>
-                        policy.Requirements.Add(new DefaulAuthorizationRequrement()));
+                        policy.Requirements.Add(new DefaultAuthorizationRequirement()));
             });
 
             services
