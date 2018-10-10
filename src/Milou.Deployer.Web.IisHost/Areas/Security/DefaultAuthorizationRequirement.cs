@@ -2,7 +2,7 @@
 
 namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
-    public class DefaulAuthorizationRequrement : IAuthorizationRequirement
+    public sealed class DefaultAuthorizationRequirement : IAuthorizationRequirement
     {
     }
 }
