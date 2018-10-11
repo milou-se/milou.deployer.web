@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,17 +52,36 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
-            if (_queue.GetConsumingEnumerable().Any(queued =>
-                queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
-                && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
+            try
             {
-                _logger.Warning("A deployment task with package id {PackageId} and version {Version} is already enqueued, skipping task, , current queue length {Length}", deploymentTask.PackageId, deploymentTask.SemanticVersion.ToNormalizedString(), _queue.Count);
-                return;
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
+                {
+                    DeploymentTask[] tasksInQueue = _queue.GetConsumingEnumerable(cts.Token).ToArray();
+                    if (tasksInQueue.Any(queued =>
+                        queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
+                        && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
+                    {
+                        _logger.Warning(
+                            "A deployment task with package id {PackageId} and version {Version} is already enqueued, skipping task, , current queue length {Length}",
+                            deploymentTask.PackageId,
+                            deploymentTask.SemanticVersion.ToNormalizedString(),
+                            tasksInQueue.Length);
+                        return;
+                    }
+
+                    deploymentTask.Status = WorkTaskStatus.Enqueued;
+                    _queue.Add(deploymentTask, cts.Token);
+
+                    _logger.Information("Enqueued deployment task {DeploymentTask}, current queue length {Length}",
+                        deploymentTask,
+                        tasksInQueue);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error("Failed to enqueue deployment task {DeploymentTask}", deploymentTask);
             }
 
-            deploymentTask.Status = WorkTaskStatus.Enqueued;
-            _queue.Add(deploymentTask);
-            _logger.Information("Enqueued deployment task {DeploymentTask}, current queue length {Length}", deploymentTask, _queue.Count);
         }
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
