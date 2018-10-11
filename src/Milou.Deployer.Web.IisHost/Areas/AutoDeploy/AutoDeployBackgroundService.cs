@@ -62,7 +62,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                             targetsTokenSource.Token))
                     {
                         deploymentTargets = (await _deploymentTargetReadService.GetDeploymentTargetsAsync(linked.Token))
-                            .Where(target => target.AutoDeployEnabled)
+                            .Where(target => target.Enabled && target.AutoDeployEnabled)
                             .ToImmutableArray();
                     }
                 }

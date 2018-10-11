@@ -71,7 +71,7 @@
                 </td>
                 <td>
 
-                    @if (item.AvailablePackageVersions.Any() && !item.Target.IsReadOnly)
+                    @if (item.Target.Enabled && item.AvailablePackageVersions.Any() && !item.Target.IsReadOnly)
                     {
                         <form method="POST" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
                             <input type="hidden" name="targetId" value="@item.Target.Id" />
@@ -99,6 +99,10 @@
                             <input type="submit" value="Deploy" class="deploy-button" />
 
                         </form>
+                    }
+                    @if (!item.Target.Enabled)
+                    {
+                        <span class="disabled">Disabled</span>
                     }
 
                 </td>
