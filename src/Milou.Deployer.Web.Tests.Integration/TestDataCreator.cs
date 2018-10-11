@@ -29,7 +29,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                                     autoDeployEnabled: true,
                                     targetDirectory: Environment.GetEnvironmentVariable("TestDeploymentTargetPath"),
                                     uri: Environment.GetEnvironmentVariable("TestDeploymentUri"),
-                                    emailNotificationAddresses: new StringValues("noreply@localhost.local"))
+                                    emailNotificationAddresses: new StringValues("noreply@localhost.local"),
+                                    enabled: true)
                             })
                     })
             };

@@ -28,15 +28,21 @@ namespace Milou.Deployer.Web.Tests.Integration
                 autoDeployEnabled: true,
                 targetDirectory: Environment.GetEnvironmentVariable("TestDeploymentTargetPath"),
                 uri: Environment.GetEnvironmentVariable("TestDeploymentUri"),
-                emailNotificationAddresses: new StringValues("noreply@localhost.local"));
+                emailNotificationAddresses: new StringValues("noreply@localhost.local"),
+                enabled: true);
 
-            await _mediator.Send(new CreateTarget(testTarget.Id, testTarget.Name), cancellationToken);
-            await _mediator.Send(new UpdateDeploymentTarget(testTarget.Id,
-                    testTarget.AllowPrerelease,
-                    testTarget.Url,
-                    testTarget.PackageId,
-                    autoDeployEnabled: testTarget.AutoDeployEnabled,
-                    targetDirectory: testTarget.TargetDirectory),
+            var createTarget = new CreateTarget(testTarget.Id, testTarget.Name);
+            await _mediator.Send(createTarget, cancellationToken);
+
+            var updateDeploymentTarget = new UpdateDeploymentTarget(testTarget.Id,
+                testTarget.AllowPrerelease,
+                testTarget.Url,
+                testTarget.PackageId,
+                autoDeployEnabled: testTarget.AutoDeployEnabled,
+                targetDirectory: testTarget.TargetDirectory,
+                enabled: true);
+
+            await _mediator.Send(updateDeploymentTarget,
                 cancellationToken);
         }
     }

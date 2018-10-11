@@ -54,10 +54,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
-                    DeploymentTask[] tasksInQueue = _queue.GetConsumingEnumerable(cts.Token).ToArray();
-                    if (tasksInQueue.Any(queued =>
+                    DeploymentTask[] tasksInQueue = _queue.ToArray();
+
+                    if (tasksInQueue.Length > 0 && tasksInQueue.Any(queued =>
                         queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
                         && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
                     {
@@ -66,6 +67,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             deploymentTask.PackageId,
                             deploymentTask.SemanticVersion.ToNormalizedString(),
                             tasksInQueue.Length);
+
                         return;
                     }
 
