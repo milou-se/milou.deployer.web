@@ -37,7 +37,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             string targetDirectory = null,
             string parameterFile = null,
             bool isReadOnly = false,
-            string iisSiteName = default)
+            string iisSiteName = default,
+            string webConfigTransform = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -67,6 +68,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             ParameterFile = parameterFile;
             IsReadOnly = isReadOnly;
             IisSiteName = iisSiteName;
+            WebConfigTransform = webConfigTransform;
             Organization = organization ?? string.Empty;
             ProjectInvariantName = project ?? string.Empty;
             Name = name;
@@ -121,6 +123,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         public bool IsReadOnly { get; }
 
         public string IisSiteName { get; }
+
+        public string WebConfigTransform { get; }
 
         public ImmutableDictionary<string, string[]> Parameters { get; }
 

@@ -189,7 +189,8 @@ namespace Milou.Deployer.Web.Core.Deployment
                             deploymentTarget.NuGetConfigFile,
                             deploymentTarget.NuGetPackageSource,
                             semanticVersion = deploymentTask.SemanticVersion.ToNormalizedString(),
-                            iisSiteName = deploymentTarget.IisSiteName
+                            iisSiteName = deploymentTarget.IisSiteName,
+                            webConfigTransform = deploymentTarget.WebConfigTransform
                         }
                     }
                 };

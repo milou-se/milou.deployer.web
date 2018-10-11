@@ -29,5 +29,7 @@ namespace Milou.Deployer.Web.Core.Targets
         public string PublishSettingsXml { get; set; }
 
         public string TargetDirectory { get; set; }
+
+        public string WebConfigTransform { get; set; }
     }
 }

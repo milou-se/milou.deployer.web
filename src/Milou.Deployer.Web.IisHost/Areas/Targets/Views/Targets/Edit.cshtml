@@ -58,6 +58,11 @@ else
         </div>
 
         <div class="input-field">
+            <label for="target-webConfigTransform">Web.config transformation file</label>
+            <input id="target-webConfigTransform" type="text" name="webConfigTransform" value="@Model.DeploymentTarget.WebConfigTransform"/>
+        </div>
+
+        <div class="input-field">
             <label for="target-publishSettingsXml">Publish settings XML</label>
             <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">
             @Model.DeploymentTarget.PublishSettingsXml
