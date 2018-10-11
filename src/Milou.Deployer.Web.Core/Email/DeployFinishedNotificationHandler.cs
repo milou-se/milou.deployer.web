@@ -58,60 +58,61 @@ namespace Milou.Deployer.Web.Core.Email
                 return;
             }
 
-            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds));
-
-            IReadOnlyCollection<OrganizationInfo> targets =
-                await _targetSource.GetOrganizationsAsync(cancellationTokenSource.Token);
-
-            DeploymentTarget target = targets.SelectMany(o => o.Projects)
-                .SelectMany(project => project.DeploymentTargets)
-                .SingleOrDefault(deploymentTarget =>
-                    deploymentTarget.Id == notification.DeploymentTask.DeploymentTargetId);
-
-            if (target is null)
+            using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds)))
             {
-                return;
-            }
+                IReadOnlyCollection<OrganizationInfo> targets =
+                    await _targetSource.GetOrganizationsAsync(cancellationTokenSource.Token);
 
-            if (!target.EmailNotificationAddresses.Any())
-            {
-                return;
-            }
+                DeploymentTarget target = targets.SelectMany(o => o.Projects)
+                    .SelectMany(project => project.DeploymentTargets)
+                    .SingleOrDefault(deploymentTarget =>
+                        deploymentTarget.Id == notification.DeploymentTask.DeploymentTargetId);
 
-            var mimeMessage = new MimeMessage();
+                if (target is null)
+                {
+                    return;
+                }
 
-            foreach (string targetEmailNotificationAddress in target.EmailNotificationAddresses)
-            {
+                if (!target.EmailNotificationAddresses.Any())
+                {
+                    return;
+                }
+
+                var mimeMessage = new MimeMessage();
+
+                foreach (string targetEmailNotificationAddress in target.EmailNotificationAddresses)
+                {
+                    try
+                    {
+                        mimeMessage.To.Add(new MailboxAddress(targetEmailNotificationAddress));
+                    }
+                    catch (Exception ex) when (!ex.IsFatal())
+                    {
+                        _logger.Error(ex,
+                            "Could not add email address {EmailAddress} when sending deployment finished notification email",
+                            targetEmailNotificationAddress);
+                    }
+                }
+
+                mimeMessage.Body = new TextPart
+                {
+                    Text =
+                        $@"Deployment finished for {notification.DeploymentTask}
+{notification.Result.Metadata}"
+                };
+
+                mimeMessage.Subject = $"Deployment finished for {notification.DeploymentTask}";
+
                 try
                 {
-                    mimeMessage.To.Add(new MailboxAddress(targetEmailNotificationAddress));
+                    await _smtpService.SendAsync(mimeMessage, cancellationTokenSource.Token);
                 }
-                catch (Exception ex) when (!ex.IsFatal())
+                catch (Exception ex)
                 {
                     _logger.Error(ex,
-                        "Could not add email address {EmailAddress} when sending deployment finished notification email",
-                        targetEmailNotificationAddress);
+                        "Could not send email to '{To}'",
+                        string.Join(", ", target.EmailNotificationAddresses));
                 }
-            }
-
-            mimeMessage.Body = new TextPart
-            {
-                Text =
-                    $@"Deployment finished for {notification.DeploymentTask}
-{notification.Result.Metadata}"
-            };
-
-            mimeMessage.Subject = $"Deployment finished for {notification.DeploymentTask}";
-
-            try
-            {
-                await _smtpService.SendAsync(mimeMessage, cancellationTokenSource.Token);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex,
-                    "Could not send email to '{To}'",
-                    string.Join(", ", target.EmailNotificationAddresses));
             }
         }
     }
