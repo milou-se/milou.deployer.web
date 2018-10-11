@@ -83,7 +83,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 _logger.Error("Failed to enqueue deployment task {DeploymentTask}", deploymentTask);
             }
-
         }
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)

@@ -25,6 +25,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
         private readonly PackageService _packageService;
+
         [NotNull]
         private readonly MonitorConfiguration _monitorConfiguration;
 
@@ -53,7 +54,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             using (var cancellationTokenSource =
                 new CancellationTokenSource(TimeSpan.FromSeconds(_monitorConfiguration.DefaultTimeoutInSeconds)))
             {
-
                 if (_logger.IsEnabled(LogEventLevel.Verbose))
                 {
                     cancellationTokenSource.Token.Register(() =>
@@ -67,31 +67,31 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 using (CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
-                    (HttpResponseMessage Response, string Message) result =
-                        await GetApplicationMetadataTask(target, linkedTokenSource.Token);
-                    HttpResponseMessage httpResponseMessage = result.Response;
+                    (HttpResponseMessage response, string message) = await GetApplicationMetadataTask(target, linkedTokenSource.Token);
 
-                    IReadOnlyCollection<PackageVersion> packages =
-                        await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
-
-
-                    if (httpResponseMessage == null)
+                    using (HttpResponseMessage httpResponseMessage = response)
                     {
-                        return new AppVersion(target,
-                            result.Message ?? $"Could not get application metadata from target {target.Url}, no response",
-                            packages);
-                    }
+                        IReadOnlyCollection<PackageVersion> packages =
+                            await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
 
-                    if (!httpResponseMessage.IsSuccessStatusCode)
-                    {
-                        return new AppVersion(target,
-                            result.Message ??
-                            $"Could not get application metadata from target {target.Url}, status code not successful {httpResponseMessage.StatusCode}",
-                            packages);
-                    }
+                        if (httpResponseMessage == null)
+                        {
+                            return new AppVersion(target,
+                                message ?? $"Could not get application metadata from target {target.Url}, no response",
+                                packages);
+                        }
 
-                    appMetadata =
-                        await GetAppVersionAsync(httpResponseMessage, target, packages, linkedTokenSource.Token);
+                        if (!httpResponseMessage.IsSuccessStatusCode)
+                        {
+                            return new AppVersion(target,
+                                message ??
+                                $"Could not get application metadata from target {target.Url}, status code not successful {httpResponseMessage.StatusCode}",
+                                packages);
+                        }
+
+                        appMetadata =
+                            await GetAppVersionAsync(httpResponseMessage, target, packages, linkedTokenSource.Token);
+                    }
                 }
             }
 
@@ -111,9 +111,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     var tasks = new Dictionary<string, Task<(HttpResponseMessage, string)>>();
 
-                    foreach (DeploymentTarget deploymentTarget in targets.Where(target => target.Enabled))
+                    foreach (DeploymentTarget deploymentTarget in targets)
                     {
-                        if (deploymentTarget.Url != null)
+                        if (!deploymentTarget.Enabled)
+                        {
+                            appVersions.Add(new AppVersion(deploymentTarget,
+                                "Disabled",
+                                ImmutableArray<PackageVersion>.Empty));
+                        }
+                        else if (deploymentTarget.Url != null)
                         {
                             Task<(HttpResponseMessage, string)> getApplicationMetadataTask =
                                 GetApplicationMetadataTask(deploymentTarget, linkedTokenSource.Token);
@@ -202,9 +208,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTarget target,
             IReadOnlyCollection<PackageVersion> filtered, CancellationToken cancellationToken)
         {
-            if (response.Content.Headers.ContentType is null
-                || !response.Content.Headers.ContentType.MediaType.Equals("application/json",
-                    StringComparison.OrdinalIgnoreCase))
+            if (response.Content.Headers.ContentType?.MediaType.Equals("application/json",
+                    StringComparison.OrdinalIgnoreCase) != true)
             {
                 return new AppVersion(target, "Response not JSON", filtered);
             }

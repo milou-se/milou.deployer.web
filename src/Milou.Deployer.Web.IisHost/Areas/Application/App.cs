@@ -174,7 +174,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     file => GetBaseDirectoryFile(basePath, file),
                     startupLogger, scanAssemblies, contentBasePath);
 
-            var loggingLevelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug);
+            var loggingLevelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug); // TODO make configurable
 
             ILogger appLogger =
                 SerilogApiInitialization.InitializeAppLogging(configuration, startupLogger, loggerConfigurationAction, loggingLevelSwitch);
