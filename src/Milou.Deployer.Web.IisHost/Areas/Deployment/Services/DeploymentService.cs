@@ -72,7 +72,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
-                deploymentTarget = await GetDeploymentTargetAsync(deploymentTask,
+                deploymentTarget = await _targetSource.GetDeploymentTargetAsync(deploymentTask.DeploymentTargetId,
                     cancellationToken);
 
                 VerifyPreReleaseAllowed(deploymentTask.SemanticVersion,
@@ -297,28 +297,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     "The deployment target '{DeploymentTarget}' has no allowed package names, allowing any package id",
                     deploymentTarget);
             }
-        }
-
-        private async Task<DeploymentTarget> GetDeploymentTargetAsync(
-            DeploymentTask deploymentTask,
-            CancellationToken cancellationToken)
-        {
-            IReadOnlyCollection<DeploymentTarget> targets =
-                (await _targetSource.GetOrganizationsAsync(cancellationToken))
-                .SelectMany(
-                    organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-                .SafeToReadOnlyCollection();
-
-            DeploymentTarget deploymentTarget =
-                targets.SingleOrDefault(target => target.Id.Equals(deploymentTask.DeploymentTargetId));
-
-            if (deploymentTarget == null)
-            {
-                throw new DeployerAppException(
-                    $"Deployment target with id '{deploymentTask.DeploymentTargetId}' was not found using source {_targetSource.GetType().FullName}");
-            }
-
-            return deploymentTarget;
         }
     }
 }

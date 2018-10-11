@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +6,6 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Targets;
 using MimeKit;
 using Serilog;
 
@@ -58,15 +56,12 @@ namespace Milou.Deployer.Web.Core.Email
                 return;
             }
 
-            using (var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds)))
+            using (var cancellationTokenSource =
+                new CancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds)))
             {
-                IReadOnlyCollection<OrganizationInfo> targets =
-                    await _targetSource.GetOrganizationsAsync(cancellationTokenSource.Token);
-
-                DeploymentTarget target = targets.SelectMany(o => o.Projects)
-                    .SelectMany(project => project.DeploymentTargets)
-                    .SingleOrDefault(deploymentTarget =>
-                        deploymentTarget.Id == notification.DeploymentTask.DeploymentTargetId);
+                DeploymentTarget target =
+                    await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
+                        cancellationTokenSource.Token);
 
                 if (target is null)
                 {

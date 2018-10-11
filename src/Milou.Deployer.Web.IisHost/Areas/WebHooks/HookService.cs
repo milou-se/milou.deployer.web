@@ -46,10 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _logger.Information("Received hook for packages {Packages}", string.Join(", ", packageIdentifiers.Select(p => p.ToString())));
 
             IReadOnlyCollection<DeploymentTarget> deploymentTargets =
-                (await _targetSource.GetOrganizationsAsync(CancellationToken.None))
-                .SelectMany(
-                    organizationInfo =>
-                        organizationInfo.Projects.SelectMany(projectInfo => projectInfo.DeploymentTargets))
+                (await _targetSource.GetDeploymentTargetsAsync(CancellationToken.None))
                 .SafeToReadOnlyCollection();
 
             DeploymentTarget[] withAutoDeploy = deploymentTargets.Where(t => t.AutoDeployEnabled).ToArray();

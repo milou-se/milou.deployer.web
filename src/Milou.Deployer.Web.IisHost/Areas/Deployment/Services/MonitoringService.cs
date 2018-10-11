@@ -111,7 +111,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     var tasks = new Dictionary<string, Task<(HttpResponseMessage, string)>>();
 
-                    foreach (DeploymentTarget deploymentTarget in targets)
+                    foreach (DeploymentTarget deploymentTarget in targets.Where(target => target.Enabled))
                     {
                         if (deploymentTarget.Url != null)
                         {
