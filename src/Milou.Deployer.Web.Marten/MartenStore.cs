@@ -56,7 +56,7 @@ namespace Milou.Deployer.Web.Marten
                 }
                 catch (Exception ex)
                 {
-                    _logger.Warning(ex,"Could not get deployment target with id {Id}", deploymentTargetId);
+                    _logger.Warning(ex, "Could not get deployment target with id {Id}", deploymentTargetId);
                     return DeploymentTarget.None;
                 }
             }

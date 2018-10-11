@@ -8,17 +8,11 @@ namespace Milou.Deployer.Web.Core.Deployment
     {
         public MilouDeployerConfiguration(
             IKeyValueConfiguration keyValueConfiguration,
-            string milouDeployerExePath = "",
             string logLevel = "")
         {
-            MilouDeployerExePath = milouDeployerExePath.WithDefault(
-                keyValueConfiguration[ConfigurationConstants.DeployerExePath]);
-
             LogLevel = logLevel.WithDefault(keyValueConfiguration[ConfigurationConstants.Logging.LogLevel]);
         }
 
         public string LogLevel { get; }
-
-        public string MilouDeployerExePath { get; }
     }
 }

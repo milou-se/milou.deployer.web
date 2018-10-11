@@ -66,172 +66,162 @@ namespace Milou.Deployer.Web.Core.Deployment
             DeploymentTarget deploymentTarget =
                 await GetDeploymentTarget(deploymentTask.DeploymentTargetId, cancellationToken);
 
-            FileInfo exeFile = CheckExecutableExists();
-
             Environment.SetEnvironmentVariable(ConfigurationConstants.AllowPreReleaseEnabled,
                 "true"); // TODO try to remove
 
             SetLogging();
 
-            if (exeFile.Directory is null)
+            string targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
+
+            string targetEnvironmentConfigName =
+                deploymentTarget.EnvironmentConfiguration;
+
+            var arguments = new List<string>();
+
+            logger.Information("Using manifest file for job {JobId}", jobId);
+
+            string publishSettingsFile = deploymentTarget.PublishSettingFile;
+
+            string deploymentTargetParametersFile = deploymentTarget.ParameterFile;
+
+            var tempManifestFile = new FileInfo(Path.Combine(Path.GetTempPath(), $"{jobId}.manifest"));
+
+            deploymentTask.TempFiles.Add(tempManifestFile);
+
+            ImmutableDictionary<string, string[]> parameterDictionary;
+
+            if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
+                && !Path.IsPathRooted(deploymentTargetParametersFile))
             {
-                throw new DeployerAppException($"Invalid file directory of executable {exeFile.FullName}");
+                throw new DeployerAppException(
+                    $"The deployment target {deploymentTarget} parameter file '{deploymentTargetParametersFile}' is not a rooted path");
             }
 
-            using (CurrentDirectoryContext.Create(exeFile.Directory))
+            if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
+                && File.Exists(deploymentTargetParametersFile))
             {
-                string targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
+                string parametersJson = File.ReadAllText(deploymentTargetParametersFile, Encoding.UTF8);
 
-                string targetEnvironmentConfigName =
-                    deploymentTarget.EnvironmentConfiguration;
+                parameterDictionary = JsonConvert
+                    .DeserializeObject<Dictionary<string, string[]>>(parametersJson).ToImmutableDictionary();
 
-                var arguments = new List<string>();
+                logger.Information("Using WebDeploy parameters from file {DeploymentTargetParametersFile}",
+                    deploymentTargetParametersFile);
+            }
+            else
+            {
+                logger.Information("No WebDeploy parameters file exists ('{DeploymentTargetParametersFile}')",
+                    deploymentTargetParametersFile);
 
-                logger.Information("Using manifest file for job {JobId}", jobId);
+                parameterDictionary = deploymentTarget.Parameters;
+            }
 
-                string publishSettingsFile = deploymentTarget.PublishSettingFile;
+            ImmutableDictionary<string, string[]> parameters = parameterDictionary;
 
-                string deploymentTargetParametersFile = deploymentTarget.ParameterFile;
+            if (deploymentTarget.PublishSettingsXml.HasValue())
+            {
+                string tempFileName = Path.GetTempFileName();
 
-                var tempManifestFile = new FileInfo(Path.Combine(Path.GetTempPath(), $"{jobId}.manifest"));
+                await File.WriteAllTextAsync(tempFileName,
+                    deploymentTarget.PublishSettingsXml,
+                    Encoding.UTF8,
+                    cancellationToken);
 
-                deploymentTask.TempFiles.Add(tempManifestFile);
+                deploymentTask.TempFiles.Add(new FileInfo(tempFileName));
 
-                ImmutableDictionary<string, string[]> parameterDictionary;
+                publishSettingsFile = tempFileName;
+            }
 
-                if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
-                    && !Path.IsPathRooted(deploymentTargetParametersFile))
+            if (!File.Exists(publishSettingsFile))
+            {
+                const string secretKeyPrefix = "publish-settings";
+
+                string id = deploymentTarget.Id;
+
+                const string usernameKey = secretKeyPrefix + ":username";
+                const string passwordKey = secretKeyPrefix + ":password";
+                const string publishUrlKey = secretKeyPrefix + ":publish-url";
+                const string msdeploySiteKey = secretKeyPrefix + ":msdeploySite";
+
+                string username = _credentialReadService.GetSecretAsync(id, usernameKey);
+                string password = _credentialReadService.GetSecretAsync(id, passwordKey);
+                string publishUrl = _credentialReadService.GetSecretAsync(id, publishUrlKey);
+                string msdeploySite = _credentialReadService.GetSecretAsync(id, msdeploySiteKey);
+
+                if (StringUtils.AllHaveValues(username, password, publishUrl, msdeploySite))
                 {
-                    throw new DeployerAppException(
-                        $"The deployment target {deploymentTarget} parameter file '{deploymentTargetParametersFile}' is not a rooted path");
-                }
+                    FileInfo fileInfo = CreateTempPublishFile(deploymentTarget,
+                        username,
+                        password,
+                        publishUrl);
 
-                if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
-                    && File.Exists(deploymentTargetParametersFile))
-                {
-                    string parametersJson = File.ReadAllText(deploymentTargetParametersFile, Encoding.UTF8);
+                    deploymentTask.TempFiles.Add(fileInfo);
 
-                    parameterDictionary = JsonConvert
-                        .DeserializeObject<Dictionary<string, string[]>>(parametersJson).ToImmutableDictionary();
-
-                    logger.Information("Using WebDeploy parameters from file {DeploymentTargetParametersFile}",
-                        deploymentTargetParametersFile);
+                    publishSettingsFile = fileInfo.FullName;
                 }
                 else
                 {
-                    logger.Information("No WebDeploy parameters file exists ('{DeploymentTargetParametersFile}')",
-                        deploymentTargetParametersFile);
-
-                    parameterDictionary = deploymentTarget.Parameters;
+                    Log.Warning("Could not get secrets for deployment target id {DeploymentTargetId}", id);
                 }
+            }
 
-                ImmutableDictionary<string, string[]> parameters = parameterDictionary;
-
-                if (deploymentTarget.PublishSettingsXml.HasValue())
+            var definitions = new
+            {
+                definitions = new object[]
                 {
-                    string tempFileName = Path.GetTempFileName();
-
-                    await File.WriteAllTextAsync(tempFileName,
-                        deploymentTarget.PublishSettingsXml,
-                        Encoding.UTF8,
-                        cancellationToken);
-
-                    deploymentTask.TempFiles.Add(new FileInfo(tempFileName));
-
-                    publishSettingsFile = tempFileName;
-                }
-
-                if (!File.Exists(publishSettingsFile))
-                {
-                    const string secretKeyPrefix = "publish-settings";
-
-                    string id = deploymentTarget.Id;
-
-                    const string usernameKey = secretKeyPrefix + ":username";
-                    const string passwordKey = secretKeyPrefix + ":password";
-                    const string publishUrlKey = secretKeyPrefix + ":publish-url";
-                    const string msdeploySiteKey = secretKeyPrefix + ":msdeploySite";
-
-                    string username = _credentialReadService.GetSecretAsync(id, usernameKey);
-                    string password = _credentialReadService.GetSecretAsync(id, passwordKey);
-                    string publishUrl = _credentialReadService.GetSecretAsync(id, publishUrlKey);
-                    string msdeploySite = _credentialReadService.GetSecretAsync(id, msdeploySiteKey);
-
-                    if (StringUtils.AllHaveValues(username, password, publishUrl, msdeploySite))
+                    new
                     {
-                        FileInfo fileInfo = CreateTempPublishFile(deploymentTarget,
-                            username,
-                            password,
-                            publishUrl);
-
-                        deploymentTask.TempFiles.Add(fileInfo);
-
-                        publishSettingsFile = fileInfo.FullName;
-                    }
-                    else
-                    {
-                        Log.Warning("Could not get secrets for deployment target id {DeploymentTargetId}", id);
+                        deploymentTask.PackageId,
+                        targetDirectoryPath,
+                        isPreRelease = deploymentTask.SemanticVersion.IsPrerelease,
+                        environmentConfig = targetEnvironmentConfigName,
+                        publishSettingsFile,
+                        parameters,
+                        deploymentTarget.NuGetConfigFile,
+                        deploymentTarget.NuGetPackageSource,
+                        semanticVersion = deploymentTask.SemanticVersion.ToNormalizedString(),
+                        iisSiteName = deploymentTarget.IisSiteName,
+                        webConfigTransform = deploymentTarget.WebConfigTransform
                     }
                 }
+            };
 
-                var definitions = new
+            string json = JsonConvert.SerializeObject(definitions, Formatting.Indented);
+
+            logger.Information("Using definitions JSON: {Json}", json);
+
+            logger.Information("Using temp manifest file '{ManifestFile}'", tempManifestFile.FullName);
+
+            await File.WriteAllTextAsync(tempManifestFile.FullName, json, Encoding.UTF8, cancellationToken);
+
+            arguments.Add($"\"{tempManifestFile.FullName}\"");
+
+            //TODO propagate properties by direct command or default
+            Environment.SetEnvironmentVariable("urn:milou-deployer:tools:nuget:exe-path",
+                _keyValueConfiguration["urn:milou-deployer:tools:nuget:exe-path"]);
+
+            arguments.Add(Bootstrapper.Common.Constants.AllowPreRelease);
+            arguments.Add(Milou.Deployer.Core.LoggingConstants.PlainOutputFormatEnabled);
+
+            string[] deployerArgs = arguments.ToArray();
+
+            logger.Verbose("Running Milou Deployer bootstrapper");
+
+            HttpClient httpClient = _clientFactory.CreateClient("Bootstrapper");
+
+            using (Bootstrapper.Common.App deployerApp =
+                await Bootstrapper.Common.App.CreateAsync(deployerArgs,
+                    logger,
+                    httpClient,
+                    false))
+            {
+                NuGetPackageInstallResult result =
+                    await deployerApp.ExecuteAsync(deployerArgs.ToImmutableArray(), cancellationToken);
+
+                if (result.PackageDirectory is null || result.SemanticVersion is null)
                 {
-                    definitions = new object[]
-                    {
-                        new
-                        {
-                            deploymentTask.PackageId,
-                            targetDirectoryPath,
-                            isPreRelease = deploymentTask.SemanticVersion.IsPrerelease,
-                            environmentConfig = targetEnvironmentConfigName,
-                            publishSettingsFile,
-                            parameters,
-                            deploymentTarget.NuGetConfigFile,
-                            deploymentTarget.NuGetPackageSource,
-                            semanticVersion = deploymentTask.SemanticVersion.ToNormalizedString(),
-                            iisSiteName = deploymentTarget.IisSiteName,
-                            webConfigTransform = deploymentTarget.WebConfigTransform
-                        }
-                    }
-                };
-
-                string json = JsonConvert.SerializeObject(definitions, Formatting.Indented);
-
-                logger.Information("Using definitions JSON: {Json}", json);
-
-                logger.Information("Using temp manifest file '{ManifestFile}'", tempManifestFile.FullName);
-
-                await File.WriteAllTextAsync(tempManifestFile.FullName, json, Encoding.UTF8, cancellationToken);
-
-                arguments.Add($"\"{tempManifestFile.FullName}\"");
-
-                //TODO propagate properties by direct command or default
-                Environment.SetEnvironmentVariable("urn:milou-deployer:tools:nuget:exe-path",
-                    _keyValueConfiguration["urn:milou-deployer:tools:nuget:exe-path"]);
-
-                arguments.Add(Bootstrapper.Common.Constants.AllowPreRelease);
-                arguments.Add(Milou.Deployer.Core.LoggingConstants.PlainOutputFormatEnabled);
-
-                string[] deployerArgs = arguments.ToArray();
-
-                logger.Verbose("Running Milou Deployer bootstrapper");
-
-                HttpClient httpClient = _clientFactory.CreateClient("Bootstrapper");
-
-                using (Bootstrapper.Common.App deployerApp =
-                    await Bootstrapper.Common.App.CreateAsync(deployerArgs,
-                        logger,
-                        httpClient,
-                        false))
-                {
-                    NuGetPackageInstallResult result =
-                        await deployerApp.ExecuteAsync(deployerArgs.ToImmutableArray(), cancellationToken);
-
-                    if (result.PackageDirectory is null || result.SemanticVersion is null)
-                    {
-                        logger.Warning("Could not fetch Milou.Deployer");
-                        return ExitCode.Failure;
-                    }
+                    logger.Warning("Could not fetch Milou.Deployer");
+                    return ExitCode.Failure;
                 }
             }
 
@@ -336,20 +326,6 @@ namespace Milou.Deployer.Web.Core.Deployment
                     deploymentTaskTempDirectory.Delete(true);
                 }
             }
-        }
-
-        [NotNull]
-        private FileInfo CheckExecutableExists()
-        {
-            var exeFile = new FileInfo(_milouDeployerConfiguration.MilouDeployerExePath);
-
-            if (!exeFile.Exists)
-            {
-                throw new DeployerAppException(
-                    $"The file '{_milouDeployerConfiguration.MilouDeployerExePath}' does not exist");
-            }
-
-            return exeFile;
         }
 
         private void SetLogging()
