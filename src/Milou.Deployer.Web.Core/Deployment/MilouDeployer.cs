@@ -220,7 +220,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 if (result.PackageDirectory is null || result.SemanticVersion is null)
                 {
-                    logger.Warning("Could not fetch Milou.Deployer");
+                    logger.Warning("Milou.Deployer failed");
                     return ExitCode.Failure;
                 }
             }
