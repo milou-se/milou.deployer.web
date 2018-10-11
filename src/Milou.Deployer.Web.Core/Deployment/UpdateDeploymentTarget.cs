@@ -17,12 +17,14 @@ namespace Milou.Deployer.Web.Core.Deployment
             bool autoDeployEnabled = false,
             string publishSettingsXml = null,
             string targetDirectory = null,
-            string webConfigTransform = null)
+            string webConfigTransform = null,
+            string excludedFilePatterns = null)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
             Url = url;
             PackageId = packageId;
+            ExcludedFilePatterns = excludedFilePatterns;
             IisSiteName = iisSiteName;
             NugetPackageSource = nugetPackageSource;
             NugetConfigFile = nugetConfigFile;
@@ -56,6 +58,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string PackageId { get; }
 
         public bool IsValid { get; }
+
+        public string ExcludedFilePatterns { get; }
 
         public override string ToString()
         {

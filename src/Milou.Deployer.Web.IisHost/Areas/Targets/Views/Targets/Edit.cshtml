@@ -63,6 +63,11 @@ else
         </div>
 
         <div class="input-field">
+            <label for="target-excludedFilePatterns">Excluded file patterns</label>
+            <input id="target-excludedFilePatterns" type="text" name="excludedFilePatterns" value="@Model.DeploymentTarget.ExcludedFilePatterns"/>
+        </div>
+
+        <div class="input-field">
             <label for="target-publishSettingsXml">Publish settings XML</label>
             <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">
             @Model.DeploymentTarget.PublishSettingsXml

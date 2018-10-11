@@ -241,6 +241,7 @@ namespace Milou.Deployer.Web.Marten
                 data.PublishSettingsXml = request.PublishSettingsXml;
                 data.TargetDirectory = request.TargetDirectory;
                 data.WebConfigTransform = request.WebConfigTransform;
+                data.ExcludedFilePatterns = request.ExcludedFilePatterns;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);
@@ -297,7 +298,8 @@ namespace Milou.Deployer.Web.Marten
                 iisSiteName: deploymentTargetData.IisSiteName,
                 autoDeployEnabled: deploymentTargetData.AutoDeployEnabled,
                 targetDirectory: deploymentTargetData.TargetDirectory,
-                webConfigTransform: deploymentTargetData.WebConfigTransform);
+                webConfigTransform: deploymentTargetData.WebConfigTransform,
+                excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns);
 
             return deploymentTargetAsync;
         }

@@ -31,5 +31,7 @@ namespace Milou.Deployer.Web.Core.Targets
         public string TargetDirectory { get; set; }
 
         public string WebConfigTransform { get; set; }
+
+        public string ExcludedFilePatterns { get; set; }
     }
 }
