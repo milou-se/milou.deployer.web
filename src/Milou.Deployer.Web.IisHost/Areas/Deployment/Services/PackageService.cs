@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.Tooler;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Http;
 using NuGet.Versioning;
 using Serilog;
 using Serilog.Events;
@@ -29,17 +32,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
         private ILogger _logger;
+        private readonly CustomHttpClientFactory _httpClientFactory;
 
         public PackageService(
             [NotNull] NuGetListConfiguration deploymentConfiguration,
             [NotNull] ICustomMemoryCache memoryCache,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
-            [NotNull] ILogger logger)
+            [NotNull] ILogger logger,
+            [NotNull] CustomHttpClientFactory httpClientFactory)
         {
             _deploymentConfiguration = deploymentConfiguration ?? throw new ArgumentNullException(nameof(deploymentConfiguration));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _keyValueConfiguration = keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         }
 
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
@@ -106,6 +112,32 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
 
             string nugetExe = _keyValueConfiguration[ConfigurationConstants.NuGetExePath];
+
+            if (string.IsNullOrWhiteSpace(nugetExe))
+            {
+                var nuGetDownloadClient = new NuGetDownloadClient();
+                HttpClient httpClient = _httpClientFactory.CreateClient("nuget");
+                NuGetDownloadResult nuGetDownloadResult;
+
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                {
+                    nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(NuGetDownloadSettings.Default, _logger, httpClient, cts.Token);
+                }
+
+                if (!nuGetDownloadResult.Succeeded)
+                {
+                    if (nuGetDownloadResult.Exception != null)
+                    {
+                        _logger.Error(nuGetDownloadResult.Exception, "Could not download NuGet.exe: {Result}", nuGetDownloadResult.Result);
+                    }
+                    else
+                    {
+                        _logger.Error("Could not download NuGet.exe: {Result}", nuGetDownloadResult.Result);
+                    }
+                }
+
+                nugetExe = nuGetDownloadResult.NuGetExePath;
+            }
 
             if (string.IsNullOrWhiteSpace(nugetExe))
             {
