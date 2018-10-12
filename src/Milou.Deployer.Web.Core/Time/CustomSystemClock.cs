@@ -11,14 +11,14 @@ namespace Milou.Deployer.Web.Core.Time
     {
         private readonly TimeZoneInfo _timeZone;
 
-        public CustomSystemClock([NotNull] IKeyValueConfiguration keyValueConfiguration)
+        public CustomSystemClock(
+            [CanBeNull] IKeyValueConfiguration keyValueConfiguration = null,
+            string timeZoneId = null)
         {
-            if (keyValueConfiguration == null)
-            {
-                throw new ArgumentNullException(nameof(keyValueConfiguration));
-            }
-
-            string timeZoneId = keyValueConfiguration[TimeConstants.DefaultTimeZoneId];
+            timeZoneId = !string.IsNullOrWhiteSpace(timeZoneId)
+                ? timeZoneId
+                : keyValueConfiguration?[
+                    TimeConstants.DefaultTimeZoneId];
 
             if (timeZoneId.HasValue())
             {
@@ -60,9 +60,9 @@ namespace Milou.Deployer.Web.Core.Time
             return localNow;
         }
 
-        public DateTime ToLocalTime(DateTime dateTimeValue)
+        public DateTime ToLocalTime(DateTime dateTimeUtc)
         {
-            var withKindUtc = new DateTime(dateTimeValue.Ticks, DateTimeKind.Utc);
+            var withKindUtc = new DateTime(dateTimeUtc.Ticks, DateTimeKind.Utc);
 
             return TimeZoneInfo.ConvertTimeFromUtc(withKindUtc, _timeZone);
         }

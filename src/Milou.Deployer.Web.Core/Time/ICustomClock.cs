@@ -8,6 +8,6 @@ namespace Milou.Deployer.Web.Core.Time
 
         DateTime LocalNow();
 
-        DateTime ToLocalTime(DateTime dateTimeValue);
+        DateTime ToLocalTime(DateTime dateTimeUtc);
     }
 }

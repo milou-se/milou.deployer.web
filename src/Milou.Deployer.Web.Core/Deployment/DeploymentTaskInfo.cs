@@ -31,7 +31,9 @@ namespace Milou.Deployer.Web.Core.Deployment
         public DateTime FinishedAtUtc { get; }
 
         public int ExitCode { get; }
+
         public string PackageId { get; }
+
         public string Version { get; }
 
         public TimeSpan Duration => TimeSpan.FromSeconds((int)(FinishedAtUtc - StartedAtUtc).TotalSeconds);

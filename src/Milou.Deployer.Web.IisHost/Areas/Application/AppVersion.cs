@@ -70,7 +70,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 if (!DateTime.TryParse(
                     Properties[ConfigurationConstants.DeploymentStartTime],
                     CultureInfo.InvariantCulture,
-                    DateTimeStyles.AdjustToUniversal,
+                    DateTimeStyles.AssumeUniversal,
                     out DateTime deployedAtUtc))
                 {
                     return null;

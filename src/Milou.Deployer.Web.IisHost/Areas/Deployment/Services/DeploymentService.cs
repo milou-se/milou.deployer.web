@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -26,13 +25,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     [UsedImplicitly]
     public class DeploymentService
     {
+        private readonly ICustomClock _customClock;
         private readonly MilouDeployer _deployer;
         private readonly IKeyValueConfiguration _keyValueConfiguration;
         private readonly ILogger _logger;
+        private readonly LoggingLevelSwitch _loggingLevelSwitch;
         private readonly IMediator _mediator;
 
         private readonly IDeploymentTargetReadService _targetSource;
-        private readonly ICustomClock _customClock;
 
         public DeploymentService(
             [NotNull] ILogger logger,
@@ -40,7 +40,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] IMediator mediator,
             [NotNull] MilouDeployer deployer,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
-            [NotNull] ICustomClock customClock)
+            [NotNull] ICustomClock customClock,
+            [NotNull] LoggingLevelSwitch loggingLevelSwitch)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
@@ -49,6 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _customClock = customClock ?? throw new ArgumentNullException(nameof(customClock));
+            _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
         }
 
         public async Task<DeploymentTaskResult> ExecuteDeploymentAsync(
@@ -61,7 +63,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
-            DateTime start = _customClock.UtcNow().DateTime;
+            DateTime start = _customClock.UtcNow().UtcDateTime;
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             (ExitCode, DateTime) result;
@@ -90,7 +92,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             catch (Exception ex)
             {
-                result = (ExitCode.Failure, _customClock.UtcNow().DateTime);
+                result = (ExitCode.Failure, _customClock.UtcNow().UtcDateTime);
                 logger.Error(ex, "Error deploying");
             }
 
@@ -104,9 +106,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 deploymentJobsDirectory,
                 deploymentTarget);
 
-            var deploymentTaskResult = new DeploymentTaskResult(deploymentTask.DeploymentTaskId, deploymentTask.DeploymentTargetId, result.Item1, start, result.Item2, metadataContent);
+            var deploymentTaskResult = new DeploymentTaskResult(deploymentTask.DeploymentTaskId,
+                deploymentTask.DeploymentTargetId,
+                result.Item1,
+                start,
+                result.Item2,
+                metadataContent);
 
-            await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, deploymentTaskResult), cancellationToken);
+            await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, deploymentTaskResult),
+                cancellationToken);
 
             return deploymentTaskResult;
         }
@@ -182,13 +190,62 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             if (
                 !deploymentTarget.PackageId.Equals(packageId,
-                        StringComparison.InvariantCultureIgnoreCase))
+                    StringComparison.InvariantCultureIgnoreCase))
             {
                 string allPackageIds = string.Join(", ",
                     deploymentTarget.PackageId.Select(name => $"'{name}'"));
 
                 throw new DeployerAppException(
                     $"The package id '{packageId}' is not in the list of allowed package ids: {allPackageIds}");
+            }
+        }
+
+        private static void VerifyPreReleaseAllowed(
+            SemanticVersion version,
+            DeploymentTarget deploymentTarget,
+            string packageId,
+            ILogger logger)
+        {
+            if (version.IsPrerelease && !deploymentTarget.AllowPrerelease)
+            {
+                throw new DeployerAppException(
+                    $"Could not deploy package with id '{packageId}' to target '{deploymentTarget}' because the package is a pre-release version and the target does not support it");
+            }
+
+            if (version.IsPrerelease)
+            {
+                if (logger.IsEnabled(LogEventLevel.Debug))
+                {
+                    logger.Debug(
+                        "The deployment target '{DeploymentTarget}' allows package id '{PackageId}' version {Version}, pre-release",
+                        deploymentTarget,
+                        packageId,
+                        version.ToNormalizedString());
+                }
+            }
+        }
+
+        private static void VerifyAllowedPackageIsAllowed(
+            DeploymentTarget deploymentTarget,
+            string packageId,
+            ILogger logger)
+        {
+            if (logger.IsEnabled(LogEventLevel.Debug))
+            {
+                if (deploymentTarget.PackageId.Any())
+                {
+                    CheckPackageMatchingTarget(deploymentTarget, packageId);
+
+                    logger.Debug("The deployment target '{DeploymentTarget}' allows package id '{PackageId}'",
+                        deploymentTarget,
+                        packageId);
+                }
+                else
+                {
+                    logger.Debug(
+                        "The deployment target '{DeploymentTarget}' has no allowed package names, allowing any package id",
+                        deploymentTarget);
+                }
             }
         }
 
@@ -216,7 +273,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTask deploymentTask,
             DirectoryInfo deploymentJobsDirectory,
             DeploymentTarget deploymentTarget,
-            ILogger logger, CancellationToken cancellationToken = default)
+            ILogger logger,
+            CancellationToken cancellationToken = default)
         {
             string contentFilePath = GetMainLogFilePath(deploymentTask,
                 deploymentJobsDirectory);
@@ -225,21 +283,30 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             var logBuilder = new StringBuilder();
 
-            using (Logger log = new LoggerConfiguration()
+            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
                 .WriteTo.File(contentFilePath)
                 .WriteTo.DelegateSink(deploymentTask.Log)
                 .WriteTo.DelegateSink(message => logBuilder.AppendLine(message))
-                .WriteTo.Logger(logger)
-                .WriteTo.Debug(LogEventLevel.Verbose)
-                .MinimumLevel.Verbose()
-                .CreateLogger())
+                .WriteTo.Logger(logger);
+
+            if (Debugger.IsAttached)
             {
-                logger.Debug(
-                    "Running tool '{Deployer}' for deployment target '{DeploymentTarget}', package '{PackageId}' version {Version}",
-                    _deployer,
-                    deploymentTarget,
-                    deploymentTask.PackageId,
-                    deploymentTask.SemanticVersion.ToNormalizedString());
+                loggerConfiguration = loggerConfiguration.WriteTo.Debug(LogEventLevel.Verbose);
+            }
+
+            loggerConfiguration = loggerConfiguration.MinimumLevel.ControlledBy(_loggingLevelSwitch);
+
+            using (Logger log = loggerConfiguration.CreateLogger())
+            {
+                if (logger.IsEnabled(LogEventLevel.Debug))
+                {
+                    logger.Debug(
+                        "Running tool '{Deployer}' for deployment target '{DeploymentTarget}', package '{PackageId}' version {Version}",
+                        _deployer,
+                        deploymentTarget,
+                        deploymentTask.PackageId,
+                        deploymentTask.SemanticVersion.ToNormalizedString());
+                }
 
                 try
                 {
@@ -252,51 +319,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
             }
 
-            DateTime finishedAtUtc = _customClock.UtcNow().DateTime;
+            DateTime finishedAtUtc = _customClock.UtcNow().UtcDateTime;
 
-            await _mediator.Publish(new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString(), finishedAtUtc), cancellationToken);
+            await _mediator.Publish(
+                new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString(), finishedAtUtc),
+                cancellationToken);
 
             return (exitCode, finishedAtUtc);
-        }
-
-        private static void VerifyPreReleaseAllowed(
-            SemanticVersion version,
-            DeploymentTarget deploymentTarget,
-            string packageId,
-            ILogger logger)
-        {
-            if (version.IsPrerelease && !deploymentTarget.AllowPrerelease)
-            {
-                throw new DeployerAppException(
-                    $"Could not deploy package with id '{packageId}' to target '{deploymentTarget}' because the package is a pre-release version and the target does not support it");
-            }
-
-            if (version.IsPrerelease)
-            {
-                logger.Debug(
-                    "The deployment target '{DeploymentTarget}' allows package id '{PackageId}' version {Version}, pre-release",
-                    deploymentTarget,
-                    packageId,
-                    version.ToNormalizedString());
-            }
-        }
-
-        private static void VerifyAllowedPackageIsAllowed(DeploymentTarget deploymentTarget, string packageId, ILogger logger)
-        {
-            if (deploymentTarget.PackageId.Any())
-            {
-                CheckPackageMatchingTarget(deploymentTarget, packageId);
-
-                logger.Debug("The deployment target '{DeploymentTarget}' allows package id '{PackageId}'",
-                    deploymentTarget,
-                    packageId);
-            }
-            else
-            {
-                logger.Debug(
-                    "The deployment target '{DeploymentTarget}' has no allowed package names, allowing any package id",
-                    deploymentTarget);
-            }
         }
     }
 }

@@ -180,20 +180,24 @@ namespace Milou.Deployer.Web.Marten
             IReadOnlyList<TaskMetadata> taskMetadata;
             using (IDocumentSession session = _documentStore.LightweightSession())
             {
-                taskMetadata = await session.Query<TaskMetadata>().Where(item =>
+                taskMetadata = await session.Query<TaskMetadata>()
+                    .Where(item =>
                         item.DeploymentTargetId.Equals(request.DeploymentTargetId, StringComparison.OrdinalIgnoreCase))
                     .OrderByDescending(item => item.FinishedAtUtc)
                     .ToListAsync(cancellationToken);
             }
 
-            return new DeploymentHistoryResponse(taskMetadata.Select(item =>
-                new DeploymentTaskInfo(item.DeploymentTaskId,
-                    item.Metadata,
-                    item.StartedAtUtc,
-                    item.FinishedAtUtc,
-                    item.ExitCode,
-                    item.PackageId,
-                    item.Version)).ToImmutableArray());
+            return new DeploymentHistoryResponse(taskMetadata
+                .Select(item =>
+                    new DeploymentTaskInfo(
+                        item.DeploymentTaskId,
+                        item.Metadata,
+                        item.StartedAtUtc,
+                        item.FinishedAtUtc,
+                        item.ExitCode,
+                        item.PackageId,
+                        item.Version))
+                .ToImmutableArray());
         }
 
         public async Task<DeploymentLogResponse> Handle(

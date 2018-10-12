@@ -28,38 +28,38 @@ namespace Milou.Deployer.Web.Core.Extensions
             return DeploymentInterval.Parse(diff);
         }
 
-        public static string RelativeUtcToLocalTime(this DateTime? dateTime, [NotNull] ICustomClock customClock)
+        public static string RelativeUtcToLocalTime(this DateTime? dateTimeUtc, [NotNull] ICustomClock customClock)
         {
             if (customClock == null)
             {
                 throw new ArgumentNullException(nameof(customClock));
             }
 
-            if (!dateTime.HasValue)
+            if (!dateTimeUtc.HasValue)
             {
                 return Constants.NotAvailable;
             }
 
-            DateTime localThen = customClock.ToLocalTime(dateTime.Value);
+            DateTime localThen = customClock.ToLocalTime(dateTimeUtc.Value);
 
             DateTime localNow = customClock.LocalNow();
 
             return localNow.Since(localThen);
         }
 
-        public static string ToLocalTimeFormatted(this DateTime? dateTime, [NotNull] ICustomClock customClock)
+        public static string ToLocalTimeFormatted(this DateTime? dateTimeUtc, [NotNull] ICustomClock customClock)
         {
             if (customClock == null)
             {
                 throw new ArgumentNullException(nameof(customClock));
             }
 
-            if (!dateTime.HasValue)
+            if (!dateTimeUtc.HasValue)
             {
                 return "";
             }
 
-            return ToLocalTimeFormatted(dateTime.Value, customClock);
+            return ToLocalTimeFormatted(dateTimeUtc.Value, customClock);
         }
 
         public static string ToLocalTimeFormatted(this DateTime dateTimeUtc, [NotNull] ICustomClock customClock)
