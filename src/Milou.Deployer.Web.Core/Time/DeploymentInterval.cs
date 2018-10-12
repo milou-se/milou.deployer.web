@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Time
 {
+    [PublicAPI]
     public struct DeploymentInterval
     {
         public static readonly DeploymentInterval Invalid = new DeploymentInterval(nameof(Invalid), int.MinValue, -1);

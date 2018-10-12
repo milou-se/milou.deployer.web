@@ -5,6 +5,7 @@ using Milou.Deployer.Web.Core.Deployment;
 
 namespace Milou.Deployer.Web.Core.Targets
 {
+    [PublicAPI]
     public class ProjectInfo
     {
         public ProjectInfo(

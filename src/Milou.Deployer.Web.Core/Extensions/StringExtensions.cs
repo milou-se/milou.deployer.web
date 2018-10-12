@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
+    [PublicAPI]
     public static class StringExtensions
     {
         public static string MakeAnonymous(this string value, string key, params string[] keyWords)

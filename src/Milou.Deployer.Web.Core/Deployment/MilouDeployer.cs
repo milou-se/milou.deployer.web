@@ -143,10 +143,10 @@ namespace Milou.Deployer.Web.Core.Deployment
                 const string publishUrlKey = secretKeyPrefix + ":publish-url";
                 const string msdeploySiteKey = secretKeyPrefix + ":msdeploySite";
 
-                string username = _credentialReadService.GetSecretAsync(id, usernameKey);
-                string password = _credentialReadService.GetSecretAsync(id, passwordKey);
-                string publishUrl = _credentialReadService.GetSecretAsync(id, publishUrlKey);
-                string msdeploySite = _credentialReadService.GetSecretAsync(id, msdeploySiteKey);
+                string username = _credentialReadService.GetSecret(id, usernameKey);
+                string password = _credentialReadService.GetSecret(id, passwordKey);
+                string publishUrl = _credentialReadService.GetSecret(id, publishUrlKey);
+                string msdeploySite = _credentialReadService.GetSecret(id, msdeploySiteKey);
 
                 if (StringUtils.AllHaveValues(username, password, publishUrl, msdeploySite))
                 {
@@ -230,7 +230,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             return ExitCode.Success;
         }
 
-        public async Task<DeploymentTarget> GetDeploymentTarget(
+        private async Task<DeploymentTarget> GetDeploymentTarget(
             [NotNull] string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {

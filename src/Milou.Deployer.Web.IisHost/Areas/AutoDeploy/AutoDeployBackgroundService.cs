@@ -130,15 +130,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         continue;
                     }
 
-                    ImmutableHashSet<PackageVersion> filteredPackages;
-                    if (!deploymentTarget.AllowPrerelease)
-                    {
-                        filteredPackages = packageVersions.Where(p => !p.Version.IsPrerelease).ToImmutableHashSet();
-                    }
-                    else
-                    {
-                        filteredPackages = packageVersions;
-                    }
+                    ImmutableHashSet<PackageVersion> filteredPackages = !deploymentTarget.AllowPreRelease ? packageVersions.Where(p => !p.Version.IsPrerelease).ToImmutableHashSet() : packageVersions;
 
                     if (filteredPackages.IsEmpty)
                     {

@@ -105,7 +105,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public bool? AllowExplicitExplicitPreRelease { get; }
 
-        public bool AllowPrerelease
+        public bool AllowPreRelease
             =>
                 (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value)
                 || EnvironmentType.PreReleaseBehavior == PreReleaseBehavior.Allow;

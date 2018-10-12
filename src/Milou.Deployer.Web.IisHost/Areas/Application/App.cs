@@ -52,6 +52,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public ILogger Logger { get; private set; }
 
+        [PublicAPI]
         public IWebHostBuilder HostBuilder { get; private set; }
 
         public IWebHost WebHost { get; private set; }
@@ -97,7 +98,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             }
 
             Logger?.Verbose("Disposing application");
-            Logger?.Verbose("Disposing webhost");
+            Logger?.Verbose("Disposing web host");
             WebHost?.Dispose();
             Logger?.Verbose("Disposing Application root scope");
             AppRootScope?.Dispose();
@@ -119,6 +120,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             _disposing = false;
         }
 
+        [PublicAPI]
         public void Stop()
         {
             if (!CancellationTokenSource.IsCancellationRequested)
@@ -259,7 +261,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             modules.Add(loggingModule);
             modules.Add(module);
             modules.Add(urnModule);
-            modules.Add(new MediatRModule(scanAssemblies, excludedTypes, logger));
+            modules.Add(new MediatorModule(scanAssemblies, excludedTypes, logger));
 
             return modules;
         }

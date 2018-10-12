@@ -1,4 +1,5 @@
 using Arbor.KVConfiguration.Core.Metadata;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Logging
 {
@@ -6,11 +7,13 @@ namespace Milou.Deployer.Web.Core.Logging
     {
         internal const string SerilogBaseUrn = "urn:milou:deployer:web:logging:serilog";
 
+        [PublicAPI]
         [Metadata(defaultValue:"false")]
         public const string SerilogDebugConsoleEnabled = SerilogBaseUrn + ":default:debug-console-enabled";
 
         public const string SerilogStartupLogFilePath = SerilogBaseUrn + ":startup-log-file-path";
 
+        [PublicAPI]
         [Metadata(defaultValue: "false")]
         public const string SerilogSeqEnabledDefault = SerilogBaseUrn + ":default:SeqEnabled";
 

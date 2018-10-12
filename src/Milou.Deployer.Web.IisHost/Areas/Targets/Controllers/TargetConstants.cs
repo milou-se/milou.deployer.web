@@ -1,4 +1,6 @@
-﻿namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+﻿using JetBrains.Annotations;
+
+namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 {
     public static class TargetConstants
     {
@@ -12,8 +14,10 @@
 
         public const string AreaName = "Targets";
 
+        [PublicAPI]
         public const string TargetsBaseRoute = "/organizations/{organizationId}/{project}";
 
+        [PublicAPI]
         public const string TargetsBaseRouteName = nameof(TargetsBaseRoute);
 
         public const string TargetsRoute = "/targets";

@@ -25,12 +25,14 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         private IWebHost _webHost;
 
+        [PublicAPI]
         protected TestConfiguration TestConfiguration;
 
         public AutoDeploySetup(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink)
         {
         }
 
+        [PublicAPI]
         public HttpResponseMessage ResponseMessage { get; private set; }
 
         public PortPoolRental TestSiteHttpPort { get; private set; }
@@ -53,16 +55,13 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Environment.SetEnvironmentVariable("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
             Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port}");
-            string nugetExePath = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "nuget", "nuget.exe");
-            Environment.SetEnvironmentVariable(ConfigurationConstants.NuGetExePath, nugetExePath);
 
             string deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
 
             ImmutableArray<KeyValue> keys = new List<KeyValue>
             {
                 new KeyValue("urn:milou-deployer:tools:nuget:source", "Milou.Deployer.Web.Tests.Integration", null),
-                new KeyValue(ConfigurationConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName, null),
-                new KeyValue("urn:milou-deployer:tools:nuget:exe-path", nugetExePath, null)
+                new KeyValue(ConfigurationConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName, null)
             }.ToImmutableArray();
 
             var jsonConfigurationSerializer = new JsonConfigurationSerializer();

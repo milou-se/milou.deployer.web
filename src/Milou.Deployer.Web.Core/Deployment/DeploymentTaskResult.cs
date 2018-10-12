@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 using Milou.Deployer.Core.Processes;
 
 namespace Milou.Deployer.Web.Core.Deployment
@@ -21,8 +22,10 @@ namespace Milou.Deployer.Web.Core.Deployment
             Metadata = metadata;
         }
 
+        [PublicAPI]
         public string DeploymentTaskId { get; }
 
+        [PublicAPI]
         public string DeploymentTargetId { get; }
 
         public ExitCode ExitCode { get; }

@@ -30,12 +30,14 @@ namespace Milou.Deployer.Web.Core.Logging
 
         public bool RollingLogFilePathEnabled { get; }
 
+        [PublicAPI]
         public bool ConsoleEnabled { get; }
 
         public bool DebugConsoleEnabled { get; }
 
         public string SeqUrl { get; }
 
+        [PublicAPI]
         public string StartupLogFilePath { get; }
 
         public string RollingLogFilePath { get; }

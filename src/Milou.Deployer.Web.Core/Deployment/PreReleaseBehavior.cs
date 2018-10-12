@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
@@ -20,8 +21,10 @@ namespace Milou.Deployer.Web.Core.Deployment
             Name = name;
         }
 
+        [PublicAPI]
         public string Name { get; }
 
+        [PublicAPI]
         public static IReadOnlyCollection<PreReleaseBehavior> All { get; } = new[]
         {
             Invalid,

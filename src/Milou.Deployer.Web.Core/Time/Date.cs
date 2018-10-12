@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Time
 {
     public readonly struct Date : IEquatable<Date>, IComparable<Date>
     {
+        [PublicAPI]
         [JsonIgnore]
         public DateTime OriginalValue { get; }
 
@@ -26,10 +29,8 @@ namespace Milou.Deployer.Web.Core.Time
             return new Date(dateTime);
         }
 
-        public bool Equals(Date other)
-        {
-            return _datePart.Equals(other._datePart);
-        }
+        [SuppressMessage("ReSharper", "ImpureMethodCallOnReadonlyValueField")]
+        public bool Equals(Date other) => _datePart.Equals(other._datePart);
 
         public override bool Equals(object obj)
         {
@@ -53,10 +54,8 @@ namespace Milou.Deployer.Web.Core.Time
             return !left.Equals(right);
         }
 
-        public int CompareTo(Date other)
-        {
-            return _datePart.CompareTo(other._datePart);
-        }
+        [SuppressMessage("ReSharper", "ImpureMethodCallOnReadonlyValueField")]
+        public int CompareTo(Date other) => _datePart.CompareTo(other._datePart);
 
         public static bool operator <(Date date1, Date date2)
         {

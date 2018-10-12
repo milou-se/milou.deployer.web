@@ -35,7 +35,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             await _mediator.Send(createTarget, cancellationToken);
 
             var updateDeploymentTarget = new UpdateDeploymentTarget(testTarget.Id,
-                testTarget.AllowPrerelease,
+                testTarget.AllowPreRelease,
                 testTarget.Url,
                 testTarget.PackageId,
                 autoDeployEnabled: testTarget.AutoDeployEnabled,

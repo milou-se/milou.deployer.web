@@ -1,7 +1,9 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
+    [PublicAPI]
     public static class ObjectExtensions
     {
         public static void DisposeIfPossible(this object item)

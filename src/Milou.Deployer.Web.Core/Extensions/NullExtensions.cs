@@ -1,5 +1,8 @@
-﻿namespace Milou.Deployer.Web.Core.Extensions
+﻿using JetBrains.Annotations;
+
+namespace Milou.Deployer.Web.Core.Extensions
 {
+    [PublicAPI]
     public static class NullExtensions
     {
         public static bool HasValue<T>(this T item) where T : class

@@ -25,15 +25,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             [NotNull] MultiSourceKeyValueConfiguration configuration,
             [NotNull] Scope scope)
         {
-            if (scope == null)
-            {
-                throw new ArgumentNullException(nameof(scope));
-            }
-
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _scope = scope;
+            _scope = scope ?? throw new ArgumentNullException(nameof(scope));
         }
 
         public Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)

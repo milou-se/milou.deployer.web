@@ -206,7 +206,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             string packageId,
             ILogger logger)
         {
-            if (version.IsPrerelease && !deploymentTarget.AllowPrerelease)
+            if (version.IsPrerelease && !deploymentTarget.AllowPreRelease)
             {
                 throw new DeployerAppException(
                     $"Could not deploy package with id '{packageId}' to target '{deploymentTarget}' because the package is a pre-release version and the target does not support it");

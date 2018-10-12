@@ -1,4 +1,6 @@
-﻿namespace Milou.Deployer.Web.Core.Health
+﻿using JetBrains.Annotations;
+
+namespace Milou.Deployer.Web.Core.Health
 {
     public class HealthCheckResult
     {
@@ -7,6 +9,7 @@
             Succeeded = succeeded;
         }
 
+        [PublicAPI]
         public bool Succeeded { get; }
     }
 }

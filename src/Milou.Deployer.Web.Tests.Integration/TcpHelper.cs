@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             throw new Core.DeployerAppException($"Could not find any TCP port in range {range.Format()}");
         }
 
-        public static void Return([NotNull] PortPoolRental rental)
+        private static void Return([NotNull] PortPoolRental rental)
         {
             if (rental == null)
             {

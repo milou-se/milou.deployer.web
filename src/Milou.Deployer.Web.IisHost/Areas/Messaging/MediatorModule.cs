@@ -12,13 +12,13 @@ using Module = Autofac.Module;
 namespace Milou.Deployer.Web.IisHost.Areas.Messaging
 {
     [UsedImplicitly]
-    public class MediatRModule : Module
+    public class MediatorModule : Module
     {
         private readonly IReadOnlyCollection<Assembly> _scanAssemblies;
         private readonly IReadOnlyCollection<Type> _excludedTypes;
         private readonly ILogger _logger;
 
-        public MediatRModule(IReadOnlyCollection<Assembly> scanAssemblies, IReadOnlyCollection<Type> excludedTypes, ILogger logger)
+        public MediatorModule(IReadOnlyCollection<Assembly> scanAssemblies, IReadOnlyCollection<Type> excludedTypes, ILogger logger)
         {
             _scanAssemblies = scanAssemblies;
             _excludedTypes = excludedTypes;
@@ -35,21 +35,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
                 return t => c.Resolve(t);
             });
 
-            Type[] mediatrOpenTypes =
+            Type[] mediatorOpenTypes =
             {
                 typeof(IRequestHandler<,>),
                 typeof(IRequestHandler<>),
                 typeof(INotificationHandler<>)
             };
 
-            foreach (Type mediatrOpenType in mediatrOpenTypes)
+            foreach (Type mediatorOpenType in mediatorOpenTypes)
             {
                 builder
                     .RegisterAssemblyTypes(_scanAssemblies.ToArray())
                     .Where(type => !_excludedTypes.Contains(type))
                     .Where(type =>
                     {
-                        bool isClosedType = mediatrOpenTypes.Any(type.IsClosedTypeOf);
+                        bool isClosedType = mediatorOpenTypes.Any(type.IsClosedTypeOf);
 
                         if (isClosedType)
                         {
@@ -58,7 +58,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
 
                         return isClosedType;
                     })
-                    .AsClosedTypesOf(mediatrOpenType)
+                    .AsClosedTypesOf(mediatorOpenType)
                     .AsImplementedInterfaces();
             }
 

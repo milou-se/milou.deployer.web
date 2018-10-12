@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {
+    [PublicAPI]
     [Urn(NuGetCacheConstants.Configuration)]
     [UsedImplicitly]
     public class NuGetCacheConfiguration

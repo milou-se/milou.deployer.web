@@ -42,9 +42,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
         public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
             CancellationToken cancellationToken = default)
         {
-            IReadOnlyCollection<OrganizationInfo> orgs = await GetTargetsAsync();
+            IReadOnlyCollection<OrganizationInfo> organizations = await GetTargetsAsync();
 
-            return orgs.ToImmutableArray();
+            return organizations.ToImmutableArray();
         }
 
         public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken)
@@ -61,6 +61,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
             return Task.FromResult(ImmutableArray<ProjectInfo>.Empty);
         }
 
+        [PublicAPI]
         public Task<IReadOnlyCollection<OrganizationInfo>> GetTargetsAsync()
         {
             if (_dataCreator != null)
@@ -68,7 +69,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
                 return _dataCreator.Invoke();
             }
 
-            _logger.Information("Getting targets from in-memory storge");
+            _logger.Information("Getting targets from in-memory storage");
 
             var targets = new List<OrganizationInfo>
             {

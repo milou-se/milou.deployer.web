@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Arbor.KVConfiguration.Schema.Validators;
+using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
 using Newtonsoft.Json;
 
@@ -25,8 +26,10 @@ namespace Milou.Deployer.Web.Core.Deployment
             ValidationErrors = validationErrors.ToImmutableArray();
         }
 
+        [PublicAPI]
         public string TargetName { get; }
 
+        [PublicAPI]
         public ImmutableArray<ValidationError> ValidationErrors { get; }
     }
 }

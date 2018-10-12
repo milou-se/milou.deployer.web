@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware;
 using Serilog;
 
@@ -20,16 +18,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly BlockingCollection<DeploymentTask> _queue = new BlockingCollection<DeploymentTask>();
-
         private readonly BlockingCollection<DeploymentTask> _runningTasks = new BlockingCollection<DeploymentTask>();
-        private WorkerConfiguration _workerConfiguration;
+        private readonly WorkerConfiguration _workerConfiguration;
 
         public DeploymentTargetWorker(
             [NotNull] string targetId,
             [NotNull] DeploymentService deploymentService,
             [NotNull] ILogger logger,
             [NotNull] IMediator mediator,
-            WorkerConfiguration workerConfiguration)
+            [NotNull] WorkerConfiguration workerConfiguration)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {
@@ -40,7 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            _workerConfiguration = workerConfiguration;
+            _workerConfiguration = workerConfiguration ?? throw new ArgumentNullException(nameof(workerConfiguration));
         }
 
         public string TargetId { get; }
@@ -59,8 +56,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     DeploymentTask[] tasksInQueue = _queue.ToArray();
 
                     if (tasksInQueue.Length > 0 && tasksInQueue.Any(queued =>
-                        queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
-                        && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
+                            queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
+                            && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
                     {
                         _logger.Warning(
                             "A deployment task with package id {PackageId} and version {Version} is already enqueued, skipping task, , current queue length {Length}",
@@ -81,7 +78,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             catch (Exception ex)
             {
-                _logger.Error("Failed to enqueue deployment task {DeploymentTask}", deploymentTask);
+                _logger.Error(ex, "Failed to enqueue deployment task {DeploymentTask}", deploymentTask);
             }
         }
 

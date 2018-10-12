@@ -2,9 +2,11 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
+    [PublicAPI]
     public static class TypeExtensions
     {
         public static bool IsConcreteTypeImplementing<T>(this Type type)

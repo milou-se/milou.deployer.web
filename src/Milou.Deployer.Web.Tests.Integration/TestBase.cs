@@ -28,8 +28,10 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
         }
 
+        [PublicAPI]
         public ITestOutputHelper Output { get; }
 
+        [PublicAPI]
         protected CancellationTokenSource CancellationTokenSource { get; }
 
         public virtual void Dispose()

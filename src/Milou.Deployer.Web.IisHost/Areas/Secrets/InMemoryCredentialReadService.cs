@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Secrets
     [UsedImplicitly]
     public class InMemoryCredentialReadService : ICredentialReadService
     {
-        public string GetSecretAsync(string id, string secretKey, CancellationToken cancellationToken = default)
+        public string GetSecret(string id, string secretKey, CancellationToken cancellationToken = default)
         {
             return null;
         }

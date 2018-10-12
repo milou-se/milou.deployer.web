@@ -1,7 +1,9 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Targets
 {
+    [PublicAPI]
     public class TaskMetadata
     {
         public string PackageId { get; set; }

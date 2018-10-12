@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public string GetSecretAsync([NotNull] string id, [NotNull] string secretKey, CancellationToken cancellationToken = default)
+        public string GetSecret([NotNull] string id, [NotNull] string secretKey, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {

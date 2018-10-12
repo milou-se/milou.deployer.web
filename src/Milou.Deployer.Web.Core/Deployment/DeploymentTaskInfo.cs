@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
@@ -26,6 +27,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public string Metadata { get; }
 
+        [PublicAPI]
         public DateTime StartedAtUtc { get; }
 
         public DateTime FinishedAtUtc { get; }

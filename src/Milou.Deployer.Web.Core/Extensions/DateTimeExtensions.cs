@@ -74,6 +74,7 @@ namespace Milou.Deployer.Web.Core.Extensions
             return customClock.ToLocalTime(utcTime).ToString("yyyy-MM-dd HH:mm:ss");
         }
 
+        [PublicAPI]
         public static string Since(this DateTime to, DateTime from)
         {
             TimeSpan diff = to - from;

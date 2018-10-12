@@ -17,6 +17,7 @@ namespace Milou.Deployer.Web.Core.Targets
 
         public string SourceFile { get; }
 
+        [PublicAPI]
         public bool Enabled { get; }
     }
 }

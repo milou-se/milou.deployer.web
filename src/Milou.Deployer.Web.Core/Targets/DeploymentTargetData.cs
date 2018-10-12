@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 using Marten.Schema;
 
 namespace Milou.Deployer.Web.Core.Targets
@@ -11,6 +12,7 @@ namespace Milou.Deployer.Web.Core.Targets
 
         public bool AllowExplicitPreRelease { get; set; }
 
+        [PublicAPI]
         [ForeignKey(typeof(ProjectData))]
         public string ProjectId { get; set; }
 

@@ -27,12 +27,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private const string AllPackagesCacheKey = PackagesCacheKeyBaseUrn + ":AnyConfig";
         private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
         private readonly NuGetListConfiguration _deploymentConfiguration;
-        private readonly ICustomMemoryCache _memoryCache;
+        private readonly CustomHttpClientFactory _httpClientFactory;
+
         [NotNull]
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
+        private readonly ICustomMemoryCache _memoryCache;
+
         private ILogger _logger;
-        private readonly CustomHttpClientFactory _httpClientFactory;
 
         public PackageService(
             [NotNull] NuGetListConfiguration deploymentConfiguration,
@@ -41,9 +43,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] ILogger logger,
             [NotNull] CustomHttpClientFactory httpClientFactory)
         {
-            _deploymentConfiguration = deploymentConfiguration ?? throw new ArgumentNullException(nameof(deploymentConfiguration));
+            _deploymentConfiguration = deploymentConfiguration ??
+                                       throw new ArgumentNullException(nameof(deploymentConfiguration));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-            _keyValueConfiguration = keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+            _keyValueConfiguration =
+                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         }
@@ -81,14 +85,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 string configCachePart = $"{PackagesCacheKeyBaseUrn}:{NormalizeKey(nugetConfigFile)}";
 
-                if (!string.IsNullOrWhiteSpace(nugetPackageSource))
-                {
-                    cacheKey = $"{configCachePart}:{NormalizeKey(nugetPackageSource)}";
-                }
-                else
-                {
-                    cacheKey = configCachePart;
-                }
+                cacheKey = !string.IsNullOrWhiteSpace(nugetPackageSource) ? $"{configCachePart}:{NormalizeKey(nugetPackageSource)}" : configCachePart;
             }
             else if (!string.IsNullOrWhiteSpace(nugetPackageSource))
             {
@@ -105,39 +102,41 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     if (packages.Count > 0)
                     {
-                        _logger.Debug("Returning packages from cache with key {Key} for package id {PackageId}", cacheKey, packageId);
+                        _logger.Debug("Returning packages from cache with key {Key} for package id {PackageId}",
+                            cacheKey,
+                            packageId);
                         return packages;
                     }
                 }
             }
 
-            string nugetExe = _keyValueConfiguration[ConfigurationConstants.NuGetExePath];
+            var nuGetDownloadClient = new NuGetDownloadClient();
+            HttpClient httpClient = _httpClientFactory.CreateClient("nuget");
+            NuGetDownloadResult nuGetDownloadResult;
 
-            if (string.IsNullOrWhiteSpace(nugetExe))
+            using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
             {
-                var nuGetDownloadClient = new NuGetDownloadClient();
-                HttpClient httpClient = _httpClientFactory.CreateClient("nuget");
-                NuGetDownloadResult nuGetDownloadResult;
-
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-                {
-                    nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(NuGetDownloadSettings.Default, _logger, httpClient, cts.Token);
-                }
-
-                if (!nuGetDownloadResult.Succeeded)
-                {
-                    if (nuGetDownloadResult.Exception != null)
-                    {
-                        _logger.Error(nuGetDownloadResult.Exception, "Could not download NuGet.exe: {Result}", nuGetDownloadResult.Result);
-                    }
-                    else
-                    {
-                        _logger.Error("Could not download NuGet.exe: {Result}", nuGetDownloadResult.Result);
-                    }
-                }
-
-                nugetExe = nuGetDownloadResult.NuGetExePath;
+                nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(NuGetDownloadSettings.Default,
+                    _logger,
+                    httpClient,
+                    cts.Token);
             }
+
+            if (!nuGetDownloadResult.Succeeded)
+            {
+                if (nuGetDownloadResult.Exception != null)
+                {
+                    _logger.Error(nuGetDownloadResult.Exception,
+                        "Could not download NuGet.exe: {Result}",
+                        nuGetDownloadResult.Result);
+                }
+                else
+                {
+                    _logger.Error("Could not download NuGet.exe: {Result}", nuGetDownloadResult.Result);
+                }
+            }
+
+            string nugetExe = nuGetDownloadResult.NuGetExePath;
 
             if (string.IsNullOrWhiteSpace(nugetExe))
             {
@@ -203,19 +202,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
                     exitCode = await ProcessRunner.ExecuteProcessAsync(nugetExe,
-                        arguments: args,
-                        standardOutLog: (s, _) =>
+                        args,
+                        (s, _) =>
                         {
                             builder.Add(s);
                             _logger.Debug("{Message}", s);
                         },
-                        standardErrorAction: (s, _) =>
+                        (s, _) =>
                         {
                             errorBuild.Add(s);
                             _logger.Error("{Message}", s);
                         },
-                        toolAction: (s, _) => _logger.Debug("{ProcessToolMessage}", s),
-                        verboseAction: (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
+                        (s, _) => _logger.Debug("{ProcessToolMessage}", s),
+                        (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
                         cancellationToken: linked.Token);
                 }
             }
@@ -245,11 +244,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
 
                 await ProcessRunner.ExecuteProcessAsync(nugetExe,
-                    arguments: sourcesArgs,
-                    standardOutLog: (s, _) => sources.Add(s),
-                    standardErrorAction: (s, _) => sourcesError.Add(s),
-                    toolAction: (s, _) => _logger.Information("{ProcessToolMessage}", s),
-                    verboseAction: (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
+                    sourcesArgs,
+                    (s, _) => sources.Add(s),
+                    (s, _) => sourcesError.Add(s),
+                    (s, _) => _logger.Information("{ProcessToolMessage}", s),
+                    (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
                     cancellationToken: cancellationToken);
 
                 string sourcesOut = string.Join(Environment.NewLine, sources);
@@ -288,13 +287,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                             if (!SemanticVersion.TryParse(version, out SemanticVersion semanticVersion))
                             {
-                                _logger.Debug("Found package version {Version} for package {Package}, skipping because it could not be parsed as semantic version", version, currentPackageId);
+                                _logger.Debug(
+                                    "Found package version {Version} for package {Package}, skipping because it could not be parsed as semantic version",
+                                    version,
+                                    currentPackageId);
                                 return null;
                             }
 
                             if (!packageId.Equals(currentPackageId, StringComparison.OrdinalIgnoreCase))
                             {
-                                _logger.Debug("Found package {Package}, skipping because it does match requested package {RequestedPackage}", currentPackageId, packageId);
+                                _logger.Debug(
+                                    "Found package {Package}, skipping because it does match requested package {RequestedPackage}",
+                                    currentPackageId,
+                                    packageId);
 
                                 return null;
                             }
@@ -328,7 +333,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             else if (addedPackages.Count > 0 && addedPackages.Count < 20)
             {
-                _logger.Information("Added {Count} packages to in-memory cache with cache key {CacheKey} {PackageVersions}",
+                _logger.Information(
+                    "Added {Count} packages to in-memory cache with cache key {CacheKey} {PackageVersions}",
                     addedPackages.Count,
                     cacheKey,
                     addedPackages);

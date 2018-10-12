@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Arbor.KVConfiguration.Core.Metadata;
@@ -14,10 +13,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
     [UsedImplicitly]
     public class EmailNotificationConfiguration : IValidationObject
     {
+        [PublicAPI]
         [Metadata(defaultValue: "false")]
         public const string EmailNotificationConfigurationDefaultEnabled =
             "urn:milou:deployer:web:email:notifications:default:enabled";
 
+        [PublicAPI]
+        [Metadata]
         public const string EmailNotificationConfigurationKey = "urn:milou:deployer:web:email:notifications";
 
         public EmailNotificationConfiguration(

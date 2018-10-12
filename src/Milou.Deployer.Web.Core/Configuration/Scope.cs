@@ -1,12 +1,12 @@
 using System;
 using Autofac;
+using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Configuration
 {
     public sealed class Scope : IDisposable
     {
-        private Scope _subScope;
         public const string AspNetCoreScope = "ASPNETCORE";
 
         public Scope(ILifetimeScope lifeTimeScope = null, Scope subScope = null)
@@ -27,21 +27,8 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         public ILifetimeScope Lifetime { get; set; }
 
-        public Scope Parent { get; private set; }
-
-        public Scope SubScope
-        {
-            get => _subScope;
-            set
-            {
-                _subScope = value;
-
-                if (_subScope != null)
-                {
-                    _subScope.Parent = this;
-                }
-            }
-        }
+        [PublicAPI]
+        public Scope SubScope { get; set; }
 
         public void Dispose()
         {

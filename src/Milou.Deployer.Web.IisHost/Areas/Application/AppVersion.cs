@@ -10,6 +10,7 @@ using NuGet.Versioning;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
+    [PublicAPI]
     public class AppVersion
     {
         public AppVersion(
@@ -27,12 +28,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         public AppVersion(
             [NotNull] DeploymentTarget target,
             string message,
-            IReadOnlyCollection<PackageVersion> availablePackgages)
+            IReadOnlyCollection<PackageVersion> availablePackages)
         {
             Properties = new InMemoryKeyValueConfiguration(new NameValueCollection());
             Target = target;
             Message = message;
-            AvailablePackageVersions = availablePackgages;
+            AvailablePackageVersions = availablePackages;
             Status = GetStatus();
         }
 
@@ -91,6 +92,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 if (SemanticVersion.IsPrerelease)
                 {
+                    // ReSharper disable once StringLiteralTypo
                     return "prerelease";
                 }
 

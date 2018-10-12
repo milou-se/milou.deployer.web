@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Autofac;
+using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
@@ -32,8 +33,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private CancellationTokenSource _cancellationTokenSource;
 
+        [PublicAPI]
         public readonly List<FileInfo> FilesToClean = new List<FileInfo>();
 
+        [PublicAPI]
         public readonly List<DirectoryInfo> DirectoriesToClean = new List<DirectoryInfo>();
 
         private PgServer _pgServer;
@@ -42,6 +45,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public App App { get; private set; }
 
+        [PublicAPI]
         public int? HttpPort => App.AppRootScope.Lifetime.ResolveOptional<EnvironmentConfiguration>()?.HttpPort;
 
         protected CancellationToken CancellationToken => _cancellationTokenSource.Token;

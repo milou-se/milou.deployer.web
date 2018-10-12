@@ -59,6 +59,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public string DeploymentTaskId { get; }
 
+        [PublicAPI]
         public WorkTaskStatus Status { get; set; } = WorkTaskStatus.Created;
 
         public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } = new BlockingCollection<(string, WorkTaskStatus)>();

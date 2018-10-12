@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Json
 {
+    [PublicAPI]
     public static class JsonSerializerSettingsExtensions
     {
         public static JsonSerializerSettings UseCustomConverters(

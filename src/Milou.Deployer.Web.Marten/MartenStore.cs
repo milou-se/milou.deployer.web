@@ -257,7 +257,7 @@ namespace Milou.Deployer.Web.Marten
             return new UpdateDeploymentTargetResult();
         }
 
-        public async Task<CreateProjectResult> CreateProjectAsync(
+        private async Task<CreateProjectResult> CreateProjectAsync(
             CreateProject createProject,
             CancellationToken cancellationToken)
         {

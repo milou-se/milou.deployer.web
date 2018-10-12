@@ -244,7 +244,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     await _packageService.GetPackageVersionsAsync(
                         target.PackageId, nugetConfigFile: target.NuGetConfigFile,
                         nugetPackageSource: target.NuGetPackageSource, logger: _logger,
-                        includePreReleased: target.AllowExplicitExplicitPreRelease == true || target.AllowPrerelease,
+                        includePreReleased: target.AllowExplicitExplicitPreRelease == true || target.AllowPreRelease,
                         cancellationToken: cancellationToken);
 
                 IReadOnlyCollection<PackageVersion> allTargetPackageVersions = allPackageVersions.Where(
@@ -255,7 +255,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 IReadOnlyCollection<PackageVersion> preReleaseFiltered = allTargetPackageVersions;
 
-                if (!target.AllowPrerelease)
+                if (!target.AllowPreRelease)
                 {
                     preReleaseFiltered =
                         allTargetPackageVersions.Where(package => !package.Version.IsPrerelease).SafeToReadOnlyCollection();

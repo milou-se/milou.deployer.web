@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _workers = workers.ToImmutableArray();
         }
 
-        public DeploymentTargetWorker GetWorkerByTargetId([NotNull] string targetId)
+        private DeploymentTargetWorker GetWorkerByTargetId([NotNull] string targetId)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {

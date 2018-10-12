@@ -7,11 +7,13 @@ namespace Milou.Deployer.Web.Core.Extensions
 {
     public static class UrlExtensions
     {
+        [PublicAPI]
         public static string CreateQueryWithQuestionMark([NotNull] IEnumerable<KeyValuePair<string, string>> parameters)
         {
             return $"?{CreateQueryWithoutQuestionMark(parameters)}";
         }
 
+        [PublicAPI]
         public static string CreateQueryWithoutQuestionMark(
             [NotNull] IEnumerable<KeyValuePair<string, string>> parameters)
         {
@@ -26,6 +28,7 @@ namespace Milou.Deployer.Web.Core.Extensions
             return query;
         }
 
+        [PublicAPI]
         public static Uri WithQueryFromParameters(
             [NotNull] this Uri uri,
             IEnumerable<KeyValuePair<string, string>> parameters)

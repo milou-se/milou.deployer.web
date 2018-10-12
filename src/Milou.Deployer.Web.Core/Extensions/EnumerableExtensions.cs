@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
+    [PublicAPI]
     public static class EnumerableExtensions
     {
         public static ImmutableArray<T> ThrowIfDefault<T>(this ImmutableArray<T> array)
