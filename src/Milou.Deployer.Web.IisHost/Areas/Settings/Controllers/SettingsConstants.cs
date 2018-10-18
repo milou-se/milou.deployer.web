@@ -5,5 +5,13 @@
         public const string DiagnosticsEnabled = "urn:milou:deployer:web:diagnostics:enabled";
 
         public const string AreaName = "Settings";
+
+        public const string SettingsGetRoute = "/settings";
+
+        public const string SettingsGetRouteName = nameof(SettingsGetRoute);
+
+        public const string LogSettingsPostRoute = "/settings/loglevel";
+
+        public const string LogSettingsPostRouteName = nameof(LogSettingsPostRoute);
     }
 }

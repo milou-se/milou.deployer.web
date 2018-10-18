@@ -10,6 +10,11 @@ namespace Milou.Deployer.Web.Core.Extensions
     [PublicAPI]
     public static class StringExtensions
     {
+        private static readonly Lazy<ImmutableArray<string>> _DefaultAnonymousKeyWords =
+            new Lazy<ImmutableArray<string>>(Initialize);
+
+        public static ImmutableArray<string> DefaultAnonymousKeyWords => _DefaultAnonymousKeyWords.Value;
+
         public static string MakeAnonymous(this string value, string key, params string[] keyWords)
         {
             if (string.IsNullOrWhiteSpace(value))
@@ -22,7 +27,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return value;
             }
 
-            if (keyWords.Any(keyWord => key.Equals(keyWord, StringComparison.OrdinalIgnoreCase)))
+            if (keyWords.Any(keyWord => key.IndexOf(keyWord, StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 return new string('*', 5);
             }
@@ -44,7 +49,7 @@ namespace Milou.Deployer.Web.Core.Extensions
 
             IEnumerable<KeyValuePair<string, string>> pairs = value.ParseValues(';', '=').Select(pair =>
             {
-                if (keyWords.Any(keyWord => keyWord.Equals(pair.Key, StringComparison.OrdinalIgnoreCase)))
+                if (keyWords.Any(keyWord => keyWord.IndexOf(pair.Key, StringComparison.OrdinalIgnoreCase) >= 0))
                 {
                     return pair.MakeAnonymousValue();
                 }
@@ -149,5 +154,11 @@ namespace Milou.Deployer.Web.Core.Extensions
         }
 
         public static bool IsNullOrWhiteSpace(this string text) => string.IsNullOrWhiteSpace(text);
+
+        private static ImmutableArray<string> Initialize()
+        {
+            return new[] { "password", "username", "user id", "connection-string", "connectionstring" }
+                .ToImmutableArray();
+        }
     }
 }

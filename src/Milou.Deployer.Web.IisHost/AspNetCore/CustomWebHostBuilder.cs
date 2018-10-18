@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using Arbor.KVConfiguration.Core;
+using Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns;
 using Autofac;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -17,6 +19,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
     public static class CustomWebHostBuilder
     {
         public static IWebHostBuilder GetWebHostBuilder(
+            IKeyValueConfiguration configuration,
             Scope startupScope,
             Scope webHostScope,
             Serilog.ILogger logger)
@@ -36,6 +39,10 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     services.AddHttpClient();
                     services.AddTransient(provider => webHostScope.Lifetime.Resolve<Startup>());
                 })
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                    {
+                        config.AddKeyValueConfigurationSource(configuration);
+                    })
                 .UseKestrel(options =>
                 {
                     if (kestrelServerOptions.Contains(options))
@@ -68,10 +75,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     kestrelServerOptions.Add(options);
                 })
                 .UseContentRoot(contentRoot)
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config.AddEnvironmentVariables();
-                })
+                .ConfigureAppConfiguration((hostingContext, config) => { config.AddEnvironmentVariables(); })
                 .UseIISIntegration()
                 .UseDefaultServiceProvider((context, options) =>
                 {

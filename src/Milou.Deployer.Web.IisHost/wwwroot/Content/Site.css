@@ -172,3 +172,7 @@ td, th {
     color: #7d7d7d;
     font-style: italic;
 }
+
+.highlighted {
+    font-weight: bold;
+}

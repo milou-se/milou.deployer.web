@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
 
@@ -14,7 +15,7 @@ namespace Milou.Deployer.Web.Core.Configuration
             }
 
             Key = key;
-            Value = value.MakeAnonymous(key, "user", "user id", "password");
+            Value = value.MakeAnonymous(key, StringExtensions.DefaultAnonymousKeyWords.ToArray());
             Source = source;
         }
 

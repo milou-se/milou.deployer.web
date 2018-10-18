@@ -204,7 +204,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             container.AppRootScope.Deepest().SubScope = webHostScopeWrapper;
 
             IWebHostBuilder webHostBuilder =
-                CustomWebHostBuilder.GetWebHostBuilder(container.AppRootScope, webHostScopeWrapper, appLogger);
+                CustomWebHostBuilder.GetWebHostBuilder(configuration, container.AppRootScope, webHostScopeWrapper, appLogger);
 
             var app = new App(webHostBuilder, cancellationTokenSource, appLogger)
             {

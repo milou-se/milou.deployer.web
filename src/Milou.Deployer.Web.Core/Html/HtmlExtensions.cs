@@ -21,5 +21,25 @@
         {
             return Checked((bool?)value);
         }
+
+        public static string Selected(this bool? value)
+        {
+            if (!value.HasValue)
+            {
+                return string.Empty;
+            }
+
+            if (value.Value)
+            {
+                return "selected=\"selected\"";
+            }
+
+            return string.Empty;
+        }
+
+        public static string Selected(this bool value)
+        {
+            return Selected((bool?)value);
+        }
     }
 }
