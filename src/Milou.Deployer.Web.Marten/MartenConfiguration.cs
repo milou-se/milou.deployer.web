@@ -1,12 +1,14 @@
-﻿using Arbor.KVConfiguration.Urns;
+﻿using System.Linq;
+using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Marten
 {
     [Urn(MartenConstants.MartenConfiguration)]
     [UsedImplicitly]
-    public class MartenConfiguration
+    public class MartenConfiguration : IValidationObject
     {
         public MartenConfiguration(string connectionString, bool enabled = false)
         {
@@ -18,9 +20,12 @@ namespace Milou.Deployer.Web.Marten
 
         public bool Enabled { get; }
 
+        public bool IsValid => !Enabled || !string.IsNullOrWhiteSpace(ConnectionString);
+
         public override string ToString()
         {
-            return $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous("user id", "password")}], {nameof(Enabled)}: {Enabled.ToString().ToLowerInvariant()}";
+            return
+                $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous(StringExtensions.DefaultAnonymousKeyWords.ToArray())}], {nameof(Enabled)}: {Enabled.ToString().ToLowerInvariant()}";
         }
     }
 }

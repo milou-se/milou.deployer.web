@@ -3,17 +3,21 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net.Http;
 using Autofac;
+using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
+using Serilog;
 
 namespace Milou.Deployer.Web.Core.Http
 {
     public sealed class CustomHttpClientFactory : IHttpClientFactory, IDisposable
     {
         private readonly ILifetimeScope _scope;
+        private readonly ILogger _logger;
 
-        public CustomHttpClientFactory(ILifetimeScope scope)
+        public CustomHttpClientFactory([NotNull] ILifetimeScope scope, [NotNull] ILogger logger)
         {
-            _scope = scope;
+            _scope = scope ?? throw new ArgumentNullException(nameof(scope));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         private bool _isDisposed;
@@ -26,7 +30,6 @@ namespace Milou.Deployer.Web.Core.Http
             {
                 throw new ObjectDisposedException($"Could not create HttpClient for name '{name}', {nameof(CustomHttpClientFactory)} has been disposed");
             }
-
 
             if (_scope.TryResolve(out Scope scope))
             {
@@ -73,6 +76,7 @@ namespace Milou.Deployer.Web.Core.Http
             foreach (KeyValuePair<string, HttpClient> keyValuePair in _Clients)
             {
                 keyValuePair.Value.Dispose();
+                _logger.Verbose("Disposed Http client named {Name}", keyValuePair.Key);
             }
 
             _Clients.Clear();

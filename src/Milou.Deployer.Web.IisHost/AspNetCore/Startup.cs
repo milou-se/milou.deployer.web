@@ -17,11 +17,14 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Json;
+using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware;
@@ -37,19 +40,30 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
     public class Startup
     {
         private readonly Serilog.ILogger _logger;
+        [NotNull]
+        private readonly HttpLoggingConfiguration _httpLoggingConfiguration;
         private readonly Scope _webHostScope;
         private ILifetimeScope _aspNetScope;
 
-        public Startup([NotNull] Scope webHostScope, [NotNull] Serilog.ILogger logger)
+        public Startup(
+            [NotNull] Scope webHostScope,
+            [NotNull] Serilog.ILogger logger,
+        [NotNull]HttpLoggingConfiguration httpLoggingConfiguration)
         {
             _webHostScope = webHostScope.Deepest() ?? throw new ArgumentNullException(nameof(webHostScope));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _httpLoggingConfiguration = httpLoggingConfiguration;
         }
 
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient();
+
+            if (!_httpLoggingConfiguration.Enabled)
+            {
+                services.Replace(ServiceDescriptor.Singleton<IHttpMessageHandlerBuilderFilter, CustomLoggingFilter>());
+            }
 
             services.AddMvc();
 

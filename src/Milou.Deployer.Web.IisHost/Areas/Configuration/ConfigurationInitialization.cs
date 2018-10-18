@@ -43,7 +43,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
                         new ReflectionKeyValueConfiguration(currentAssembly));
             }
 
+            var loggingSettings = new NameValueCollection
+            {
+                { "Logging:LogLevel:Default", "Warning" },
+                { "Logging:LogLevel:System.Net.Http.HttpClient", "Warning" },
+                { "LogLevel:System.Net.Http.HttpClient", "Warning" }
+            };
+
             appSettingsBuilder = appSettingsBuilder
+                .Add(new InMemoryKeyValueConfiguration(loggingSettings))
                 .Add(new JsonKeyValueConfiguration(basePath("settings.json"), false))
                 .Add(new JsonKeyValueConfiguration(basePath($"settings.{environmentName}.json"), false))
                 .Add(new JsonKeyValueConfiguration(basePath($"settings.{Environment.MachineName}.json"), false));
