@@ -14,11 +14,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.5.1" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.16.1" />
-    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.16.1" />
-    <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.16.1" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.16.1" />
-    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.16.1" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.16.2" />
+    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.16.2" />
+    <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.16.2" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.16.2" />
+    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.16.2" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
     <PackageReference Include="Arbor.Tooler" Version="0.1.4" />
     <PackageReference Include="Autofac" Version="4.8.1" />
