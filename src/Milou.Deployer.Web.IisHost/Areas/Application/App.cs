@@ -177,6 +177,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     file => GetBaseDirectoryFile(basePath, file),
                     startupLogger, scanAssemblies, contentBasePath);
 
+            string tempDirectory = configuration[ApplicationConstants.ApplicationTempDirectory];
+
+            if (!string.IsNullOrWhiteSpace(tempDirectory))
+            {
+                if (tempDirectory.TryEnsureDirectoryExists(out DirectoryInfo tempDirectoryInfo))
+                {
+                    Environment.SetEnvironmentVariable(TempConstants.Tmp, tempDirectoryInfo.FullName);
+                    Environment.SetEnvironmentVariable(TempConstants.Temp, tempDirectoryInfo.FullName);
+
+                    startupLogger.Debug("Using specified temp directory {TempDirectory}", tempDirectory);
+                }
+                else
+                {
+                    startupLogger.Warning("Could not use specified temp directory {TempDirectory}", tempDirectory);
+                }
+            }
             var loggingLevelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug); // TODO make configurable
 
             ILogger appLogger =
