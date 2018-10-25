@@ -113,10 +113,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             rootScope.Lifetime = container;
 
+            var allModules = container.Resolve<IReadOnlyCollection<IModule>>();
+
             ILifetimeScope appRootScope = container.BeginLifetimeScope(appScopeBuilder =>
             {
-                var allModules = container.Resolve<IReadOnlyCollection<IModule>>();
-
                 ImmutableArray<IModule> modules = allModules
                     .Where(s => !HasTagAttribute(s.GetType()))
                     .Select(module =>

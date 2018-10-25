@@ -7,7 +7,6 @@ using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Marten
 {
-    [Optional]
     [Urn(MartenConstants.MartenConfiguration)]
     [UsedImplicitly]
     public class MartenConfiguration : IValidationObject

@@ -35,5 +35,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
         <ProjectReference Include="..\Milou.Deployer.Web.IisHost\Milou.Deployer.Web.IisHost.csproj" />
+        <ProjectReference Include="..\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
     </ItemGroup>
 </Project>

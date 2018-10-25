@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RuntimeIdentifier Condition="'$(NCrunch)' == '1'">win7-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
