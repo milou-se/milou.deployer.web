@@ -19,5 +19,8 @@ namespace Milou.Deployer.Web.Core.Logging
 
         [Metadata]
         public static string SerilogStartupLogEnabled = SerilogBaseUrn + ":startup-log-file:enabled";
+
+        [Metadata]
+        public const string SeqStartupUrl = "urn:milou:deployer:web:logging:startup-seq-url";
     }
 }

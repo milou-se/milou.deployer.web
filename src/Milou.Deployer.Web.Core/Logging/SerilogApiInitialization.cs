@@ -157,6 +157,13 @@ namespace Milou.Deployer.Web.Core.Logging
                     .WriteTo.File(logFile, LogEventLevel.Debug, rollingInterval: RollingInterval.Day);
             }
 
+            string seq = Environment.GetEnvironmentVariable(LoggingConstants.SeqStartupUrl);
+
+            if (!string.IsNullOrWhiteSpace(seq) && Uri.TryCreate(seq, UriKind.Absolute, out Uri _))
+            {
+                loggerConfiguration.WriteTo.Seq(seq);
+            }
+
             Logger logger = loggerConfiguration
                 .CreateLogger();
 
