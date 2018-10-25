@@ -50,11 +50,49 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
                 { "LogLevel:System.Net.Http.HttpClient", "Warning" }
             };
 
+
+            FileInfo MachineSpecificConfig(DirectoryInfo directoryInfo)
+            {
+                return directoryInfo.GetFiles($"settings.{Environment.MachineName}.json").SingleOrDefault();
+            }
+
+            string MachineSpecificFile()
+            {
+                var baseDirectory = new DirectoryInfo(basePath(null));
+
+                FileInfo machineSpecificConfig = null;
+
+                DirectoryInfo currentDirectory = baseDirectory;
+
+                while (machineSpecificConfig is null && currentDirectory != null)
+                {
+                    try
+                    {
+                        machineSpecificConfig = MachineSpecificConfig(currentDirectory);
+
+                        currentDirectory = currentDirectory.Parent;
+                    }
+                    catch (Exception ex) when (!ex.IsFatal())
+                    {
+                        logger.Warning(ex, "Could not find machine specific config file in any parent directory starting with base directory {BaseDirectory}", baseDirectory.FullName);
+                        return null;
+                    }
+                }
+
+                return machineSpecificConfig?.FullName;
+            }
+
             appSettingsBuilder = appSettingsBuilder
                 .Add(new InMemoryKeyValueConfiguration(loggingSettings))
                 .Add(new JsonKeyValueConfiguration(basePath("settings.json"), false))
-                .Add(new JsonKeyValueConfiguration(basePath($"settings.{environmentName}.json"), false))
-                .Add(new JsonKeyValueConfiguration(basePath($"settings.{Environment.MachineName}.json"), false));
+                .Add(new JsonKeyValueConfiguration(basePath($"settings.{environmentName}.json"), false));
+
+            string machineSpecificFile = MachineSpecificFile();
+
+            if (!string.IsNullOrWhiteSpace(machineSpecificFile))
+            {
+                appSettingsBuilder = appSettingsBuilder.Add(new JsonKeyValueConfiguration(machineSpecificFile));
+            }
 
             if (environmentBasedSettingsPath.HasValue() && File.Exists(environmentBasedSettingsPath))
             {

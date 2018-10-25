@@ -43,9 +43,10 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
-            Assemblies.FilteredAssemblies(useCache: false).SelectMany(assembly => assembly.GetLoadableTypes())
+            Assemblies.FilteredAssemblies(useCache: false)
+                .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
-                .Select(item => new object[] { item.FullName, item.Assembly.GetName().Name })
+                .Select(type => new object[] { type.FullName, type.Assembly.GetName().Name })
                 .ToArray();
     }
 }
