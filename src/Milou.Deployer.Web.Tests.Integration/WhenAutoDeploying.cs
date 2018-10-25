@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Milou.Deployer.Web.Core.Extensions;
 using NuGet.Versioning;
 using Xunit;
 using Xunit.Abstractions;
@@ -63,7 +64,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                                 json = await responseMessage.Content.ReadAsStringAsync();
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception ex) when (!ex.IsFatal())
                         {
                             throw new Core.DeployerAppException($"Could not get a valid response from request to '{url}'", ex);
                         }

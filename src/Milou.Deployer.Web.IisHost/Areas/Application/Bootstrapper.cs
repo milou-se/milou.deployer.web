@@ -140,7 +140,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                             nameof(AppContainerScope.AppRootScope));
                         appScopeBuilder.RegisterModule(module);
                     }
-                    catch (Exception ex)
+                    catch (Exception ex) when (!ex.IsFatal())
                     {
                         logger.Error(ex, "Could not register module {Module}", moduleName);
                         throw new DeployerAppException($"Could not register module {moduleName}", ex);

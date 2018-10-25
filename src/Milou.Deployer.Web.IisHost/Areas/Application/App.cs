@@ -78,6 +78,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 return app;
             }
             catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 Console.Error.WriteLine("Error in startup, " + ex);
                 throw;

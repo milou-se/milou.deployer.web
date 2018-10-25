@@ -64,7 +64,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 {
                     Register(builder, urnMappedType, treatWarningsAsErrors);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     exceptions.Add(ex);
                     _logger.Error(ex, "Could not register URN-mapped type {Type}", urnMappedType);

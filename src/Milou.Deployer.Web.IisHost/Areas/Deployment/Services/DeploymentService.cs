@@ -90,7 +90,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     logger,
                     cancellationToken);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 result = (ExitCode.Failure, _customClock.UtcNow().UtcDateTime);
                 logger.Error(ex, "Error deploying");
@@ -312,7 +312,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     exitCode = await _deployer.ExecuteAsync(deploymentTask, log, cancellationToken);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Error(ex, "Failed to deploy task {DeploymentTask}", deploymentTask);
                     exitCode = ExitCode.Failure;

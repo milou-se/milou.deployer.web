@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Milou.Deployer.Core.Extensions;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Health
@@ -33,7 +34,7 @@ namespace Milou.Deployer.Web.Core.Health
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Verbose(ex, "Health check error for check {Check}", healthCheck.Description);
                 }

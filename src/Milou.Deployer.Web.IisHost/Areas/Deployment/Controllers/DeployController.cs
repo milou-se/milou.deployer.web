@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewInputModels;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
@@ -53,7 +54,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
                 return RedirectToAction(nameof(Status), new { deploymentTask.DeploymentTargetId });
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(ex, "Could not finish deploy of task {DeploymentTask}", deploymentTask);
 

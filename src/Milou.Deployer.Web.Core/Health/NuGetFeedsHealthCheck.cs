@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Arbor.Tooler;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Processes;
+using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Health
@@ -138,7 +139,7 @@ namespace Milou.Deployer.Web.Core.Health
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Verbose(ex, "Could not get {Uri}", nugetFeed);
             }

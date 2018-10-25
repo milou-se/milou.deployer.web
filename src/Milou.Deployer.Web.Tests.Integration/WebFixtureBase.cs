@@ -93,7 +93,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                     await BeforeStartAsync(args);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     _diagnosticMessageSink.OnMessage(new DiagnosticMessage(ex.ToString()));
                     _cancellationTokenSource.Cancel();
@@ -123,7 +123,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
                 await AfterRunAsync();
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 Exception = ex;
                 OnException(ex);

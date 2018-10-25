@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Extensions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -24,7 +25,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 {
                     ResponseMessage = await httpClient.GetAsync($"http://localhost:{HttpPort}", CancellationToken);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                    App?.Logger?.Error(ex, "Error in test");
                     Assert.NotNull(ex);

@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Targets;
 using Serilog;
 
@@ -54,7 +55,7 @@ namespace Milou.Deployer.Web.Marten
 
                     return deploymentTarget;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Warning(ex, "Could not get deployment target with id {Id}", deploymentTargetId);
                     return DeploymentTarget.None;
@@ -87,7 +88,7 @@ namespace Milou.Deployer.Web.Marten
 
                     return organizationsInfo;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Warning(ex, "Could not get any organizations targets");
                     return ImmutableArray<OrganizationInfo>.Empty;
@@ -109,7 +110,7 @@ namespace Milou.Deployer.Web.Marten
 
                     return deploymentTargets;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Warning(ex, "Could not get any deployment targets");
                     return ImmutableArray<DeploymentTarget>.Empty;

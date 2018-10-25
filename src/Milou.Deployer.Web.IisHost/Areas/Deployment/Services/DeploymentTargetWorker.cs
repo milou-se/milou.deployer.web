@@ -76,7 +76,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         tasksInQueue);
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(ex, "Failed to enqueue deployment task {DeploymentTask}", deploymentTask);
             }
