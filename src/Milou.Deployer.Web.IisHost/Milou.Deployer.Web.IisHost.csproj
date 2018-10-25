@@ -1,82 +1,84 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
-  </PropertyGroup>
-  <ItemGroup>
-    <Compile Remove="Areas\NuGet\Controllers\**" />
-    <Compile Remove="logs\**" />
-    <Content Remove="Areas\NuGet\Controllers\**" />
-    <Content Remove="logs\**" />
-    <EmbeddedResource Remove="Areas\NuGet\Controllers\**" />
-    <EmbeddedResource Remove="logs\**" />
-    <None Remove="Areas\NuGet\Controllers\**" />
-    <None Remove="logs\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.5.1" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.16.2" />
-    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.16.2" />
-    <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.16.2" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.16.2" />
-    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.16.2" />
-    <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
-    <PackageReference Include="Arbor.Tooler" Version="0.1.4" />
-    <PackageReference Include="Autofac" Version="4.8.1" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.0" />
-    <PackageReference Include="Jetbrains.Annotations" Version="2018.2.1" />
-    <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
-    <PackageReference Include="MediatR" Version="5.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.HttpOverrides" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.1.3" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Net.Compilers" Version="2.9.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.8" />
-    <PackageReference Include="Milou.Deployer.Core" Version="4.0.8" />
-    <PackageReference Include="Nuget.Versioning" Version="4.8.0" />
-    <PackageReference Include="Serilog" Version="2.7.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
-    <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-    <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
-    <PackageReference Include="serilog.Sinks.Seq" Version="4.0.0" />
-    <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
-    <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="App_Data\DeploymentJobs\" />
-    <Folder Include="Areas\Protocols\Http\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="config.user" Condition="Exists('config.user')">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
-    <ProjectReference Include="..\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Update="Areas\Organizations\Views\_ViewStart.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Areas\Projects\Views\Projects\Index.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Areas\Projects\Views\_ViewStart.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="Areas\Settings\Views\_ViewStart.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Remove="Areas\NuGet\Controllers\**" />
+        <Compile Remove="logs\**" />
+        <Content Remove="Areas\NuGet\Controllers\**" />
+        <Content Remove="logs\**" />
+        <EmbeddedResource Remove="Areas\NuGet\Controllers\**" />
+        <EmbeddedResource Remove="logs\**" />
+        <None Remove="Areas\NuGet\Controllers\**" />
+        <None Remove="logs\**" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" Condition="'$(NCrunch)' == '1'" />
+        <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.5.1" />
+        <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.16.2" />
+        <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.16.2" />
+        <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.16.2" />
+        <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.16.2" />
+        <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.16.2" />
+        <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
+        <PackageReference Include="Arbor.Tooler" Version="0.1.4" />
+        <PackageReference Include="Autofac" Version="4.8.1" />
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.0" />
+        <PackageReference Include="Jetbrains.Annotations" Version="2018.2.1" />
+        <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
+        <PackageReference Include="MediatR" Version="5.1.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.HttpOverrides" Version="2.1.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
+        <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.1.3" />
+        <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" />
+        <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
+        <PackageReference Include="Microsoft.Net.Compilers" Version="2.9.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.8" />
+        <PackageReference Include="Milou.Deployer.Core" Version="4.0.8" />
+        <PackageReference Include="Nuget.Versioning" Version="4.8.0" />
+        <PackageReference Include="Serilog" Version="2.7.1" />
+        <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
+        <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
+        <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
+        <PackageReference Include="serilog.Sinks.Seq" Version="4.0.0" />
+        <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
+        <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <Folder Include="App_Data\DeploymentJobs\" />
+        <Folder Include="Areas\Protocols\Http\" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="config.user" Condition="Exists('config.user')">
+            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
+        <ProjectReference Include="..\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Content Update="Areas\Organizations\Views\_ViewStart.cshtml">
+            <Pack>$(IncludeRazorContentInPack)</Pack>
+        </Content>
+        <Content Update="Areas\Projects\Views\Projects\Index.cshtml">
+            <Pack>$(IncludeRazorContentInPack)</Pack>
+        </Content>
+        <Content Update="Areas\Projects\Views\_ViewStart.cshtml">
+            <Pack>$(IncludeRazorContentInPack)</Pack>
+        </Content>
+        <Content Update="Areas\Settings\Views\_ViewStart.cshtml">
+            <Pack>$(IncludeRazorContentInPack)</Pack>
+        </Content>
+    </ItemGroup>
 </Project>
