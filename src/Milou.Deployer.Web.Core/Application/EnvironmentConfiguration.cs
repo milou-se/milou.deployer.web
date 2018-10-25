@@ -4,6 +4,11 @@ namespace Milou.Deployer.Web.Core.Application
 {
     public class EnvironmentConfiguration
     {
+        public EnvironmentConfiguration()
+        {
+            HttpPort = 34343;
+        }
+
         [PublicAPI]
         public string ApplicationBasePath { get; set; }
 
