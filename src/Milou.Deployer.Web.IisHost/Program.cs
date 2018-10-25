@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Application;
+using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost
 {
@@ -39,10 +40,14 @@ namespace Milou.Deployer.Web.IisHost
 
                     app.Logger.Information("Starting application {Application}", ApplicationConstants.ApplicationName);
 
-                    if (intervalInSeconds >= 0)
+                    if (intervalInSeconds > 0)
                     {
                         app.Logger.Debug("Restart time is set to {RestartIntervalInSeconds} seconds",
                             intervalInSeconds);
+                    }
+                    else if (app.Logger.IsEnabled(LogEventLevel.Verbose))
+                    {
+                        app.Logger.Verbose("Restart time is disabled");
                     }
 
                     string[] runArgs;
