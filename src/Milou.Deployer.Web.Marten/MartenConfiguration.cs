@@ -1,11 +1,13 @@
 ﻿using System.Linq;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Marten
 {
+    [Optional]
     [Urn(MartenConstants.MartenConfiguration)]
     [UsedImplicitly]
     public class MartenConfiguration : IValidationObject
