@@ -29,6 +29,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             string contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
 
+            logger.Debug("Using content root {ContentRoot}", contentRoot);
+
             var kestrelServerOptions = new List<KestrelServerOptions>();
 
             IWebHostBuilder webHostBuilder = new WebHostBuilder()
@@ -54,6 +56,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     {
                         if (environmentConfiguration.HttpPort.HasValue)
                         {
+                            logger.Information("Listening on http port {Port}", environmentConfiguration.HttpPort.Value);
+
                             options.Listen(IPAddress.Loopback,
                                 environmentConfiguration.HttpPort.Value);
                         }
@@ -62,6 +66,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                             && environmentConfiguration.PfxFile.HasValue()
                             && environmentConfiguration.PfxPassword.HasValue())
                         {
+                            logger.Information("Listening on https port {Port}", environmentConfiguration.HttpsPort.Value);
+
                             options.Listen(IPAddress.Loopback,
                                 environmentConfiguration.HttpsPort.Value,
                                 listenOptions =>

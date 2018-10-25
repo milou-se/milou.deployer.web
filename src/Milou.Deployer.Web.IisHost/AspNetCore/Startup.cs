@@ -128,8 +128,16 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
                 var keyValueConfiguration = _webHostScope.Lifetime.Resolve<IKeyValueConfiguration>();
 
-                if (_webHostScope.Lifetime.ResolveOptional<IDeploymentTargetReadService>() is null)
+                try
                 {
+                    if (_webHostScope.Lifetime.ResolveOptional<IDeploymentTargetReadService>() is null)
+                    {
+                        builder.RegisterModule(new AppServiceModule(keyValueConfiguration, _logger));
+                    }
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    _logger.Warning(ex, "Could not get deployment target read service, registering defualts");
                     builder.RegisterModule(new AppServiceModule(keyValueConfiguration, _logger));
                 }
 

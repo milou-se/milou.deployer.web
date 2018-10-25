@@ -300,7 +300,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             IWebHostBuilder webHostBuilder =
                 CustomWebHostBuilder.GetWebHostBuilder(configuration, container.AppRootScope, webHostScopeWrapper, appLogger);
 
-            var app = new App(webHostBuilder, cancellationTokenSource, appLogger)
+            var app = new App(webHostBuilder, cancellationTokenSource, appLogger, configuration)
             {
                 Container = container.Container,
                 AppRootScope = container.AppRootScope

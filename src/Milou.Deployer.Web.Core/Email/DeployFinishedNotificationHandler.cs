@@ -102,7 +102,7 @@ namespace Milou.Deployer.Web.Core.Email
                 {
                     await _smtpService.SendAsync(mimeMessage, cancellationTokenSource.Token);
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Error(ex,
                         "Could not send email to '{To}'",
