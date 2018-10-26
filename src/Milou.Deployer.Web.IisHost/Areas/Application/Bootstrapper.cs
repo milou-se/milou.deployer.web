@@ -12,6 +12,7 @@ using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
 using Serilog.Core;
+using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
@@ -50,18 +51,30 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             var builder = new ContainerBuilder();
 
-            builder.RegisterInstance(loggingLevelSwitch).AsSelf().SingleInstance();
+            builder
+                .RegisterInstance(loggingLevelSwitch)
+                .AsSelf()
+                .SingleInstance();
 
-            builder.Register(context => new EnvironmentConfiguration
+            builder
+                .Register(context => new EnvironmentConfiguration
             {
                 ApplicationBasePath = basePath,
                 ContentBasePath = contentBasePath
-            }).AsSelf().SingleInstance();
+            })
+                .AsSelf()
+                .SingleInstance();
 
-            foreach (IModule module in modulesToRegister)
+            if (logger.IsEnabled(LogEventLevel.Verbose))
             {
-                logger.Debug("Registering pre-initialized module {Module} in container builder", module.GetType().FullName);
-                builder.RegisterModule(module);
+                foreach (IModule module in modulesToRegister)
+                {
+                    Type type = module.GetType();
+
+                    logger.Verbose("Registering pre-initialized module {Module} in container builder",
+                        $"{type.FullName} assembly {type.Assembly.FullName} at {type.Assembly.Location}");
+                    builder.RegisterModule(module);
+                }
             }
 
             logger.Debug("Done running configuration modules");
@@ -101,6 +114,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 .Except(excludedModules)
                 .ToArray();
 
+            if (logger.IsEnabled(LogEventLevel.Verbose))
+            {
+                logger.Verbose(
+                    "Registering module types {Types} from assemblies {Assemblies}, excluded modules: {Excluded}, existing types {Existing}",
+                    moduleTypes.Select(type => type.FullName).ToArray(),
+                    scanAssemblies.Select(assembly => $"{assembly.FullName} {assembly.Location}").ToArray(),
+                    excludedModules.Select(type => $"{type.FullName}, {type.Assembly.FullName} {type.Assembly.Location}")
+                        .ToArray(),
+                    existingTypes.Select(type => $"{type.FullName}, {type.Assembly.FullName} {type.Assembly.Location}")
+                        .ToArray());
+            }
+
             builder
                 .RegisterAssemblyTypes(scanAssemblies.ToArray())
                 .Where(moduleTypes.Contains)
@@ -118,16 +143,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ILifetimeScope appRootScope = container.BeginLifetimeScope(appScopeBuilder =>
             {
                 ImmutableArray<IModule> modules = allModules
-                    .Where(s => !HasTagAttribute(s.GetType()))
+                    .Where(module => !HasTagAttribute(module.GetType()))
                     .Select(module =>
                     {
                         var customAttribute = module.GetType().GetCustomAttribute<RegistrationOrderAttribute>();
 
                         return (Module: module, Order: customAttribute?.Order ?? 0);
                     })
-                    .OrderBy(tuple => tuple.Order)
-                    .Select(tuple => tuple.Module)
-
+                    .OrderBy(moduleOrder => moduleOrder.Order)
+                    .Select(moduleOrder => moduleOrder.Module)
                     .ToImmutableArray();
 
                 foreach (IModule module in modules)
@@ -138,6 +162,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                         logger.Debug("Registering module {Module} in scope {Scope}",
                             moduleName,
                             nameof(AppContainerScope.AppRootScope));
+
                         appScopeBuilder.RegisterModule(module);
                     }
                     catch (Exception ex) when (!ex.IsFatal())

@@ -56,7 +56,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
-            AppDomain.CurrentDomain.FilteredAssemblies(useCache: false, dllLoadPath: Path.Combine(VcsTestPathHelper.GetRootDirectory(), "src", "Milou.Deployer.Web.IisHost", "bin", "debug", "netcoreapp2.1","win7-x64"))
+            Assemblies.FilteredAssemblies(useCache: false)
                 .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
                 .Select(controllerType => (Controller:controllerType, Actions:controllerType.GetMethods(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly)))

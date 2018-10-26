@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
@@ -21,8 +20,7 @@ namespace Milou.Deployer.Web.Core.Application
             [NotNull] this AppDomain appDomain,
             string assemblyNameStartsWith = null,
             bool useCache = true,
-            ILogger logger = null,
-            string dllLoadPath = null)
+            ILogger logger = null)
         {
             logger = logger ?? Logger.None;
 
@@ -42,70 +40,6 @@ namespace Milou.Deployer.Web.Core.Application
 
             try
             {
-                FileInfo[] FilterAppAssemblies(FileInfo[] files)
-                {
-                    return files
-                        .Where(file => !file.Name.StartsWith("host", StringComparison.Ordinal))
-                        .ToArray();
-                }
-
-                var scanAssemblies = new List<FileInfo>();
-
-                var baseDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-                FileInfo[] existingDllFiles = baseDirectory.GetFiles("*.dll");
-                FileInfo[] existingFilesToLoad = FilterAppAssemblies(existingDllFiles);
-                scanAssemblies.AddRange(existingFilesToLoad);
-
-                if (!string.IsNullOrWhiteSpace(dllLoadPath))
-                {
-                    var directoryInfo = new DirectoryInfo(dllLoadPath);
-
-                    if (directoryInfo.Exists)
-                    {
-                        FileInfo[] dllFiles = FilterAppAssemblies(directoryInfo.GetFiles("*.dll"));
-
-                        foreach (FileInfo sourceDllFile in dllFiles)
-                        {
-                            if (!existingDllFiles.Any(file => file.Name.Equals(sourceDllFile.Name)))
-                            {
-                                var targetFile = new FileInfo(Path.Combine(baseDirectory.FullName, sourceDllFile.Name));
-
-                                sourceDllFile.CopyTo(targetFile.FullName, false);
-
-                                scanAssemblies.Add(targetFile);
-                            }
-                        }
-                    }
-                }
-
-                foreach (FileInfo assemblyFile in scanAssemblies)
-                {
-                    try
-                    {
-                        Assembly[] currentLoadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-                        if (currentLoadedAssemblies.Any(a =>
-                            !a.IsDynamic && a.Location.Equals(assemblyFile.FullName, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            continue;
-                        }
-
-                        Assembly loadFile = Assembly.LoadFile(assemblyFile.FullName);
-
-                        logger.Verbose("Loaded assembly {Assembly} from file {File}",
-                            loadFile.GetName(),
-                            assemblyFile.FullName);
-                    }
-                    catch (BadImageFormatException)
-                    {
-                        // ignore
-                    }
-                    catch (Exception ex) when (!ex.IsFatal())
-                    {
-                        logger.Warning(ex, "Could not load assembly from path {Path}", assemblyFile.FullName);
-                    }
-                }
-
                 ImmutableArray<RuntimeLibrary> defaultRuntimeLibraries =
                     DependencyContext.Default?.RuntimeLibraries?.ToImmutableArray() ??
                     ImmutableArray<RuntimeLibrary>.Empty;

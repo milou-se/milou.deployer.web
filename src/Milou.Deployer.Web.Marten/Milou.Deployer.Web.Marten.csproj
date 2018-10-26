@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-      <LangVersion>latest</LangVersion>
-    <RuntimeIdentifier Condition="'$(NCrunch)' == '1'">win7-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>

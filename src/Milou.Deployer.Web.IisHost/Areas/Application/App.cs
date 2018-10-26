@@ -280,7 +280,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             IReadOnlyList<IModule> modules =
                 GetConfigurationModules(configuration, cancellationTokenSource, appLogger, scanAssemblies);
 
-            Type[] excludedModuleTypes = { typeof(AppServiceModule) };
+            Type[] excludedModuleTypes = { typeof(AppServiceModule), typeof(UrnConfigurationModule) };
 
             AppContainerScope container = Bootstrapper.Start(basePath, contentBasePath, modules, appLogger, scanAssemblies, excludedModuleTypes, loggingLevelSwitch);
 
