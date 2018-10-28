@@ -22,7 +22,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ItShouldFindAllKnownAssemblies()
         {
-            ImmutableArray<Assembly> assemblies = Assemblies.FilteredAssemblies(useCache: false);
+            ImmutableArray<Assembly> assemblies = Assemblies.FilteredAssemblies(useCache: false)
+                .Where(assembly => !assembly.GetName().Name.EndsWith(".Views", StringComparison.OrdinalIgnoreCase))
+                .ToImmutableArray();
 
             _output.WriteLine(string.Join(
                 Environment.NewLine,
