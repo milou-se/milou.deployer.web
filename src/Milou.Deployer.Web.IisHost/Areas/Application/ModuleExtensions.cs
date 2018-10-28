@@ -16,10 +16,25 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     public static class ModuleExtensions
     {
         public static ImmutableArray<OrderedModuleRegistration> GetModules(
-            IReadOnlyCollection<Assembly> assemblies,
-            IReadOnlyCollection<Type> excludedTypes,
-            IKeyValueConfiguration configuration)
+            [NotNull] IReadOnlyCollection<Assembly> assemblies,
+            [NotNull] IReadOnlyCollection<Type> excludedTypes,
+            [NotNull] IKeyValueConfiguration configuration)
         {
+            if (assemblies == null)
+            {
+                throw new ArgumentNullException(nameof(assemblies));
+            }
+
+            if (excludedTypes == null)
+            {
+                throw new ArgumentNullException(nameof(excludedTypes));
+            }
+
+            if (configuration == null)
+            {
+                throw new ArgumentNullException(nameof(configuration));
+            }
+
             Type[] moduleTypes = assemblies
                 .FindPublicConcreteTypesImplementing<IModule>()
                 .Except(excludedTypes)
@@ -34,7 +49,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             return modules;
         }
 
-        public static void RegisterModule([NotNull] this IModule module, [NotNull] string scopeName,
+        public static void RegisterModule(
+            [NotNull] this IModule module,
+            [NotNull] string scopeName,
             [NotNull] ContainerBuilder builder,
             [NotNull] ILogger logger)
         {
@@ -91,7 +108,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
 
                 throw new DeployerAppException(
-                    $"Could not instantiate type module type {moduleRegistration.ModuleType.FullName}");
+                    $"Could not instantiate module type {moduleRegistration.ModuleType.FullName} with custom constructor");
             }
 
             if (Activator.CreateInstance(moduleRegistration.ModuleType) is IModule module)
@@ -100,7 +117,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             }
 
             throw new DeployerAppException(
-                $"Could not instantiate type module type {moduleRegistration.ModuleType.FullName}");
+                $"Could not instantiate module type {moduleRegistration.ModuleType.FullName} with default constructor");
         }
     }
 }
