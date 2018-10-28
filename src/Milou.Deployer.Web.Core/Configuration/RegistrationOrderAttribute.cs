@@ -9,7 +9,7 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         public string Tag { get; set; }
 
-        public bool ReRegisterEnabled { get; set; }
+        public bool RegisterInRootScope { get; set; }
 
         public RegistrationOrderAttribute(int order)
         {

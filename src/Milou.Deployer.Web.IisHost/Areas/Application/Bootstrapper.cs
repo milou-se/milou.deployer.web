@@ -3,179 +3,164 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Arbor.KVConfiguration.Core;
 using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core;
-using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     public static class Bootstrapper
     {
-        public static AppContainerScope Start(
-            string basePath,
-            string contentBasePath,
+        public static Scope Start(
+            IKeyValueConfiguration configuration,
             [NotNull] IReadOnlyList<IModule> modulesToRegister,
             [NotNull] ILogger logger,
-            ImmutableArray<Assembly> scanAssemblies,
-            [NotNull] IReadOnlyList<Type> excludedModules,
-            [NotNull] LoggingLevelSwitch loggingLevelSwitch)
+            ImmutableArray<Assembly> assembliesToScan,
+            [NotNull] IReadOnlyList<Type> excludedModuleTypes,
+            [NotNull] IReadOnlyCollection<object> singletons)
+        {
+            GuardArgs(modulesToRegister, logger, assembliesToScan, excludedModuleTypes, singletons);
+
+            var builder = new ContainerBuilder();
+
+            RegisterSingletons(singletons, builder);
+
+            RegisterModules(modulesToRegister, logger, builder);
+
+            Scope rootScope = CreateRootScope(builder);
+
+            ILifetimeScope appRootScope = rootScope.Lifetime.BeginLifetimeScope(Scope.AppRootScopeName, appScopeBuilder =>
+                RegisterScannedModules(
+                    configuration,
+                    modulesToRegister,
+                    logger,
+                    assembliesToScan,
+                    excludedModuleTypes,
+                    Scope.AppRootScopeName,
+                    appScopeBuilder));
+
+            rootScope.SubScope = new Scope(Scope.AppRootScopeName, appRootScope);
+
+            return rootScope;
+        }
+
+        private static void RegisterScannedModules(
+            IKeyValueConfiguration configuration,
+            IReadOnlyList<IModule> modulesToRegister,
+            ILogger logger,
+            ImmutableArray<Assembly> assembliesToScan,
+            IReadOnlyList<Type> excludedModuleTypes,
+            string scopeName,
+            ContainerBuilder appScopeBuilder)
+        {
+            Type[] existingTypes = modulesToRegister
+                .Select(item => item.GetType())
+                .ToArray();
+
+            Type[] allExcludedTypes = excludedModuleTypes.Concat(existingTypes).ToArray();
+
+            ImmutableArray<OrderedModuleRegistration> orderedModuleRegistrations =
+                ModuleExtensions.GetModules(assembliesToScan, allExcludedTypes, configuration);
+
+            if (logger.IsEnabled(LogEventLevel.Verbose))
+            {
+                logger.Verbose(
+                    "Registering module types {Types} from assemblies {Assemblies}, excluded modules: {Excluded}",
+                    orderedModuleRegistrations.Select(type => type.ModuleRegistration.ModuleType.FullName)
+                        .ToArray(),
+                    assembliesToScan.Select(assembly => $"{assembly.FullName} {assembly.Location}").ToArray(),
+                    allExcludedTypes.Select(type =>
+                            $"{type.FullName}, {type.Assembly.FullName} {type.Assembly.Location}")
+                        .ToArray());
+            }
+
+            foreach (OrderedModuleRegistration module in orderedModuleRegistrations)
+            {
+                appScopeBuilder.RegisterInstance(module);
+
+                if (module.ModuleRegistration.Tag is null || module.ModuleRegistration.RegisterInRootScope)
+                {
+                    module.Module.RegisterModule(scopeName, appScopeBuilder, logger);
+                }
+            }
+        }
+
+        private static void GuardArgs(
+            IReadOnlyList<IModule> modulesToRegister,
+            ILogger logger,
+            ImmutableArray<Assembly> assembliesToScan,
+            IReadOnlyList<Type> excludedModuleTypes,
+            IReadOnlyCollection<object> singletons)
         {
             if (modulesToRegister == null)
             {
                 throw new ArgumentNullException(nameof(modulesToRegister));
             }
 
-            scanAssemblies.ThrowIfDefault();
+            assembliesToScan.ThrowIfDefault();
 
             if (logger == null)
             {
                 throw new ArgumentNullException(nameof(logger));
             }
 
-            if (excludedModules == null)
+            if (excludedModuleTypes == null)
             {
-                throw new ArgumentNullException(nameof(excludedModules));
+                throw new ArgumentNullException(nameof(excludedModuleTypes));
             }
 
-            if (loggingLevelSwitch == null)
+            if (singletons == null)
             {
-                throw new ArgumentNullException(nameof(loggingLevelSwitch));
+                throw new ArgumentNullException(nameof(singletons));
             }
+        }
 
-            var builder = new ContainerBuilder();
+        private static Scope CreateRootScope(ContainerBuilder builder)
+        {
+            var rootScope = new Scope(Scope.RootScopeName);
 
-            builder
-                .RegisterInstance(loggingLevelSwitch)
-                .AsSelf()
-                .SingleInstance();
-
-            builder
-                .Register(context => new EnvironmentConfiguration
-            {
-                ApplicationBasePath = basePath,
-                ContentBasePath = contentBasePath
-            })
-                .AsSelf()
-                .SingleInstance();
-
-            if (logger.IsEnabled(LogEventLevel.Verbose))
-            {
-                foreach (IModule module in modulesToRegister)
-                {
-                    Type type = module.GetType();
-
-                    logger.Verbose("Registering pre-initialized module {Module} in container builder",
-                        $"{type.FullName} assembly {type.Assembly.FullName} at {type.Assembly.Location}");
-                    builder.RegisterModule(module);
-                }
-            }
-
-            logger.Debug("Done running configuration modules");
-
-            Type[] existingTypes = modulesToRegister
-                .Select(item => item.GetType())
-                .ToArray();
-
-            bool HasTagAttribute(Type type)
-            {
-                var registrationOrderAttribute = type.GetCustomAttribute<RegistrationOrderAttribute>();
-
-                if (registrationOrderAttribute is null)
-                {
-                    return false;
-                }
-
-                if (string.IsNullOrWhiteSpace(registrationOrderAttribute.Tag))
-                {
-                    return false;
-                }
-
-                if (registrationOrderAttribute.ReRegisterEnabled)
-                {
-                    return false;
-                }
-
-                return true;
-            }
-
-            Type[] moduleTypes = scanAssemblies
-                .Select(assembly =>
-                    assembly.GetLoadableTypes()
-                        .Where(type => type.IsClass && !type.IsAbstract && type.IsAssignableTo<IModule>()))
-                .SelectMany(types => types)
-                .Except(existingTypes)
-                .Except(excludedModules)
-                .ToArray();
-
-            if (logger.IsEnabled(LogEventLevel.Verbose))
-            {
-                logger.Verbose(
-                    "Registering module types {Types} from assemblies {Assemblies}, excluded modules: {Excluded}, existing types {Existing}",
-                    moduleTypes.Select(type => type.FullName).ToArray(),
-                    scanAssemblies.Select(assembly => $"{assembly.FullName} {assembly.Location}").ToArray(),
-                    excludedModules.Select(type => $"{type.FullName}, {type.Assembly.FullName} {type.Assembly.Location}")
-                        .ToArray(),
-                    existingTypes.Select(type => $"{type.FullName}, {type.Assembly.FullName} {type.Assembly.Location}")
-                        .ToArray());
-            }
-
-            builder
-                .RegisterAssemblyTypes(scanAssemblies.ToArray())
-                .Where(moduleTypes.Contains)
-                .As<IModule>();
-
-            var rootScope = new Scope();
             builder.RegisterInstance(rootScope);
 
             IContainer container = builder.Build();
 
             rootScope.Lifetime = container;
+            return rootScope;
+        }
 
-            var allModules = container.Resolve<IReadOnlyCollection<IModule>>();
-
-            ILifetimeScope appRootScope = container.BeginLifetimeScope(appScopeBuilder =>
+        private static void RegisterSingletons(IReadOnlyCollection<object> singletons, ContainerBuilder builder)
+        {
+            foreach (object singleton in singletons)
             {
-                ImmutableArray<IModule> modules = allModules
-                    .Where(module => !HasTagAttribute(module.GetType()))
-                    .Select(module =>
-                    {
-                        var customAttribute = module.GetType().GetCustomAttribute<RegistrationOrderAttribute>();
+                builder
+                    .RegisterInstance(singleton)
+                    .AsSelf()
+                    .SingleInstance();
+            }
+        }
 
-                        return (Module: module, Order: customAttribute?.Order ?? 0);
-                    })
-                    .OrderBy(moduleOrder => moduleOrder.Order)
-                    .Select(moduleOrder => moduleOrder.Module)
-                    .ToImmutableArray();
-
-                foreach (IModule module in modules)
+        private static void RegisterModules(
+            IReadOnlyList<IModule> modulesToRegister,
+            ILogger logger,
+            ContainerBuilder builder)
+        {
+            foreach (IModule module in modulesToRegister)
+            {
+                if (logger.IsEnabled(LogEventLevel.Verbose))
                 {
-                    string moduleName = module.GetType().FullName;
-                    try
-                    {
-                        logger.Debug("Registering module {Module} in scope {Scope}",
-                            moduleName,
-                            nameof(AppContainerScope.AppRootScope));
+                    Type type = module.GetType();
 
-                        appScopeBuilder.RegisterModule(module);
-                    }
-                    catch (Exception ex) when (!ex.IsFatal())
-                    {
-                        logger.Error(ex, "Could not register module {Module}", moduleName);
-                        throw new DeployerAppException($"Could not register module {moduleName}", ex);
-                    }
+                    logger.Verbose("Registering pre-initialized module {Module} in container builder",
+                        $"{type.FullName} assembly {type.Assembly.FullName} at {type.Assembly.Location}");
                 }
-            });
+                module.RegisterModule(Scope.RootScopeName, builder, logger);
+            }
 
-            rootScope.SubScope = new Scope(appRootScope);
-
-            return new AppContainerScope(container, rootScope);
+            logger.Debug("Done running configuration modules");
         }
     }
 }

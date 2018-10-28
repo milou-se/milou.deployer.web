@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.IisHost
 
                 using (App app = await App.CreateAsync(cancellationTokenSource, null, args))
                 {
-                    bool runAsService = app.Container.Resolve<IKeyValueConfiguration>().ValueOrDefault(ApplicationConstants.RunAsService) && !Debugger.IsAttached;
+                    bool runAsService = app.AppRootScope.Deepest().Lifetime.Resolve<IKeyValueConfiguration>().ValueOrDefault(ApplicationConstants.RunAsService) && !Debugger.IsAttached;
 
                     app.Logger.Information("Starting application {Application}", ApplicationConstants.ApplicationName);
 

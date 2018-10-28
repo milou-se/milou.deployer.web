@@ -21,6 +21,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             string headers = string.Join(Environment.NewLine,
                 WebFixture?.ResponseMessage?.Headers?.Select(pair => $"{pair.Key}:{string.Join(",", pair.Value)}") ?? Array.Empty<string>());
+
+            Output.WriteLine($"Response status: {WebFixture?.ResponseMessage?.StatusCode}");
+
             Output.WriteLine($"Response headers: {headers}");
 
             string body = WebFixture?.ResponseMessage?.Content != null ? await WebFixture.ResponseMessage.Content?.ReadAsStringAsync() : Constants.NotAvailable;

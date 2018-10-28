@@ -11,6 +11,7 @@ using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Application;
+using Milou.Deployer.Web.Marten;
 using MysticMind.PostgresEmbed;
 using Serilog;
 using Xunit;
@@ -46,7 +47,19 @@ namespace Milou.Deployer.Web.Tests.Integration
         public App App { get; private set; }
 
         [PublicAPI]
-        public int? HttpPort => App.AppRootScope.Lifetime.ResolveOptional<EnvironmentConfiguration>()?.HttpPort;
+        public int? HttpPort => GetHttpPort();
+
+        private int? GetHttpPort()
+        {
+            var environmentConfiguration = App.AppRootScope.Lifetime.ResolveOptional<EnvironmentConfiguration>();
+
+            if (environmentConfiguration is null)
+            {
+                return null;
+            }
+
+            return environmentConfiguration.HttpPort;
+        }
 
         protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
@@ -58,6 +71,9 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public async Task InitializeAsync()
         {
+            Console.WriteLine(typeof(MartenConfiguration));
+            Console.WriteLine(typeof(Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeployController));
+
             _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
 
             DirectoryInfo postgresqlDbDir = new DirectoryInfo(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),

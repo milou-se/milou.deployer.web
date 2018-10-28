@@ -8,7 +8,7 @@ using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 {
     [UsedImplicitly]
-    [RegistrationOrder(0, Tag = Scope.AspNetCoreScope, ReRegisterEnabled = true)]
+    [RegistrationOrder(0, Tag = Scope.AspNetCoreScope, RegisterInRootScope = true)]
     public class ServiceModule : Module
     {
         protected override void Load(ContainerBuilder builder)

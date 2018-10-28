@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             IKeyValueConfiguration configuration,
             Scope startupScope,
             Scope webHostScope,
-            Serilog.ILogger logger)
+            Serilog.ILogger logger, Scope scope)
         {
             var environmentConfiguration =
                 startupScope.Deepest().Lifetime.ResolveOptional<EnvironmentConfiguration>();
@@ -97,7 +97,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 }
             }
 
-            return webHostBuilder;
+            return new WebHostBuilderWrapper(webHostBuilder, scope);
         }
     }
 }

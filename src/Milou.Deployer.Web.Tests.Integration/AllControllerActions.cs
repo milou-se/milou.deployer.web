@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -57,6 +58,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
             Assemblies.FilteredAssemblies(useCache: false)
+                .Concat(new[] { typeof(DeployController).Assembly })
+                .Distinct()
                 .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
                 .Select(controllerType => (Controller:controllerType, Actions:controllerType.GetMethods(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly)))

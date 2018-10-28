@@ -48,17 +48,13 @@ namespace Milou.Deployer.Web.Core.Logging
                 loggerConfiguration = loggerConfiguration.WriteTo.Debug();
             }
 
-            bool seqEnabled = false;
-
             if (serilogConfiguration.SeqEnabled && serilogConfiguration.IsValid)
             {
                 if (!string.IsNullOrWhiteSpace(serilogConfiguration.SeqUrl)
                     && Uri.TryCreate(serilogConfiguration.SeqUrl, UriKind.Absolute, out Uri serilogUrl))
                 {
-                    logger.Debug("Serilog configured to use Seq with URL {Url}", serilogUrl.AbsolutePath);
+                    logger.Debug("Serilog configured to use Seq with URL {Url}", serilogUrl.AbsoluteUri);
                     loggerConfiguration = loggerConfiguration.WriteTo.Seq(serilogUrl.AbsoluteUri);
-
-                    seqEnabled = true;
                 }
             }
 
@@ -81,11 +77,6 @@ namespace Milou.Deployer.Web.Core.Logging
                     loggerConfiguration = loggerConfiguration
                         .WriteTo.File(rollingLoggingFile);
                 }
-            }
-
-            if (seqEnabled)
-            {
-                logger.Debug("Serilog configured to use Seq with URL {Url}", serilogConfiguration.SeqUrl);
             }
 
             loggerConfiguration = loggerConfiguration.WriteTo.Console();

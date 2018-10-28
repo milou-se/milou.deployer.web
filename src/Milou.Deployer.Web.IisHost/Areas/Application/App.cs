@@ -63,8 +63,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public IWebHost WebHost { get; private set; }
 
-        public IContainer Container { get; private set; }
-
         public Scope AppRootScope { get; private set; }
 
         public static async Task<App> CreateAsync(
@@ -107,9 +105,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Logger?.Verbose("Disposing web host");
             WebHost?.SafeDispose();
             Logger?.Verbose("Disposing Application root scope");
+            Scope rootScope = AppRootScope.Top();
             AppRootScope?.SafeDispose();
-            Logger?.Verbose("Disposing container");
-            Container?.SafeDispose();
+            rootScope?.SafeDispose();
             Logger?.Verbose("Disposing configuration");
             Configuration?.SafeDispose();
 
@@ -129,7 +127,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Logger = null;
             WebHost = null;
             HostBuilder = null;
-            Container = null;
             AppRootScope = null;
             _disposed = true;
             _disposing = false;
@@ -167,7 +164,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 try
                 {
-                    WebHost.RunAsService();
+                    WebHost.CustomRunAsService(this);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
@@ -280,30 +277,39 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             IReadOnlyList<IModule> modules =
                 GetConfigurationModules(configuration, cancellationTokenSource, appLogger, scanAssemblies);
 
-            Type[] excludedModuleTypes = { typeof(AppServiceModule), typeof(UrnConfigurationModule) };
+            Type[] excludedModuleTypes = { typeof(AppServiceModule) };
 
-            AppContainerScope container = Bootstrapper.Start(basePath, contentBasePath, modules, appLogger, scanAssemblies, excludedModuleTypes, loggingLevelSwitch);
+            var environmentConfiguration = new EnvironmentConfiguration
+            {
+                ApplicationBasePath = basePath,
+                ContentBasePath = contentBasePath
+            };
 
-            DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(container.AppRootScope.Deepest().Lifetime, appLogger, cancellationTokenSource.Token);
+            var singletons = new object[] { loggingLevelSwitch, environmentConfiguration};
+
+            Scope rootScope = Bootstrapper.Start(configuration,
+                modules, appLogger, scanAssemblies, excludedModuleTypes,singletons);
+
+            DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(rootScope.Deepest().Lifetime, appLogger, cancellationTokenSource.Token);
 
             ILifetimeScope webHostScope =
-                container.AppRootScope.Deepest().Lifetime.BeginLifetimeScope(builder =>
+                rootScope.Deepest().Lifetime.BeginLifetimeScope(builder =>
                 {
                     builder.RegisterInstance(deploymentTargetIds).AsSelf().SingleInstance();
                     builder.RegisterType<Startup>().AsSelf();
-                    builder.RegisterInstance(container.AppRootScope);
                 });
 
-            var webHostScopeWrapper = new Scope(webHostScope);
-            container.AppRootScope.Deepest().SubScope = webHostScopeWrapper;
+            var webHostScopeWrapper = new Scope(Scope.WebHostScope, webHostScope);
+            rootScope.Deepest().SubScope = webHostScopeWrapper;
+
+            EnvironmentConfigurator.ConfigureEnvironment(rootScope.Deepest().Lifetime);
 
             IWebHostBuilder webHostBuilder =
-                CustomWebHostBuilder.GetWebHostBuilder(configuration, container.AppRootScope, webHostScopeWrapper, appLogger);
+                CustomWebHostBuilder.GetWebHostBuilder(configuration, rootScope, webHostScopeWrapper, appLogger, rootScope.Top());
 
             var app = new App(webHostBuilder, cancellationTokenSource, appLogger, configuration)
             {
-                Container = container.Container,
-                AppRootScope = container.AppRootScope
+                AppRootScope = rootScope.SubScope
             };
 
             return app;
@@ -369,6 +375,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             modules.Add(module);
             modules.Add(urnModule);
             modules.Add(new MediatorModule(scanAssemblies, excludedTypes, logger));
+            modules.Add(new DataModule(logger));
 
             return modules;
         }

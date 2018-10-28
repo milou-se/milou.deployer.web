@@ -20,11 +20,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
+using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware;
@@ -34,6 +36,7 @@ using Newtonsoft.Json;
 using Serilog.AspNetCore;
 using IApplicationLifetime = Microsoft.AspNetCore.Hosting.IApplicationLifetime;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using ModuleExtensions = Milou.Deployer.Web.IisHost.Areas.Application.ModuleExtensions;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
@@ -109,7 +112,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             var deploymentTargetIds = _webHostScope.Lifetime.Resolve<DeploymentTargetIds>();
 
-            _aspNetScope = _webHostScope.Lifetime.BeginLifetimeScope(builder =>
+            _aspNetScope = _webHostScope.Lifetime.BeginLifetimeScope(Scope.AspNetCoreScope, builder =>
             {
                 foreach (string deploymentTargetId in deploymentTargetIds.DeploymentWorkerIds)
                 {
@@ -137,41 +140,25 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    _logger.Warning(ex, "Could not get deployment target read service, registering defualts");
+                    _logger.Warning(ex, "Could not get deployment target read service, registering defaults");
                     builder.RegisterModule(new AppServiceModule(keyValueConfiguration, _logger));
                 }
 
-                ImmutableArray<IModule> modules = _webHostScope.Lifetime.Resolve<IEnumerable<IModule>>()
-                    .Select(module =>
-                    {
-                        var customAttribute = module.GetType().GetCustomAttribute<RegistrationOrderAttribute>();
+                OrderedModuleRegistration[] orderedModuleRegistrations = _webHostScope.Lifetime
+                    .Resolve<IReadOnlyCollection<OrderedModuleRegistration>>()
+                    .Where(orderedModuleRegistration => orderedModuleRegistration.ModuleRegistration.Tag != null)
+                    .OrderBy(orderedModuleRegistration => orderedModuleRegistration.ModuleRegistration.Order)
+                    .ToArray();
 
-                        if (customAttribute?.Tag.HasValue() != true
-                            || !customAttribute.Tag.Equals(Scope.AspNetCoreScope, StringComparison.OrdinalIgnoreCase))
-                        {
-                            return null;
-                        }
-
-                        return new
-                        {
-                            Module = module,
-                            customAttribute.Order
-                        };
-                    })
-                    .Where(item => item != null)
-                    .OrderBy(tuple => tuple.Order)
-                    .Select(tuple => tuple.Module)
-                    .ToImmutableArray();
-
-                foreach (IModule module in modules)
+                foreach (OrderedModuleRegistration module in orderedModuleRegistrations)
                 {
-                    builder.RegisterModule(module);
+                    module.Module.RegisterModule(Scope.AspNetCoreScope, builder, _logger);
                 }
 
                 builder.Populate(services);
             });
 
-            _webHostScope.Deepest().SubScope = new Scope(_aspNetScope);
+            _webHostScope.Deepest().SubScope = new Scope(Scope.AspNetCoreScope, _aspNetScope);
 
             return new AutofacServiceProvider(_aspNetScope);
         }

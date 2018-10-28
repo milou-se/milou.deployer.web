@@ -67,6 +67,11 @@
         <ProjectReference Include="..\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
     </ItemGroup>
     <ItemGroup>
+      <Reference Include="Machine.Specifications">
+        <HintPath>..\..\..\..\..\Users\niklas\.nuget\packages\machine.specifications\0.12.0\lib\netstandard1.3\Machine.Specifications.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+    <ItemGroup>
         <Content Update="Areas\Organizations\Views\_ViewStart.cshtml">
             <Pack>$(IncludeRazorContentInPack)</Pack>
         </Content>

@@ -21,13 +21,15 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             using (var httpClient = new HttpClient())
             {
+                string url = $"http://localhost:{HttpPort}";
+
                 try
                 {
-                    ResponseMessage = await httpClient.GetAsync($"http://localhost:{HttpPort}", CancellationToken);
+                    ResponseMessage = await httpClient.GetAsync(url, CancellationToken);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                   App?.Logger?.Error(ex, "Error in test");
+                   App?.Logger?.Error(ex, "Error in test when making HTTP GET request {Url}", url);
                     Assert.NotNull(ex);
                 }
             }
