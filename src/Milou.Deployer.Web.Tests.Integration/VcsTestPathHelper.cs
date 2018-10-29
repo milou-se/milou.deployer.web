@@ -12,10 +12,10 @@ namespace Milou.Deployer.Web.Tests.Integration
             if (!string.IsNullOrWhiteSpace(originalSolutionPath))
             {
                 var fileInfo = new FileInfo(originalSolutionPath);
-                return VcsPathHelper.FindVcsRootPath(fileInfo.Directory?.FullName);
+                return VcsPathHelper.FindVcsRootPath(fileInfo.Directory?.FullName ?? Directory.GetCurrentDirectory());
             }
 
-            return VcsPathHelper.FindVcsRootPath();
+            return VcsPathHelper.FindVcsRootPath(Directory.GetCurrentDirectory());
         }
     }
 }
