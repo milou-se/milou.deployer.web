@@ -76,14 +76,16 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
 
-            DirectoryInfo postgresqlDbDir = new DirectoryInfo(Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            const string version = "10.5.1";
+
+            DirectoryInfo postgresqlDbDir = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
                 "tools",
-                "MysticMind.PostgresEmbed")).EnsureExists();
+                "MysticMind.PostgresEmbed", version)).EnsureExists();
 
             try
             {
                 _pgServer = new PgServer(
-                    "9.6.9.1",
+                    version,
                     PostgresqlUser,
                     dbDir: postgresqlDbDir.FullName,
                     addLocalUserAccessPermission: AddLocalUserAccessPermission,
