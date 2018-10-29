@@ -24,7 +24,7 @@
         <PackageReference Include="Arbor.Tooler" Version="0.1.4" />
         <PackageReference Include="Autofac" Version="4.8.1" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.3.0" />
-        <PackageReference Include="Jetbrains.Annotations" Version="2018.2.1" />
+        <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
         <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
         <PackageReference Include="MediatR" Version="5.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
@@ -44,12 +44,12 @@
         </PackageReference>
         <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.8" />
         <PackageReference Include="Milou.Deployer.Core" Version="4.0.8" />
-        <PackageReference Include="Nuget.Versioning" Version="4.8.0" />
+        <PackageReference Include="NuGet.Versioning" Version="4.8.0" />
         <PackageReference Include="Serilog" Version="2.7.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
         <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
         <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
-        <PackageReference Include="serilog.Sinks.Seq" Version="4.0.0" />
+        <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
         <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
         <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
     </ItemGroup>
@@ -65,11 +65,6 @@
     <ItemGroup>
         <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
         <ProjectReference Include="..\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-      <Reference Include="Machine.Specifications">
-        <HintPath>..\..\..\..\..\Users\niklas\.nuget\packages\machine.specifications\0.12.0\lib\netstandard1.3\Machine.Specifications.dll</HintPath>
-      </Reference>
     </ItemGroup>
     <ItemGroup>
         <Content Update="Areas\Organizations\Views\_ViewStart.cshtml">
