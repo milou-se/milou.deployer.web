@@ -63,34 +63,64 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
-        private const string PostgresqlUser = "postgres";
+        private static readonly string PostgresqlUser = Environment.UserName; //"postgres";
 
         private const string ConnectionStringFormat = "Server=localhost;Port={0};User Id={1};Password=test;Database=postgres;Pooling=false";
 
-        private const bool AddLocalUserAccessPermission = true;
+        private bool AddLocalUserAccessPermission = true;
 
         public async Task InitializeAsync()
         {
+            bool useDefaultDirectory = false;
+
+            if (bool.TryParse(
+                Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:AddLocalUserAccessPermission"),
+                out bool addUser))
+            {
+                AddLocalUserAccessPermission = addUser;
+            }
+
+            if (bool.TryParse(
+                Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:DefaultDirectory"),
+                out bool useDefaultDirectoryEnabled))
+            {
+                useDefaultDirectory = useDefaultDirectoryEnabled;
+            }
+
+            string version = Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:version")
+                .WithDefault("10.5.1");
+
+            DirectoryInfo postgresqlDbDir;
+            if (useDefaultDirectory)
+            {
+                postgresqlDbDir = null;
+            }
+            else
+            {
+                postgresqlDbDir = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "tools",
+                    "MysticMind.PostgresEmbed", version)).EnsureExists();
+            }
+
             Console.WriteLine(typeof(MartenConfiguration));
             Console.WriteLine(typeof(Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeployController));
 
-            _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
-
-            const string version = "10.5.1";
-
-            DirectoryInfo postgresqlDbDir = new DirectoryInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-                "tools",
-                "MysticMind.PostgresEmbed", version)).EnsureExists();
-
             try
             {
-                _pgServer = new PgServer(
-                    version,
-                    PostgresqlUser,
-                    dbDir: postgresqlDbDir.FullName,
-                    addLocalUserAccessPermission: AddLocalUserAccessPermission,
-                    clearInstanceDirOnStop: true);
-                _pgServer.Start();
+                try
+                {
+                    _pgServer = new PgServer(
+                        version,
+                        PostgresqlUser,
+                        dbDir: postgresqlDbDir?.FullName ?? "",
+                        addLocalUserAccessPermission: AddLocalUserAccessPermission,
+                        clearInstanceDirOnStop: true);
+                    _pgServer.Start();
+                }
+                finally
+                {
+                    _cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
+                }
 
                 string connStr = string.Format(ConnectionStringFormat, _pgServer.PgPort, PostgresqlUser);
 
