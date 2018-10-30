@@ -43,9 +43,6 @@ namespace Milou.Deployer.Web.Core.Configuration
         public const string ApplicationBasePath = "urn:milou:deployer:web:application-base-path";
 
         [Metadata]
-        public const string DeployerExePath = "urn:milou-deployer:web:deployer:exe-path";
-
-        [Metadata]
         public const string AllowPreReleaseEnabled = "MilouDeployer_AllowPreRelease_Enabled";
 
         [Metadata]

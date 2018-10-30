@@ -27,10 +27,17 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
 
             await NuGetConfigCreator.CreateNuGetConfig(nugetConfigFile, nugetPackageDirectory, cancellationToken);
 
-            return new TestConfiguration(baseDirectory,
+            var testConfiguration = new TestConfiguration(baseDirectory,
                 nugetConfigFile,
                 nugetPackageDirectory,
                 targetAppRoot);
+
+            string nugetConfigContent = await File.ReadAllTextAsync(nugetConfigFile.FullName, cancellationToken);
+
+            Console.WriteLine(
+                $"Created test configuration {testConfiguration} with nuget config file content {Environment.NewLine}{nugetConfigContent}");
+
+            return testConfiguration;
         }
     }
 }

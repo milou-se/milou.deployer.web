@@ -23,5 +23,11 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
         public DirectoryInfo NugetPackageDirectory { get; }
 
         public DirectoryInfo SiteAppRoot { get; }
+
+        public override string ToString()
+        {
+            return
+                $"{nameof(BaseDirectory)}: {BaseDirectory.FullName}, {nameof(NugetConfigFile)}: {NugetConfigFile.FullName}, {nameof(NugetPackageDirectory)}: {NugetPackageDirectory.FullName}, {nameof(SiteAppRoot)}: {SiteAppRoot.FullName}";
+        }
     }
 }

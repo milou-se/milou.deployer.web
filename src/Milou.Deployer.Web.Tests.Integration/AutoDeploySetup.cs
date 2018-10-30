@@ -66,21 +66,22 @@ namespace Milou.Deployer.Web.Tests.Integration
             }.ToImmutableArray();
 
             var jsonConfigurationSerializer = new JsonConfigurationSerializer();
-            string serialized = jsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
+            string serializedConfigurationItems = jsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
 
             string settingsFile = Path.Combine(deployerDir, $"{Environment.MachineName}.settings.json");
 
             FilesToClean.Add(new FileInfo(settingsFile));
 
-            File.WriteAllText(settingsFile, serialized, Encoding.UTF8);
+            await File.WriteAllTextAsync(settingsFile, serializedConfigurationItems, Encoding.UTF8, cancellationToken);
 
-            var directoryInfo = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
+            var integrationTestProjectDirectory = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
                 "src",
                 "Milou.Deployer.Web.Tests.Integration"));
-            FileInfo[] nugetPackages = directoryInfo.GetFiles("*.nupkg");
+            FileInfo[] nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
+
             if (nugetPackages.Length == 0)
             {
-                throw new DeployerAppException($"Could not find nuget test packages located in {directoryInfo.FullName}");
+                throw new DeployerAppException($"Could not find nuget test packages located in {integrationTestProjectDirectory.FullName}");
             }
 
             foreach (FileInfo nugetPackage in nugetPackages)
@@ -88,8 +89,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                 nugetPackage.CopyTo(Path.Combine(TestConfiguration.NugetPackageDirectory.FullName, nugetPackage.Name));
             }
 
-            Environment.SetEnvironmentVariable(ConfigurationConstants.DeployerExePath,
-                Path.Combine(deployerDir, "Milou.Deployer.ConsoleClient.exe"));
+            Environment.SetEnvironmentVariable(Milou.Deployer.Core.Configuration.ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
+
             Environment.SetEnvironmentVariable(ConfigurationConstants.NugetConfigFile,
                 TestConfiguration.NugetConfigFile.FullName);
             Environment.SetEnvironmentVariable(ConfigurationConstants.NuGetPackageSourceName,
@@ -127,13 +128,13 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (targets.Length != 1)
             {
-                throw new Core.DeployerAppException("The target has not been created");
+                throw new DeployerAppException("The test target has not been created");
             }
 
-            string packageVersion = "MilouDeployerWebTest 1.2.4";
+            const string packageVersion = "MilouDeployerWebTest 1.2.4";
 
             Guid deploymentTaskId = Guid.NewGuid();
-            string deploymentTargetId = TestDataCreator.Testtarget;
+            const string deploymentTargetId = TestDataCreator.Testtarget;
             var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId);
 
             DeploymentTaskResult deploymentTaskResult = await deploymentService.ExecuteDeploymentAsync(
@@ -143,7 +144,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (!deploymentTaskResult.ExitCode.IsSuccess)
             {
-                throw new Core.DeployerAppException($"Initial deploy failed: {deploymentTaskResult.Metadata}");
+                throw new DeployerAppException($"Initial deployment failed, metadata: {deploymentTaskResult.Metadata}; test configuration: {TestConfiguration}");
             }
 
             TestStartup.TestConfiguration = TestConfiguration;
