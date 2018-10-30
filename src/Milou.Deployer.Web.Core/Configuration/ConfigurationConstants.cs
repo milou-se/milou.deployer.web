@@ -17,10 +17,10 @@ namespace Milou.Deployer.Web.Core.Configuration
         public const string ShutdownTimeInSeconds = "urn:milou:deployer:web:shutdown-time-in-seconds";
 
         [Metadata]
-        public const string NuGetPackageSourceName = "tools:nuget:package-source-name";
+        public const string NuGetPackageSourceName = "urn:milou:deployer:web:nuget:package-source-name";
 
         [Metadata]
-        public const string NugetConfigFile = "urn:milou-deployer:tools:nuget:config";
+        public const string NugetConfigFile = "urn:milou:deployer:web:nuget:config";
 
 
         [Metadata]
@@ -56,11 +56,11 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         public const string PackageId = "urn:nuget:package-id";
 
-        public const string AutoDeployConfiguration = "urn:milou:deployer:auto-deploy:configuration";
+        public const string AutoDeployConfiguration = "urn:milou:deployer:web:auto-deploy:configuration";
 
         [PublicAPI]
         [Metadata(defaultValue: "false")]
-        public const string AutoDeployConfigurationDefaultEnabled = "urn:milou:deployer:auto-deploy:configuration:default:enabled";
+        public const string AutoDeployConfigurationDefaultEnabled = AutoDeployConfiguration + ":default:enabled";
 
         [Metadata]
         public static string AllowedIPs = "urn:milou:deployer:authorization:allowed-ips";

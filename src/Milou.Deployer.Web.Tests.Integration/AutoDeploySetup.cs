@@ -59,10 +59,14 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             string deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
 
+            const string milouDeployerWebTestsIntegration = "Milou.Deployer.Web.Tests.Integration";
+
             ImmutableArray<KeyValue> keys = new List<KeyValue>
             {
-                new KeyValue("urn:milou-deployer:tools:nuget:source", "Milou.Deployer.Web.Tests.Integration", null),
-                new KeyValue(ConfigurationConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName, null)
+                new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.NuGetSource, milouDeployerWebTestsIntegration, null),
+                new KeyValue(ConfigurationConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName, null),
+                new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
+
             }.ToImmutableArray();
 
             var jsonConfigurationSerializer = new JsonConfigurationSerializer();
@@ -76,7 +80,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var integrationTestProjectDirectory = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
                 "src",
-                "Milou.Deployer.Web.Tests.Integration"));
+                milouDeployerWebTestsIntegration));
             FileInfo[] nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
 
             if (nugetPackages.Length == 0)
@@ -89,12 +93,13 @@ namespace Milou.Deployer.Web.Tests.Integration
                 nugetPackage.CopyTo(Path.Combine(TestConfiguration.NugetPackageDirectory.FullName, nugetPackage.Name));
             }
 
-            Environment.SetEnvironmentVariable(Milou.Deployer.Core.Configuration.ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
+            Environment.SetEnvironmentVariable(Deployer.Core.Configuration.ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
 
             Environment.SetEnvironmentVariable(ConfigurationConstants.NugetConfigFile,
                 TestConfiguration.NugetConfigFile.FullName);
+
             Environment.SetEnvironmentVariable(ConfigurationConstants.NuGetPackageSourceName,
-                "Milou.Deployer.Web.Tests.Integration");
+                milouDeployerWebTestsIntegration);
 
             Environment.SetEnvironmentVariable(
                 $"{ConfigurationConstants.AutoDeployConfiguration}:default:StartupDelayInSeconds",
