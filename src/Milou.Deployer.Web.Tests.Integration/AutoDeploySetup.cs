@@ -66,6 +66,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.NuGetSource, milouDeployerWebTestsIntegration, null),
                 new KeyValue(ConfigurationConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName, null),
                 new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
+                new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.LogLevel, "Verbose", null),
 
             }.ToImmutableArray();
 

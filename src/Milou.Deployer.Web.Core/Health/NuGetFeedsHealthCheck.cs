@@ -56,14 +56,14 @@ namespace Milou.Deployer.Web.Core.Health
 
             ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(nuGetDownloadResult.NuGetExePath,
                 args,
-                (message, category) =>
+                (message, _) =>
                 {
                     lines.Add(message);
                     _logger.Verbose("{Message}", message);
                 },
-                (message, category) => _logger.Verbose("{Message}", message),
-                (message, category) => _logger.Verbose("{Message}", message),
-                debugAction: (message, category) => _logger.Verbose("{Message}", message),
+                (message, category) => _logger.Verbose("{Category}{Message}",category, message),
+                (message, category) => _logger.Verbose("{Category}{Message}",category, message),
+                debugAction: (message, category) => _logger.Verbose("{Category}{Message}",category, message),
                 cancellationToken: cancellationToken);
 
             if (!exitCode.IsSuccess)

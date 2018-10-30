@@ -203,18 +203,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     exitCode = await ProcessRunner.ExecuteProcessAsync(nugetExe,
                         args,
-                        (s, _) =>
+                        (message, category) =>
                         {
-                            builder.Add(s);
-                            _logger.Debug("{Message}", s);
+                            builder.Add(message);
+                            _logger.Debug("{Category} {Message}", category, message);
                         },
-                        (s, _) =>
+                        (message, category) =>
                         {
-                            errorBuild.Add(s);
-                            _logger.Error("{Message}", s);
+                            errorBuild.Add(message);
+                            _logger.Error("{Category} {Message}", category, message);
                         },
-                        (s, _) => _logger.Debug("{ProcessToolMessage}", s),
-                        (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
+                        (message, category) => _logger.Debug("{Category} {ProcessToolMessage}",category, message),
+                        (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}",category, message),
                         cancellationToken: linked.Token);
                 }
             }
@@ -245,10 +245,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 await ProcessRunner.ExecuteProcessAsync(nugetExe,
                     sourcesArgs,
-                    (s, _) => sources.Add(s),
-                    (s, _) => sourcesError.Add(s),
-                    (s, _) => _logger.Information("{ProcessToolMessage}", s),
-                    (s, _) => _logger.Verbose("{ProcessToolMessage}", s),
+                    (message, _) => sources.Add(message),
+                    (message, _) => sourcesError.Add(message),
+                    (message, category) => _logger.Information("{Category} {ProcessToolMessage}",category, message),
+                    (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}",category,message),
                     cancellationToken: cancellationToken);
 
                 string sourcesOut = string.Join(Environment.NewLine, sources);
