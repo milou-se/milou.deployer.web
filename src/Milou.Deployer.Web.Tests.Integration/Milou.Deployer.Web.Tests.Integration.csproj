@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <TargetFramework>netcoreapp2.1</TargetFramework>
+        <ArborPublishEnabled>false</ArborPublishEnabled>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
