@@ -12,6 +12,7 @@ using Autofac;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -73,9 +74,14 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             File.WriteAllText(settingsFile, serialized, Encoding.UTF8);
 
-            FileInfo[] nugetPackages = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
+            var directoryInfo = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
                 "src",
-                "Milou.Deployer.Web.Tests.Integration")).GetFiles("*.nupkg");
+                "Milou.Deployer.Web.Tests.Integration"));
+            FileInfo[] nugetPackages = directoryInfo.GetFiles("*.nupkg");
+            if (nugetPackages.Length == 0)
+            {
+                throw new DeployerAppException($"Could not find nuget test packages located in {directoryInfo.FullName}");
+            }
 
             foreach (FileInfo nugetPackage in nugetPackages)
             {
