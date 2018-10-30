@@ -42,8 +42,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.0.8" />
-        <PackageReference Include="Milou.Deployer.Core" Version="4.0.8" />
+        <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.1.1" />
+        <PackageReference Include="Milou.Deployer.Core" Version="4.1.1" />
         <PackageReference Include="NuGet.Versioning" Version="4.8.0" />
         <PackageReference Include="Serilog" Version="2.7.1" />
         <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
