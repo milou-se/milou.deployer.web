@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void ItShouldBeDeserializable()
         {
-            var target = new DeploymentTarget("myid", "myName", "tool", null, false, "*");
+            var target = new DeploymentTarget("myid", "myName", "tool", null, false);
 
             string json = JsonConvert.SerializeObject(target,
                 Formatting.Indented,
@@ -28,7 +28,12 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             var deserialized = JsonConvert.DeserializeObject<DeploymentTarget>(json);
 
+            _testOutputHelper.WriteLine(deserialized.ToString());
+
             Assert.NotNull(deserialized);
+
+            Assert.Null(deserialized.NuGetPackageSource);
+            Assert.Null(deserialized.NuGetConfigFile);
         }
     }
 }
