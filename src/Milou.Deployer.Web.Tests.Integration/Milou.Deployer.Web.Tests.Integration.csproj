@@ -2,6 +2,8 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp2.1</TargetFramework>
         <ArborPublishEnabled>false</ArborPublishEnabled>
+        <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
+        <ArborBuild_NuGetWebPackageEnabled>false</ArborBuild_NuGetWebPackageEnabled>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />

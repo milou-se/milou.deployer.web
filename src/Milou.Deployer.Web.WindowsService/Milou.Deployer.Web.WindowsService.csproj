@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-        <ArborBuild_PublishRuntimeIdentifier>win10-x64</ArborBuild_PublishRuntimeIdentifier>
+    <ArborBuild_PublishRuntimeIdentifier>win10-x64</ArborBuild_PublishRuntimeIdentifier>
+    <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
   </PropertyGroup>
 
   <ItemGroup>
