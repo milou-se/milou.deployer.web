@@ -35,4 +35,9 @@
     <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
     <PackageReference Include="System.Collections.Immutable" Version="1.5.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.TestPlatform.CrossPlatEngine">
+      <HintPath>..\..\..\..\..\Users\niklas\.nuget\packages\microsoft.testplatform.testhost\15.9.0\lib\netstandard1.5\Microsoft.TestPlatform.CrossPlatEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

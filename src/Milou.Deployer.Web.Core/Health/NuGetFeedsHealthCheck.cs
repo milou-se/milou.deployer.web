@@ -19,6 +19,7 @@ namespace Milou.Deployer.Web.Core.Health
     {
         private readonly IHttpClientFactory _httpClient;
         private readonly ILogger _logger;
+        private readonly NuGetDownloadClient _nuGetDownloadClient;
 
         public NuGetFeedsHealthCheck(
             [NotNull] IHttpClientFactory httpClient,
@@ -26,6 +27,7 @@ namespace Milou.Deployer.Web.Core.Health
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _nuGetDownloadClient = new NuGetDownloadClient();
         }
 
         public int TimeoutInSeconds { get; } = 7;
@@ -34,7 +36,7 @@ namespace Milou.Deployer.Web.Core.Health
 
         public async Task<HealthCheckResult> CheckHealthAsync(CancellationToken cancellationToken)
         {
-            NuGetDownloadResult nuGetDownloadResult = await new NuGetDownloadClient().DownloadNuGetAsync(
+            NuGetDownloadResult nuGetDownloadResult = await _nuGetDownloadClient.DownloadNuGetAsync(
                 NuGetDownloadSettings.Default,
                 _logger,
                 _httpClient.CreateClient("NuGet"),
@@ -71,10 +73,37 @@ namespace Milou.Deployer.Web.Core.Health
                 return new HealthCheckResult(false);
             }
 
+            ConcurrentDictionary<Uri, bool?> nugetFeeds = GetFeedUrls(lines);
+
+            List<Task> tasks = nugetFeeds.Keys
+                .Select(nugetFeed => CheckFeedAsync(cancellationToken, nugetFeed, nugetFeeds))
+                .ToList();
+
+            await Task.WhenAll(tasks);
+
+            bool allSucceeded = nugetFeeds.All(pair => pair.Value == true);
+
+            return new HealthCheckResult(allSucceeded);
+        }
+
+        private ConcurrentDictionary<Uri, bool?> GetFeedUrls(List<string> lines)
+        {
             var nugetFeeds = new ConcurrentDictionary<Uri, bool?>();
 
-            foreach (string line in lines.Where(l => l.StartsWith("E", StringComparison.Ordinal)))
+            for (int i = 0; i < lines.Count; i++)
             {
+                ReadOnlySpan<char> line = lines[i].AsSpan();
+
+                if (line.IsEmpty)
+                {
+                    continue;
+                }
+
+                if (line[0] != 'E' && line[0] != 'e')
+                {
+                    continue;
+                }
+
                 int firstSpace = line.IndexOf(' ');
 
                 if (firstSpace < 0)
@@ -82,14 +111,14 @@ namespace Milou.Deployer.Web.Core.Health
                     continue;
                 }
 
-                string url = line.Substring(firstSpace).Trim();
+                string url = line.Slice(firstSpace + 1).ToString();
 
-                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+                if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
 
-                if (!uri.Scheme.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                if (!Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
                 {
                     continue;
                 }
@@ -97,18 +126,7 @@ namespace Milou.Deployer.Web.Core.Health
                 nugetFeeds.TryAdd(uri, null);
             }
 
-            var tasks = new List<Task>();
-
-            foreach (Uri nugetFeed in nugetFeeds.Keys)
-            {
-                tasks.Add(CheckFeedAsync(cancellationToken, nugetFeed, nugetFeeds));
-            }
-
-            await Task.WhenAll(tasks);
-
-            bool allSucceeded = nugetFeeds.All(pair => pair.Value == true);
-
-            return new HealthCheckResult(allSucceeded);
+            return nugetFeeds;
         }
 
         private async Task CheckFeedAsync(

@@ -13,7 +13,6 @@ using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.WindowsServices;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
@@ -38,6 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         private bool _disposed;
         private bool _disposing;
+        private Guid _instanceId;
 
         public App(
             [NotNull] IWebHostBuilder webHost,
@@ -50,7 +50,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Logger = appLogger ?? throw new ArgumentNullException(nameof(appLogger));
             Configuration = configuration;
             HostBuilder = webHost ?? throw new ArgumentNullException(nameof(webHost));
+            _instanceId = Guid.NewGuid();
+            AppInstance = ApplicationConstants.ApplicationName + " " + _instanceId;
         }
+
+        public string AppInstance { get; }
 
         public CancellationTokenSource CancellationTokenSource { get; }
 
@@ -101,26 +105,26 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 _disposing = true;
             }
 
-            Logger?.Debug("Disposing application");
-            Logger?.Verbose("Disposing web host");
+            Logger?.Debug("Disposing application {Application} {Instance}", ApplicationConstants.ApplicationName, _instanceId);
+            Logger?.Verbose("Disposing web host {Application} {Instance}", ApplicationConstants.ApplicationName, _instanceId);
             WebHost?.SafeDispose();
-            Logger?.Verbose("Disposing Application root scope");
+            Logger?.Verbose("Disposing Application root scope {Application} {Instance}", ApplicationConstants.ApplicationName, _instanceId);
             Scope rootScope = AppRootScope.Top();
             AppRootScope?.SafeDispose();
             rootScope?.SafeDispose();
-            Logger?.Verbose("Disposing configuration");
+            Logger?.Verbose("Disposing configuration {Application} {Instance}", ApplicationConstants.ApplicationName, _instanceId);
             Configuration?.SafeDispose();
 
-            Logger?.Debug("Application disposal complete, disposing logging");
+            Logger?.Debug("Application disposal complete, disposing logging {Application} {Instance}", ApplicationConstants.ApplicationName, _instanceId);
 
             if (Logger is IDisposable disposable)
             {
-                Logger?.Verbose("Disposing Logger");
+                Logger?.Verbose("Disposing Logger {Application} {Instance}", ApplicationConstants.ApplicationName, _instanceId);
                 disposable.SafeDispose();
             }
             else
             {
-                Logger?.Debug("Logger is not disposable");
+                Logger?.Debug("Logger is not disposable {Application} {Instance}", ApplicationConstants.ApplicationName, _instanceId);
             }
 
             Configuration = null;
@@ -154,13 +158,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                Logger.Fatal(ex, "Could not build web host");
-                throw new DeployerAppException("Could not build web host", ex);
+                Logger.Fatal(ex, "Could not build web host {Application}", AppInstance);
+                throw new DeployerAppException($"Could not build web host in {AppInstance}", ex);
             }
 
             if (args.Any(arg => arg.Equals(ApplicationConstants.RunAsService)))
             {
-                Logger.Information("Starting as a Windows Service");
+                Logger.Information("Starting {AppInstance} as a Windows Service", AppInstance);
 
                 try
                 {
@@ -168,13 +172,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    Logger.Fatal(ex, "Could not start web host as a Windows service");
-                    throw new DeployerAppException($"Could not start web host as a Windows service, configuration {Configuration?.SourceChain}", ex);
+                    Logger.Fatal(ex, "Could not start web host as a Windows service, {AppInstance}", AppInstance);
+                    throw new DeployerAppException($"Could not start web host as a Windows service, configuration, {Configuration?.SourceChain} {AppInstance} ", ex);
                 }
             }
             else
             {
-                Logger.Information("Starting as a Console Application");
+                Logger.Information("Starting as a Console Application, {AppInstance}", AppInstance);
 
                 try
                 {
@@ -182,8 +186,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    Logger.Fatal(ex, "Could not start web host");
-                    throw new DeployerAppException($"Could not start web host, configuration {Configuration?.SourceChain}",ex);
+                    Logger.Fatal(ex, "Could not start web host, {AppInstance}", AppInstance);
+                    throw new DeployerAppException($"Could not start web host, configuration {Configuration?.SourceChain} {AppInstance}",ex);
                 }
             }
 
@@ -252,11 +256,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     Environment.SetEnvironmentVariable(TempConstants.Tmp, tempDirectoryInfo.FullName);
                     Environment.SetEnvironmentVariable(TempConstants.Temp, tempDirectoryInfo.FullName);
 
-                    startupLogger.Debug("Using specified temp directory {TempDirectory}", tempDirectory);
+                    startupLogger.Debug("Using specified temp directory {TempDirectory} {AppName}", tempDirectory, ApplicationConstants.ApplicationName);
                 }
                 else
                 {
-                    startupLogger.Warning("Could not use specified temp directory {TempDirectory}", tempDirectory);
+                    startupLogger.Warning("Could not use specified temp directory {TempDirectory}, {AppName}", tempDirectory,ApplicationConstants.ApplicationName);
                 }
             }
 
@@ -267,11 +271,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             if (args.Length > 0)
             {
-                appLogger.Debug("Application started with command line args, {Args}", args);
+                appLogger.Debug("Application started with command line args, {Args}, {AppName}", args, ApplicationConstants.ApplicationName);
             }
             else if (appLogger.IsEnabled(LogEventLevel.Verbose))
             {
-                appLogger.Verbose("Application started with no command line args");
+                appLogger.Verbose("Application started with no command line args, {AppName}", ApplicationConstants.ApplicationName);
             }
 
             IReadOnlyList<IModule> modules =
