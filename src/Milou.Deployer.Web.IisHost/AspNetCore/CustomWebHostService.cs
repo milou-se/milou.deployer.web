@@ -25,6 +25,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
         protected override void OnStarted()
         {
+            base.OnStarted();
+
             if (_app.Logger.IsEnabled(LogEventLevel.Debug))
             {
                 _app.Logger.Debug("Scope diagnostics {Diagnostics}", _app.AppRootScope.Top().Diagnostics());

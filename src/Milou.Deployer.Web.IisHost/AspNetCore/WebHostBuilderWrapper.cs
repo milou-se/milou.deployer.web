@@ -14,7 +14,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
         public WebHostBuilderWrapper([NotNull] IWebHostBuilder webHostBuilder, Scope scope)
         {
-            this._webHostBuilderImplementation = webHostBuilder ?? throw new ArgumentNullException(nameof(webHostBuilder));
+            _webHostBuilderImplementation = webHostBuilder ?? throw new ArgumentNullException(nameof(webHostBuilder));
             _scope = scope;
         }
 
