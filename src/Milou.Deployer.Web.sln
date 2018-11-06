@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Tests.In
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Marten", "Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj", "{8C35B845-2F0E-4263-ACFE-C4A6FEDD0C31}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Web.WindowsService", "Milou.Deployer.Web.WindowsService\Milou.Deployer.Web.WindowsService.csproj", "{BE0915C6-65EB-4D1F-861C-BDE7344036B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,10 @@ Global
 		{8C35B845-2F0E-4263-ACFE-C4A6FEDD0C31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C35B845-2F0E-4263-ACFE-C4A6FEDD0C31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C35B845-2F0E-4263-ACFE-C4A6FEDD0C31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE0915C6-65EB-4D1F-861C-BDE7344036B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE0915C6-65EB-4D1F-861C-BDE7344036B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE0915C6-65EB-4D1F-861C-BDE7344036B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE0915C6-65EB-4D1F-861C-BDE7344036B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
