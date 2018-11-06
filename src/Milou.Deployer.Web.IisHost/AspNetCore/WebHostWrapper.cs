@@ -8,13 +8,14 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Configuration;
 using Serilog;
+using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
     public sealed class WebHostWrapper : IWebHost
     {
-        private IWebHost _webHostImplementation;
         private Scope _scope;
+        private IWebHost _webHostImplementation;
 
         public WebHostWrapper([NotNull] IWebHost webHost, Scope scope)
         {
@@ -38,8 +39,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             var logger = _scope.Lifetime.Resolve<ILogger>();
 
-            applicationLifetime.ApplicationStarted.Register(() =>
-                logger.Debug("Scope chain {Scopes}", _scope.Top().Diagnostics()));
+            if (logger.IsEnabled(LogEventLevel.Debug))
+            {
+                applicationLifetime.ApplicationStarted.Register(() =>
+                    logger.Debug("Scope chain {Scopes}", _scope.Top().Diagnostics()));
+            }
 
             return _webHostImplementation.StartAsync(cancellationToken);
         }
