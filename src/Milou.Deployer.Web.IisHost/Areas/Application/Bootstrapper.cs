@@ -34,15 +34,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             Scope rootScope = CreateRootScope(builder);
 
-            ILifetimeScope appRootScope = rootScope.Lifetime.BeginLifetimeScope(Scope.AppRootScopeName, appScopeBuilder =>
-                RegisterScannedModules(
-                    configuration,
-                    modulesToRegister,
-                    logger,
-                    assembliesToScan,
-                    excludedModuleTypes,
-                    Scope.AppRootScopeName,
-                    appScopeBuilder));
+            ILifetimeScope appRootScope = rootScope.Lifetime.BeginLifetimeScope(Scope.AppRootScopeName,
+                appScopeBuilder =>
+                    RegisterScannedModules(
+                        configuration,
+                        modulesToRegister,
+                        logger,
+                        assembliesToScan,
+                        excludedModuleTypes,
+                        Scope.AppRootScopeName,
+                        appScopeBuilder));
 
             rootScope.SubScope = new Scope(Scope.AppRootScopeName, appRootScope);
 
@@ -157,10 +158,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     logger.Verbose("Registering pre-initialized module {Module} in container builder",
                         $"{type.FullName} assembly {type.Assembly.FullName} at {type.Assembly.Location}");
                 }
+
                 module.RegisterModule(Scope.RootScopeName, builder, logger);
             }
 
-            logger.Debug("Done running configuration modules");
+            if (logger.IsEnabled(LogEventLevel.Debug))
+            {
+                logger.Debug("Done running configuration modules");
+            }
         }
     }
 }

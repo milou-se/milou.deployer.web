@@ -17,8 +17,16 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         private Scope _subScope;
 
-        public Scope(string name, ILifetimeScope lifeTimeScope = null, Scope subScope = null)
+        public Scope(
+            [NotNull] string name,
+            [CanBeNull] ILifetimeScope lifeTimeScope = null,
+            [CanBeNull] Scope subScope = null)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("message", nameof(name));
+            }
+
             Name = name;
             Lifetime = lifeTimeScope;
             SubScope = subScope;
@@ -57,13 +65,13 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         public override string ToString()
         {
-            return $"{nameof(Name)}: {Name}";
+            return $"ScopeName: {Name}";
         }
 
         public string Diagnostics()
         {
             string subScope = SubScope is null ? null : " --> " + SubScope.Diagnostics();
-            return ToString() + subScope;
+            return Name + subScope;
         }
 
         public Scope Deepest()

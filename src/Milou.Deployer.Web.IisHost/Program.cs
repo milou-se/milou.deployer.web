@@ -42,8 +42,9 @@ namespace Milou.Deployer.Web.IisHost
 
                     if (intervalInSeconds > 0)
                     {
-                        app.Logger.Debug("Restart time is set to {RestartIntervalInSeconds} seconds",
-                            intervalInSeconds);
+                        app.Logger.Debug("Restart time is set to {RestartIntervalInSeconds} seconds for {App}",
+                            intervalInSeconds,
+                            ApplicationConstants.ApplicationName);
                     }
                     else if (app.Logger.IsEnabled(LogEventLevel.Verbose))
                     {
@@ -67,13 +68,13 @@ namespace Milou.Deployer.Web.IisHost
 
                     if (!runAsService)
                     {
-                        app.Logger.Debug("Started Milou Deployer Web app, waiting for web host shutdown");
+                        app.Logger.Debug("Started {App}, waiting for web host shutdown", app.AppInstance);
 
                         await app.WebHost.WaitForShutdownAsync(cancellationTokenSource.Token);
                     }
 
                     app.Logger.Information("Stopping application {Application}",
-                        ApplicationConstants.ApplicationName);
+                        app.AppInstance);
                 }
             }
 
