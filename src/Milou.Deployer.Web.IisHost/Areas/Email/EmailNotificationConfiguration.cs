@@ -46,7 +46,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
 
         public override string ToString()
         {
-            return $"{nameof(Enabled)}: {Enabled}, {nameof(To)}: {To}, {nameof(From)}: {From}, {nameof(IsValid)}: {IsValid}";
+            return
+                $"{nameof(Enabled)}: {Enabled}, {nameof(To)}: {string.Join("; ", To.Select(email => email.Address))}, {nameof(From)}: {From}, {nameof(IsValid)}: {IsValid}";
         }
     }
 }

@@ -199,7 +199,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         private void LogConfigurationValues()
         {
-            ImmutableArray<(object, string)> configurationValues = this.GetConfigurationValues();
+            ImmutableArray<(object, string)> configurationValues = AppRootScope.Deepest().GetConfigurationValues();
             Logger.Debug("Using configuration values {ConfigurationValues}\r\n", string.Join(Environment.NewLine, configurationValues.Select(configurationValue => configurationValue.Item2)));
         }
 

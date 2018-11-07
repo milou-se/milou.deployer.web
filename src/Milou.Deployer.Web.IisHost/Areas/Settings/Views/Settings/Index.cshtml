@@ -1,5 +1,7 @@
-﻿@using Milou.Deployer.Web.Core.Configuration
+﻿@using Milou.Deployer.Web.Core
+@using Milou.Deployer.Web.Core.Configuration
 @using Milou.Deployer.Web.Core.Html
+@using Milou.Deployer.Web.IisHost
 @using Milou.Deployer.Web.IisHost.Areas.Settings
 @using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
@@ -31,6 +33,44 @@ Current level <span class="highlighted">@Model.LogEventLevel</span>
 
 </form>
 
+<h2>
+    Application version
+</h2>
+
+<p>
+    <span class="versionInfoLine">@nameof(AppVersionInfo.AssemblyVersion): @Model.AppVersionInfo.AssemblyVersion</span>
+    <span class="versionInfoLine">@nameof(AppVersionInfo.FileVersion): @Model.AppVersionInfo.FileVersion</span>
+    <span class="versionInfoLine">@nameof(AppVersionInfo.InformationalVersion): @Model.AppVersionInfo.InformationalVersion</span>
+    <span class="versionInfoLine">@nameof(AppVersionInfo.AssemblyFullName): @Model.AppVersionInfo.AssemblyFullName</span>
+</p>
+
+<h2>Application metadata</h2>
+
+@if (Model.Applicationmetadata.AllKeys.IsDefaultOrEmpty)
+{
+    @Constants.NotAvailable
+}
+else
+{
+    <table>
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Values</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (string item in Model.Applicationmetadata.AllKeys)
+        {
+            <tr>
+                <td>@item</td>
+                <td>@Model.Applicationmetadata[item]</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
 <h2>Routes</h2>
 
 <table>
@@ -59,6 +99,26 @@ Current level <span class="highlighted">@Model.LogEventLevel</span>
             <td>@item.Route.Name</td>
             <td>@item.Route.Type</td>
             <td>@item.ControllerType</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Configuration values</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Type</th>
+        <th>Values</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach ((object, string) item in Model.ConfigurationValues)
+    {
+        <tr>
+            <td>@item.Item1.GetType().FullName</td>
+            <td>@item.Item2</td>
         </tr>
     }
     </tbody>

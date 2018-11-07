@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.IisHost.Areas.Application;
 using Serilog.Core;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
@@ -22,6 +28,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         private readonly IConfiguration _aspNetConfiguration;
         private readonly MultiSourceKeyValueConfiguration _configuration;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
+
+        [NotNull]
+        private readonly EnvironmentConfiguration _environmentConfiguration;
+
         private readonly LoggingLevelSwitch _loggingLevelSwitch;
 
         [NotNull]
@@ -32,7 +42,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             [NotNull] MultiSourceKeyValueConfiguration configuration,
             [NotNull] Scope scope,
             [NotNull] IConfiguration aspNetConfiguration,
-            [NotNull] LoggingLevelSwitch loggingLevelSwitch)
+            [NotNull] LoggingLevelSwitch loggingLevelSwitch,
+            [NotNull] EnvironmentConfiguration environmentConfiguration)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -40,9 +51,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             _scope = scope ?? throw new ArgumentNullException(nameof(scope));
             _aspNetConfiguration = aspNetConfiguration ?? throw new ArgumentNullException(nameof(aspNetConfiguration));
             _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
+            _environmentConfiguration = environmentConfiguration;
         }
 
-        public Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)
+        public async Task<SettingsViewModel> Handle(SettingsViewRequest request, CancellationToken cancellationToken)
         {
             ImmutableArray<ControllerRouteInfo> routesWithController =
                 RouteList.GetRoutesWithController(Assemblies.FilteredAssemblies());
@@ -64,7 +76,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 .AsEnumerable()
                 .Where(pair => !string.IsNullOrWhiteSpace(pair.Value))
                 .Select(pair =>
-                    new KeyValuePair<string, string>(pair.Key, pair.Value.MakeAnonymous(pair.Key, StringExtensions.DefaultAnonymousKeyWords.ToArray())));
+                    new KeyValuePair<string, string>(pair.Key,
+                        pair.Value.MakeAnonymous(pair.Key, StringExtensions.DefaultAnonymousKeyWords.ToArray())));
+
+            AppVersionInfo appVersionInfo = VersionHelper.GetAppVersion();
+
+            ImmutableArray<(object, string)> configurationValues = _scope.GetConfigurationValues();
+
+            IKeyValueConfiguration applicationMetadata = await GetApplicationMetadataAsync(cancellationToken);
 
             var settingsViewModel = new SettingsViewModel(
                 _deploymentTargetReadService.GetType().Name,
@@ -72,9 +91,52 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 info,
                 registrations,
                 aspNetConfigurationValues,
-                _loggingLevelSwitch.MinimumLevel);
+                _loggingLevelSwitch.MinimumLevel,
+                appVersionInfo,
+                configurationValues,
+                applicationMetadata);
 
-            return Task.FromResult(settingsViewModel);
+            return settingsViewModel;
+        }
+
+        private async Task<IKeyValueConfiguration> GetApplicationMetadataAsync(CancellationToken cancellationToken)
+        {
+            string applicationMetadataJsonFilePath = Path.Combine(_environmentConfiguration.ContentBasePath,
+                "wwwroot",
+                "applicationmetadata.json");
+
+            if (!File.Exists(applicationMetadataJsonFilePath))
+            {
+                return NoConfiguration.Empty;
+            }
+
+            string json = await File.ReadAllTextAsync(applicationMetadataJsonFilePath, Encoding.UTF8, cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return NoConfiguration.Empty;
+            }
+
+            ConfigurationItems configurationItems = new JsonConfigurationSerializer().Deserialize(json);
+
+            if (configurationItems is null)
+            {
+                return NoConfiguration.Empty;
+            }
+
+            if (configurationItems.Keys.IsDefaultOrEmpty)
+            {
+                return NoConfiguration.Empty;
+            }
+
+            var values = new NameValueCollection();
+
+            foreach (KeyValue configurationItem in configurationItems.Keys)
+            {
+                values.Add(configurationItem.Key, configurationItem.Value);
+            }
+
+            return new InMemoryKeyValueConfiguration(values);
         }
     }
 }

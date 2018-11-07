@@ -176,3 +176,7 @@ td, th {
 .highlighted {
     font-weight: bold;
 }
+
+.versionInfoLine {
+    display: block;
+}
