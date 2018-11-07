@@ -221,7 +221,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     processFileInfo = new FileInfo(currentProcess.MainModule.FileName);
                 }
 
-                if (processFileInfo.Name.Equals("Milou.Deployer.Web.IisHost.exe", StringComparison.OrdinalIgnoreCase))
+                if (processFileInfo.Name.Equals("Milou.Deployer.Web.WindowsService.exe", StringComparison.OrdinalIgnoreCase))
                 {
                     return true;
                 }
