@@ -1,12 +1,13 @@
 using Arbor.KVConfiguration.Core.Metadata;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Core.Logging
 {
     [UsedImplicitly]
     [Urn(HttpLoggingConfigurationUrn)]
-    public class HttpLoggingConfiguration
+    public class HttpLoggingConfiguration : IConfigurationValues
     {
         public bool Enabled { get; }
 

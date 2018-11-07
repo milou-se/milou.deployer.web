@@ -85,10 +85,7 @@ namespace Milou.Deployer.Web.Core.Logging
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .Enrich.FromLogContext();
 
-            if (loggerConfigurationAction != null)
-            {
-                loggerConfigurationAction.Invoke(loggerConfiguration);
-            }
+            loggerConfigurationAction?.Invoke(loggerConfiguration);
 
             Logger appLogger = finalConfiguration
                 .CreateLogger();
@@ -113,6 +110,8 @@ namespace Milou.Deployer.Web.Core.Logging
             if (fileLoggingEnabled)
             {
                 string logFilePath = basePath("startup.log");
+
+                Console.WriteLine($"Startup logging is configured to use log file {logFilePath}");
 
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {

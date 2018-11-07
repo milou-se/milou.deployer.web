@@ -6,7 +6,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 {
     [Urn(ConfigurationConstants.AutoDeployConfiguration)]
     [UsedImplicitly]
-    public class AutoDeployConfiguration
+    public class AutoDeployConfiguration : IConfigurationValues
     {
         public AutoDeployConfiguration(
             int startupDelayInSeconds,
@@ -35,5 +35,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         public int DefaultTimeoutInSeconds { get; }
 
         public int AfterDeployDelayInSeconds { get; }
+
+        public override string ToString()
+        {
+            return $"{nameof(EmptyTargetsDelayInSeconds)}: {EmptyTargetsDelayInSeconds}, {nameof(Enabled)}: {Enabled}, {nameof(StartupDelayInSeconds)}: {StartupDelayInSeconds}, {nameof(MetadataTimeoutInSeconds)}: {MetadataTimeoutInSeconds}, {nameof(DefaultTimeoutInSeconds)}: {DefaultTimeoutInSeconds}, {nameof(AfterDeployDelayInSeconds)}: {AfterDeployDelayInSeconds}";
+        }
     }
 }

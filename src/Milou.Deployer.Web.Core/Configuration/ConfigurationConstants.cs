@@ -22,7 +22,6 @@ namespace Milou.Deployer.Web.Core.Configuration
         [Metadata]
         public const string NugetConfigFile = "urn:milou:deployer:web:nuget:config";
 
-
         [Metadata]
         public const string JsonDeployerTargetSourceConfiguration = "urn:milou:deployer:web:target-source:json";
 

@@ -1,8 +1,9 @@
 ﻿using System.IO;
+using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Tests.Integration.TestData
 {
-    public class TestConfiguration
+    public class TestConfiguration : IConfigurationValues
     {
         public TestConfiguration(
             DirectoryInfo baseDirectory,

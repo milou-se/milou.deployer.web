@@ -12,6 +12,5 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             ServiceBase.Run(webHostService);
         }
-
     }
 }

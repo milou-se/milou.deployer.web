@@ -87,6 +87,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
+                Console.WriteLine("Error in startup, " + ex);
                 Console.Error.WriteLine("Error in startup, " + ex);
                 throw;
             }
@@ -191,7 +192,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
             }
 
+            LogConfigurationValues();
+
             return 0;
+        }
+
+        private void LogConfigurationValues()
+        {
+            ImmutableArray<(object, string)> configurationValues = this.GetConfigurationValues();
+            Logger.Debug("Using configuration values {ConfigurationValues}\r\n", string.Join(Environment.NewLine, configurationValues.Select(configurationValue => configurationValue.Item2)));
         }
 
         private static async Task<App> BuildAppAsync(
@@ -207,10 +216,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             bool IsRunningAsService()
             {
-                bool fromArg = args.Any(arg =>
+                bool hasRunAsServiceArgument = args.Any(arg =>
                     arg.Equals(ApplicationConstants.RunAsService, StringComparison.OrdinalIgnoreCase));
 
-                if (fromArg)
+                if (hasRunAsServiceArgument)
                 {
                     return true;
                 }
@@ -229,12 +238,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 return false;
             }
 
+            string currentDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
             if (IsRunningAsService())
             {
-                Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
+                Console.WriteLine($"Switching current directory from {Directory.GetCurrentDirectory()} to {currentDomainBaseDirectory}");
+                Directory.SetCurrentDirectory(currentDomainBaseDirectory);
             }
 
-            string basePath = basePathFromArg ?? AppDomain.CurrentDomain.BaseDirectory;
+            string basePath = basePathFromArg ?? currentDomainBaseDirectory;
             string contentBasePath = contentBasePathFromArg ?? Directory.GetCurrentDirectory();
 
             ILogger startupLogger =
@@ -264,7 +276,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
             }
 
-            var loggingLevelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug); // TODO make configurable
+            var loggingLevelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug);
 
             ILogger appLogger =
                 SerilogApiInitialization.InitializeAppLogging(configuration, startupLogger, loggerConfigurationAction, loggingLevelSwitch);
@@ -333,7 +345,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             try
             {
-
                 scope.TryResolve(out IDeploymentTargetReadService deploymentTargetReadService);
 
                 IReadOnlyCollection<string> targetIds = deploymentTargetReadService != null

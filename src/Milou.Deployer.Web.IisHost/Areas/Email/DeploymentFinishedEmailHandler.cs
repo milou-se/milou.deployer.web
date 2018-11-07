@@ -39,11 +39,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
             {
                 Body = new TextPart("plain")
                 {
-                    Text = $@"{notification.DeploymentTask}"
+                    Text = $"{notification.DeploymentTask}"
                 },
                 Subject = $"Deployment result for {notification.DeploymentTask.DeploymentTargetId}"
             };
-
 
             foreach (Email email in _emailNotificationConfiguration.To)
             {

@@ -30,6 +30,5 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Assert.Equal("2000-03-05 08:11:13", formatted);
         }
-
     }
 }

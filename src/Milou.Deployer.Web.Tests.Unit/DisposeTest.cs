@@ -20,7 +20,6 @@ namespace Milou.Deployer.Web.Tests.Unit
             o.SafeDispose();
         }
 
-
         [Fact]
         public void DisposeNull()
         {

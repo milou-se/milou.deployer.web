@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     [Urn(HostNameUrn)]
     [Optional]
     [UsedImplicitly]
-    public class AllowedHostName
+    public class AllowedHostName : IConfigurationValues
     {
         [PublicAPI]
         public const string HostNameUrn = "urn:milou:deployer:web:allowed-host";

@@ -27,7 +27,6 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             SemanticVersion version = SemanticVersion.Parse(parts.Last());
 
-
             SemanticVersion = version;
             PackageId = packageId;
             DeploymentTargetId = deploymentTargetId;

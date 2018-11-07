@@ -9,7 +9,6 @@ namespace Milou.Deployer.Web.Core.Extensions
             if (disposable is null)
             {
                 return;
-
             }
 
             if (!(disposable is IDisposable disposableItem))

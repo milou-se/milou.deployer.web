@@ -1,12 +1,13 @@
 ﻿using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {
     [PublicAPI]
     [Urn(NuGetCacheConstants.Configuration)]
     [UsedImplicitly]
-    public class NuGetCacheConfiguration
+    public class NuGetCacheConfiguration : IConfigurationValues
     {
         private const int DefaultCacheRefreshIntervalInSeconds = 180;
 

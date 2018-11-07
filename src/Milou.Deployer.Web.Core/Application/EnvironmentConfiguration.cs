@@ -1,8 +1,9 @@
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Core.Application
 {
-    public class EnvironmentConfiguration
+    public class EnvironmentConfiguration : IConfigurationValues
     {
         public EnvironmentConfiguration()
         {
@@ -29,5 +30,10 @@ namespace Milou.Deployer.Web.Core.Application
 
         [PublicAPI]
         public string PfxPassword { get; set; }
+
+        public override string ToString()
+        {
+            return $"{nameof(ApplicationBasePath)}: {ApplicationBasePath}, {nameof(ContentBasePath)}: {ContentBasePath}, {nameof(EnvironmentName)}: {EnvironmentName}, {nameof(HttpPort)}: {HttpPort}, {nameof(HttpsPort)}: {HttpsPort}, {nameof(PfxFile)}: {PfxFile}, {nameof(PfxPassword)}: *****";
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using Arbor.KVConfiguration.Core.Metadata;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Validation;
 
@@ -11,7 +12,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
 {
     [Urn(EmailNotificationConfigurationKey)]
     [UsedImplicitly]
-    public class EmailNotificationConfiguration : IValidationObject
+    public class EmailNotificationConfiguration : IValidationObject, IConfigurationValues
     {
         [PublicAPI]
         [Metadata(defaultValue: "false")]
@@ -42,5 +43,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
                                || (!To.IsDefaultOrEmpty
                                    && To.All(s => s.IsValid)
                                    && From?.IsValid == true);
+
+        public override string ToString()
+        {
+            return $"{nameof(Enabled)}: {Enabled}, {nameof(To)}: {To}, {nameof(From)}: {From}, {nameof(IsValid)}: {IsValid}";
+        }
     }
 }

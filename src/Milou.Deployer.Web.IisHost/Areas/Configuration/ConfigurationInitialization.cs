@@ -50,7 +50,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
                 { "LogLevel:System.Net.Http.HttpClient", "Warning" }
             };
 
-
             FileInfo MachineSpecificConfig(DirectoryInfo directoryInfo)
             {
                 return directoryInfo.GetFiles($"settings.{Environment.MachineName}.json").SingleOrDefault();

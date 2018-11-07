@@ -67,7 +67,6 @@ namespace Milou.Deployer.Web.Tests.Integration
                 new KeyValue(ConfigurationConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName, null),
                 new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
                 new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.LogLevel, "Verbose", null),
-
             }.ToImmutableArray();
 
             var jsonConfigurationSerializer = new JsonConfigurationSerializer();
