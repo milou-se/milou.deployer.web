@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Email;
 using MimeKit;
 
@@ -35,13 +36,27 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
                 return Task.CompletedTask;
             }
 
+            string result = notification.DeploymentTask.Status == WorkTaskStatus.Done ? "succeeded" : "failed";
+
+            string subject =
+                $"Deployment of {notification.DeploymentTask.PackageId} {notification.DeploymentTask.SemanticVersion.ToNormalizedString()} to {notification.DeploymentTask.DeploymentTargetId} {result}";
+
+            string body = $@"{notification.DeploymentTask.DeploymentTargetId}
+Status: {notification.DeploymentTask.Status}
+Finished at time (UTC): {notification.FinishedAtUtc:O}
+Package ID: {notification.DeploymentTask.PackageId}
+Deployment task ID: {notification.DeploymentTask.DeploymentTaskId}
+Version: {notification.DeploymentTask.SemanticVersion.ToNormalizedString()}
+Log: {notification.Log}
+";
+
             var message = new MimeMessage
             {
                 Body = new TextPart("plain")
                 {
-                    Text = $"{notification.DeploymentTask}"
+                    Text = body
                 },
-                Subject = $"Deployment result for {notification.DeploymentTask.DeploymentTargetId}"
+                Subject = subject
             };
 
             foreach (Email email in _emailNotificationConfiguration.To)
