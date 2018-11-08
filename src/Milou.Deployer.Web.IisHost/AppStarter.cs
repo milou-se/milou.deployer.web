@@ -38,13 +38,13 @@ namespace Milou.Deployer.Web.IisHost
                 {
                     bool runAsService = app.AppRootScope.Deepest().Lifetime.Resolve<IKeyValueConfiguration>().ValueOrDefault(ApplicationConstants.RunAsService) && !Debugger.IsAttached;
 
-                    app.Logger.Information("Starting application {Application}", ApplicationConstants.ApplicationName);
+                    app.Logger.Information("Starting application {Application}", app.AppInstance);
 
                     if (intervalInSeconds > 0)
                     {
                         app.Logger.Debug("Restart time is set to {RestartIntervalInSeconds} seconds for {App}",
                             intervalInSeconds,
-                            ApplicationConstants.ApplicationName);
+                            app.AppInstance);
                     }
                     else if (app.Logger.IsEnabled(LogEventLevel.Verbose))
                     {
