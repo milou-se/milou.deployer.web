@@ -1,11 +1,13 @@
-﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
+﻿@using Milou.Deployer.Web.Core.Deployment
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@using DeploymentConstants = Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentConstants
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.DeploymentViewOutputModel
 
 <p>
-    <a href="~/Deployment/InvalidateCache">Töm cache</a>
+    <a href="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">Töm cache</a>
 </p>
 
-<form method="POST" action="~/Deploy">
+<form method="POST" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
 
     <div>
 
@@ -13,7 +15,7 @@
 
         <select name="packageVersion" id="packageVersion">
 
-            @foreach (var item in Model.PackageVersions)
+            @foreach (PackageVersion item in Model.PackageVersions)
             {
                 <option value="@item.PackageId @item.Version.ToNormalizedString()">@item.PackageId @item.Version.ToNormalizedString()</option>
             }
@@ -24,7 +26,7 @@
         <label for="target">Target</label>
         <select name="targetId" id="target">
 
-            @foreach (var item in Model.Targets)
+            @foreach (DeploymentTarget item in Model.Targets)
             {
                 <option value="@item.Id">@item.Name</option>
             }

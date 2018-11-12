@@ -1,0 +1,54 @@
+﻿@using Arbor.KVConfiguration.Schema.Validators
+@using Milou.Deployer.Web.Core.Extensions
+@using Milou.Deployer.Web.Core.Targets
+@using Milou.Deployer.Web.IisHost.Areas.Organizations
+@model Milou.Deployer.Web.IisHost.Areas.Organizations.OrganizationsViewOutputModel
+
+@if (Model.CreateOrganizationResult.HasValue())
+{
+    if (Model.CreateOrganizationResult.ValidationErrors.Length == 1)
+    {
+        <h3>@Model.CreateOrganizationResult.ValidationErrors[0].ErrorMessage</h3>
+    }
+    else if (Model.CreateOrganizationResult.ValidationErrors.Length > 0)
+    {
+        <ul>
+            @foreach (ValidationError item in Model.CreateOrganizationResult.ValidationErrors)
+            {
+                <li>@item.ErrorMessage</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <h3>Successfully created organization</h3>
+    }
+
+}
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Projects</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (OrganizationInfo item in Model.Organizations)
+        {
+            <tr>
+                <td>@item.Organization</td>
+                <td><a href="/organizations/@item.Organization/projects">Projects</a></td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+
+<form method="post" action="@Url.RouteUrl(OrganizationConstants.CreateOrganizationPostRouteName)">
+
+    <input type="text" name="id" />
+
+    <input type="submit" value="Create organization"/>
+
+</form>

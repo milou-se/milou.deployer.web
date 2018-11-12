@@ -6,37 +6,41 @@ using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using NuGet.Versioning;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
+    [PublicAPI]
     public class AppVersion
     {
         public AppVersion(
             [NotNull] DeploymentTarget target,
-            [NotNull] IKeyValueConfiguration keyValueConfiguration,
+            [NotNull] IKeyValueConfiguration manifestProperties,
             IReadOnlyCollection<PackageVersion> availablePackageVersions)
         {
-            KeyValueConfiguration =
-                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+            Properties =
+                manifestProperties ?? throw new ArgumentNullException(nameof(manifestProperties));
             AvailablePackageVersions = availablePackageVersions;
             Target = target ?? throw new ArgumentNullException(nameof(target));
+            Status = GetStatus();
         }
 
-        public AppVersion([NotNull] DeploymentTarget target, string mesage)
+        public AppVersion(
+            [NotNull] DeploymentTarget target,
+            string message,
+            IReadOnlyCollection<PackageVersion> availablePackages)
         {
-            KeyValueConfiguration = new InMemoryKeyValueConfiguration(new NameValueCollection());
+            Properties = new InMemoryKeyValueConfiguration(new NameValueCollection());
             Target = target;
-            Mesage = mesage;
-            AvailablePackageVersions = Array.Empty<PackageVersion>();
+            Message = message;
+            AvailablePackageVersions = availablePackages;
+            Status = GetStatus();
         }
 
-        public string Mesage { get; }
+        public string Message { get; }
 
         [NotNull]
-        public IKeyValueConfiguration KeyValueConfiguration { get; }
+        public IKeyValueConfiguration Properties { get; }
 
         [NotNull]
         public DeploymentTarget Target { get; }
@@ -46,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         {
             get
             {
-                if (!SemanticVersion.TryParse(KeyValueConfiguration[ConfigurationConstants.SemanticVersionNormalized],
+                if (!SemanticVersion.TryParse(Properties[ConfigurationConstants.SemanticVersionNormalized],
                     out SemanticVersion semver))
                 {
                     return null;
@@ -57,61 +61,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         }
 
         [CanBeNull]
-        public DateTime? DateployedAtUtc
+        public string PackageId => Properties[ConfigurationConstants.PackageId];
+
+        [CanBeNull]
+        public DateTime? DeployedAtUtc
         {
             get
             {
                 if (!DateTime.TryParse(
-                    KeyValueConfiguration[ConfigurationConstants.DeploymentStartTime],
+                    Properties[ConfigurationConstants.DeploymentStartTime],
                     CultureInfo.InvariantCulture,
-                    DateTimeStyles.AdjustToUniversal,
+                    DateTimeStyles.AssumeUniversal,
                     out DateTime deployedAtUtc))
                 {
                     return null;
                 }
 
                 return deployedAtUtc;
-            }
-        }
-
-        public string DeployedRelative
-        {
-            get
-            {
-                if (!DateployedAtUtc.HasValue)
-                {
-                    return "N/A";
-                }
-
-                DateTime now = DateTime.UtcNow;
-
-                DateTime then = DateployedAtUtc.Value;
-
-                return now.Since(then);
-            }
-        }
-
-        public string DeployedSince
-        {
-            get
-            {
-                if (!DateployedAtUtc.HasValue)
-                {
-                    return string.Empty;
-                }
-
-                DateTime now = DateTime.UtcNow;
-
-                DateTime then = DateployedAtUtc.Value;
-
-                TimeSpan diff = (now - then);
-
-                if (diff.TotalSeconds < 0)
-                {
-                    return string.Empty;
-                }
-
-                return DeploymentInterval.Parse(diff).Name;
             }
         }
 
@@ -126,6 +92,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 if (SemanticVersion.IsPrerelease)
                 {
+                    // ReSharper disable once StringLiteralTypo
                     return "prerelease";
                 }
 
@@ -134,5 +101,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         }
 
         public IReadOnlyCollection<PackageVersion> AvailablePackageVersions { get; }
+
+        public DeployStatus Status { get; }
+
+        private DeployStatus GetStatus()
+        {
+            if (SemanticVersion is null)
+            {
+                return DeployStatus.Unavailable;
+            }
+
+            if (AvailablePackageVersions.Count == 0)
+            {
+                return DeployStatus.NoPackagesAvailable;
+            }
+
+            return SemanticVersion == AvailablePackageVersions.Latest()
+                ? DeployStatus.Latest
+                : DeployStatus.UpdateAvailable;
+        }
     }
 }

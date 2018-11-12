@@ -6,12 +6,16 @@
             "value": ""
         },
         {
-            "key": "urn:milou:deployer:authorization:white-listed-ips",
+            "key": "urn:milou:deployer:authorization:allowed-ips",
             "value": ""
         },
         {
             "key": "urn:milou:deployer:web:email:configuration:default:emailEnabled",
-            "value": "false"
+            "value": false
+        },
+        {
+            "key": "urn:milou:deployer:web:configuration:treat-warnings-as-errors",
+            "value": true
         }
     ]
 }

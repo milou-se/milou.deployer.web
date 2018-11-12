@@ -9,13 +9,18 @@ namespace Milou.Deployer.Web.Core.Email
     {
         public DeploymentFinishedNotification(
             [NotNull] DeploymentTask deploymentTask,
-            string metadataContent)
+            string log,
+            DateTime finishedAtUtc)
         {
-            MetadataContent = metadataContent;
+            Log = log;
+            FinishedAtUtc = finishedAtUtc;
             DeploymentTask = deploymentTask ?? throw new ArgumentNullException(nameof(deploymentTask));
         }
 
-        public string MetadataContent { get; }
+        public string Log { get; }
+
         public DeploymentTask DeploymentTask { get; }
+
+        public DateTime FinishedAtUtc { get; }
     }
 }

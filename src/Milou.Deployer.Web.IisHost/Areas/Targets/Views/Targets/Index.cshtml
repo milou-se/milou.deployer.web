@@ -29,12 +29,6 @@
                             </p>
 
                             <p>
-                                Using <strong>
-                                    <span class="@item.Target.Tool.ToLowerInvariant()">@item.Target.Tool</span>
-                                </strong> for deployment
-                            </p>
-
-                            <p>
                                 <label for="@(item.Target)-prerelease">Allow pre-release</label> <input disabled="disabled" id="@(item.Target)-prerelease" type="checkbox" @(item.Target.AllowExplicitExplicitPreRelease.HasValue && item.Target.AllowExplicitExplicitPreRelease.Value ? "checked=\"checked\"" : string.Empty)/>
                             </p>
 
@@ -43,13 +37,13 @@
                             </p>
 
                             <p>
-                                URL: @if (item.Target.Uri != null)
+                                URL: @if (item.Target.Url != null)
                                      {
-                                         <a href="@item.Target.Uri">@item.Target.Uri</a>
+                                         <a href="@item.Target.Url">@item.Target.Url</a>
                                      }
                                      else
                                      {
-                                         <span>N/A</span>
+                                         <span>@Milou.Deployer.Web.Core.Constants.NotAvailable</span>
                                      }
                             </p>
 
@@ -61,7 +55,19 @@
                                 }
                                 else
                                 {
-                                    <span>N/A</span>
+                                    <span>@Milou.Deployer.Web.Core.Constants.NotAvailable</span>
+                                }
+                            </p>
+
+                            <p>
+                                PublishSettings XML:
+                                @if (item.Target.PublishSettingsXml.HasValue())
+                                {
+                                    <span>@item.Target.PublishSettingsXml</span>
+                                }
+                                else
+                                {
+                                    <span>@Milou.Deployer.Web.Core.Constants.NotAvailable</span>
                                 }
                             </p>
 
@@ -81,14 +87,11 @@
                                 }
                             </ul>
 
-                            <p>Allowed package names</p>
+                            <p>Allowed package name</p>
 
-                            <ul>
-                                @foreach (string name in item.Target.AllowedPackageNames)
-                                {
-                                    <li>@name</li>
-                                }
-                            </ul>
+
+                            <p>@item.Target.PackageId</p>
+
                         </div>
                     }
                 </div>

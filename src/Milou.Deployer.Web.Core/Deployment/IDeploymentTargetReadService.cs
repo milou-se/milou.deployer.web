@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
-using Milou.Deployer.Web.Core.Structure;
+using Milou.Deployer.Web.Core.Targets;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
@@ -10,5 +10,9 @@ namespace Milou.Deployer.Web.Core.Deployment
         Task<DeploymentTarget> GetDeploymentTargetAsync(string deploymentTargetId, CancellationToken cancellationToken = default);
 
         Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(CancellationToken cancellationToken = default);
+
+        Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken);
+
+        Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(string organizationId, CancellationToken cancellationToken = default);
     }
 }

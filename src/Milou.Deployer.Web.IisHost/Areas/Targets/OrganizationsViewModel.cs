@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Structure;
+using Milou.Deployer.Web.Core.Targets;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Targets
 {

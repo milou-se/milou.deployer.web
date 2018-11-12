@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
+
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Serilog;
@@ -42,13 +43,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 throw new ArgumentNullException(nameof(packageIdentifiers));
             }
 
-            _logger.Information("Received hook for packages {V}", string.Join(", ", packageIdentifiers.Select(p => p.ToString())));
+            _logger.Information("Received hook for packages {Packages}", string.Join(", ", packageIdentifiers.Select(p => p.ToString())));
 
             IReadOnlyCollection<DeploymentTarget> deploymentTargets =
-                (await _targetSource.GetOrganizationsAsync(CancellationToken.None))
-                .SelectMany(
-                    organizationInfo =>
-                        organizationInfo.Projects.SelectMany(projectInfo => projectInfo.DeploymentTargets))
+                (await _targetSource.GetDeploymentTargetsAsync(CancellationToken.None))
                 .SafeToReadOnlyCollection();
 
             DeploymentTarget[] withAutoDeploy = deploymentTargets.Where(t => t.AutoDeployEnabled).ToArray();
@@ -63,12 +61,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 {
                     foreach (PackageVersion packageIdentifier in packageIdentifiers)
                     {
-                        if (deploymentTarget.AllowedPackageNames.Contains(
+                        if (deploymentTarget.PackageId.Equals(
                             packageIdentifier.PackageId,
-                            StringComparer.InvariantCultureIgnoreCase))
+                            StringComparison.OrdinalIgnoreCase))
                         {
                             bool allowDeployment =
-                                !packageIdentifier.Version.IsPrerelease || deploymentTarget.AllowPrerelease;
+                                !packageIdentifier.Version.IsPrerelease || deploymentTarget.AllowPreRelease;
 
                             if (allowDeployment)
                             {
@@ -82,7 +80,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                     {
                                         _logger.Information("Auto deploying package {PackageIdentifier} to target {Name} from web hook", packageIdentifier, deploymentTarget.Name);
 
-                                        string result =
+                                        DeploymentTaskResult result =
                                             await
                                                 _deploymentService.ExecuteDeploymentAsync(
                                                     new DeploymentTask(

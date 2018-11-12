@@ -8,22 +8,22 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Structure;
 using Serilog;
-using ApplicationEnvironment = Milou.Deployer.Web.Core.Application.ApplicationEnvironment;
 
 namespace Milou.Deployer.Web.Core.Targets
 {
+    [UsedImplicitly]
     public class JsonTargetSource
     {
-        private readonly ApplicationEnvironment _environment;
         private readonly ILogger _logger;
         private readonly JsonDeploymentTargetSourceConfiguration _configuration;
+        private readonly EnvironmentConfiguration _environment;
 
         public JsonTargetSource(
-            [NotNull] ApplicationEnvironment environment,
+            [NotNull] EnvironmentConfiguration environment,
             [NotNull] ILogger logger,
             [NotNull] JsonDeploymentTargetSourceConfiguration configuration)
         {
@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.Core.Targets
 
         public Task<IReadOnlyCollection<OrganizationInfo>> GetTargetsAsync(CancellationToken cancellationToken)
         {
-            string jsonTargetsFile = _configuration.SourceFile.WithDefault(Path.Combine(_environment.BasePath, "targets.json"));
+            string jsonTargetsFile = _configuration.SourceFile.WithDefault(Path.Combine(_environment.ApplicationBasePath, "targets.json"));
 
             _logger.Information("Reading targets from JSON file '{JsonFile}'", jsonTargetsFile);
 
@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.Core.Targets
                         {
                             Organization = organizationGroup.Key,
                             Projects = organizationGroup
-                                .GroupBy(target => target.ProjectInvariantName.WithDefault("N/A"))
+                                .GroupBy(target => target.ProjectInvariantName.WithDefault(Constants.NotAvailable))
                                 .Select(
                                     projectGroup => new ProjectInfo(organizationGroup.Key,
                                         projectGroup.Key,

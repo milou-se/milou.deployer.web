@@ -1,17 +1,56 @@
-﻿$(function() {
+﻿function createSpanLogItemElement(data) {
+
+    const eventData = JSON.parse(data);
+
+    return createSpanLogItemElementFromJson(eventData);
+}
+function createSpanLogItemElementFromJson(jsonData) {
+
+    const logElement = document.createElement("span");
+
+    const eventData = jsonData;
+
+    if (eventData.Message) {
+        logElement.innerHTML = eventData.Message;
+    } else {
+        logElement.innerHTML = `<span class="timestamp">${eventData.FormattedTimestamp}</span>
+<span class="level-${eventData.Level}">[${eventData.Level}]</span>
+<span class="message">${eventData.RenderedTemplate}</span><br />`;
+    }
+
+    return logElement;
+}
+
+function parseLogLines(jsonLogs) {
+
+    const lines = JSON.parse(jsonLogs);
+
+    const logElements = document.createElement("div");
+
+    lines.items.forEach(function(element) {
+
+        var spanElement = createSpanLogItemElementFromJson(element);
+
+        logElements.appendChild(spanElement);
+    });
+
+    return logElements;
+}
+
+$(function () {
 
     $("div.projects").hide();
     $("div.targets").hide();
 
-    $('.organization-toggler').click(function() {
+    $('.organization-toggler').click(function () {
         $(this).next('div.projects').toggle();
     });
 
-    $('.project-toggler').click(function() {
+    $('.project-toggler').click(function () {
         $(this).next('div.targets').toggle();
     });
 
-    $('.deploy-button').closest('form').submit(function(e) {
+    $('.deploy-button').closest('form').submit(function (e) {
 
         var packageVersion = $(this).find('select[name="packageVersion"]').val();
         var targetId = $(this).find('input[name="targetId"]').val();
@@ -28,7 +67,7 @@
         var currentVersionMajor = $(this).find('input[name="current-version-major"]').val();
         var currentVersionMinor = $(this).find('input[name="current-version-minor"]').val();
         var currentVersionPatch = $(this).find('input[name="current-version-patch"]').val();
-        var currentVersionIsPreRelease =  Boolean($(this).find('input[name="current-version-isPreRelease"]').val());
+        var currentVersionIsPreRelease = Boolean($(this).find('input[name="current-version-isPreRelease"]').val());
 
         if (selectedVersion && currentVersionMajor && currentVersionMinor && currentVersionPatch) {
             var selectedVersionMajor = parseInt(selectedVersion.attr('data-version-major'));

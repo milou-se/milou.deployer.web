@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Structure;
 using Milou.Deployer.Web.Core.Targets;
 
 namespace Milou.Deployer.Web.Core.Deployment
@@ -36,6 +35,16 @@ namespace Milou.Deployer.Web.Core.Deployment
             IReadOnlyCollection<OrganizationInfo> organizations = await _targetSource.GetTargetsAsync(cancellationToken);
 
             return organizations.ToImmutableArray();
+        }
+
+        public Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(string organizationId, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

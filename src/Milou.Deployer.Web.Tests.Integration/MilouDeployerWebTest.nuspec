@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<package>
+  <metadata>
+    <id>MilouDeployerWebTest</id>
+    <version>1.2.0</version>
+    <title>MilouDeployerWebTest</title>
+    <authors>Milou Communication AB</authors>
+    <owners></owners>
+    <description>
+      MilouDeployerWebTest
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+      MilouDeployerWebTest
+    </summary>
+    <language>en-US</language>
+    <projectUrl>http://localhost</projectUrl>
+    <iconUrl>http://localhost</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://localhost</licenseUrl>
+    <copyright>Copyright</copyright>
+    <references></references>
+    <tags></tags>
+  </metadata>
+  <files>
+    <file src="index.html" target="content" />
+  </files>
+</package>
