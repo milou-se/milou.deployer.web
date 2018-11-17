@@ -38,6 +38,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _testOutputHelper.WriteLine($"Controller '{controller}' attributes: {attributes.Length}");
 
+            Assert.NotEmpty(attributes);
             Assert.Single(attributes);
         }
 

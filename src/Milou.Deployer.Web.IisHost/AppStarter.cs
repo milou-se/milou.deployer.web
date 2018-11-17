@@ -18,6 +18,11 @@ namespace Milou.Deployer.Web.IisHost
     {
         public static async Task<int> StartAsync(string[] args)
         {
+            if (args is null)
+            {
+                args = Array.Empty<string>();
+            }
+
             CancellationTokenSource cancellationTokenSource;
 
             if (int.TryParse(Environment.GetEnvironmentVariable(ConfigurationConstants.RestartTimeInSeconds),

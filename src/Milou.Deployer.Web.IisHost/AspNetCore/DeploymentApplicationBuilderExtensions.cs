@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 return app.UseDeveloperExceptionPage();
             }
 
-            return app.UseExceptionHandler("/error");
+            return app.UseExceptionHandler(ErrorRouteConstants.ErrorRoute);
         }
     }
 }
