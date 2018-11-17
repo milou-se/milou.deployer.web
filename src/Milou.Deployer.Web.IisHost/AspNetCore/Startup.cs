@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
 using Arbor.KVConfiguration.Core;
 using Autofac;
-using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using MediatR;
@@ -20,7 +17,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
-using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
@@ -36,7 +32,6 @@ using Newtonsoft.Json;
 using Serilog.AspNetCore;
 using IApplicationLifetime = Microsoft.AspNetCore.Hosting.IApplicationLifetime;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
-using ModuleExtensions = Milou.Deployer.Web.IisHost.Areas.Application.ModuleExtensions;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
