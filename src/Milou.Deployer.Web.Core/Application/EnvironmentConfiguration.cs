@@ -1,4 +1,6 @@
+using System;
 using JetBrains.Annotations;
+using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Core.Application
@@ -9,6 +11,10 @@ namespace Milou.Deployer.Web.Core.Application
         {
             HttpPort = 34343;
         }
+
+        public bool UseVerboseExceptions => !EnvironmentName.HasValue()
+                                            || EnvironmentName.Equals("production",
+                                                StringComparison.OrdinalIgnoreCase);
 
         [PublicAPI]
         public string ApplicationBasePath { get; set; }
@@ -33,7 +39,8 @@ namespace Milou.Deployer.Web.Core.Application
 
         public override string ToString()
         {
-            return $"{nameof(ApplicationBasePath)}: {ApplicationBasePath}, {nameof(ContentBasePath)}: {ContentBasePath}, {nameof(EnvironmentName)}: {EnvironmentName}, {nameof(HttpPort)}: {HttpPort}, {nameof(HttpsPort)}: {HttpsPort}, {nameof(PfxFile)}: {PfxFile}, {nameof(PfxPassword)}: *****";
+            return
+                $"{nameof(ApplicationBasePath)}: {ApplicationBasePath}, {nameof(ContentBasePath)}: {ContentBasePath}, {nameof(EnvironmentName)}: {EnvironmentName}, {nameof(HttpPort)}: {HttpPort}, {nameof(HttpsPort)}: {HttpsPort}, {nameof(PfxFile)}: {PfxFile}, {nameof(PfxPassword)}: *****";
         }
     }
 }

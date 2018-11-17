@@ -16,17 +16,17 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void VersionInfoShouldNotBeNull()
         {
-            AppVersionInfo appVersionInfo = VersionHelper.GetAppVersion();
+            ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
-            _output.WriteLine(appVersionInfo.AssemblyVersion);
-            _output.WriteLine(appVersionInfo.FileVersion);
-            _output.WriteLine(appVersionInfo.AssemblyFullName);
-            _output.WriteLine(appVersionInfo.InformationalVersion);
+            _output.WriteLine(applicationVersionInfo.AssemblyVersion);
+            _output.WriteLine(applicationVersionInfo.FileVersion);
+            _output.WriteLine(applicationVersionInfo.AssemblyFullName);
+            _output.WriteLine(applicationVersionInfo.InformationalVersion);
 
-            Assert.NotNull(appVersionInfo.AssemblyVersion);
-            Assert.NotNull(appVersionInfo.FileVersion);
-            Assert.NotNull(appVersionInfo.AssemblyFullName);
-            Assert.NotNull(appVersionInfo.InformationalVersion);
+            Assert.NotNull(applicationVersionInfo.AssemblyVersion);
+            Assert.NotNull(applicationVersionInfo.FileVersion);
+            Assert.NotNull(applicationVersionInfo.AssemblyFullName);
+            Assert.NotNull(applicationVersionInfo.InformationalVersion);
         }
     }
 }

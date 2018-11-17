@@ -4,11 +4,11 @@ using Milou.Deployer.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core
 {
-    public static class VersionHelper
+    public static class ApplicationVersionHelper
     {
-        public static AppVersionInfo GetAppVersion()
+        public static ApplicationVersionInfo GetAppVersion()
         {
-            Assembly executingAssembly = typeof(VersionHelper).Assembly.ThrowIfNull();
+            Assembly executingAssembly = typeof(ApplicationVersionHelper).Assembly.ThrowIfNull();
 
             AssemblyName assemblyName = executingAssembly.GetName();
 
@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core
 
             string fileVersion = fvi.FileVersion;
 
-            return new AppVersionInfo(assemblyVersion, fileVersion, assemblyInformationalVersionAttribute?.InformationalVersion, executingAssembly.FullName);
+            return new ApplicationVersionInfo(assemblyVersion, fileVersion, assemblyInformationalVersionAttribute?.InformationalVersion, executingAssembly.FullName);
         }
     }
 }

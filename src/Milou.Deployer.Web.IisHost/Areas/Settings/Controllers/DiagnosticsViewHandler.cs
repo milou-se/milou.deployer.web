@@ -79,7 +79,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     new KeyValuePair<string, string>(pair.Key,
                         pair.Value.MakeAnonymous(pair.Key, StringExtensions.DefaultAnonymousKeyWords.ToArray())));
 
-            AppVersionInfo appVersionInfo = VersionHelper.GetAppVersion();
+            ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
             ImmutableArray<(object, string)> configurationValues = _scope.GetConfigurationValues();
 
@@ -92,7 +92,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 registrations,
                 aspNetConfigurationValues,
                 _loggingLevelSwitch.MinimumLevel,
-                appVersionInfo,
+                applicationVersionInfo,
                 configurationValues,
                 applicationMetadata);
 

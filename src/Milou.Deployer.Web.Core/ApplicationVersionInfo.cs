@@ -3,9 +3,9 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core
 {
-    public class AppVersionInfo
+    public class ApplicationVersionInfo
     {
-        public AppVersionInfo(
+        public ApplicationVersionInfo(
             [NotNull] string assemblyVersion,
             [NotNull] string fileVersion,
             [NotNull] string informationalVersion,

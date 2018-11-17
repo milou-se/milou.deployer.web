@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             ImmutableArray<ContainerRegistrationInfo> containerRegistrations,
             IEnumerable<KeyValuePair<string, string>> aspNetConfigurationValues,
             LogEventLevel logEventLevel,
-            AppVersionInfo appVersionInfo,
+            ApplicationVersionInfo applicationVersionInfo,
             ImmutableArray<(object, string)> configurationValues,
             IKeyValueConfiguration applicationmetadata)
         {
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             TargetReadService = targetReadService;
             ConfigurationInfo = configurationInfo;
             LogEventLevel = logEventLevel;
-            AppVersionInfo = appVersionInfo;
+            ApplicationVersionInfo = applicationVersionInfo;
             ConfigurationValues = configurationValues;
             Applicationmetadata = applicationmetadata;
             ContainerRegistrations = containerRegistrations.OrderBy(reg => reg.Service).ToImmutableArray();
@@ -40,7 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
 
         public LogEventLevel LogEventLevel { get; }
 
-        public AppVersionInfo AppVersionInfo { get; }
+        public ApplicationVersionInfo ApplicationVersionInfo { get; }
 
         public ImmutableArray<(object, string)> ConfigurationValues { get; }
         public IKeyValueConfiguration Applicationmetadata { get; }
