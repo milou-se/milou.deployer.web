@@ -1,9 +1,10 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Tests.Integration.TestData
 {
-    public class TestConfiguration : IConfigurationValues
+    public sealed class TestConfiguration : IConfigurationValues, IDisposable
     {
         public TestConfiguration(
             DirectoryInfo baseDirectory,
@@ -24,6 +25,15 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
         public DirectoryInfo NugetPackageDirectory { get; }
 
         public DirectoryInfo SiteAppRoot { get; }
+
+        public void Dispose()
+        {
+            if (BaseDirectory != null)
+            {
+                BaseDirectory.Refresh();
+                BaseDirectory.Delete(true);
+            }
+        }
 
         public override string ToString()
         {

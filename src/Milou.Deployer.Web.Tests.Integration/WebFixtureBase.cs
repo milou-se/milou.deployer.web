@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -26,8 +27,13 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected WebFixtureBase(IMessageSink diagnosticMessageSink)
         {
+            _globalTempDir = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "mdst-" + Guid.NewGuid())).EnsureExists();
+
+            _oldTemp = Path.GetTempPath();
+            Environment.SetEnvironmentVariable("TEMP", _globalTempDir.FullName);
             _diagnosticMessageSink = diagnosticMessageSink;
         }
+
         public Exception Exception { get; private set; }
 
         private const int CancellationTimeoutInSeconds = 180;
@@ -68,6 +74,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         private const string ConnectionStringFormat = "Server=localhost;Port={0};User Id={1};Password=test;Database=postgres;Pooling=false";
 
         private bool AddLocalUserAccessPermission = true;
+        private string _oldTemp;
+        private DirectoryInfo _globalTempDir;
 
         public async Task InitializeAsync()
         {
@@ -183,12 +191,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         }
 
-        public Task DisposeAsync()
-        {
-            return Task.CompletedTask;
-        }
-
-        public virtual void Dispose()
+        public virtual async Task DisposeAsync()
         {
             App?.Logger?.Information("Stopping app");
             _cancellationTokenSource?.Dispose();
@@ -217,24 +220,51 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             DirectoryInfo[] directoryInfos = DirectoriesToClean.ToArray();
 
-            foreach (DirectoryInfo directoryInfo in directoryInfos)
+            foreach (DirectoryInfo directoryInfo in directoryInfos.OrderByDescending(x => x.FullName.Length))
             {
-                try
-                {
-                    directoryInfo.Refresh();
-
-                    if (directoryInfo.Exists)
-                    {
-                        directoryInfo.Delete(true);
-                    }
-                }
-                catch (Exception)
-                {
-                    // ignore
-                }
-
+                await DeleteDirectoryAsync(directoryInfo);
                 DirectoriesToClean.Remove(directoryInfo);
             }
+
+            Environment.SetEnvironmentVariable("TEMP", _oldTemp);
+
+            await DeleteDirectoryAsync(_globalTempDir);
+        }
+
+        private async Task DeleteDirectoryAsync(DirectoryInfo directoryInfo, int attempt = 0)
+        {
+            if (attempt == 5)
+            {
+                return;
+            }
+
+            try
+            {
+                directoryInfo.Refresh();
+
+                if (directoryInfo.Exists)
+                {
+                    directoryInfo.Delete(true);
+                }
+
+                directoryInfo.Refresh();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"could not delete directory {directoryInfo.FullName}", ex);
+                // ignore
+
+                await Task.Delay(TimeSpan.FromMilliseconds(200));
+            }
+
+            if (directoryInfo.Exists)
+            {
+                await DeleteDirectoryAsync(directoryInfo, attempt +1);
+            }
+        }
+
+        public virtual void Dispose()
+        {
         }
 
         protected virtual Task AfterRunAsync()

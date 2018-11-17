@@ -31,6 +31,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public AutoDeploySetup(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink)
         {
+
+            //TODO run entire test in temp dir
         }
 
         [PublicAPI]
@@ -45,6 +47,17 @@ namespace Milou.Deployer.Web.Tests.Integration
                 ResponseMessage =
                     await httpClient.GetAsync($"http://localhost:{TestSiteHttpPort.Port}/applicationmetadata.json");
             }
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+        }
+
+        public override async Task DisposeAsync()
+        {
+            DirectoriesToClean.Add(TestConfiguration.BaseDirectory);
+            await base.DisposeAsync();
         }
 
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)

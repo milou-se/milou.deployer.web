@@ -209,23 +209,28 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             HttpClient httpClient = _clientFactory.CreateClient("Bootstrapper");
 
-            using (Bootstrapper.Common.App deployerApp =
-                await Bootstrapper.Common.App.CreateAsync(deployerArgs,
-                    logger,
-                    httpClient,
-                    false))
+            try
             {
-                NuGetPackageInstallResult result =
-                    await deployerApp.ExecuteAsync(deployerArgs.ToImmutableArray(), cancellationToken);
-
-                if (result.PackageDirectory is null || result.SemanticVersion is null)
+                using (Bootstrapper.Common.App deployerApp =
+                    await Bootstrapper.Common.App.CreateAsync(deployerArgs,
+                        logger,
+                        httpClient,
+                        false))
                 {
-                    logger.Warning("Milou.Deployer failed");
-                    return ExitCode.Failure;
+                    NuGetPackageInstallResult result =
+                        await deployerApp.ExecuteAsync(deployerArgs.ToImmutableArray(), cancellationToken);
+
+                    if (result.PackageDirectory is null || result.SemanticVersion is null)
+                    {
+                        logger.Warning("Milou.Deployer failed");
+                        return ExitCode.Failure;
+                    }
                 }
             }
-
-            ClearTemporaryDirectoriesAndFiles(deploymentTask);
+            finally
+            {
+                ClearTemporaryDirectoriesAndFiles(deploymentTask);
+            }
 
             return ExitCode.Success;
         }
@@ -307,6 +312,11 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         private static void ClearTemporaryDirectoriesAndFiles(DeploymentTask deploymentTask)
         {
+            if (deploymentTask is null)
+            {
+                return;
+            }
+
             foreach (FileInfo temporaryFile in deploymentTask.TempFiles)
             {
                 temporaryFile.Refresh();

@@ -12,8 +12,7 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
             string projectName = "Milou.Deployer.Web.Tests.Integration";
 
             string baseDirectoryPath = Path.Combine(Path.GetTempPath(),
-                projectName,
-                DateTime.UtcNow.Ticks.ToString());
+                projectName + "-" + DateTime.UtcNow.Ticks.ToString());
 
             var baseDirectory = new DirectoryInfo(baseDirectoryPath);
 
