@@ -81,7 +81,7 @@ namespace Milou.Deployer.Web.Core.Configuration
 
             [PublicAPI]
             [Metadata]
-            public const string LogLevel = "tools:milou-deployer:log:level";
+            public const string LogLevel = "urn:milou-deployer:web:log:level";
 
             [PublicAPI]
             [Metadata]

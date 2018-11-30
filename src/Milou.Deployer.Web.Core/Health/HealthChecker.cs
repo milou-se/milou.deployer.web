@@ -21,6 +21,14 @@ namespace Milou.Deployer.Web.Core.Health
 
         public async Task DoHealthChecksAsync(CancellationToken cancellationToken)
         {
+            if (_healthChecks.Count == 0)
+            {
+                _logger.Debug("No health checks are registered");
+                return;
+            }
+
+            _logger.Debug("{HealthCheckCount} health checks are registered", _healthChecks.Count);
+
             foreach (IHealthCheck healthCheck in _healthChecks)
             {
                 try
@@ -30,15 +38,18 @@ namespace Milou.Deployer.Web.Core.Health
                         using (CancellationTokenSource combined =
                             CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token))
                         {
+                            _logger.Debug("Making health check with {Check}", healthCheck.Description);
                             await healthCheck.CheckHealthAsync(combined.Token);
                         }
                     }
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    _logger.Verbose(ex, "Health check error for check {Check}", healthCheck.Description);
+                    _logger.Debug(ex, "Health check error for check {Check}", healthCheck.Description);
                 }
             }
+
+            _logger.Debug("Health checks done");
         }
     }
 }

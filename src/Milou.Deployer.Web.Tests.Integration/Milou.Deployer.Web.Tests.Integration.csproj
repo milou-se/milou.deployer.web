@@ -7,10 +7,10 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
-        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" />
+        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.6" />
         <PackageReference Include="Microsoft.NetCore.App" Version="2.1.5" Condition="'$(NCrunch)' == '1'" />
         <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
-        <PackageReference Include="Microsoft.Net.Compilers" Version="2.9.0">
+        <PackageReference Include="Microsoft.Net.Compilers" Version="2.10.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>

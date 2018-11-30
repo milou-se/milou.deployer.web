@@ -7,9 +7,9 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.Processing;
 using Arbor.Tooler;
 using JetBrains.Annotations;
-using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
@@ -27,7 +27,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private const string AllPackagesCacheKey = PackagesCacheKeyBaseUrn + ":AnyConfig";
         private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
         private readonly NuGetListConfiguration _deploymentConfiguration;
-        private readonly CustomHttpClientFactory _httpClientFactory;
+        private readonly NuGetConfiguration _nuGetConfiguration;
 
         [NotNull]
         private readonly IKeyValueConfiguration _keyValueConfiguration;
@@ -41,7 +41,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] ICustomMemoryCache memoryCache,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ILogger logger,
-            [NotNull] CustomHttpClientFactory httpClientFactory)
+            [NotNull] CustomHttpClientFactory httpClientFactory,
+            [NotNull] NuGetConfiguration nuGetConfiguration)
         {
             _deploymentConfiguration = deploymentConfiguration ??
                                        throw new ArgumentNullException(nameof(deploymentConfiguration));
@@ -49,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _nuGetConfiguration = nuGetConfiguration ?? throw new ArgumentNullException(nameof(nuGetConfiguration));
         }
 
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
@@ -110,42 +111,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
             }
 
-            var nuGetDownloadClient = new NuGetDownloadClient();
-            HttpClient httpClient = _httpClientFactory.CreateClient("nuget");
-            NuGetDownloadResult nuGetDownloadResult;
-
-            using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-            {
-                nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(NuGetDownloadSettings.Default,
-                    _logger,
-                    httpClient,
-                    cts.Token);
-            }
-
-            if (!nuGetDownloadResult.Succeeded)
-            {
-                if (nuGetDownloadResult.Exception != null)
-                {
-                    _logger.Error(nuGetDownloadResult.Exception,
-                        "Could not download NuGet.exe: {Result}",
-                        nuGetDownloadResult.Result);
-                }
-                else
-                {
-                    _logger.Error("Could not download NuGet.exe: {Result}", nuGetDownloadResult.Result);
-                }
-            }
-
-            string nugetExe = nuGetDownloadResult.NuGetExePath;
-
-            if (string.IsNullOrWhiteSpace(nugetExe))
+            if (string.IsNullOrWhiteSpace(_nuGetConfiguration.NugetExePath))
             {
                 throw new DeployerAppException("The nuget.exe path is not set");
             }
 
-            if (!File.Exists(nugetExe))
+            if (!File.Exists(_nuGetConfiguration.NugetExePath))
             {
-                throw new DeployerAppException($"The nuget.exe path '{nugetExe}' does not exist");
+                throw new DeployerAppException($"The nuget.exe path '{_nuGetConfiguration.NugetExePath}' does not exist");
             }
 
             string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
@@ -201,7 +174,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 using (CancellationTokenSource linked =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
-                    exitCode = await ProcessRunner.ExecuteProcessAsync(nugetExe,
+                    exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
                         args,
                         (message, category) =>
                         {
@@ -243,7 +216,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     sourcesArgs.Add("detailed");
                 }
 
-                await ProcessRunner.ExecuteProcessAsync(nugetExe,
+                await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
                     sourcesArgs,
                     (message, _) => sources.Add(message),
                     (message, _) => sourcesError.Add(message),
@@ -259,7 +232,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     exitCode.Code,
                     standardOut,
                     standardErrorOut,
-                    nugetExe,
+                    _nuGetConfiguration.NugetExePath,
                     string.Join(" ", args),
                     sourcesOut,
                     sourcesErrorOut);

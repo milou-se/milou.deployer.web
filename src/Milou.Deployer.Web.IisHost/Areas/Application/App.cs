@@ -4,11 +4,13 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
+using Arbor.Tooler;
 using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
@@ -18,11 +20,13 @@ using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Http;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
+using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Messaging;
 using Milou.Deployer.Web.IisHost.AspNetCore;
 using Serilog;
@@ -276,7 +280,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
             }
 
-            var loggingLevelSwitch = new LoggingLevelSwitch(LogEventLevel.Debug);
+            LogEventLevel defaultLevel = configuration[ConfigurationConstants.Logging.LogLevel].ParseOrDefault(LogEventLevel.Information);
+
+            var loggingLevelSwitch = new LoggingLevelSwitch(defaultLevel);
 
             ILogger appLogger =
                 SerilogApiInitialization.InitializeAppLogging(configuration, startupLogger, loggerConfigurationAction, loggingLevelSwitch);
@@ -301,18 +307,51 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 ContentBasePath = contentBasePath
             };
 
-            var singletons = new object[] { loggingLevelSwitch, environmentConfiguration};
+            var singletons = new object[] { loggingLevelSwitch, environmentConfiguration, new NuGetConfiguration() };
 
             Scope rootScope = Bootstrapper.Start(configuration,
                 modules, appLogger, scanAssemblies, excludedModuleTypes,singletons);
 
             DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(rootScope.Deepest().Lifetime, appLogger, configuration, cancellationTokenSource.Token);
 
+            string nugetExePath = "";
+
+            appLogger.Debug("Ensuring nuget.exe exists");
+
+            try
+            {
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(100)))
+                {
+                    using (var httpClient = new HttpClient())
+                    {
+                        NuGetDownloadResult nuGetDownloadResult = await new NuGetDownloadClient().DownloadNuGetAsync(
+                            NuGetDownloadSettings.Default,
+                            appLogger,
+                            httpClient,
+                            cts.Token);
+
+                        if (nuGetDownloadResult.Succeeded)
+                        {
+                            nugetExePath = nuGetDownloadResult.NuGetExePath;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                appLogger.Warning(ex, "Could not download nuget.exe");
+            }
+
+            var nugetConfiguration = rootScope.Deepest().Lifetime.Resolve<NuGetConfiguration>();
+
+            nugetConfiguration.NugetExePath = nugetExePath;
+
             ILifetimeScope webHostScope =
                 rootScope.Deepest().Lifetime.BeginLifetimeScope(builder =>
                 {
                     builder.RegisterInstance(deploymentTargetIds).AsSelf().SingleInstance();
                     builder.RegisterType<Startup>().AsSelf();
+                    builder.RegisterInstance(nugetConfiguration).AsSelf();
                 });
 
             var webHostScopeWrapper = new Scope(Scope.WebHostScope, webHostScope);
@@ -344,7 +383,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 if (!int.TryParse(configuration[ConfigurationConstants.SeedTimeoutInSeconds], out int seedTimeoutInSeconds) ||
                     seedTimeoutInSeconds <= 0)
                 {
-                    seedTimeoutInSeconds = 5;
+                    seedTimeoutInSeconds = 10;
                 }
 
                 logger.Debug("Running data seeders");
@@ -358,7 +397,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                             startupToken.Token))
                         {
                             logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
-                            await dataSeeder.SeedAsync(cancellationToken);
+                            await dataSeeder.SeedAsync(linkedToken.Token);
                         }
                     }
                 }
@@ -375,7 +414,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 if (!int.TryParse(configuration[ConfigurationConstants.StartupTargetsTimeoutInSeconds], out int startupTimeoutInSeconds) ||
                     startupTimeoutInSeconds <= 0)
                 {
-                    startupTimeoutInSeconds = 5;
+                    startupTimeoutInSeconds = 10;
                 }
 
                 using (var startupToken = new CancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))

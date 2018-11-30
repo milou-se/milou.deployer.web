@@ -8,9 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Arbor.KVConfiguration.Core;
+using Arbor.Processing;
 using Arbor.Tooler;
 using JetBrains.Annotations;
-using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Http;
@@ -215,7 +215,8 @@ namespace Milou.Deployer.Web.Core.Deployment
                     await Bootstrapper.Common.App.CreateAsync(deployerArgs,
                         logger,
                         httpClient,
-                        false))
+                        false,
+                        cancellationToken))
                 {
                     NuGetPackageInstallResult result =
                         await deployerApp.ExecuteAsync(deployerArgs.ToImmutableArray(), cancellationToken);

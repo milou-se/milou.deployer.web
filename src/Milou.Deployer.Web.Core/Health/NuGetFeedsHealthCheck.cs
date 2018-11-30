@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.Tooler;
+using Arbor.Processing;
 using JetBrains.Annotations;
-using Milou.Deployer.Core.Processes;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
 
@@ -19,15 +19,16 @@ namespace Milou.Deployer.Web.Core.Health
     {
         private readonly IHttpClientFactory _httpClient;
         private readonly ILogger _logger;
-        private readonly NuGetDownloadClient _nuGetDownloadClient;
+        private readonly NuGetConfiguration _nuGetConfiguration;
 
         public NuGetFeedsHealthCheck(
             [NotNull] IHttpClientFactory httpClient,
-            [NotNull] ILogger logger)
+            [NotNull] ILogger logger,
+            [NotNull] NuGetConfiguration nuGetConfiguration)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _nuGetDownloadClient = new NuGetDownloadClient();
+            _nuGetConfiguration = nuGetConfiguration ?? throw new ArgumentNullException(nameof(nuGetConfiguration));
         }
 
         public int TimeoutInSeconds { get; } = 7;
@@ -36,14 +37,10 @@ namespace Milou.Deployer.Web.Core.Health
 
         public async Task<HealthCheckResult> CheckHealthAsync(CancellationToken cancellationToken)
         {
-            NuGetDownloadResult nuGetDownloadResult = await _nuGetDownloadClient.DownloadNuGetAsync(
-                NuGetDownloadSettings.Default,
-                _logger,
-                _httpClient.CreateClient("NuGet"),
-                cancellationToken);
-
-            if (!nuGetDownloadResult.Succeeded)
+            if (string.IsNullOrWhiteSpace(_nuGetConfiguration.NugetExePath) ||
+                !File.Exists(_nuGetConfiguration.NugetExePath))
             {
+                _logger.Warning("Could not perform health checks of NuGet feeds, nuget.exe is missing");
                 return new HealthCheckResult(false);
             }
 
@@ -56,7 +53,7 @@ namespace Milou.Deployer.Web.Core.Health
 
             var lines = new List<string>();
 
-            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(nuGetDownloadResult.NuGetExePath,
+            ExitCode exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
                 args,
                 (message, _) =>
                 {

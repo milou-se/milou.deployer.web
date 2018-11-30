@@ -9,24 +9,24 @@
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.16.2" />
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.16.2" />
     <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.16.2" />
-    <PackageReference Include="Arbor.ModelBinding" Version="0.3.3" />
-    <PackageReference Include="Arbor.Tooler" Version="0.1.4" />
+    <PackageReference Include="Arbor.ModelBinding" Version="0.4.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.2.0" />
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
     <PackageReference Include="MailKit" Version="2.0.7" />
-    <PackageReference Include="Marten" Version="3.0.1" />
+    <PackageReference Include="Marten" Version="3.2.0" />
     <PackageReference Include="MediatR" Version="5.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Net.Compilers" Version="2.9.0">
+    <PackageReference Include="Microsoft.Net.Compilers" Version="2.10.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.2.0-build.91" />
-    <PackageReference Include="Milou.Deployer.Core" Version="4.2.0-build.91" />
-    <PackageReference Include="NuGet.Versioning" Version="4.8.0" />
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.2.0-build.97" />
+    <PackageReference Include="Milou.Deployer.Core" Version="4.2.0-build.97" />
+    <PackageReference Include="NuGet.Versioning" Version="4.9.1" />
     <PackageReference Include="Serilog" Version="2.7.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
