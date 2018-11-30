@@ -12,15 +12,18 @@ namespace Milou.Deployer.Web.Tests.Integration
         private static ConcurrentDictionary<int, PortPoolRental> _rentals =
             new ConcurrentDictionary<int, PortPoolRental>();
 
-        public static PortPoolRental GetAvailablePort(in PortPoolRange range, IEnumerable<int> exludes = null)
+        public static PortPoolRental GetAvailablePort(in PortPoolRange range, IEnumerable<int> excludes = null)
         {
-            List<int> excluded = (exludes ?? new List<int>()).ToList();
+            List<int> excluded = (excludes ?? new List<int>()).ToList();
 
             IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
             TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
 
-            for (int port = range.StartPort; port <= range.EndPort; port++)
+            var random = new Random();
+            for (int attempt = 0; attempt < 50; attempt++)
             {
+                int port = random.Next(range.StartPort, range.EndPort);
+
                 bool portIsInUse = tcpConnInfoArray.Any(tcpPort => tcpPort.LocalEndPoint.Port == port);
 
                 if (!_rentals.ContainsKey(port) && !portIsInUse && !excluded.Any(excludedPort => excludedPort == port))
