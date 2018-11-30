@@ -338,20 +338,43 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         {
             var dataSeeders = scope.Resolve<IReadOnlyCollection<IDataSeeder>>();
 
-            foreach (IDataSeeder dataSeeder in dataSeeders)
+            if (dataSeeders.Count > 0)
             {
-                await dataSeeder.SeedAsync(cancellationToken);
+                logger.Debug("Running data seeders");
+
+                foreach (IDataSeeder dataSeeder in dataSeeders)
+                {
+                    logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
+                    await dataSeeder.SeedAsync(cancellationToken);
+                }
+
+                logger.Debug("Done running data seeders");
+            }
+            else
+            {
+                logger.Debug("No data seeders were found");
             }
 
             try
             {
                 scope.TryResolve(out IDeploymentTargetReadService deploymentTargetReadService);
 
+                if (deploymentTargetReadService != null)
+                {
+                    logger.Debug("Found deployment target read service of type {Type}", deploymentTargetReadService.GetType().FullName);
+                }
+                else
+                {
+                    logger.Debug("Could not find any deployment target read service");
+                }
+
                 IReadOnlyCollection<string> targetIds = deploymentTargetReadService != null
-                    ? (await deploymentTargetReadService.GetDeploymentTargetsAsync(default))
+                    ? (await deploymentTargetReadService.GetDeploymentTargetsAsync(cancellationToken))
                     .Select(deploymentTarget => deploymentTarget.Id)
                     .ToArray()
                     : Array.Empty<string>();
+
+                logger.Debug("Found deployment target IDs {IDs}", targetIds);
 
                 return new DeploymentTargetIds(targetIds);
             }

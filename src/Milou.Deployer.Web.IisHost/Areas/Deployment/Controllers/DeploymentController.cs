@@ -19,6 +19,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
     [Area(DeploymentConstants.AreaName)]
     public class DeploymentController : BaseApiController
     {
+        [NotNull]
+        private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _getTargets;
 
         public DeploymentController(
@@ -30,11 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 throw new ArgumentNullException(nameof(logger));
             }
 
-            if (logger == null)
-            {
-                throw new ArgumentNullException(nameof(logger));
-            }
-
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _getTargets = getTargets ?? throw new ArgumentNullException(nameof(getTargets));
         }
 
@@ -42,11 +40,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [Route("/deployment")]
         public async Task<IActionResult> Index(string prefix = null)
         {
-            IReadOnlyCollection<DeploymentTarget> targets =
-                (await _getTargets.GetOrganizationsAsync(CancellationToken.None)).SelectMany(
-                    organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
+            IReadOnlyCollection<DeploymentTarget> targets;
+            try
+            {
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                {
+                    targets =
+                        (await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(
+                            organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
 
-                .SafeToReadOnlyCollection();
+                        .SafeToReadOnlyCollection();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Could not get organizations");
+                targets = ImmutableArray<DeploymentTarget>.Empty;
+            }
 
             IReadOnlyCollection<PackageVersion> items = ImmutableArray<PackageVersion>.Empty;
 
