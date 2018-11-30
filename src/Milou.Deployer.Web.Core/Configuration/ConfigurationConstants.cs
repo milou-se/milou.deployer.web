@@ -67,6 +67,12 @@ namespace Milou.Deployer.Web.Core.Configuration
         [Metadata]
         public static string JsonSettingsFile = "urn:milou:deployer:settings:json-file";
 
+        [Metadata]
+        public const string SeedTimeoutInSeconds = "urn:milou:deployer:web:seed-timeout-in-seconds";
+
+        [Metadata]
+        public const string StartupTargetsTimeoutInSeconds ="urn:milou:deployer:web:startup:targets-timeout-in-seconds";
+
         public static class Logging
         {
             [PublicAPI]

@@ -306,7 +306,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Scope rootScope = Bootstrapper.Start(configuration,
                 modules, appLogger, scanAssemblies, excludedModuleTypes,singletons);
 
-            DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(rootScope.Deepest().Lifetime, appLogger, cancellationTokenSource.Token);
+            DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(rootScope.Deepest().Lifetime, appLogger, configuration, cancellationTokenSource.Token);
 
             ILifetimeScope webHostScope =
                 rootScope.Deepest().Lifetime.BeginLifetimeScope(builder =>
@@ -334,18 +334,33 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private static async Task<DeploymentTargetIds> GetDeploymentWorkerIdsAsync(
             ILifetimeScope scope,
             ILogger logger,
+            MultiSourceKeyValueConfiguration configuration,
             CancellationToken cancellationToken)
         {
             var dataSeeders = scope.Resolve<IReadOnlyCollection<IDataSeeder>>();
 
             if (dataSeeders.Count > 0)
             {
+                if (!int.TryParse(configuration[ConfigurationConstants.SeedTimeoutInSeconds], out int seedTimeoutInSeconds) ||
+                    seedTimeoutInSeconds <= 0)
+                {
+                    seedTimeoutInSeconds = 5;
+                }
+
                 logger.Debug("Running data seeders");
 
                 foreach (IDataSeeder dataSeeder in dataSeeders)
                 {
-                    logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
-                    await dataSeeder.SeedAsync(cancellationToken);
+                    using (var startupToken = new CancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds)))
+                    {
+                        using (CancellationTokenSource linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
+                            cancellationToken,
+                            startupToken.Token))
+                        {
+                            logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
+                            await dataSeeder.SeedAsync(cancellationToken);
+                        }
+                    }
                 }
 
                 logger.Debug("Done running data seeders");
@@ -357,26 +372,41 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             try
             {
-                scope.TryResolve(out IDeploymentTargetReadService deploymentTargetReadService);
-
-                if (deploymentTargetReadService != null)
+                if (!int.TryParse(configuration[ConfigurationConstants.StartupTargetsTimeoutInSeconds], out int startupTimeoutInSeconds) ||
+                    startupTimeoutInSeconds <= 0)
                 {
-                    logger.Debug("Found deployment target read service of type {Type}", deploymentTargetReadService.GetType().FullName);
-                }
-                else
-                {
-                    logger.Debug("Could not find any deployment target read service");
+                    startupTimeoutInSeconds = 5;
                 }
 
-                IReadOnlyCollection<string> targetIds = deploymentTargetReadService != null
-                    ? (await deploymentTargetReadService.GetDeploymentTargetsAsync(cancellationToken))
-                    .Select(deploymentTarget => deploymentTarget.Id)
-                    .ToArray()
-                    : Array.Empty<string>();
+                using (var startupToken = new CancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))
+                {
+                    using (CancellationTokenSource linkedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
+                            startupToken.Token))
+                    {
 
-                logger.Debug("Found deployment target IDs {IDs}", targetIds);
+                        scope.TryResolve(out IDeploymentTargetReadService deploymentTargetReadService);
 
-                return new DeploymentTargetIds(targetIds);
+                        if (deploymentTargetReadService != null)
+                        {
+                            logger.Debug("Found deployment target read service of type {Type}",
+                                deploymentTargetReadService.GetType().FullName);
+                        }
+                        else
+                        {
+                            logger.Debug("Could not find any deployment target read service");
+                        }
+
+                        IReadOnlyCollection<string> targetIds = deploymentTargetReadService != null
+                            ? (await deploymentTargetReadService.GetDeploymentTargetsAsync(linkedToken.Token))
+                            .Select(deploymentTarget => deploymentTarget.Id)
+                            .ToArray()
+                            : Array.Empty<string>();
+
+                        logger.Debug("Found deployment target IDs {IDs}", targetIds);
+
+                        return new DeploymentTargetIds(targetIds);
+                    }
+                }
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
