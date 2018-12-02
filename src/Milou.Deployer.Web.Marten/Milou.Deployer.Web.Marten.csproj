@@ -1,13 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.16.2" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.16.2" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.16.2" />
+    <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.17.0-build.148" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.17.0-build.148" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.17.0-build.148" />
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
     <PackageReference Include="Marten" Version="3.2.0" />
