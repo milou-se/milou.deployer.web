@@ -62,7 +62,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)
         {
-            var portPoolRange = new PortPoolRange(5200, 5299);
+            var portPoolRange = new PortPoolRange(5200, 100);
             TestSiteHttpPort = TcpHelper.GetAvailablePort(portPoolRange);
 
             TestConfiguration = await new TestPathHelper().CreateTestConfigurationAsync(cancellationToken);

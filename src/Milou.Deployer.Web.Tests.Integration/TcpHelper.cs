@@ -17,22 +17,23 @@ namespace Milou.Deployer.Web.Tests.Integration
             List<int> excluded = (excludes ?? new List<int>()).ToList();
 
             IPGlobalProperties ipGlobalProperties = IPGlobalProperties.GetIPGlobalProperties();
-            TcpConnectionInformation[] tcpConnInfoArray = ipGlobalProperties.GetActiveTcpConnections();
+            TcpConnectionInformation[] activeTcpConnections = ipGlobalProperties.GetActiveTcpConnections();
 
             var random = new Random();
             for (int attempt = 0; attempt < 50; attempt++)
             {
                 int port = random.Next(range.StartPort, range.EndPort);
 
-                bool portIsInUse = tcpConnInfoArray.Any(tcpPort => tcpPort.LocalEndPoint.Port == port);
+                bool portIsInUse = activeTcpConnections.Any(tcpPort => tcpPort.LocalEndPoint.Port == port);
 
                 if (!_rentals.ContainsKey(port) && !portIsInUse && !excluded.Any(excludedPort => excludedPort == port))
                 {
                     var portPoolRental = new PortPoolRental(port, Return);
 
-                    _rentals.TryAdd(port, portPoolRental);
-
-                    return portPoolRental;
+                    if (_rentals.TryAdd(port, portPoolRental))
+                    {
+                        return portPoolRental;
+                    }
                 }
             }
 
