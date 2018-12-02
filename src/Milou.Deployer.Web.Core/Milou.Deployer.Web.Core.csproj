@@ -6,9 +6,9 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.17.0-build.148" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.17.0-build.148" />
-    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.17.0-build.148" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.17.0-build.150" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.17.0-build.150" />
+    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.17.0-build.150" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.4.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.3.0-build.33" />
     <PackageReference Include="Autofac" Version="4.8.1" />

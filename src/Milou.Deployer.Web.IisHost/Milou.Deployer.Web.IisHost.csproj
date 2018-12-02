@@ -17,11 +17,11 @@
         <PackageReference Include="Arbor.Processing" Version="0.2.0-build.4" />
         <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" Condition="'$(NCrunch)' == '1'" />
         <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.6.0" />
-        <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.17.0-build.148" />
-        <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.17.0-build.148" />
-        <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.17.0-build.148" />
-        <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.17.0-build.148" />
-        <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.17.0-build.148" />
+        <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.17.0-build.150" />
+        <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.17.0-build.150" />
+        <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.17.0-build.150" />
+        <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.17.0-build.150" />
+        <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.17.0-build.150" />
         <PackageReference Include="Arbor.ModelBinding" Version="0.4.0" />
         <PackageReference Include="Arbor.Tooler" Version="0.3.0-build.33" />
         <PackageReference Include="Autofac" Version="4.8.1" />
@@ -40,6 +40,7 @@
         <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="2.1.1" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
+        <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.1.6" />
         <PackageReference Include="Microsoft.Net.Compilers" Version="2.10.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

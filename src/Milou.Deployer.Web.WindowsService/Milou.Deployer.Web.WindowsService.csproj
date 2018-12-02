@@ -62,6 +62,7 @@
     <PackageReference Include="Arbor.Processing" Version="0.2.0-build.4" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.1.6" />
   </ItemGroup>
 
   <ItemGroup>
