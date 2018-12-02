@@ -10,6 +10,7 @@
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.17.0-build.150" />
     <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.17.0-build.150" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.4.0" />
+    <PackageReference Include="Arbor.Processing" Version="0.2.0-build.4" />
     <PackageReference Include="Arbor.Tooler" Version="0.3.0-build.33" />
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="JetBrains.Annotations" Version="2018.2.1" />
