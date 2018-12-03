@@ -54,7 +54,10 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         public static IServiceCollection AddDeploymentAuthentication(this IServiceCollection serviceCollection)
         {
             serviceCollection.AddAuthentication(option =>
-                    option.DefaultAuthenticateScheme = MilouAuthenticationConstants.MilouAuthenticationScheme)
+                {
+                    option.DefaultChallengeScheme = MilouAuthenticationConstants.MilouAuthenticationScheme;
+                    option.DefaultAuthenticateScheme = MilouAuthenticationConstants.MilouAuthenticationScheme;
+                })
                 .AddMilouAuthentication(MilouAuthenticationConstants.MilouAuthenticationScheme,
                     "Milou",
                     options => { });
