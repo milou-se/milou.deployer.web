@@ -58,7 +58,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                         {
                             logger.Information("Listening on http port {Port}", environmentConfiguration.HttpPort.Value);
 
-                            options.Listen(IPAddress.Loopback,
+                            options.Listen(IPAddress.Any,
                                 environmentConfiguration.HttpPort.Value);
                         }
 
@@ -68,7 +68,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                         {
                             logger.Information("Listening on https port {Port}", environmentConfiguration.HttpsPort.Value);
 
-                            options.Listen(IPAddress.Loopback,
+                            options.Listen(IPAddress.Any,
                                 environmentConfiguration.HttpsPort.Value,
                                 listenOptions =>
                                 {
