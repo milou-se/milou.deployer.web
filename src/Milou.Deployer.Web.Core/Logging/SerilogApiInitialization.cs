@@ -6,6 +6,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -81,8 +82,11 @@ namespace Milou.Deployer.Web.Core.Logging
 
             loggerConfiguration = loggerConfiguration.WriteTo.Console();
 
+            LogEventLevel microsoftLevel =
+                multiSourceKeyValueConfiguration[LoggingConstants.MicrosoftLevel].ParseOrDefault(LogEventLevel.Warning);
+
             LoggerConfiguration finalConfiguration = loggerConfiguration
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+                .MinimumLevel.Override("Microsoft", microsoftLevel)
                 .Enrich.FromLogContext();
 
             loggerConfigurationAction?.Invoke(loggerConfiguration);

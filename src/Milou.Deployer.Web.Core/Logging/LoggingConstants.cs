@@ -22,5 +22,8 @@ namespace Milou.Deployer.Web.Core.Logging
 
         [Metadata]
         public const string SeqStartupUrl = "urn:milou:deployer:web:logging:startup-seq-url";
+
+        [Metadata]
+        public const string MicrosoftLevel = "urn:milou:deployer:web:logging:microsoft:level";
     }
 }
