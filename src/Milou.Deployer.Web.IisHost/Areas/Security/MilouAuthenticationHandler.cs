@@ -6,19 +6,24 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
     [UsedImplicitly]
     public class MilouAuthenticationHandler : AuthenticationHandler<MilouAuthenticationOptions>
     {
+        private readonly Serilog.ILogger _logger;
+
         public MilouAuthenticationHandler(
+            Serilog.ILogger logger,
             IOptionsMonitor<MilouAuthenticationOptions> options,
-            ILoggerFactory logger,
+            ILoggerFactory loggerFactory,
             UrlEncoder encoder,
             ISystemClock clock)
-            : base(options, logger, encoder, clock)
+            : base(options, loggerFactory, encoder, clock)
         {
+            _logger = logger;
         }
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -37,9 +42,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                         new ClaimsPrincipal(new ClaimsIdentity(claims)),
                         new AuthenticationProperties(),
                         Scheme.Name));
+
+                if (_logger.IsEnabled(LogEventLevel.Verbose))
+
+                {
+                    _logger.Verbose("Settings current user ip claim to {Address}", address);
+                }
             }
             else
             {
+                if (_logger.IsEnabled(LogEventLevel.Verbose))
+                {
+                    _logger.Verbose("Could not set current user ip claim to any address");
+                }
+
                 authenticateResult = AuthenticateResult.Fail("Missing remote ip address");
             }
 
