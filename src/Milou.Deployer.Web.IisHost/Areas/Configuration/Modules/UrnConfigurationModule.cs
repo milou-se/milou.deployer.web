@@ -116,9 +116,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
                 if (treatWarningsAsErrors)
                 {
-                    string[] invalidInstances = validationObjects.Where(validatedObject => !validatedObject.Value.IsValid)
-                        .Select(namedInstance => namedInstance.ToString())
-                        .ToArray();
+                    string invalidInstances = string.Join(Environment.NewLine, validationObjects
+                        .Where(validatedObject => !validatedObject.Value.IsValid)
+                        .Select(namedInstance => namedInstance.ToString()));
 
                     throw new Core.DeployerAppException(
                         $"Could not create instance of type {type.FullName}, the instances '{invalidInstances}' are invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
@@ -149,7 +149,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 foreach (INamedInstance<IValidationObject> validationObject in validInstances)
                 {
                     _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
-                        validationObject,
+                        $"[{validationObject.Name}] {validationObject.Value}",
                         validationObject.GetType().FullName);
 
                     _configurationHolder.Add(validationObject);
@@ -165,7 +165,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 foreach (INamedInstance<IValidationObject> validationObject in validationObjects)
                 {
                     _logger.Debug("Registering invalid URN-bound instance {Instance}, {Type}",
-                        validationObject,
+                         $"[{validationObject.Name}] {validationObject.Value}",
                         validationObject.GetType().FullName);
 
                     _configurationHolder.Add(validationObject);
@@ -181,7 +181,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 foreach (INamedInstance<object> instance in instances)
                 {
                     _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
-                        instance,
+                         $"[{instance.Name}] {instance.Value}",
                         instance.GetType().FullName);
                     _configurationHolder.Add(instance);
 

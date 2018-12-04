@@ -25,7 +25,6 @@ using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
-using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Messaging;
 using Milou.Deployer.Web.IisHost.AspNetCore;
 using Serilog;
@@ -203,7 +202,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private void LogConfigurationValues()
         {
             ImmutableArray<(object, string)> configurationValues = AppRootScope.Deepest().GetConfigurationValues();
-            Logger.Debug("Using configuration values {ConfigurationValues}\r\n", string.Join(Environment.NewLine, configurationValues.Select(configurationValue => configurationValue.Item2)));
+            Logger.Debug("Using configuration values {ConfigurationValues}", string.Join(Environment.NewLine, configurationValues.Select(configurationValue => configurationValue.Item2)));
         }
 
         private static async Task<App> BuildAppAsync(
@@ -262,7 +261,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     file => GetBaseDirectoryFile(basePath, file),
                     startupLogger, scanAssemblies, contentBasePath);
 
-            startupLogger.Verbose("Configuration values {KeyValues}", configuration.ConfigurationItems.Select(pair =>
+            startupLogger.Verbose("Configuration values {KeyValues}", configuration.AllValues.Select(pair =>
                 $"\"{pair.Key}\": \"{pair.Value.MakeAnonymous(pair.Key, $"{StringExtensions.DefaultAnonymousKeyWords.ToArray()}\"")}"));
 
             string tempDirectory = configuration[ApplicationConstants.ApplicationTempDirectory];

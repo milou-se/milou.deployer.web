@@ -6,6 +6,7 @@ namespace Milou.Deployer.Web.Core.Logging
     public static class LoggingConstants
     {
         internal const string SerilogBaseUrn = "urn:milou:deployer:web:logging:serilog";
+
         internal const string StartupSerilogBaseUrn = "urn:milou:deployer:web:logging:startup:serilog";
 
         [PublicAPI]
