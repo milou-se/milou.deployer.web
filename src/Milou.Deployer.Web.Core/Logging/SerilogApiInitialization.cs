@@ -19,13 +19,14 @@ namespace Milou.Deployer.Web.Core.Logging
             ILogger logger,
             Action<LoggerConfiguration> loggerConfigurationAction, LoggingLevelSwitch loggingLevelSwitch)
         {
-            if (multiSourceKeyValueConfiguration == null)
+            if (multiSourceKeyValueConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(multiSourceKeyValueConfiguration));
             }
 
             SerilogConfiguration serilogConfiguration =
                 multiSourceKeyValueConfiguration.GetInstances<SerilogConfiguration>().FirstOrDefault();
+
             if (!serilogConfiguration.HasValue())
             {
                 logger.Error("Could not get any instance of type {Type}", typeof(SerilogConfiguration));
@@ -66,6 +67,10 @@ namespace Milou.Deployer.Web.Core.Logging
                 {
                     logger.Debug("Seq not configured for app logging");
                 }
+            }
+            else if (serilogConfiguration.SeqEnabled)
+            {
+                logger.Debug("Invalid Seq configuration for for app logging");
             }
 
             if (serilogConfiguration.RollingLogFilePathEnabled)

@@ -19,7 +19,9 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "testhostseq": "::1",
+        "urn:milou:deployer:web:logging:startup:serilog:startup-seq-url": "http://[%testhostseq%]:5341"
       },
       "applicationUrl": "http://localhost:54151/"
     }
