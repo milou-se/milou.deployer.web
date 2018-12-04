@@ -262,7 +262,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     file => GetBaseDirectoryFile(basePath, file),
                     startupLogger, scanAssemblies, contentBasePath);
 
-            startupLogger.Verbose("Configuration values {KeyValues}", configuration.ConfigurationItems);
+            startupLogger.Verbose("Configuration values {KeyValues}", configuration.ConfigurationItems.Select(pair =>
+                $"\"{pair.Key}\": \"{pair.Value.MakeAnonymous(pair.Key, $"{StringExtensions.DefaultAnonymousKeyWords.ToArray()}\"")}"));
 
             string tempDirectory = configuration[ApplicationConstants.ApplicationTempDirectory];
 

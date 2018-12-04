@@ -59,13 +59,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             ImmutableArray<ControllerRouteInfo> routesWithController =
                 RouteList.GetRoutesWithController(Assemblies.FilteredAssemblies());
 
-            var info = new ConfigurationInfo(_configuration.SourceChain,
+            var configurationValues = new ConfigurationInfo(_configuration.SourceChain,
                 _configuration.AllKeys
-                    .OrderBy(item => item)
-                    .Select(item =>
-                        new ConfigurationKeyInfo(item,
-                            _configuration[item],
-                            _configuration.ConfiguratorFor(item).GetType().Name))
+                    .OrderBy(key => key)
+                    .Select(key =>
+                        new ConfigurationKeyInfo(key,
+                            _configuration[key].MakeAnonymous(key, StringExtensions.DefaultAnonymousKeyWords.ToArray()),
+                            _configuration.ConfiguratorFor(key).GetType().Name))
                     .ToImmutableArray());
 
             ImmutableArray<ContainerRegistrationInfo> registrations = _scope.Deepest().Lifetime.ComponentRegistry
@@ -81,19 +81,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
             ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
-            ImmutableArray<(object, string)> configurationValues = _scope.GetConfigurationValues();
+            ImmutableArray<(object, string)> aspnetConfigurationValues = _scope.GetConfigurationValues();
 
             IKeyValueConfiguration applicationMetadata = await GetApplicationMetadataAsync(cancellationToken);
 
             var settingsViewModel = new SettingsViewModel(
                 _deploymentTargetReadService.GetType().Name,
                 routesWithController,
-                info,
+                configurationValues,
                 registrations,
                 aspNetConfigurationValues,
                 _loggingLevelSwitch.MinimumLevel,
                 applicationVersionInfo,
-                configurationValues,
+                aspnetConfigurationValues,
                 applicationMetadata);
 
             return settingsViewModel;

@@ -121,7 +121,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                         .ToArray();
 
                     throw new Core.DeployerAppException(
-                        $"Could not create instance of type {type.FullName}, the instance '{invalidInstances}' is invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
+                        $"Could not create instance of type {type.FullName}, the instances '{invalidInstances}' are invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
                 }
             }
 
