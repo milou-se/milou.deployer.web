@@ -43,6 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
         public ApplicationVersionInfo ApplicationVersionInfo { get; }
 
         public ImmutableArray<(object, string)> ConfigurationValues { get; }
+
         public IKeyValueConfiguration Applicationmetadata { get; }
 
         public ImmutableArray<ContainerRegistrationInfo> ContainerRegistrations { get; }

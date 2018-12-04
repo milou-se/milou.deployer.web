@@ -262,6 +262,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     file => GetBaseDirectoryFile(basePath, file),
                     startupLogger, scanAssemblies, contentBasePath);
 
+            startupLogger.Verbose("Configuration values {KeyValues}", configuration.ConfigurationItems);
+
             string tempDirectory = configuration[ApplicationConstants.ApplicationTempDirectory];
 
             if (!string.IsNullOrWhiteSpace(tempDirectory))
