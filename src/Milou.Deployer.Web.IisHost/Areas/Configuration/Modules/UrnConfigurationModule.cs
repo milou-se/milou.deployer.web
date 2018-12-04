@@ -116,8 +116,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
                 if (treatWarningsAsErrors)
                 {
+                    string[] invalidInstances = validationObjects.Where(validatedObject => !validatedObject.Value.IsValid)
+                        .Select(namedInstance => namedInstance.ToString())
+                        .ToArray();
+
                     throw new Core.DeployerAppException(
-                        $"Could not create instance of type {type.FullName}, the instance is invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
+                        $"Could not create instance of type {type.FullName}, the instance '{invalidInstances}' is invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
                 }
             }
 
