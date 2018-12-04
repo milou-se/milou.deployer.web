@@ -17,6 +17,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             HostName = hostName;
         }
 
+        public override string ToString()
+        {
+            return $"{nameof(HostName)}: {HostName}";
+        }
+
         public string HostName { get; }
     }
 }

@@ -118,7 +118,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 {
                     string invalidInstances = string.Join(Environment.NewLine, validationObjects
                         .Where(validatedObject => !validatedObject.Value.IsValid)
-                        .Select(namedInstance => namedInstance.ToString()));
+                        .Select(namedInstance => $"[{namedInstance.Value}] {namedInstance.Value}"));
 
                     throw new Core.DeployerAppException(
                         $"Could not create instance of type {type.FullName}, the instances '{invalidInstances}' are invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
@@ -133,8 +133,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
             {
                 INamedInstance<IValidationObject> validationObject = validInstances.Single();
 
+                string instance = $"[{validationObject.Name}] {validationObject.Value}";
+
                 _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
-                    validationObject,
+                    instance,
                     validationObject.GetType().FullName);
 
                 _configurationHolder.Add(validationObject);
