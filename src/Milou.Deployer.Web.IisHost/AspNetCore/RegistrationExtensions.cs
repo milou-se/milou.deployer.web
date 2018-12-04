@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
@@ -92,7 +93,9 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             return services;
         }
 
-        public static IServiceCollection AddDeploymentAuthorization(this IServiceCollection services)
+        public static IServiceCollection AddDeploymentAuthorization(
+            this IServiceCollection services,
+            EnvironmentConfiguration environmentConfiguration)
         {
             services.AddAuthorization(options =>
             {
@@ -102,6 +105,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             });
 
             services.AddSingleton<IAuthorizationHandler, DefaultAuthorizationHandler>();
+
+            if (environmentConfiguration.IsDevelopmentMode)
+            {
+                services.AddSingleton<IAuthorizationHandler, DevelopmentPermissionHandler>();
+            }
 
             return services;
         }

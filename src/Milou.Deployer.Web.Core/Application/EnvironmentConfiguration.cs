@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Web.Core.Configuration;
@@ -36,6 +37,12 @@ namespace Milou.Deployer.Web.Core.Application
 
         [PublicAPI]
         public string PfxPassword { get; set; }
+
+        public bool UseVerboseLogging { get; set; }
+
+        public bool IsDevelopmentMode { get; set; }
+
+        public ImmutableArray<string> CommandLineArgs { get; set; }
 
         public override string ToString()
         {

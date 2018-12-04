@@ -43,7 +43,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         {
             services.AddDeploymentAuthentication();
 
-            services.AddDeploymentAuthorization();
+            services.AddDeploymentAuthorization(_environmentConfiguration);
 
             services.AddDeploymentHttpClients(_httpLoggingConfiguration);
 
@@ -65,6 +65,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime)
         {
+            app.AddRequestLogging(_environmentConfiguration);
+
             app.AddForwardHeaders();
 
             app.AddExceptionHandling(_environmentConfiguration);

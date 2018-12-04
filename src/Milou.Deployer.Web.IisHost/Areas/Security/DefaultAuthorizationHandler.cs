@@ -29,7 +29,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             _logger = logger;
 
             IPAddress[] ipAddressesFromConfig = keyValueConfiguration[ConfigurationConstants.AllowedIPs]
-                .Split(',', StringSplitOptions.RemoveEmptyEntries).Select(IPAddress.Parse).ToArray();
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(IPAddress.Parse)
+                .ToArray();
 
             _allowed = new HashSet<IPAddress> { IPAddress.Parse("::1"), IPAddress.Parse("127.0.0.1") };
 
@@ -45,8 +47,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         {
             ImmutableArray<IPAddress> dynamicIPAddresses = _allowedIPAddressHandler.IpAddresses;
 
-            ImmutableHashSet<IPAddress> allAddresses = _allowed.Concat(dynamicIPAddresses)
-                .Where(ip => !Equals(ip, IPAddress.None)).ToImmutableHashSet();
+            ImmutableHashSet<IPAddress> allAddresses = _allowed
+                .Concat(dynamicIPAddresses)
+                .Where(ip => !Equals(ip, IPAddress.None))
+                .ToImmutableHashSet();
 
             if (context.User.HasClaim(claim =>
                 claim.Type == CustomClaimTypes.IPAddress

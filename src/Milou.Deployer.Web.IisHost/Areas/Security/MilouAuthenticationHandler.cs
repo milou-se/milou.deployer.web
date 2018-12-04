@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -16,14 +17,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         private readonly Serilog.ILogger _logger;
 
         public MilouAuthenticationHandler(
-            Serilog.ILogger logger,
+            [NotNull] Serilog.ILogger logger,
             IOptionsMonitor<MilouAuthenticationOptions> options,
             ILoggerFactory loggerFactory,
             UrlEncoder encoder,
             ISystemClock clock)
             : base(options, loggerFactory, encoder, clock)
         {
-            _logger = logger;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
@@ -35,6 +36,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                     "User ip from address {Address} is forbidden, challenge not supported",
                     address);
             }
+
             return base.HandleForbiddenAsync(properties);
         }
 

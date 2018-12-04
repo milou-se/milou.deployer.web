@@ -6,7 +6,6 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;

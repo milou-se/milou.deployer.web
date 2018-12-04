@@ -20,7 +20,6 @@ using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Http;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
@@ -210,17 +209,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private static async Task<App> BuildAppAsync(
             CancellationTokenSource cancellationTokenSource,
             Action<LoggerConfiguration> loggerConfigurationAction,
-            string[] args)
+            string[] commandLineArgs)
         {
             ImmutableArray<Assembly> scanAssemblies = Assemblies.FilteredAssemblies();
 
-            string basePathFromArg = args.ParseParameter(ConfigurationConstants.ApplicationBasePath);
+            string basePathFromArg = commandLineArgs.ParseParameter(ConfigurationConstants.ApplicationBasePath);
 
-            string contentBasePathFromArg = args.ParseParameter(ConfigurationConstants.ContentBasePath);
+            string contentBasePathFromArg = commandLineArgs.ParseParameter(ConfigurationConstants.ContentBasePath);
 
             bool IsRunningAsService()
             {
-                bool hasRunAsServiceArgument = args.Any(arg =>
+                bool hasRunAsServiceArgument = commandLineArgs.Any(arg =>
                     arg.Equals(ApplicationConstants.RunAsService, StringComparison.OrdinalIgnoreCase));
 
                 if (hasRunAsServiceArgument)
@@ -259,7 +258,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             startupLogger.Information("Using application root directory {Directory}", basePath);
 
             MultiSourceKeyValueConfiguration configuration =
-                ConfigurationInitialization.InitializeConfiguration(args,
+                ConfigurationInitialization.InitializeConfiguration(commandLineArgs,
                     file => GetBaseDirectoryFile(basePath, file),
                     startupLogger, scanAssemblies, contentBasePath);
 
@@ -287,9 +286,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ILogger appLogger =
                 SerilogApiInitialization.InitializeAppLogging(configuration, startupLogger, loggerConfigurationAction, loggingLevelSwitch);
 
-            if (args.Length > 0)
+            if (commandLineArgs.Length > 0)
             {
-                appLogger.Debug("Application started with command line args, {Args}, {AppName}", args, ApplicationConstants.ApplicationName);
+                appLogger.Debug("Application started with command line args, {Args}, {AppName}", commandLineArgs, ApplicationConstants.ApplicationName);
             }
             else if (appLogger.IsEnabled(LogEventLevel.Verbose))
             {
@@ -304,7 +303,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             var environmentConfiguration = new EnvironmentConfiguration
             {
                 ApplicationBasePath = basePath,
-                ContentBasePath = contentBasePath
+                ContentBasePath = contentBasePath,
+                CommandLineArgs = commandLineArgs.ToImmutableArray()
             };
 
             var singletons = new object[] { loggingLevelSwitch, environmentConfiguration, new NuGetConfiguration() };

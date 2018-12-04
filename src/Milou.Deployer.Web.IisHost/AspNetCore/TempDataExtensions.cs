@@ -9,7 +9,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
     {
         public static void Put<T>([NotNull] this ITempDataDictionary tempData, T value) where T : class
         {
-            if (tempData == null)
+            if (tempData is null)
             {
                 throw new ArgumentNullException(nameof(tempData));
             }
@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
         public static T Get<T>([NotNull] this ITempDataDictionary tempData) where T : class
         {
-            if (tempData == null)
+            if (tempData is null)
             {
                 throw new ArgumentNullException(nameof(tempData));
             }
@@ -48,11 +48,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     }
                     catch (Exception)
                     {
-                        return null;
+                        return default;
                     }
 
                 default:
-                    return null;
+                    return default;
             }
         }
     }
