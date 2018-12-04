@@ -10,7 +10,6 @@ namespace Milou.Deployer.Web.Core.Logging
     {
         public SerilogConfiguration(
             string seqUrl,
-            string startupLogFilePath,
             string rollingLogFilePath,
             bool seqEnabled = false,
             bool rollingLogFilePathEnabled = false,
@@ -18,7 +17,6 @@ namespace Milou.Deployer.Web.Core.Logging
             bool debugConsoleEnabled = false)
         {
             SeqUrl = seqUrl;
-            StartupLogFilePath = startupLogFilePath;
             RollingLogFilePath = rollingLogFilePath;
             SeqEnabled = seqEnabled;
             RollingLogFilePathEnabled = rollingLogFilePathEnabled;
@@ -36,9 +34,6 @@ namespace Milou.Deployer.Web.Core.Logging
         public bool DebugConsoleEnabled { get; }
 
         public string SeqUrl { get; }
-
-        [PublicAPI]
-        public string StartupLogFilePath { get; }
 
         public string RollingLogFilePath { get; }
 

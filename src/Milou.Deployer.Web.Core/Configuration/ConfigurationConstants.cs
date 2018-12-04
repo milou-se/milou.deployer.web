@@ -62,42 +62,22 @@ namespace Milou.Deployer.Web.Core.Configuration
         public const string AutoDeployConfigurationDefaultEnabled = AutoDeployConfiguration + ":default:enabled";
 
         [Metadata]
+        public const string SeedTimeoutInSeconds = "urn:milou:deployer:web:seed-timeout-in-seconds";
+
+        [Metadata]
+        public const string StartupTargetsTimeoutInSeconds =
+            "urn:milou:deployer:web:startup:targets-timeout-in-seconds";
+
+        [Metadata]
         public static string AllowedIPs = "urn:milou:deployer:authorization:allowed-ips";
 
         [Metadata]
         public static string JsonSettingsFile = "urn:milou:deployer:settings:json-file";
 
-        [Metadata]
-        public const string SeedTimeoutInSeconds = "urn:milou:deployer:web:seed-timeout-in-seconds";
-
-        [Metadata]
-        public const string StartupTargetsTimeoutInSeconds ="urn:milou:deployer:web:startup:targets-timeout-in-seconds";
-
         public static class Logging
         {
-            [PublicAPI]
-            [Metadata]
-            public const string SerilogLogFilePath = "urn:milou-deployer:logging:serilog:log-file:path";
-
-            [PublicAPI]
             [Metadata]
             public const string LogLevel = "urn:milou-deployer:web:log:level";
-
-            [PublicAPI]
-            [Metadata]
-            public const string SerilogSeqUrl = "urn:milou-deployer:logging:serilog:seq:url";
-
-            [PublicAPI]
-            [Metadata]
-            public const string SerilogMinLevel = "urn:milou-deployer:logging:serilog:min-level";
-
-            [PublicAPI]
-            [Metadata]
-            public const string SerilogFileLogEnabled = "urn:milou-deployer:logging:serilog:log-file:enabled";
-
-            [PublicAPI]
-            [Metadata]
-            public const string SerilogConsoleLogEnabled = "urn:milou-deployer:logging:serilog:console:enabled";
         }
     }
 }
