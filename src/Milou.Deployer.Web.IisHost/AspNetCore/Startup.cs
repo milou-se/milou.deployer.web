@@ -65,9 +65,9 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime)
         {
-            app.AddRequestLogging(_environmentConfiguration);
+            app.AddForwardHeaders(_environmentConfiguration);
 
-            app.AddForwardHeaders();
+            app.AddRequestLogging(_environmentConfiguration);
 
             app.AddExceptionHandling(_environmentConfiguration);
 

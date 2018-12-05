@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Net;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
@@ -8,12 +9,21 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
     public static class DeploymentApplicationBuilderExtensions
     {
-        public static IApplicationBuilder AddForwardHeaders(this IApplicationBuilder app)
+        public static IApplicationBuilder AddForwardHeaders(
+            this IApplicationBuilder app,
+            EnvironmentConfiguration environmentConfiguration)
         {
-            return app.UseForwardedHeaders(new ForwardedHeadersOptions
+            var forwardedHeadersOptions = new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
+            };
+
+            foreach (IPAddress proxyAddress in environmentConfiguration.ProxyAddresses)
+            {
+                forwardedHeadersOptions.KnownProxies.Add(proxyAddress);
+            }
+
+            return app.UseForwardedHeaders(forwardedHeadersOptions);
         }
 
         public static IApplicationBuilder UseSignalRHubs(this IApplicationBuilder app)

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Net;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Web.Core.Configuration;
@@ -42,7 +44,11 @@ namespace Milou.Deployer.Web.Core.Application
 
         public bool IsDevelopmentMode { get; set; }
 
+        public int? ForwardLimit { get; set; }
+
         public ImmutableArray<string> CommandLineArgs { get; set; }
+
+        public List<IPAddress> ProxyAddresses { get; } = new List<IPAddress>();
 
         public override string ToString()
         {

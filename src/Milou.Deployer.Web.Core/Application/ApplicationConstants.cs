@@ -9,5 +9,9 @@
         public const string ApplicationName = "Milou.Deployer.Web";
 
         public const string ApplicationTempDirectory = "urn:milou:deployer:web:temp-directory";
+
+        public const string DotnetRunningInContainer = "DOTNET_RUNNING_IN_CONTAINER";
+
+        public const string ProxyAddresses = "urn:milou:deployer:web:proxy-addresses";
     }
 }
