@@ -13,5 +13,7 @@
         public const string DotnetRunningInContainer = "DOTNET_RUNNING_IN_CONTAINER";
 
         public const string ProxyAddresses = "urn:milou:deployer:web:proxy-addresses";
+
+        public const string ProxyForwardLimit = "urn:milou:deployer:web:proxy-forward-limit";
     }
 }

@@ -33,12 +33,19 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             environmentConfiguration.ProxyAddresses.AddRange(proxies);
 
+            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.ProxyForwardLimit], out int proxyLimit) &&
+                proxyLimit > 0)
+            {
+                environmentConfiguration.ForwardLimit = proxyLimit;
+            }
+
             if (bool.TryParse(_keyValueConfiguration[ApplicationConstants.DotnetRunningInContainer],
                     out bool runningInContainer) && runningInContainer)
             {
                 if (!environmentConfiguration.ForwardLimit.HasValue)
                 {
-                    environmentConfiguration.ForwardLimit = 2;
+                    var limit = environmentConfiguration.ProxyAddresses.Count + 1;
+                    environmentConfiguration.ForwardLimit = limit;
                 }
             }
         }
