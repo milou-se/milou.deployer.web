@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             environmentConfiguration.ProxyAddresses.AddRange(proxies);
 
             if (int.TryParse(_keyValueConfiguration[ApplicationConstants.ProxyForwardLimit], out int proxyLimit) &&
-                proxyLimit > 0)
+                proxyLimit >= 0)
             {
                 environmentConfiguration.ForwardLimit = proxyLimit;
             }
