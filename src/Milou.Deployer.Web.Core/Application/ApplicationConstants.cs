@@ -1,4 +1,6 @@
-﻿namespace Milou.Deployer.Web.Core.Application
+﻿using Arbor.KVConfiguration.Core.Metadata;
+
+namespace Milou.Deployer.Web.Core.Application
 {
     public static class ApplicationConstants
     {
@@ -14,6 +16,7 @@
 
         public const string ProxyAddresses = "urn:milou:deployer:web:proxy-addresses";
 
+        [Metadata(defaultValue: "0")]
         public const string ProxyForwardLimit = "urn:milou:deployer:web:proxy-forward-limit";
     }
 }

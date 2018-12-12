@@ -15,19 +15,25 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
     {
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
-        public ContainerModeConfigurator(IKeyValueConfiguration keyValueConfiguration)
+        public ContainerModeConfigurator([NotNull] IKeyValueConfiguration keyValueConfiguration)
         {
-            _keyValueConfiguration = keyValueConfiguration;
+            _keyValueConfiguration =
+                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
         }
 
-        public void Configure(EnvironmentConfiguration environmentConfiguration)
+        public void Configure([NotNull] EnvironmentConfiguration environmentConfiguration)
         {
+            if (environmentConfiguration == null)
+            {
+                throw new ArgumentNullException(nameof(environmentConfiguration));
+            }
+
             string proxiesValue = _keyValueConfiguration[ApplicationConstants.ProxyAddresses].WithDefault("");
 
             ImmutableArray<IPAddress> proxies = proxiesValue.Split(",", StringSplitOptions.RemoveEmptyEntries)
                 .Select(ipString =>
-                    (Result: IPAddress.TryParse((string)ipString, out IPAddress address), IpAddress: address))
-                .Where(address => address.Result)
+                    (HasIp: IPAddress.TryParse(ipString, out IPAddress address), IpAddress: address))
+                .Where(address => address.HasIp)
                 .Select(address => address.IpAddress)
                 .ToImmutableArray();
 
@@ -37,16 +43,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 proxyLimit >= 0)
             {
                 environmentConfiguration.ForwardLimit = proxyLimit;
-            }
-
-            if (bool.TryParse(_keyValueConfiguration[ApplicationConstants.DotnetRunningInContainer],
-                    out bool runningInContainer) && runningInContainer)
-            {
-                if (!environmentConfiguration.ForwardLimit.HasValue)
-                {
-                    var limit = environmentConfiguration.ProxyAddresses.Count + 1;
-                    environmentConfiguration.ForwardLimit = limit;
-                }
             }
         }
     }
