@@ -74,6 +74,12 @@ namespace Milou.Deployer.Web.Core.Configuration
         [Metadata]
         public static string JsonSettingsFile = "urn:milou:deployer:settings:json-file";
 
+        [Metadata]
+        public const string NuGetDownloadTimeoutInSeconds = "urn:milou:deployer:web:nuget:download-timeout-in-seconds";
+
+        [Metadata]
+        public const string NuGetExeDirectory = "urn:milou:deployer:web:nuget:nuget-directory";
+
         public static class Logging
         {
             [Metadata]

@@ -15,6 +15,7 @@ using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
+using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
@@ -320,14 +321,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             appLogger.Debug("Ensuring nuget.exe exists");
 
+            if (!int.TryParse(configuration[ConfigurationConstants.NuGetDownloadTimeoutInSeconds],
+                    out int initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
+            {
+                initialNuGetDownloadTimeoutInSeconds = 5;
+            }
+
             try
             {
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(100)))
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(initialNuGetDownloadTimeoutInSeconds)))
                 {
+                    var downloadDirectory = configuration[ConfigurationConstants.NuGetExeDirectory].WithDefault(null);
+
                     using (var httpClient = new HttpClient())
                     {
                         NuGetDownloadResult nuGetDownloadResult = await new NuGetDownloadClient().DownloadNuGetAsync(
-                            NuGetDownloadSettings.Default,
+                            new NuGetDownloadSettings(downloadDirectory: downloadDirectory),
                             appLogger,
                             httpClient,
                             cts.Token);
