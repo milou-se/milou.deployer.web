@@ -7,7 +7,10 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.HttpOverrides;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.IisHost.Areas.Network;
 using Serilog;
 using Serilog.Events;
 
@@ -18,6 +21,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     {
         private readonly HashSet<IPAddress> _allowed;
         private readonly AllowedIPAddressHandler _allowedIPAddressHandler;
+        private readonly ImmutableHashSet<IPNetwork> _allowedNetworks;
         private readonly ILogger _logger;
 
         public DefaultAuthorizationHandler(
@@ -33,7 +37,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 .Select(IPAddress.Parse)
                 .ToArray();
 
-            _allowed = new HashSet<IPAddress> { IPAddress.Parse("::1"), IPAddress.Parse("127.0.0.1") };
+            IPNetwork[] ipNetworksFromConfig = keyValueConfiguration[ConfigurationConstants.AllowedIPNetworks]
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(network => (HasValue: IpNetworkParser.TryParse(network, out IPNetwork ipNetwork), ipNetwork))
+                .Where(network => network.HasValue)
+                .Select(network => network.ipNetwork)
+                .ToArray();
+
+            _allowedNetworks = ipNetworksFromConfig.ToImmutableHashSet();
+
+            _allowed = new HashSet<IPAddress> {IPAddress.Parse("::1"), IPAddress.Parse("127.0.0.1")};
 
             foreach (IPAddress address in ipAddressesFromConfig)
             {
@@ -45,6 +58,47 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             AuthorizationHandlerContext context,
             DefaultAuthorizationRequirement requirement)
         {
+            string ipClaimValue = context.User.Claims.SingleOrDefault(claim =>
+                claim.Type.Equals(CustomClaimTypes.IPAddress, StringComparison.Ordinal))?.Value;
+
+            if (string.IsNullOrWhiteSpace(ipClaimValue))
+            {
+                if (_logger.IsEnabled(LogEventLevel.Verbose))
+                {
+                    _logger.Verbose("User has no claim of type {ClaimType}", CustomClaimTypes.IPAddress);
+                }
+
+                return Task.CompletedTask;
+            }
+
+            if (!IPAddress.TryParse(ipClaimValue, out IPAddress address))
+            {
+                if (_logger.IsEnabled(LogEventLevel.Verbose))
+                {
+                    _logger.Verbose(
+                        "User has claim of type {ClaimType}, but the value {IpClaimValue} is not a valid IP address",
+                        CustomClaimTypes.IPAddress, ipClaimValue);
+                }
+
+                return Task.CompletedTask;
+            }
+
+            IPNetwork[] ipNetworks = _allowedNetworks.Where(network => network.Contains(address)).ToArray();
+
+            if (ipNetworks.Length > 0)
+            {
+                if (_logger.IsEnabled(LogEventLevel.Verbose))
+                {
+                    string networks = string.Join(", ",
+                        ipNetworks.Select(network => $"{network.Prefix}/{network.PrefixLength}"));
+                    _logger.Verbose("User claim ip address {Address} is in allowed networks {Networks}", address,
+                        networks);
+                }
+
+                context.Succeed(requirement);
+                return Task.CompletedTask;
+            }
+
             ImmutableArray<IPAddress> dynamicIPAddresses = _allowedIPAddressHandler.IpAddresses;
 
             ImmutableHashSet<IPAddress> allAddresses = _allowed
@@ -52,9 +106,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 .Where(ip => !Equals(ip, IPAddress.None))
                 .ToImmutableHashSet();
 
-            if (context.User.HasClaim(claim =>
-                claim.Type == CustomClaimTypes.IPAddress
-                && allAddresses.Any(ip => claim.Value.StartsWith(ip.ToString(), StringComparison.OrdinalIgnoreCase))))
+            if (allAddresses.Any(current => current.EqualsAddress(address)))
             {
                 if (_logger.IsEnabled(LogEventLevel.Verbose))
                 {

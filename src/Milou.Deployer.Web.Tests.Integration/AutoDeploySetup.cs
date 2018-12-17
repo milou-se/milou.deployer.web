@@ -56,7 +56,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public override async Task DisposeAsync()
         {
-            DirectoriesToClean.Add(TestConfiguration.BaseDirectory);
+            if (TestConfiguration?.BaseDirectory != null)
+            {
+                DirectoriesToClean.Add(TestConfiguration.BaseDirectory);
+            }
+
             await base.DisposeAsync();
         }
 

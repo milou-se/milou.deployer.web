@@ -72,6 +72,9 @@ namespace Milou.Deployer.Web.Core.Configuration
         public static string AllowedIPs = "urn:milou:deployer:authorization:allowed-ips";
 
         [Metadata]
+        public static string AllowedIPNetworks = "urn:milou:deployer:authorization:allowed-ip-networks";
+
+        [Metadata]
         public static string JsonSettingsFile = "urn:milou:deployer:settings:json-file";
 
         [Metadata]

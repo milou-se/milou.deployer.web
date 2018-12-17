@@ -324,7 +324,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             if (!int.TryParse(configuration[ConfigurationConstants.NuGetDownloadTimeoutInSeconds],
                     out int initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
             {
-                initialNuGetDownloadTimeoutInSeconds = 5;
+                initialNuGetDownloadTimeoutInSeconds = 100;
             }
 
             try
