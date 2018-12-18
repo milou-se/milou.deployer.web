@@ -30,6 +30,8 @@
         <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
         <PackageReference Include="MediatR" Version="5.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="2.1.2" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.1.1" />
         <PackageReference Include="Microsoft.AspNetCore.HttpOverrides" Version="2.1.1" />
@@ -60,6 +62,7 @@
     <ItemGroup>
         <Folder Include="App_Data\DeploymentJobs\" />
         <Folder Include="Areas\Protocols\Http\" />
+        <Folder Include="Areas\Security\Views\Login\" />
     </ItemGroup>
     <ItemGroup>
         <None Include="config.user" Condition="Exists('config.user')">
@@ -79,6 +82,9 @@
         </Content>
         <Content Update="Areas\Projects\Views\_ViewStart.cshtml">
             <Pack>$(IncludeRazorContentInPack)</Pack>
+        </Content>
+        <Content Update="Areas\Security\Views\_ViewStart.cshtml">
+          <Pack>$(IncludeRazorContentInPack)</Pack>
         </Content>
         <Content Update="Areas\Settings\Views\_ViewStart.cshtml">
             <Pack>$(IncludeRazorContentInPack)</Pack>

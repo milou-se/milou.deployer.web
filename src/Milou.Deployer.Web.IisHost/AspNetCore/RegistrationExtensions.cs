@@ -7,6 +7,9 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +31,7 @@ using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Newtonsoft.Json;
 using Serilog.AspNetCore;
+using ILogger = Serilog.ILogger;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
@@ -52,21 +56,41 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             return services;
         }
 
-        public static IServiceCollection AddDeploymentAuthentication(this IServiceCollection serviceCollection)
+        public static IServiceCollection AddDeploymentAuthentication(this IServiceCollection serviceCollection,
+            CustomOpenIdConnectConfiguration openIdConnectConfiguration)
         {
-            serviceCollection.AddAuthentication(option =>
+            AuthenticationBuilder authenticationBuilder = serviceCollection.AddAuthentication(option =>
                 {
-                    option.DefaultChallengeScheme = MilouAuthenticationConstants.MilouAuthenticationScheme;
-                    option.DefaultAuthenticateScheme = MilouAuthenticationConstants.MilouAuthenticationScheme;
+                    option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
                 })
-                .AddMilouAuthentication(MilouAuthenticationConstants.MilouAuthenticationScheme,
-                    "Milou",
-                    options => { });
+                .AddCookie();
+
+            if (openIdConnectConfiguration.Enabled)
+            {
+                authenticationBuilder = authenticationBuilder
+                    .AddOpenIdConnect(openIdConnectOptions =>
+                        {
+                            openIdConnectOptions.ClientId = openIdConnectConfiguration.ClientId;
+                            openIdConnectOptions.ClientSecret = openIdConnectConfiguration.ClientSecret;
+                            openIdConnectOptions.Authority = openIdConnectConfiguration.Authority;
+                            openIdConnectOptions.ResponseType = "code";
+                            openIdConnectOptions.GetClaimsFromUserInfoEndpoint = true;
+                            openIdConnectOptions.MetadataAddress = openIdConnectConfiguration.MetadataAddress;
+                            openIdConnectOptions.ClaimsIssuer = openIdConnectConfiguration.Issuer;
+                            openIdConnectOptions.Scope.Add("email");
+                        }
+                    );
+            }
+
+            authenticationBuilder.AddMilouAuthentication(MilouAuthenticationConstants.MilouAuthenticationScheme,
+                "Milou",
+                options => { });
 
             return serviceCollection;
         }
 
-        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services, Serilog.ILogger logger)
+        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services, ILogger logger)
         {
             services
                 .AddMvc(options =>
@@ -128,7 +152,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         public static Scope AddScopeModules(
             this IServiceCollection services,
             Scope webHostScope,
-            Serilog.ILogger logger)
+            ILogger logger)
         {
             var deploymentTargetIds = webHostScope.Lifetime.Resolve<DeploymentTargetIds>();
 
@@ -139,7 +163,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     {
                         builder.Register(context => new DeploymentTargetWorker(deploymentTargetId,
                                 context.Resolve<DeploymentService>(),
-                                context.Resolve<Serilog.ILogger>(),
+                                context.Resolve<ILogger>(),
                                 context.Resolve<IMediator>(),
                                 context.Resolve<WorkerConfiguration>())).AsSelf().AsImplementedInterfaces()
                             .Named<DeploymentTargetWorker>(deploymentTargetId);

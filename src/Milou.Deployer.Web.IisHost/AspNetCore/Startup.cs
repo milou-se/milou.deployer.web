@@ -1,4 +1,5 @@
 ﻿using System;
+using Arbor.KVConfiguration.Core;
 using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
@@ -18,6 +19,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         [NotNull]
         private readonly EnvironmentConfiguration _environmentConfiguration;
 
+        private readonly CustomOpenIdConnectConfiguration _openIdConnectConfiguration;
+
         [NotNull]
         private readonly Serilog.ILogger _logger;
 
@@ -30,18 +33,20 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             [NotNull] Scope webHostScope,
             [NotNull] Serilog.ILogger logger,
             [NotNull] HttpLoggingConfiguration httpLoggingConfiguration,
-            [NotNull] EnvironmentConfiguration environmentConfiguration)
+            [NotNull] EnvironmentConfiguration environmentConfiguration,
+            CustomOpenIdConnectConfiguration openIdConnectConfiguration)
         {
             _webHostScope = webHostScope.Deepest() ?? throw new ArgumentNullException(nameof(webHostScope));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpLoggingConfiguration = httpLoggingConfiguration;
             _environmentConfiguration = environmentConfiguration ?? throw new ArgumentNullException(nameof(environmentConfiguration));
+            _openIdConnectConfiguration = openIdConnectConfiguration;
         }
 
         [UsedImplicitly]
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddDeploymentAuthentication();
+            services.AddDeploymentAuthentication(_openIdConnectConfiguration);
 
             services.AddDeploymentAuthorization(_environmentConfiguration);
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Network;
 using Serilog;
 using Serilog.Events;
@@ -20,6 +22,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     public class DefaultAuthorizationHandler : AuthorizationHandler<DefaultAuthorizationRequirement>
     {
         private readonly HashSet<IPAddress> _allowed;
+        private readonly ImmutableArray<AllowedEmail> _allowedEmails;
         private readonly AllowedIPAddressHandler _allowedIPAddressHandler;
         private readonly ImmutableHashSet<IPNetwork> _allowedNetworks;
         private readonly ILogger _logger;
@@ -27,10 +30,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         public DefaultAuthorizationHandler(
             IKeyValueConfiguration keyValueConfiguration,
             AllowedIPAddressHandler allowedIPAddressHandler,
-            ILogger logger)
+            ILogger logger, IReadOnlyCollection<AllowedEmail> allowedEmails)
         {
             _allowedIPAddressHandler = allowedIPAddressHandler;
             _logger = logger;
+            _allowedEmails = allowedEmails.SafeToImmutableArray();
 
             IPAddress[] ipAddressesFromConfig = keyValueConfiguration[ConfigurationConstants.AllowedIPs]
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
@@ -58,6 +62,27 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             AuthorizationHandlerContext context,
             DefaultAuthorizationRequirement requirement)
         {
+            Claim[] emailClaims =
+                context.User.Claims.Where(claim => claim.Type.Equals(ClaimTypes.Email, StringComparison.Ordinal)).ToArray();
+
+            if (emailClaims.Length > 0)
+            {
+                Claim[] allowedEmails = emailClaims.Where(emailClaim =>
+                        _allowedEmails.Any(allowed => emailClaim.Value.Equals(allowed.Email, StringComparison.Ordinal)))
+                    .ToArray();
+
+                if (allowedEmails.Length > 0)
+                {
+                    if (_logger.IsEnabled(LogEventLevel.Verbose))
+                    {
+                        _logger.Verbose("User has allowed email claim, authorized");
+                    }
+
+                    context.Succeed(requirement);
+                    return Task.CompletedTask;
+                }
+            }
+
             string ipClaimValue = context.User.Claims.SingleOrDefault(claim =>
                 claim.Type.Equals(CustomClaimTypes.IPAddress, StringComparison.Ordinal))?.Value;
 
