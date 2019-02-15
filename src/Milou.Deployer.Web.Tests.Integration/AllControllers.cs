@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                     httpMethodAttributes.Any(authenticationAttribute => authenticationAttribute == attribute.GetType()))
                 .ToArray();
 
-            _testOutputHelper.WriteLine($"Controller '{controller}' attributes: {attributes.Length}");
+            _testOutputHelper.WriteLine($"Controller '{controller}' anonymous or authorization attributes: {attributes.Length}, expected is 1");
 
             Assert.NotEmpty(attributes);
             Assert.Single(attributes);
