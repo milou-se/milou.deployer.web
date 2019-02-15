@@ -1,9 +1,80 @@
 ﻿using System;
+using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Time;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
     public static class DateTimeExtensions
     {
+        public static DeploymentInterval IntervalAgo(this DateTime? dateTimeUtc, [NotNull] ICustomClock customClock)
+        {
+            if (customClock == null)
+            {
+                throw new ArgumentNullException(nameof(customClock));
+            }
+
+            if (!dateTimeUtc.HasValue)
+            {
+                return DeploymentInterval.Invalid;
+            }
+
+            TimeSpan diff = customClock.LocalNow() - customClock.ToLocalTime(dateTimeUtc.Value);
+
+            if (diff.TotalSeconds < 0)
+            {
+                return DeploymentInterval.Invalid;
+            }
+
+            return DeploymentInterval.Parse(diff);
+        }
+
+        public static string RelativeUtcToLocalTime(this DateTime? dateTimeUtc, [NotNull] ICustomClock customClock)
+        {
+            if (customClock == null)
+            {
+                throw new ArgumentNullException(nameof(customClock));
+            }
+
+            if (!dateTimeUtc.HasValue)
+            {
+                return Constants.NotAvailable;
+            }
+
+            DateTime localThen = customClock.ToLocalTime(dateTimeUtc.Value);
+
+            DateTime localNow = customClock.LocalNow();
+
+            return localNow.Since(localThen);
+        }
+
+        public static string ToLocalTimeFormatted(this DateTime? dateTimeUtc, [NotNull] ICustomClock customClock)
+        {
+            if (customClock == null)
+            {
+                throw new ArgumentNullException(nameof(customClock));
+            }
+
+            if (!dateTimeUtc.HasValue)
+            {
+                return "";
+            }
+
+            return ToLocalTimeFormatted(dateTimeUtc.Value, customClock);
+        }
+
+        public static string ToLocalTimeFormatted(this DateTime dateTimeUtc, [NotNull] ICustomClock customClock)
+        {
+            if (customClock == null)
+            {
+                throw new ArgumentNullException(nameof(customClock));
+            }
+
+            var utcTime = new DateTime(dateTimeUtc.Ticks, DateTimeKind.Utc);
+
+            return customClock.ToLocalTime(utcTime).ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
+        [PublicAPI]
         public static string Since(this DateTime to, DateTime from)
         {
             TimeSpan diff = to - from;
@@ -35,7 +106,7 @@ namespace Milou.Deployer.Web.Core.Extensions
 
             if (diff.TotalSeconds < 0)
             {
-                return "N/A";
+                return Constants.NotAvailable;
             }
 
             return ((int)diff.TotalSeconds) + " seconds ago";

@@ -1,4 +1,5 @@
 using System;
+using JetBrains.Annotations;
 using NuGet.Versioning;
 
 namespace Milou.Deployer.Web.Core.Deployment
@@ -26,6 +27,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public SemanticVersion Version { get; }
 
+        [PublicAPI]
         public string Key { get; }
 
         public static bool operator ==(PackageVersion left, PackageVersion right)

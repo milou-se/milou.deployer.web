@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,12 +23,25 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
 
             string[] parts = packageVersion.Split(' ');
-            string packageId = parts.First();
+            string packageId = parts[0];
 
             SemanticVersion version = SemanticVersion.Parse(parts.Last());
 
             SemanticVersion = version;
             PackageId = packageId;
+            DeploymentTargetId = deploymentTargetId;
+            DeploymentTaskId = $"{DateTime.UtcNow.ToString("O").Replace(":", "_")}_{deploymentTaskId.ToString().Substring(0, 8)}";
+        }
+
+        public DeploymentTask([NotNull] PackageVersion packageVersion, [NotNull] string deploymentTargetId, Guid deploymentTaskId)
+        {
+            if (packageVersion == null)
+            {
+                throw new ArgumentNullException(nameof(packageVersion));
+            }
+
+            SemanticVersion = packageVersion.Version;
+            PackageId = packageVersion.PackageId;
             DeploymentTargetId = deploymentTargetId;
             DeploymentTaskId = $"{DateTime.UtcNow.ToString("O").Replace(":", "_")}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
@@ -44,11 +58,25 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public string DeploymentTaskId { get; }
 
+        [PublicAPI]
         public WorkTaskStatus Status { get; set; } = WorkTaskStatus.Created;
 
-        public void Log(string message) => LogActions.ForEach(action => action.Invoke(message, Status));
+        public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } = new BlockingCollection<(string, WorkTaskStatus)>();
 
-        public List<Action<string, WorkTaskStatus>> LogActions { get; } = new List<Action<string, WorkTaskStatus>>();
+        public void Log(string message)
+        {
+            if (MessageQueue.IsAddingCompleted)
+            {
+                return;
+            }
+
+            MessageQueue.Add((message, Status));
+
+            if (Status == WorkTaskStatus.Done || Status == WorkTaskStatus.Failed)
+            {
+                MessageQueue.CompleteAdding();
+            }
+        }
 
         public override string ToString()
         {

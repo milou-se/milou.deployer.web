@@ -1,10 +1,193 @@
-﻿@using Milou.Deployer.Web.IisHost.Areas.NuGet
+﻿@using Milou.Deployer.Web.Core
+@using Milou.Deployer.Web.Core.Configuration
+@using Milou.Deployer.Web.Core.Html
+@using Milou.Deployer.Web.IisHost
 @using Milou.Deployer.Web.IisHost.Areas.Settings
+@using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@using Serilog.Events
 @model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
 
 <h2>Target read service: @Model.TargetReadService</h2>
 
 <ul>
-    <li><a href="/deployment/invalidate">Invalidate package cache</a></li>
-    <li><a href="/@NuGetServerController.NugetServerBaseRoute">NuGet Server settings</a></li>
+    <li>
+        <a href="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">Invalidate package cache</a>
+    </li>
 </ul>
+
+<h2>Log event level</h2>
+
+Current level <span class="highlighted">@Model.LogEventLevel</span>
+
+<form method="post" action="@Url.RouteUrl(SettingsConstants.LogSettingsPostRouteName)">
+
+    <select name="newLevel">
+        @foreach (string item in Enum.GetNames(typeof(LogEventLevel)))
+        {
+            <option @item.Equals(Model.LogEventLevel.ToString()).Selected()>@item</option>
+        }
+    </select>
+
+    <input type="submit" value="Change level"/>
+
+</form>
+
+<h2>
+    Application version
+</h2>
+
+<p>
+    <span class="versionInfoLine">@nameof(AppVersionInfo.AssemblyVersion): @Model.AppVersionInfo.AssemblyVersion</span>
+    <span class="versionInfoLine">@nameof(AppVersionInfo.FileVersion): @Model.AppVersionInfo.FileVersion</span>
+    <span class="versionInfoLine">@nameof(AppVersionInfo.InformationalVersion): @Model.AppVersionInfo.InformationalVersion</span>
+    <span class="versionInfoLine">@nameof(AppVersionInfo.AssemblyFullName): @Model.AppVersionInfo.AssemblyFullName</span>
+</p>
+
+<h2>Application metadata</h2>
+
+@if (Model.Applicationmetadata.AllKeys.IsDefaultOrEmpty)
+{
+    @Constants.NotAvailable
+}
+else
+{
+    <table>
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Values</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (string item in Model.Applicationmetadata.AllKeys)
+        {
+            <tr>
+                <td>@item</td>
+                <td>@Model.Applicationmetadata[item]</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<h2>Routes</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Route</th>
+        <th>Name</th>
+        <th>Defined in type</th>
+        <th>Used in controller</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (ControllerRouteInfo item in Model.Routes)
+    {
+        <tr>
+            <td>
+                @if (item.Route.IsLinkable() && !string.IsNullOrWhiteSpace(Url.RouteUrl(item.Route.Name)))
+                {
+                    <a href="@Url.RouteUrl(item.Route.Name)">@item.Route.Value</a>
+                }
+                else
+                {
+                    @Url.RouteUrl(item.Route.Name)
+                }
+            </td>
+            <td>@item.Route.Name</td>
+            <td>@item.Route.Type</td>
+            <td>@item.ControllerType</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Configuration values</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Type</th>
+        <th>Values</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach ((object, string) item in Model.ConfigurationValues)
+    {
+        <tr>
+            <td>@item.Item1.GetType().FullName</td>
+            <td>@item.Item2</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Configuration info</h2>
+
+<div>
+    @Model.ConfigurationInfo.ConfigurationSourceChain
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Key</th>
+        <th>Value</th>
+        <th>Source</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (ConfigurationKeyInfo item in Model.ConfigurationInfo.Keys)
+    {
+        <tr>
+            <td>@item.Key</td>
+            <td>@item.Value</td>
+            <td>@item.Source</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>ASP.NET configuration values</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Key</th>
+        <th>Value</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (KeyValuePair<string, string> item in Model.AspNetConfigurationValues)
+    {
+        <tr>
+            <td>@item.Key</td>
+            <td>@item.Value</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Container registrations</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Service</th>
+        <th>Scope</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (ContainerRegistrationInfo item in Model.ContainerRegistrations)
+    {
+        <tr>
+            <td>@item.Service</td>
+            <td>@item.Scope</td>
+        </tr>
+    }
+    </tbody>
+</table>

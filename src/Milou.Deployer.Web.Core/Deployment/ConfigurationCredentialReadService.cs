@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public string GetSecretAsync([NotNull] string id, [NotNull] string secretKey, CancellationToken cancellationToken = default)
+        public string GetSecret([NotNull] string id, [NotNull] string secretKey, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             string value = _keyValueConfiguration[combinedKey];
 
-            string anonymous = string.IsNullOrWhiteSpace(value) ? "N/A" : new string('*', value.Length);
+            string anonymous = string.IsNullOrWhiteSpace(value) ? Constants.NotAvailable : new string('*', value.Length);
 
             _logger.Debug("Getting secret for target id {TargetId}, secret key {SecretKey}, combined key {CombinedKey}, value (anonymous) '{Value}'", id, secretKey, combinedKey, anonymous);
 

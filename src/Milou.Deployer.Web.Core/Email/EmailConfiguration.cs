@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Core.Email
 {
@@ -16,6 +17,7 @@ namespace Milou.Deployer.Web.Core.Email
             bool useSsl,
             string username,
             string password,
+            int notificationTimeOutInSeconds = 30,
             bool emailEnabled = true)
         {
             DefaultFromEmailAddress = defaultFromEmailAddress;
@@ -24,6 +26,7 @@ namespace Milou.Deployer.Web.Core.Email
             UseSsl = useSsl;
             Username = username;
             Password = password;
+            NotificationTimeOutInSeconds = notificationTimeOutInSeconds <= 0 ? 30 : notificationTimeOutInSeconds;
             EmailEnabled = emailEnabled;
         }
 
@@ -44,9 +47,12 @@ namespace Milou.Deployer.Web.Core.Email
         public bool IsValid =>
             !EmailEnabled || (SmtpHost.HasValue() && Port >= 0 && DefaultFromEmailAddress.HasValue());
 
+        public int NotificationTimeOutInSeconds { get; }
+
         public override string ToString()
         {
-            return $"{nameof(DefaultFromEmailAddress)}: {DefaultFromEmailAddress}, {nameof(SmtpHost)}: {SmtpHost}, {nameof(Port)}: {Port}, {nameof(UseSsl)}: {UseSsl}, {nameof(Username)}: {Username}, {nameof(Password)}: ******, {nameof(EmailEnabled)}: {EmailEnabled}, {nameof(IsValid)}: {IsValid}";
+            return
+                $"{nameof(DefaultFromEmailAddress)}: {DefaultFromEmailAddress}, {nameof(SmtpHost)}: {SmtpHost}, {nameof(Port)}: {Port}, {nameof(UseSsl)}: {UseSsl}, {nameof(Username)}: {Username}, {nameof(Password)}: ******, {nameof(EmailEnabled)}: {EmailEnabled}, {nameof(IsValid)}: {IsValid}";
         }
     }
 }

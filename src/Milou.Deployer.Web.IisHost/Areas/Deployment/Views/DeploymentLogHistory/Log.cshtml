@@ -1,0 +1,20 @@
+﻿@model Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentLogViewOutputModel
+
+<div id="logElements"></div>
+
+@section scripts {
+
+    <script type="text/javascript">
+
+    $(function() {
+        const logElements = document.getElementById('logElements');
+
+        const jsonLogs = String.raw`@Html.Raw(Model.Log)`;
+
+        const logLines = parseLogLines(jsonLogs);
+
+        logElements.appendChild(logLines);
+    });
+
+    </script>
+}

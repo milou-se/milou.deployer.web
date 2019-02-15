@@ -10,22 +10,19 @@ using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
+using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers;
 using Milou.Deployer.Web.IisHost.Controllers;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 {
     [Area(DeploymentConstants.AreaName)]
-    [Route("deployment")]
     public class DeploymentController : BaseApiController
     {
-        private readonly DeploymentService _deploymentService;
-
         private readonly IDeploymentTargetReadService _getTargets;
 
         public DeploymentController(
             [NotNull] ILogger logger,
-            [NotNull] DeploymentService deploymentService,
             [NotNull] IDeploymentTargetReadService getTargets)
         {
             if (logger == null)
@@ -38,38 +35,29 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 throw new ArgumentNullException(nameof(logger));
             }
 
-            _deploymentService = deploymentService ?? throw new ArgumentNullException(nameof(deploymentService));
             _getTargets = getTargets ?? throw new ArgumentNullException(nameof(getTargets));
         }
 
-        [Route("")]
+        [HttpGet]
+        [Route("/deployment")]
         public async Task<IActionResult> Index(string prefix = null)
         {
             IReadOnlyCollection<DeploymentTarget> targets =
                 (await _getTargets.GetOrganizationsAsync(CancellationToken.None)).SelectMany(
                     organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-                .Where(target => !string.IsNullOrWhiteSpace(target.Tool))
+
                 .SafeToReadOnlyCollection();
 
-            ImmutableArray<string> allAllowedPackageNames =
-                targets.SelectMany(target => target.AllowedPackageNames).ToImmutableArray();
-
-            IReadOnlyCollection<PackageVersion> items = (await _deploymentService.GetPackageVersionsAsync(prefix))
-                .Where(packageVersion =>
-                    allAllowedPackageNames.Any(allowed => allowed.Equals("*", StringComparison.OrdinalIgnoreCase)) ||
-                    allAllowedPackageNames.Any(allowed =>
-                        allowed.Equals(packageVersion.PackageId, StringComparison.OrdinalIgnoreCase)))
-                .OrderByDescending(packageVersion => packageVersion.Version)
-                .SafeToReadOnlyCollection();
+            IReadOnlyCollection<PackageVersion> items = ImmutableArray<PackageVersion>.Empty;
 
             return View(new DeploymentViewOutputModel(items, targets));
         }
 
         [HttpGet]
-        [Route("invalidate")]
-        public async Task<ActionResult> InvalidateCache()
+        [Route(TargetConstants.InvalidateCacheRoute, Name = TargetConstants.InvalidateCacheRouteName)]
+        public ActionResult InvalidateCache([FromServices] ICustomMemoryCache customMemoryCache)
         {
-            await _deploymentService.RefreshPackagesAsync();
+            customMemoryCache.Invalidate(Request.Query["prefix"]);
 
             return RedirectToAction(nameof(Index));
         }

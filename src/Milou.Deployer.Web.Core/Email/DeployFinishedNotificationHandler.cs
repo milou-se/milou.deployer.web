@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,17 +6,16 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Structure;
 using MimeKit;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Email
 {
     [UsedImplicitly]
-    public class DeployFinishedNotificationHandler : AsyncNotificationHandler<DeploymentFinishedNotification>
+    public class DeployFinishedNotificationHandler : INotificationHandler<DeploymentMetadataLogNotification>
     {
-        private readonly ILogger _logger;
         private readonly EmailConfiguration _emailConfiguration;
+        private readonly ILogger _logger;
         private readonly ISmtpService _smtpService;
         private readonly IDeploymentTargetReadService _targetSource;
 
@@ -32,16 +30,17 @@ namespace Milou.Deployer.Web.Core.Email
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             _emailConfiguration = emailConfiguration ?? new EmailConfiguration(
-                                      defaultFromEmailAddress: null,
-                                      smtpHost: null,
-                                      port: -1,
-                                      useSsl: false,
-                                      username: null,
-                                      password: null,
-                                      emailEnabled: false);
+                                      null,
+                                      null,
+                                      -1,
+                                      false,
+                                      null,
+                                      null,
+                                      30,
+                                      false);
         }
 
-        protected override async Task HandleCore(DeploymentFinishedNotification notification)
+        public async Task Handle(DeploymentMetadataLogNotification notification, CancellationToken cancellationToken)
         {
             if (!_emailConfiguration.IsValid)
             {
@@ -51,63 +50,64 @@ namespace Milou.Deployer.Web.Core.Email
 
             if (!_emailConfiguration.EmailEnabled)
             {
-                _logger.Debug("Email is disabled, skipping sending deployment finished email for notification {Notification}", notification);
+                _logger.Debug(
+                    "Email is disabled, skipping sending deployment finished email for notification {Notification}",
+                    notification);
                 return;
             }
 
-            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-
-            IReadOnlyCollection<OrganizationInfo> targets = await _targetSource.GetOrganizationsAsync(cancellationTokenSource.Token);
-
-            DeploymentTarget target = targets.SelectMany(o => o.Projects)
-                .SelectMany(project => project.DeploymentTargets)
-                .SingleOrDefault(deploymentTarget =>
-                    deploymentTarget.Id == notification.DeploymentTask.DeploymentTargetId);
-
-            if (target is null)
+            using (var cancellationTokenSource =
+                new CancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds)))
             {
-                return;
-            }
+                DeploymentTarget target =
+                    await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
+                        cancellationTokenSource.Token);
 
-            if (!target.EmailNotificationAddresses.Any())
-            {
-                return;
-            }
+                if (target is null)
+                {
+                    return;
+                }
 
-            var mimeMessage = new MimeMessage();
+                if (!target.EmailNotificationAddresses.Any())
+                {
+                    return;
+                }
 
-            foreach (string targetEmailNotificationAddress in target.EmailNotificationAddresses)
-            {
+                var mimeMessage = new MimeMessage();
+
+                foreach (string targetEmailNotificationAddress in target.EmailNotificationAddresses)
+                {
+                    try
+                    {
+                        mimeMessage.To.Add(new MailboxAddress(targetEmailNotificationAddress));
+                    }
+                    catch (Exception ex) when (!ex.IsFatal())
+                    {
+                        _logger.Error(ex,
+                            "Could not add email address {EmailAddress} when sending deployment finished notification email",
+                            targetEmailNotificationAddress);
+                    }
+                }
+
+                mimeMessage.Body = new TextPart
+                {
+                    Text =
+                        $@"Deployment finished for {notification.DeploymentTask}
+{notification.Result.Metadata}"
+                };
+
+                mimeMessage.Subject = $"Deployment finished for {notification.DeploymentTask}";
+
                 try
                 {
-                    mimeMessage.To.Add(new MailboxAddress(targetEmailNotificationAddress));
+                    await _smtpService.SendAsync(mimeMessage, cancellationTokenSource.Token);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Error(ex,
-                        "Could not add email address {EmailAddress} when sending deployment finished notification email",
-                        targetEmailNotificationAddress);
+                        "Could not send email to '{To}'",
+                        string.Join(", ", target.EmailNotificationAddresses));
                 }
-            }
-
-            mimeMessage.Body = new TextPart
-            {
-                Text =
-                    $@"Deployment finished for {notification.DeploymentTask}
-{notification.MetadataContent}"
-            };
-
-            mimeMessage.Subject = $"Deployment finished for {notification.DeploymentTask}";
-
-            try
-            {
-                await _smtpService.SendAsync(mimeMessage, cancellationTokenSource.Token);
-            }
-            catch (Exception ex)
-            {
-                Log.Logger.Error(ex,
-                    "Could not send email to '{To}'",
-                    string.Join(", ", target.EmailNotificationAddresses));
             }
         }
     }

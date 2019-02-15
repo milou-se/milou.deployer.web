@@ -1,8 +1,8 @@
 using System;
 using System.Net;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewInputModels;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
@@ -12,7 +12,6 @@ using Serilog;
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 {
     [Area(DeploymentConstants.AreaName)]
-    [Route("deploy")]
     public class DeployController : BaseApiController
     {
         private readonly DeploymentWorker _deploymentService;
@@ -25,9 +24,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             _deploymentService = deploymentService;
         }
 
-        [Route("")]
+        [Route(DeploymentConstants.DeployRoute,Name= DeploymentConstants.DeployRouteName)]
         [HttpPost]
-        public async Task<IActionResult> Index(
+        public IActionResult Index(
             DeploymentTaskInput deploymentTaskInput)
         {
             if (deploymentTaskInput == null)
@@ -55,7 +54,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
                 return RedirectToAction(nameof(Status), new { deploymentTask.DeploymentTargetId });
             }
-            catch (Exception ex)
+            catch (Exception ex) when (!ex.IsFatal())
             {
                 _logger.Error(ex, "Could not finish deploy of task {DeploymentTask}", deploymentTask);
 
@@ -67,8 +66,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             }
         }
 
-        [Route("/deployment/status/{deploymentTargetId}")]
-        public async Task<IActionResult> Status(string deploymentTargetId)
+        [HttpGet]
+        [Route(DeploymentConstants.DeploymentStatusRoute, Name=DeploymentConstants.DeploymentStatusRouteName)]
+        public IActionResult Status(string deploymentTargetId)
         {
             return View(new StatusViewOutputModel(deploymentTargetId));
         }
