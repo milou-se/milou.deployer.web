@@ -86,8 +86,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.LogLevel, "Verbose", null),
             }.ToImmutableArray();
 
-            var jsonConfigurationSerializer = new JsonConfigurationSerializer();
-            string serializedConfigurationItems = jsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
+            string serializedConfigurationItems = JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
 
             string settingsFile = Path.Combine(deployerDir, $"{Environment.MachineName}.settings.json");
 

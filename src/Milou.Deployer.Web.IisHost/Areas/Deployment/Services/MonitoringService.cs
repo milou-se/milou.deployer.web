@@ -222,7 +222,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
 
             ConfigurationItems configuration =
-                new JsonConfigurationSerializer().Deserialize(json);
+                JsonConfigurationSerializer.Deserialize(json);
 
             var nameValueCollection = new NameValueCollection();
 

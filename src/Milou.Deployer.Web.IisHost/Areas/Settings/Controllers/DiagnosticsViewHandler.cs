@@ -117,7 +117,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 return NoConfiguration.Empty;
             }
 
-            ConfigurationItems configurationItems = new JsonConfigurationSerializer().Deserialize(json);
+            ConfigurationItems configurationItems = JsonConfigurationSerializer.Deserialize(json);
 
             if (configurationItems is null)
             {
