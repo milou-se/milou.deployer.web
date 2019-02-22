@@ -16,7 +16,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             string metadataAddress,
             string issuer,
             bool enabled,
-            string redirectUri)
+            string redirectUri,
+            string authenticatedRedirectUri)
         {
             ClientId = clientId;
             ClientSecret = clientSecret;
@@ -25,6 +26,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             Issuer = issuer;
             Enabled = enabled;
             RedirectUri = redirectUri;
+            AuthenticatedRedirectUri = authenticatedRedirectUri;
             IsValid = !string.IsNullOrWhiteSpace(clientId)
                       && !string.IsNullOrWhiteSpace(clientSecret)
                       && (!string.IsNullOrWhiteSpace(authority) ||
@@ -47,5 +49,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         public string RedirectUri { get; }
 
         public bool IsValid { get; }
+
+        public string AuthenticatedRedirectUri { get; }
     }
 }

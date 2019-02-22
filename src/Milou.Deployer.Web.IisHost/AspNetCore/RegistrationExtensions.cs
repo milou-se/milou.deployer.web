@@ -90,6 +90,16 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
                                 return Task.CompletedTask;
                             };
+
+                            if (openIdConnectConfiguration.AuthenticatedRedirectUri.HasValue())
+                            {
+                                openIdConnectOptions.Events.OnTokenValidated = async context =>
+                                {
+                                    await context.HttpContext.SignInAsync(context.Principal);
+                                    context.Response.Redirect(openIdConnectConfiguration.AuthenticatedRedirectUri);
+                                    context.HandleResponse();
+                                };
+                            }
                         }
                     );
             }
