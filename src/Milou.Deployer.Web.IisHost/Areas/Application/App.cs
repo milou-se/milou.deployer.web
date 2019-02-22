@@ -286,8 +286,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             var loggingLevelSwitch = new LoggingLevelSwitch(defaultLevel);
 
-            ILogger appLogger =
-                SerilogApiInitialization.InitializeAppLogging(configuration, startupLogger, loggerConfigurationAction, loggingLevelSwitch);
+            ILogger appLogger;
+            try
+            {
+                appLogger =
+                    SerilogApiInitialization.InitializeAppLogging(
+                        configuration,
+                        startupLogger,
+                        loggerConfigurationAction,
+                        loggingLevelSwitch);
+            }
+            catch (Exception ex)
+            {
+                appLogger = startupLogger;
+                startupLogger.Error(ex, "Could not create app logger");
+            }
 
             if (commandLineArgs.Length > 0)
             {

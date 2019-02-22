@@ -83,6 +83,7 @@ namespace Milou.Deployer.Web.Core.Logging
 
                 if (fileInfo.Directory != null)
                 {
+                    fileInfo.Directory.EnsureExists();
                     string rollingLoggingFile = Path.Combine(fileInfo.Directory.FullName,
                         $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}{Path.GetExtension(fileInfo.Name)}");
 

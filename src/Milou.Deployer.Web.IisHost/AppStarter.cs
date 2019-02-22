@@ -23,6 +23,15 @@ namespace Milou.Deployer.Web.IisHost
                 args = Array.Empty<string>();
             }
 
+            if (args.Length > 0)
+            {
+                Console.WriteLine("Started with arguments:");
+                foreach (string arg in args)
+                {
+                    Console.WriteLine(arg);
+                }
+            }
+
             CancellationTokenSource cancellationTokenSource;
 
             if (int.TryParse(Environment.GetEnvironmentVariable(ConfigurationConstants.RestartTimeInSeconds),
