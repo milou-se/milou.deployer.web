@@ -10,8 +10,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         public const string UrnKey = "urn:milou:deployer:web:open-id-connect";
 
         public CustomOpenIdConnectConfiguration(
-            string clientId, string clientSecret, string authority,
-            string metadataAddress, string issuer, bool enabled)
+            string clientId,
+            string clientSecret,
+            string authority,
+            string metadataAddress,
+            string issuer,
+            bool enabled,
+            string redirectUri)
         {
             ClientId = clientId;
             ClientSecret = clientSecret;
@@ -19,6 +24,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             MetadataAddress = metadataAddress;
             Issuer = issuer;
             Enabled = enabled;
+            RedirectUri = redirectUri;
             IsValid = !string.IsNullOrWhiteSpace(clientId)
                       && !string.IsNullOrWhiteSpace(clientSecret)
                       && (!string.IsNullOrWhiteSpace(authority) ||
@@ -37,6 +43,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         public string Issuer { get; }
 
         public bool Enabled { get; }
+
+        public string RedirectUri { get; }
 
         public bool IsValid { get; }
     }

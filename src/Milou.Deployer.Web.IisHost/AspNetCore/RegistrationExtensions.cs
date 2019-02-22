@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
 using Arbor.KVConfiguration.Core;
 using Autofac;
@@ -69,7 +70,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             if (openIdConnectConfiguration.Enabled)
             {
                 authenticationBuilder = authenticationBuilder
-                    .AddOpenIdConnect(openIdConnectOptions =>
+                    .AddOpenIdConnect(
+                        openIdConnectOptions =>
                         {
                             openIdConnectOptions.ClientId = openIdConnectConfiguration.ClientId;
                             openIdConnectOptions.ClientSecret = openIdConnectConfiguration.ClientSecret;
@@ -79,6 +81,15 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                             openIdConnectOptions.MetadataAddress = openIdConnectConfiguration.MetadataAddress;
                             openIdConnectOptions.ClaimsIssuer = openIdConnectConfiguration.Issuer;
                             openIdConnectOptions.Scope.Add("email");
+                            openIdConnectOptions.Events.OnRedirectToIdentityProvider = context =>
+                            {
+                                if (openIdConnectConfiguration.RedirectUri.HasValue())
+                                {
+                                    context.ProtocolMessage.RedirectUri = openIdConnectConfiguration.RedirectUri;
+                                }
+
+                                return Task.CompletedTask;
+                            };
                         }
                     );
             }
