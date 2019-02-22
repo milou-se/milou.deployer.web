@@ -137,7 +137,7 @@ namespace Milou.Deployer.Web.Core.Application
 
             foreach (Type type in types)
             {
-                Console.WriteLine(type.Assembly.GetName().Name);
+                TempLogger.WriteLine(type.Assembly.GetName().Name);
             }
         }
     }

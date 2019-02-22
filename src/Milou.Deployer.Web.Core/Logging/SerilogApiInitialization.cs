@@ -123,8 +123,9 @@ namespace Milou.Deployer.Web.Core.Logging
                 throw new ArgumentNullException(nameof(basePath));
             }
 
-            bool fileLoggingEnabled = bool.TryParse(Environment.GetEnvironmentVariable(LoggingConstants.SerilogStartupLogEnabled),
-                         out bool enabled) && enabled;
+            bool fileLoggingEnabled = bool.TryParse(
+                                          Environment.GetEnvironmentVariable(LoggingConstants.SerilogStartupLogEnabled),
+                                          out bool enabled) && enabled;
 
             string logFile = null;
 
@@ -132,7 +133,7 @@ namespace Milou.Deployer.Web.Core.Logging
             {
                 string logFilePath = basePath("startup.log");
 
-                Console.WriteLine($"Startup logging is configured to use log file {logFilePath}");
+                TempLogger.WriteLine($"Startup logging is configured to use log file {logFilePath}");
 
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {
@@ -182,8 +183,9 @@ namespace Milou.Deployer.Web.Core.Logging
                 }
             }
 
-            Logger logger = loggerConfiguration
-                .CreateLogger();
+            Logger logger = loggerConfiguration.CreateLogger();
+
+            TempLogger.FlushWith(logger);
 
             logger.Verbose("Startup logging configured, minimum log level {LogLevel}, seq {Seq}", startupLevel, usedSeqUri);
 

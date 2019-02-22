@@ -90,8 +90,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
-                Console.WriteLine("Error in startup, " + ex);
-                Console.Error.WriteLine("Error in startup, " + ex);
+                TempLogger.WriteLine("Error in startup, " + ex);
                 throw;
             }
         }
@@ -245,7 +244,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             if (IsRunningAsService())
             {
-                Console.WriteLine($"Switching current directory from {Directory.GetCurrentDirectory()} to {currentDomainBaseDirectory}");
+                TempLogger.WriteLine($"Switching current directory from {Directory.GetCurrentDirectory()} to {currentDomainBaseDirectory}");
                 Directory.SetCurrentDirectory(currentDomainBaseDirectory);
             }
 

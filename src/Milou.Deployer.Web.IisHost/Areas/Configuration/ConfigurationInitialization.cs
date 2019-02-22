@@ -114,7 +114,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
 
                 if (parts.Length != 2)
                 {
-                    Console.WriteLine($"arg {arg} has length {parts.Length}");
+                    logger.Verbose("Arg {Arg} has length {Length}", arg, parts.Length);
                     continue;
                 }
 
