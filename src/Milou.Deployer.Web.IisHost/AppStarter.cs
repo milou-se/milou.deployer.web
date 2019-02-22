@@ -113,6 +113,8 @@ namespace Milou.Deployer.Web.IisHost
             }
             catch (Exception ex)
             {
+                await Task.Delay(TimeSpan.FromMilliseconds(2000));
+
                 Logger logger = new LoggerConfiguration()
                     .WriteTo.Console()
                     .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exception.log"))

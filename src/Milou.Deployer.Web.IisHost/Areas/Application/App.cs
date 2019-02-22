@@ -324,8 +324,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             var singletons = new object[] { loggingLevelSwitch, environmentConfiguration, new NuGetConfiguration() };
 
-            Scope rootScope = Bootstrapper.Start(configuration,
-                modules, appLogger, scanAssemblies, excludedModuleTypes,singletons);
+            Scope rootScope;
+
+            try
+            {
+                rootScope = Bootstrapper.Start(
+                    configuration,
+                    modules,
+                    appLogger,
+                    scanAssemblies,
+                    excludedModuleTypes,
+                    singletons);
+            }
+            catch (Exception ex)
+            {
+                appLogger.Fatal(ex, "Could not initialize container registrations");
+                throw;
+            }
 
             DeploymentTargetIds deploymentTargetIds = await GetDeploymentWorkerIdsAsync(rootScope.Deepest().Lifetime, appLogger, configuration, cancellationTokenSource.Token);
 
