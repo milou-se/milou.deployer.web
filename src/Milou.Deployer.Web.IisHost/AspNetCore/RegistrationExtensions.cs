@@ -79,8 +79,20 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                             openIdConnectOptions.ResponseType = "code";
                             openIdConnectOptions.GetClaimsFromUserInfoEndpoint = true;
                             openIdConnectOptions.MetadataAddress = openIdConnectConfiguration.MetadataAddress;
-                            openIdConnectOptions.ClaimsIssuer = openIdConnectConfiguration.Issuer;
                             openIdConnectOptions.Scope.Add("email");
+                            openIdConnectOptions.TokenValidationParameters.ValidIssuer =
+                                openIdConnectConfiguration.Issuer;
+                            openIdConnectOptions.TokenValidationParameters.IssuerValidator =
+                                (issuer, token, parameters) =>
+                                {
+                                    if (string.Equals(issuer, openIdConnectConfiguration.Issuer,
+                                        StringComparison.Ordinal))
+                                    {
+                                        return issuer;
+                                    }
+
+                                    throw new InvalidOperationException("Invalid issuer");
+                                };
                             openIdConnectOptions.Events.OnRedirectToIdentityProvider = context =>
                             {
                                 if (openIdConnectConfiguration.RedirectUri.HasValue())
@@ -90,16 +102,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
                                 return Task.CompletedTask;
                             };
-
-                            if (openIdConnectConfiguration.AuthenticatedRedirectUri.HasValue())
-                            {
-                                openIdConnectOptions.Events.OnTokenValidated = async context =>
-                                {
-                                    await context.HttpContext.SignInAsync(context.Principal);
-                                    context.Response.Redirect(openIdConnectConfiguration.AuthenticatedRedirectUri);
-                                    context.HandleResponse();
-                                };
-                            }
                         }
                     );
             }

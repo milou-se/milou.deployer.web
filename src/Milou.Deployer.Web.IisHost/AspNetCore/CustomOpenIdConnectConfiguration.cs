@@ -30,8 +30,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             IsValid = !string.IsNullOrWhiteSpace(clientId)
                       && !string.IsNullOrWhiteSpace(clientSecret)
                       && (!string.IsNullOrWhiteSpace(authority) ||
-                          !string.IsNullOrWhiteSpace(metadataAddress))
-                      && !string.IsNullOrWhiteSpace(issuer);
+                          !string.IsNullOrWhiteSpace(metadataAddress));
         }
 
         public string ClientId { get; }

@@ -23,6 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     {
         private readonly HashSet<IPAddress> _allowed;
         private readonly ImmutableArray<AllowedEmail> _allowedEmails;
+        private readonly ImmutableArray<AllowedEmailDomain> _allowedEmailDomains;
         private readonly AllowedIPAddressHandler _allowedIPAddressHandler;
         private readonly ImmutableHashSet<IPNetwork> _allowedNetworks;
         private readonly ILogger _logger;
@@ -30,10 +31,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         public DefaultAuthorizationHandler(
             IKeyValueConfiguration keyValueConfiguration,
             AllowedIPAddressHandler allowedIPAddressHandler,
-            ILogger logger, IReadOnlyCollection<AllowedEmail> allowedEmails)
+            ILogger logger,
+            IReadOnlyCollection<AllowedEmail> allowedEmails,
+            ImmutableArray<AllowedEmailDomain> allowedEmailDomains)
         {
             _allowedIPAddressHandler = allowedIPAddressHandler;
             _logger = logger;
+            _allowedEmailDomains = allowedEmailDomains;
             _allowedEmails = allowedEmails.SafeToImmutableArray();
 
             IPAddress[] ipAddressesFromConfig = keyValueConfiguration[ConfigurationConstants.AllowedIPs]
@@ -50,7 +54,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
             _allowedNetworks = ipNetworksFromConfig.ToImmutableHashSet();
 
-            _allowed = new HashSet<IPAddress> {IPAddress.Parse("::1"), IPAddress.Parse("127.0.0.1")};
+            _allowed = new HashSet<IPAddress> { IPAddress.Parse("::1"), IPAddress.Parse("127.0.0.1") };
 
             foreach (IPAddress address in ipAddressesFromConfig)
             {
@@ -62,11 +66,47 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             AuthorizationHandlerContext context,
             DefaultAuthorizationRequirement requirement)
         {
+            if (!context.User.Claims.Any())
+            {
+                return Task.CompletedTask;
+            }
+
             Claim[] emailClaims =
-                context.User.Claims.Where(claim => claim.Type.Equals(ClaimTypes.Email, StringComparison.Ordinal)).ToArray();
+                context.User.Claims.Where(claim => claim.Type.Equals(ClaimTypes.Email, StringComparison.Ordinal))
+                    .ToArray();
 
             if (emailClaims.Length > 0)
             {
+                if (_allowedEmailDomains.Length > 0)
+                {
+                    var matches = emailClaims.Select(claim =>
+                        {
+                            bool parsed = EmailAddress.TryParse(claim.Value, out EmailAddress parsedAddress);
+
+                            if (!parsed)
+                            {
+                                return null;
+                            }
+
+                            return parsedAddress;
+                        }).Where(emailAddress => emailAddress != null)
+                        .Where(emailAddress => _allowedEmailDomains.Any(domain =>
+                            domain.Domain.Equals(emailAddress.Domain, StringComparison.OrdinalIgnoreCase)))
+                        .ToArray();
+
+                    if (matches.Length > 0)
+                    {
+                        if (_logger.IsEnabled(LogEventLevel.Verbose))
+                        {
+                            _logger.Verbose("User has allowed email domain, authorized");
+                        }
+
+                        context.Succeed(requirement);
+                        return Task.CompletedTask;
+                    }
+                }
+
+
                 Claim[] allowedEmails = emailClaims.Where(emailClaim =>
                         _allowedEmails.Any(allowed => emailClaim.Value.Equals(allowed.Email, StringComparison.Ordinal)))
                     .ToArray();
