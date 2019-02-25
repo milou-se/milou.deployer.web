@@ -11,7 +11,6 @@ using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using Arbor.Tooler;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Http;
 using Newtonsoft.Json;
@@ -66,9 +65,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             DeploymentTarget deploymentTarget =
                 await GetDeploymentTarget(deploymentTask.DeploymentTargetId, cancellationToken);
 
-            Environment.SetEnvironmentVariable(ConfigurationConstants.AllowPreReleaseEnabled,
-                "true"); // TODO try to remove
-
             SetLogging();
 
             string targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
@@ -100,7 +96,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
                 && File.Exists(deploymentTargetParametersFile))
             {
-                string parametersJson = File.ReadAllText(deploymentTargetParametersFile, Encoding.UTF8);
+                string parametersJson = await File.ReadAllTextAsync(deploymentTargetParametersFile, Encoding.UTF8, cancellationToken);
 
                 parameterDictionary = JsonConvert
                     .DeserializeObject<Dictionary<string, string[]>>(parametersJson).ToImmutableDictionary();

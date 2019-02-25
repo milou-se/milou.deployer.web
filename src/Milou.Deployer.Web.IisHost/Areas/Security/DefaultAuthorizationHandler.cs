@@ -24,20 +24,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         private readonly HashSet<IPAddress> _allowed;
         private readonly ImmutableArray<AllowedEmail> _allowedEmails;
         private readonly ImmutableArray<AllowedEmailDomain> _allowedEmailDomains;
-        private readonly AllowedIPAddressHandler _allowedIPAddressHandler;
+        private readonly AllowedIPAddressHandler _allowedIpAddressHandler;
         private readonly ImmutableHashSet<IPNetwork> _allowedNetworks;
         private readonly ILogger _logger;
 
         public DefaultAuthorizationHandler(
             IKeyValueConfiguration keyValueConfiguration,
-            AllowedIPAddressHandler allowedIPAddressHandler,
+            AllowedIPAddressHandler allowedIpAddressHandler,
             ILogger logger,
             IReadOnlyCollection<AllowedEmail> allowedEmails,
-            ImmutableArray<AllowedEmailDomain> allowedEmailDomains)
+            IReadOnlyCollection<AllowedEmailDomain> allowedEmailDomains)
         {
-            _allowedIPAddressHandler = allowedIPAddressHandler;
+            _allowedIpAddressHandler = allowedIpAddressHandler;
             _logger = logger;
-            _allowedEmailDomains = allowedEmailDomains;
+            _allowedEmailDomains = allowedEmailDomains.SafeToImmutableArray();
             _allowedEmails = allowedEmails.SafeToImmutableArray();
 
             IPAddress[] ipAddressesFromConfig = keyValueConfiguration[ConfigurationConstants.AllowedIPs]
@@ -164,10 +164,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 return Task.CompletedTask;
             }
 
-            ImmutableArray<IPAddress> dynamicIPAddresses = _allowedIPAddressHandler.IpAddresses;
+            ImmutableArray<IPAddress> dynamicIpAddresses = _allowedIpAddressHandler.IpAddresses;
 
             ImmutableHashSet<IPAddress> allAddresses = _allowed
-                .Concat(dynamicIPAddresses)
+                .Concat(dynamicIpAddresses)
                 .Where(ip => !Equals(ip, IPAddress.None))
                 .ToImmutableHashSet();
 

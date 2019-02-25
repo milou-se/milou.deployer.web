@@ -27,7 +27,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
             var handler =
-                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty, ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IPAddress, "192.168.0.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
@@ -52,7 +52,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
             var handler =
-                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty, ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IPAddress, "192.168.0.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
@@ -76,7 +76,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
             var handler =
-                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty, ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = ImmutableArray<Claim>.Empty;
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
@@ -100,7 +100,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
             var handler =
-                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty, ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IPAddress, "192.168.1.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
@@ -119,7 +119,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
             var handler =
-                new DefaultAuthorizationHandler(NoConfiguration.Empty, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(NoConfiguration.Empty, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty, ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IPAddress, "192.168.1.2")};
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));

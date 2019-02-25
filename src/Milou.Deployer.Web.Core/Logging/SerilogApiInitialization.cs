@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
@@ -114,7 +115,7 @@ namespace Milou.Deployer.Web.Core.Logging
             return appLogger;
         }
 
-        public static ILogger InitializeStartupLogging([NotNull] Func<string, string> basePath)
+        public static ILogger InitializeStartupLogging([NotNull] Func<string, string> basePath, ImmutableDictionary<string, string> environmentVariables)
         {
             var startupLevel = LogEventLevel.Verbose;
 
@@ -124,7 +125,7 @@ namespace Milou.Deployer.Web.Core.Logging
             }
 
             bool fileLoggingEnabled = bool.TryParse(
-                                          Environment.GetEnvironmentVariable(LoggingConstants.SerilogStartupLogEnabled),
+                                          environmentVariables.ValueOrDefault(LoggingConstants.SerilogStartupLogEnabled),
                                           out bool enabled) && enabled;
 
             string logFile = null;
@@ -141,7 +142,7 @@ namespace Milou.Deployer.Web.Core.Logging
                 }
 
                 string pathFormat = Environment.ExpandEnvironmentVariables(
-                    Environment.GetEnvironmentVariable(LoggingConstants.SerilogStartupLogFilePath) ??
+                    environmentVariables.ValueOrDefault(LoggingConstants.SerilogStartupLogFilePath) ??
                     logFilePath);
 
                 var fileInfo = new FileInfo(pathFormat);
@@ -169,7 +170,7 @@ namespace Milou.Deployer.Web.Core.Logging
                     .WriteTo.File(logFile, startupLevel, rollingInterval: RollingInterval.Day);
             }
 
-            string seq = Environment.GetEnvironmentVariable(LoggingConstants.SeqStartupUrl);
+            string seq = environmentVariables.ValueOrDefault(LoggingConstants.SeqStartupUrl);
 
             Uri usedSeqUri = null;
             if (!string.IsNullOrWhiteSpace(seq))

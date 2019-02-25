@@ -315,7 +315,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                     .WriteTo.Debug();
             }
 
-            App = await App.CreateAsync(_cancellationTokenSource, AddTestLogging, args);
+            App = await App.CreateAsync(_cancellationTokenSource, AddTestLogging, args, EnvironmentVariables.Get());
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);

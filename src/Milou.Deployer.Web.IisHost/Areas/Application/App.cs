@@ -15,7 +15,6 @@ using Autofac;
 using Autofac.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
-using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
@@ -40,7 +39,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         private bool _disposed;
         private bool _disposing;
-        private Guid _instanceId;
+        private readonly Guid _instanceId;
 
         public App(
             [NotNull] IWebHostBuilder webHost,
@@ -75,7 +74,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         public static async Task<App> CreateAsync(
             CancellationTokenSource cancellationTokenSource,
             Action<LoggerConfiguration> loggerConfigurationAction,
-            params string[] args)
+            string[] args,
+            ImmutableDictionary<string, string> environmentVariables)
         {
             if (args == null)
             {
@@ -84,7 +84,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             try
             {
-                App app = await BuildAppAsync(cancellationTokenSource, loggerConfigurationAction, args);
+                App app = await BuildAppAsync(cancellationTokenSource, loggerConfigurationAction, args, environmentVariables);
 
                 return app;
             }
@@ -208,7 +208,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private static async Task<App> BuildAppAsync(
             CancellationTokenSource cancellationTokenSource,
             Action<LoggerConfiguration> loggerConfigurationAction,
-            string[] commandLineArgs)
+            string[] commandLineArgs,
+            ImmutableDictionary<string, string> environmentVariables)
         {
             ImmutableArray<Assembly> scanAssemblies = Assemblies.FilteredAssemblies();
 
@@ -252,14 +253,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             string contentBasePath = contentBasePathFromArg ?? Directory.GetCurrentDirectory();
 
             ILogger startupLogger =
-                SerilogApiInitialization.InitializeStartupLogging(file => GetBaseDirectoryFile(basePath, file));
+                SerilogApiInitialization.InitializeStartupLogging(file => GetBaseDirectoryFile(basePath, file), environmentVariables);
 
             startupLogger.Information("Using application root directory {Directory}", basePath);
 
             MultiSourceKeyValueConfiguration configuration =
-                ConfigurationInitialization.InitializeConfiguration(commandLineArgs,
-                    file => GetBaseDirectoryFile(basePath, file),
-                    startupLogger, scanAssemblies, contentBasePath);
+                ConfigurationInitialization.InitializeConfiguration(file => GetBaseDirectoryFile(basePath, file), contentBasePath, scanAssemblies, commandLineArgs, environmentVariables);
+
+            startupLogger?.Information("Configuration done using chain {Chain}",
+                configuration.SourceChain);
 
             startupLogger.Verbose("Configuration values {KeyValues}", configuration.AllValues.Select(pair =>
                 $"\"{pair.Key}\": \"{pair.Value.MakeAnonymous(pair.Key, $"{StringExtensions.DefaultAnonymousKeyWords.ToArray()}\"")}"));

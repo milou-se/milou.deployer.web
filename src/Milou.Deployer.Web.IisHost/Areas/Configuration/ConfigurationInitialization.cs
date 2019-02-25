@@ -7,34 +7,68 @@ using System.Reflection;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Decorators;
 using Arbor.KVConfiguration.JsonConfiguration;
-using JetBrains.Annotations;
+using Arbor.KVConfiguration.UserConfiguration;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
-using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Configuration
 {
     public static class ConfigurationInitialization
     {
         public static MultiSourceKeyValueConfiguration InitializeConfiguration(
-            IReadOnlyList<string> args,
-            [NotNull] Func<string, string> basePath,
-            ILogger logger,
-            IReadOnlyCollection<Assembly> scanAssemblies,
-            string contentBasePath)
+            Func<string, string> basePath = null,
+            string contentBasePath = null,
+            IReadOnlyCollection<Assembly> scanAssemblies = null,
+            IReadOnlyList<string> args = null,
+            IReadOnlyDictionary<string, string> environmentVariables = null)
         {
-            if (basePath == null)
+            MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration = KeyValueConfigurationManager
+                .Add(NoConfiguration.Empty)
+                .AddReflectionSettings(scanAssemblies)
+                .AddLoggingSettings()
+                .AddJsonSettings(basePath, args, environmentVariables)
+                .AddMachineSpecificSettings(basePath)
+                .AddSettingsFileFromArgsOrEnvironment(args, environmentVariables)
+                .AddEnvironmentVariables(environmentVariables)
+                .AddUserSettings(contentBasePath)
+                .AddCommandLineArgsSettings(args)
+                .DecorateWith(new ExpandKeyValueConfigurationDecorator()).Build();
+
+            return multiSourceKeyValueConfiguration;
+        }
+
+        private static AppSettingsBuilder AddUserSettings(this AppSettingsBuilder builder, string contentBasePath)
+        {
+            if (string.IsNullOrWhiteSpace(contentBasePath))
             {
-                throw new ArgumentNullException(nameof(basePath));
+                return builder;
             }
 
-            string environmentBasedSettingsPath =
-                Environment.GetEnvironmentVariable(ConfigurationConstants.JsonSettingsFile);
+            return builder.Add(new UserJsonConfiguration(contentBasePath));
+        }
 
-            string environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Production";
+        private static AppSettingsBuilder AddLoggingSettings(this AppSettingsBuilder builder)
+        {
+            var loggingSettings = new NameValueCollection
+            {
+                { "Logging:LogLevel:Default", "Warning" },
+                { "Logging:LogLevel:System.Net.Http.HttpClient", "Warning" },
+                { "LogLevel:System.Net.Http.HttpClient", "Warning" }
+            };
 
-            AppSettingsBuilder appSettingsBuilder = KeyValueConfigurationManager
-                .Add(new InMemoryKeyValueConfiguration(new NameValueCollection()));
+            var memoryKeyValueConfiguration = new InMemoryKeyValueConfiguration(loggingSettings);
+            return builder.Add(memoryKeyValueConfiguration);
+        }
+
+        private static AppSettingsBuilder AddReflectionSettings(
+            this AppSettingsBuilder appSettingsBuilder,
+            IReadOnlyCollection<Assembly> scanAssemblies
+        )
+        {
+            if (scanAssemblies is null)
+            {
+                return appSettingsBuilder;
+            }
 
             foreach (Assembly currentAssembly in scanAssemblies.OrderBy(assembly => assembly.FullName))
             {
@@ -43,12 +77,86 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
                         new ReflectionKeyValueConfiguration(currentAssembly));
             }
 
-            var loggingSettings = new NameValueCollection
+            return appSettingsBuilder;
+        }
+
+        public static AppSettingsBuilder AddEnvironmentVariables(this AppSettingsBuilder builder,
+            IReadOnlyDictionary<string, string> environmentVariables)
+        {
+            if (environmentVariables is null)
             {
-                { "Logging:LogLevel:Default", "Warning" },
-                { "Logging:LogLevel:System.Net.Http.HttpClient", "Warning" },
-                { "LogLevel:System.Net.Http.HttpClient", "Warning" }
-            };
+                return builder;
+            }
+
+            NameValueCollection nameValueCollection = new NameValueCollection();
+            foreach (KeyValuePair<string, string> environmentVariable in environmentVariables)
+            {
+                nameValueCollection.Add(environmentVariable.Key, environmentVariable.Value);
+            }
+
+            return builder.Add(new InMemoryKeyValueConfiguration(nameValueCollection));
+        }
+
+        public static AppSettingsBuilder AddCommandLineArgsSettings(this AppSettingsBuilder builder,
+            IReadOnlyList<string> args)
+        {
+            if (args is null)
+            {
+                return builder;
+            }
+
+            var nameValueCollection = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
+
+            const char variableAssignmentCharacter = '=';
+
+            foreach (string arg in args.Where(a =>
+                a.Count(c => c == variableAssignmentCharacter) == 1 && a.Length >= 3))
+            {
+                string[] parts = arg.Split(variableAssignmentCharacter, StringSplitOptions.RemoveEmptyEntries);
+
+                if (parts.Length != 2)
+                {
+                    continue;
+                }
+
+                string key = parts[0];
+                string value = parts[1];
+
+                nameValueCollection.Add(key, value);
+            }
+
+            var inMemoryKeyValueConfiguration = new InMemoryKeyValueConfiguration(nameValueCollection);
+            return builder.Add(inMemoryKeyValueConfiguration);
+        }
+
+        public static AppSettingsBuilder AddJsonSettings(this AppSettingsBuilder appSettingsBuilder,
+            Func<string, string> basePath,
+            IReadOnlyCollection<string> args,
+            IReadOnlyDictionary<string, string> environmentVariables)
+
+
+        {
+            if (basePath is null)
+            {
+                return appSettingsBuilder;
+            }
+
+            string environmentName = args?.ParseParameter("ASPNETCORE_ENVIRONMENT")
+                                     ?? environmentVariables.ValueOrDefault("ASPNETCORE_ENVIRONMENT")
+                                     ?? "Production";
+
+            return appSettingsBuilder.Add(new JsonKeyValueConfiguration(basePath("settings.json"), false))
+                .Add(new JsonKeyValueConfiguration(basePath($"settings.{environmentName}.json"), false));
+        }
+
+        public static AppSettingsBuilder AddMachineSpecificSettings(this AppSettingsBuilder appSettingsBuilder,
+            Func<string, string> basePath
+        )
+        {
+            if (basePath is null)
+            {
+                return appSettingsBuilder;
+            }
 
             FileInfo MachineSpecificConfig(DirectoryInfo directoryInfo)
             {
@@ -73,18 +181,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
                     }
                     catch (Exception ex) when (!ex.IsFatal())
                     {
-                        logger.Warning(ex, "Could not find machine specific config file in any parent directory starting with base directory {BaseDirectory}", baseDirectory.FullName);
                         return null;
                     }
                 }
 
                 return machineSpecificConfig?.FullName;
             }
-
-            appSettingsBuilder = appSettingsBuilder
-                .Add(new InMemoryKeyValueConfiguration(loggingSettings))
-                .Add(new JsonKeyValueConfiguration(basePath("settings.json"), false))
-                .Add(new JsonKeyValueConfiguration(basePath($"settings.{environmentName}.json"), false));
 
             string machineSpecificFile = MachineSpecificFile();
 
@@ -93,50 +195,25 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
                 appSettingsBuilder = appSettingsBuilder.Add(new JsonKeyValueConfiguration(machineSpecificFile));
             }
 
-            if (environmentBasedSettingsPath.HasValue() && File.Exists(environmentBasedSettingsPath))
+            return appSettingsBuilder;
+        }
+
+        private static AppSettingsBuilder AddSettingsFileFromArgsOrEnvironment(
+            this AppSettingsBuilder appSettingsBuilder,
+            IReadOnlyList<string> args,
+            IReadOnlyDictionary<string, string> environmentVariables
+        )
+        {
+            string settingsPath = args?.ParseParameter(ConfigurationConstants.JsonSettingsFile)
+                ?? environmentVariables.ValueOrDefault(ConfigurationConstants.JsonSettingsFile);
+
+            if (settingsPath.HasValue() && File.Exists(settingsPath))
             {
                 appSettingsBuilder =
-                    appSettingsBuilder.Add(new JsonKeyValueConfiguration(environmentBasedSettingsPath,
-                        true));
-
-                logger.Information("Added environment based configuration from key '{Key}', file '{File}'",
-                    ConfigurationConstants.JsonSettingsFile,
-                    environmentBasedSettingsPath);
+                    appSettingsBuilder.Add(new JsonKeyValueConfiguration(settingsPath));
             }
 
-            var nameValueCollection = new NameValueCollection(StringComparer.OrdinalIgnoreCase);
-
-            const char variableAssignmentCharacter = '=';
-
-            foreach (string arg in args.Where(a => a.Count(c => c == variableAssignmentCharacter) == 1 && a.Length >= 3))
-            {
-                string[] parts = arg.Split(variableAssignmentCharacter, StringSplitOptions.RemoveEmptyEntries);
-
-                if (parts.Length != 2)
-                {
-                    logger.Verbose("Arg {Arg} has length {Length}", arg, parts.Length);
-                    continue;
-                }
-
-                string key = parts[0];
-                string value = parts[1];
-
-                nameValueCollection.Add(key, value);
-            }
-
-            var inMemoryKeyValueConfiguration = new InMemoryKeyValueConfiguration(nameValueCollection);
-
-            MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration = appSettingsBuilder
-                .Add(new JsonKeyValueConfiguration(Path.Combine(contentBasePath, "config.user"), throwWhenNotExists: false))
-                .Add(new EnvironmentVariableKeyValueConfigurationSource())
-                .Add(inMemoryKeyValueConfiguration)
-                .DecorateWith(new ExpandKeyValueConfigurationDecorator())
-                .Build();
-
-            logger.Information("Configuration done using chain {Chain}",
-                multiSourceKeyValueConfiguration.SourceChain);
-
-            return multiSourceKeyValueConfiguration;
+            return appSettingsBuilder;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace Milou.Deployer.Web.IisHost
 {
     public static class AppStarter
     {
-        public static async Task<int> StartAsync(string[] args)
+        public static async Task<int> StartAsync(string[] args, ImmutableDictionary<string, string> environmentVariables)
         {
             try
             {
@@ -41,7 +42,7 @@ namespace Milou.Deployer.Web.IisHost
                 CancellationTokenSource cancellationTokenSource;
 
                 if (int.TryParse(
-                        Environment.GetEnvironmentVariable(ConfigurationConstants.RestartTimeInSeconds),
+                        environmentVariables.GetValueOrDefault(ConfigurationConstants.RestartTimeInSeconds),
                         out int intervalInSeconds) && intervalInSeconds > 0)
                 {
                     cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
@@ -56,7 +57,7 @@ namespace Milou.Deployer.Web.IisHost
                     cancellationTokenSource.Token.Register(
                         () => TempLogger.WriteLine("App cancellation token triggered"));
 
-                    using (App app = await App.CreateAsync(cancellationTokenSource, null, args))
+                    using (App app = await App.CreateAsync(cancellationTokenSource, null, args, environmentVariables))
                     {
                         bool runAsService =
                             app.AppRootScope.Deepest().Lifetime.Resolve<IKeyValueConfiguration>()
@@ -105,7 +106,7 @@ namespace Milou.Deployer.Web.IisHost
                 }
 
                 if (int.TryParse(
-                        Environment.GetEnvironmentVariable(ConfigurationConstants.ShutdownTimeInSeconds),
+                        environmentVariables.GetValueOrDefault(ConfigurationConstants.ShutdownTimeInSeconds),
                         out int shutDownTimeInSeconds) && shutDownTimeInSeconds > 0)
                 {
                     await Task.Delay(TimeSpan.FromSeconds(shutDownTimeInSeconds), CancellationToken.None);

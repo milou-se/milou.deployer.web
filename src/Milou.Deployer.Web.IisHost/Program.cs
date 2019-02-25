@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.IisHost
 {
@@ -6,7 +7,7 @@ namespace Milou.Deployer.Web.IisHost
     {
         public static Task<int> Main(string[] args)
         {
-            return AppStarter.StartAsync(args);
+            return AppStarter.StartAsync(args, EnvironmentVariables.Get());
         }
     }
 }
