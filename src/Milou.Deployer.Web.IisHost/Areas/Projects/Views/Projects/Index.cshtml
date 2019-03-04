@@ -27,27 +27,27 @@
 
 <table>
     <thead>
-        <tr>
-            <th></th>
-        </tr>
+    <tr>
+        <th></th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (ProjectInfo item in Model.Projects)
-        {
-            <tr>
-                <td>@item.ProjectFullName</td>
-            </tr>
-        }
+    @foreach (ProjectInfo item in Model.Projects)
+    {
+        <tr>
+            <td>@item.ProjectFullName</td>
+        </tr>
+    }
 
     </tbody>
 </table>
 
 <form method="post" action="@Url.RouteUrl(ProjectConstants.CreateProjectPostRouteName)">
 
-    <input type="text" name="id" />
+    <input type="text" name="id"/>
 
-    <input type="hidden" name="organizationId" value="@Model.OrganizationId" />
+    <input type="hidden" name="organizationId" value="@Model.OrganizationId"/>
 
-    <input type="submit" value="Create project" />
+    <input type="submit" value="Create project"/>
 
 </form>

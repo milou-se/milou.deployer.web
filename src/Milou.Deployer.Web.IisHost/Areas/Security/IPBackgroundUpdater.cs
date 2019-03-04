@@ -9,13 +9,13 @@ using Serilog;
 namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
     [UsedImplicitly]
-    public class IPBackgroundUpdater : BackgroundService
+    public class IpBackgroundUpdater : BackgroundService
     {
-        private readonly AllowedIPAddressHandler _ipHandler;
+        private readonly AllowedIpAddressHandler _ipHandler;
         private readonly ILogger _logger;
 
-        public IPBackgroundUpdater(
-            [NotNull] AllowedIPAddressHandler ipHandler,
+        public IpBackgroundUpdater(
+            [NotNull] AllowedIpAddressHandler ipHandler,
             [NotNull] ILogger logger)
         {
             _ipHandler = ipHandler ?? throw new ArgumentNullException(nameof(ipHandler));
@@ -26,15 +26,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                foreach (string domain in _ipHandler.Domains)
+                foreach (var domain in _ipHandler.Domains)
                 {
-                    IPHostEntry ipHostEntry = await Dns.GetHostEntryAsync(domain);
+                    var ipHostEntry = await Dns.GetHostEntryAsync(domain);
 
                     if (ipHostEntry.AddressList.Length == 1)
                     {
-                        IPAddress ip = ipHostEntry.AddressList[0];
+                        var ip = ipHostEntry.AddressList[0];
 
-                        if (!_ipHandler.SetDomainIP(domain, ip))
+                        if (!_ipHandler.SetDomainIp(domain, ip))
                         {
                             _logger.Verbose("Could not update domain ip for host {Host}", domain);
                         }

@@ -12,14 +12,36 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     [UsedImplicitly]
     public class CustomMemoryCache : ICustomMemoryCache
     {
-        private static readonly ConcurrentDictionary<string, object> _Keys = new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-        private readonly IMemoryCache _memoryCache;
+        private static readonly ConcurrentDictionary<string, object> Keys =
+            new ConcurrentDictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
         private readonly ILogger _logger;
+        private readonly IMemoryCache _memoryCache;
 
         public CustomMemoryCache(IMemoryCache memoryCache, ILogger logger)
         {
             _memoryCache = memoryCache;
             _logger = logger;
+        }
+
+        private IReadOnlyCollection<string> GetCachedKeys()
+        {
+            (string key, bool exists)[] keys = Keys.Select(key => (key.Key, _memoryCache.TryGetValue(key.Key, out _)))
+                .ToArray();
+
+            var toRemove = keys.Where(item => !item.exists).Select(item => item.key).ToArray();
+
+            foreach (var nonCachedKey in toRemove)
+            {
+                var removed = Keys.TryRemove(nonCachedKey, out _);
+
+                if (!removed)
+                {
+                    _logger.Debug("Could not remove cached item with key {CacheKey}", nonCachedKey);
+                }
+            }
+
+            return Keys.Keys.ToArray();
         }
 
         public IReadOnlyCollection<string> CachedKeys => GetCachedKeys();
@@ -31,7 +53,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
             }
 
-            if (_memoryCache.TryGetValue(key, out object cachedItem) && cachedItem is T cachedItemOfT)
+            if (_memoryCache.TryGetValue(key, out var cachedItem) && cachedItem is T cachedItemOfT)
             {
                 item = cachedItemOfT;
                 return true;
@@ -53,12 +75,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
             }
 
-            TimeSpan cacheEntryAbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(900);
+            var cacheEntryAbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(900);
 
             _memoryCache.Set(key, item, cacheEntryAbsoluteExpirationRelativeToNow);
-            bool added = _Keys.TryAdd(key, string.Empty);
+            var added = Keys.TryAdd(key, string.Empty);
 
-            if (!added && !_Keys.ContainsKey(key))
+            if (!added && !Keys.ContainsKey(key))
             {
                 _logger.Debug("Could not add item with key {Key} to cache", key);
             }
@@ -66,7 +88,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public void Invalidate(string prefix = null)
         {
-            IReadOnlyCollection<string> keys = GetCachedKeys();
+            var keys = GetCachedKeys();
 
             if (!keys.Any())
             {
@@ -74,7 +96,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 return;
             }
 
-            IReadOnlyCollection<string> filteredKeys = keys;
+            var filteredKeys = keys;
 
             if (prefix.HasValue())
             {
@@ -83,34 +105,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     .ToArray();
             }
 
-            _logger.Debug("Removing {ToRemoveCount} items of {TotalCount} from in-memory cache matching prefix {Prefix}", filteredKeys.Count, keys.Count, prefix);
+            _logger.Debug(
+                "Removing {ToRemoveCount} items of {TotalCount} from in-memory cache matching prefix {Prefix}",
+                filteredKeys.Count,
+                keys.Count,
+                prefix);
 
-            foreach (string key in filteredKeys)
+            foreach (var key in filteredKeys)
             {
                 _memoryCache.Remove(key);
-                _Keys.TryRemove(key, out _);
+                Keys.TryRemove(key, out _);
                 _logger.Debug("Removed item with key {CacheKey} from in-memory cache", key);
             }
-        }
-
-        private IReadOnlyCollection<string> GetCachedKeys()
-        {
-            (string key, bool exists)[] keys = _Keys.Select(key => (key.Key, _memoryCache.TryGetValue(key.Key, out _)))
-                .ToArray();
-
-            string[] toRemove = keys.Where(item => !item.exists).Select(item => item.key).ToArray();
-
-            foreach (string nonCachedKey in toRemove)
-            {
-                bool removed = _Keys.TryRemove(nonCachedKey, out _);
-
-                if (!removed)
-                {
-                    _logger.Debug("Could not remove cached item with key {CacheKey}", nonCachedKey);
-                }
-            }
-
-            return _Keys.Keys.ToArray();
         }
     }
 }

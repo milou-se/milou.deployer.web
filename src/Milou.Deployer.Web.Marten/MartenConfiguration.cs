@@ -21,12 +21,12 @@ namespace Milou.Deployer.Web.Marten
 
         public bool Enabled { get; }
 
-        public bool IsValid => !Enabled || !string.IsNullOrWhiteSpace(ConnectionString);
-
         public override string ToString()
         {
             return
                 $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous(StringExtensions.DefaultAnonymousKeyWords.ToArray())}], {nameof(Enabled)}: {Enabled.ToString().ToLowerInvariant()}";
         }
+
+        public bool IsValid => !Enabled || !string.IsNullOrWhiteSpace(ConnectionString);
     }
 }

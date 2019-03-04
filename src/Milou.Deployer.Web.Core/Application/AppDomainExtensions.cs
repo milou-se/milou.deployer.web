@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -15,6 +15,19 @@ namespace Milou.Deployer.Web.Core.Application
     public static class AppDomainExtensions
     {
         private static ImmutableArray<Assembly> _cache;
+
+        private static void ForceLoadReferenceAssemblies()
+        {
+            Type[] types =
+            {
+                typeof(ICustomClock)
+            };
+
+            foreach (var type in types)
+            {
+                TempLogger.WriteLine(type.Assembly.GetName().Name);
+            }
+        }
 
         public static ImmutableArray<Assembly> FilteredAssemblies(
             [NotNull] this AppDomain appDomain,
@@ -40,37 +53,37 @@ namespace Milou.Deployer.Web.Core.Application
 
             try
             {
-                ImmutableArray<RuntimeLibrary> defaultRuntimeLibraries =
+                var defaultRuntimeLibraries =
                     DependencyContext.Default?.RuntimeLibraries?.ToImmutableArray() ??
                     ImmutableArray<RuntimeLibrary>.Empty;
 
-                RuntimeLibrary[] includedLibraries = defaultRuntimeLibraries
+                var includedLibraries = defaultRuntimeLibraries
                     .Where(item =>
                         allowedAssemblies.Any(
                             listed => item.Name.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
                     .ToArray();
 
-                Assembly[] loadedAssemblies = AppDomain.CurrentDomain
+                var loadedAssemblies = AppDomain.CurrentDomain
                     .GetAssemblies()
                     .Where(assembly => !assembly.IsDynamic)
                     .Where(assembly => allowedAssemblies.Any(allowed =>
                         assembly.GetName().Name.StartsWith(allowed, StringComparison.OrdinalIgnoreCase)))
                     .ToArray();
 
-                AssemblyName[] loadedAssemblyNames = loadedAssemblies
+                var loadedAssemblyNames = loadedAssemblies
                     .Select(assembly => assembly.GetName())
                     .ToArray();
 
-                RuntimeLibrary[] toLoad = includedLibraries
+                var toLoad = includedLibraries
                     .Where(lib =>
                         !loadedAssemblyNames.Any(loaded => loaded.Name.Equals(lib.Name, StringComparison.Ordinal)))
                     .ToArray();
 
-                AssemblyName[] assemblyNames = toLoad
+                var assemblyNames = toLoad
                     .SelectMany(lib => lib.GetDefaultAssemblyNames(DependencyContext.Default))
                     .ToArray();
 
-                foreach (AssemblyName assemblyName in assemblyNames)
+                foreach (var assemblyName in assemblyNames)
                 {
                     if (!AppDomain.CurrentDomain.GetAssemblies()
                         .Any(assembly => !assembly.IsDynamic && assembly.GetName().FullName == assemblyName.FullName))
@@ -92,7 +105,7 @@ namespace Milou.Deployer.Web.Core.Application
 
             int GetAssemblyLoadOrder(Assembly assembly)
             {
-                string assemblyName = assembly.GetName().Name;
+                var assemblyName = assembly.GetName().Name;
 
                 foreach ((string Name, int Order) valueTuple in orders)
                 {
@@ -102,12 +115,12 @@ namespace Milou.Deployer.Web.Core.Application
                     }
                 }
 
-                int defaultOrder = 0;
+                var defaultOrder = 0;
 
                 return defaultOrder;
             }
 
-            ImmutableArray<Assembly> filteredAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+            var filteredAssemblies = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(assembly => !assembly.IsDynamic && allowedAssemblies.Any(listed =>
                                        assembly.FullName.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
                 .Select(assembly =>
@@ -126,19 +139,6 @@ namespace Milou.Deployer.Web.Core.Application
             }
 
             return filteredAssemblies;
-        }
-
-        private static void ForceLoadReferenceAssemblies()
-        {
-            Type[] types =
-            {
-                typeof(ICustomClock)
-            };
-
-            foreach (Type type in types)
-            {
-                TempLogger.WriteLine(type.Assembly.GetName().Name);
-            }
         }
     }
 }

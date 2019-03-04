@@ -1,11 +1,12 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using Serilog.Core;
 using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Logging
 {
-    public class DelegateSink : Serilog.Core.ILogEventSink
+    public class DelegateSink : ILogEventSink
     {
         private readonly Action<string> _action;
 
@@ -21,7 +22,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Logging
                 throw new ArgumentNullException(nameof(logEvent));
             }
 
-            string renderedTemplate = logEvent.MessageTemplate.Render(logEvent.Properties);
+            var renderedTemplate = logEvent.MessageTemplate.Render(logEvent.Properties);
 
             var output = new
             {
@@ -34,7 +35,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Logging
                 FormattedTimestamp = logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff")
             };
 
-            string message = JsonConvert.SerializeObject(output);
+            var message = JsonConvert.SerializeObject(output);
 
             _action(message);
         }

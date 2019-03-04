@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.Specialized;
@@ -24,10 +24,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
-        private readonly PackageService _packageService;
 
         [NotNull]
         private readonly MonitorConfiguration _monitorConfiguration;
+
+        private readonly PackageService _packageService;
 
         public MonitoringService(
             [NotNull] ILogger logger,
@@ -38,12 +39,134 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
-            _monitorConfiguration = monitorConfiguration ?? throw new ArgumentNullException(nameof(monitorConfiguration));
+            _monitorConfiguration =
+                monitorConfiguration ?? throw new ArgumentNullException(nameof(monitorConfiguration));
+        }
+
+        private async Task<AppVersion> GetAppVersionAsync(
+            HttpResponseMessage response,
+            DeploymentTarget target,
+            IReadOnlyCollection<PackageVersion> filtered,
+            CancellationToken cancellationToken)
+        {
+            if (response.Content.Headers.ContentType?.MediaType.Equals("application/json",
+                    StringComparison.OrdinalIgnoreCase) != true)
+            {
+                return new AppVersion(target, "Response not JSON", filtered);
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return new AppVersion(target, "Timeout", filtered);
+            }
+
+            var configuration =
+                JsonConfigurationSerializer.Deserialize(json);
+
+            var nameValueCollection = new NameValueCollection();
+
+            foreach (var configurationItem in configuration.Keys)
+            {
+                nameValueCollection.Add(configurationItem.Key, configurationItem.Value);
+            }
+
+            var appVersion = new AppVersion(target, new InMemoryKeyValueConfiguration(nameValueCollection), filtered);
+
+            return appVersion;
+        }
+
+        private async Task<IReadOnlyCollection<PackageVersion>> GetAllowedPackagesAsync(
+            DeploymentTarget target,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var allPackageVersions =
+                    await _packageService.GetPackageVersionsAsync(
+                        target.PackageId,
+                        nugetConfigFile: target.NuGetConfigFile,
+                        nugetPackageSource: target.NuGetPackageSource,
+                        logger: _logger,
+                        includePreReleased: target.AllowExplicitExplicitPreRelease == true || target.AllowPreRelease,
+                        cancellationToken: cancellationToken);
+
+                var allTargetPackageVersions = allPackageVersions.Where(
+                        packageVersion =>
+                            target.PackageId.Equals(packageVersion.PackageId,
+                                StringComparison.OrdinalIgnoreCase))
+                    .SafeToReadOnlyCollection();
+
+                var preReleaseFiltered = allTargetPackageVersions;
+
+                if (!target.AllowPreRelease)
+                {
+                    preReleaseFiltered =
+                        allTargetPackageVersions.Where(package => !package.Version.IsPrerelease)
+                            .SafeToReadOnlyCollection();
+                }
+
+                var filtered =
+                    preReleaseFiltered.OrderByDescending(packageVersion => packageVersion.Version)
+                        .SafeToReadOnlyCollection();
+
+                return filtered;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex, "Could not get allowed packages for target {Target}", target.Id);
+                return ImmutableArray<PackageVersion>.Empty;
+            }
+        }
+
+        private Task<(HttpResponseMessage, string)> GetApplicationMetadataTask(
+            DeploymentTarget deploymentTarget,
+            CancellationToken cancellationToken)
+        {
+            var uriBuilder = new UriBuilder(deploymentTarget.Url)
+            {
+                Path = "applicationmetadata.json"
+            };
+
+            var applicationMetadataUri = uriBuilder.Uri;
+
+            var getApplicationMetadataTask = GetWrappedResponseAsync(
+                applicationMetadataUri,
+                cancellationToken);
+            return getApplicationMetadataTask;
+        }
+
+        private async Task<(HttpResponseMessage, string)> GetWrappedResponseAsync(
+            Uri applicationMetadataUri,
+            CancellationToken cancellationToken)
+        {
+            _logger.Debug("Making metadata request to {RequestUri}", applicationMetadataUri);
+
+            try
+            {
+                var client = _httpClientFactory.CreateClient(applicationMetadataUri.Host);
+                return (await client.GetAsync(applicationMetadataUri, cancellationToken), "");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.Error(ex,
+                    "Could not get application metadata for {ApplicationMetadataUri}",
+                    applicationMetadataUri);
+                return ((HttpResponseMessage)null, "Timeout");
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex,
+                    "Could not get application metadata for {ApplicationMetadataUri}",
+                    applicationMetadataUri);
+                return ((HttpResponseMessage)null, ex.Message);
+            }
         }
 
         public async Task<AppVersion> GetAppMetadataAsync(
             [NotNull] DeploymentTarget target,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
             if (target == null)
             {
@@ -65,13 +188,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     });
                 }
 
-                using (CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
+                using (var linkedTokenSource =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
-                    (HttpResponseMessage response, string message) = await GetApplicationMetadataTask(target, linkedTokenSource.Token);
+                    var (response, message) = await GetApplicationMetadataTask(target, linkedTokenSource.Token);
 
-                    using (HttpResponseMessage httpResponseMessage = response)
+                    using (var httpResponseMessage = response)
                     {
-                        IReadOnlyCollection<PackageVersion> packages =
+                        var packages =
                             await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
 
                         if (httpResponseMessage == null)
@@ -100,18 +224,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public async Task<IReadOnlyCollection<AppVersion>> GetAppMetadataAsync(
             IReadOnlyCollection<DeploymentTarget> targets,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken)
         {
             var appVersions = new List<AppVersion>();
 
             using (var cancellationTokenSource =
                 new CancellationTokenSource(TimeSpan.FromSeconds(_monitorConfiguration.DefaultTimeoutInSeconds)))
             {
-                using (CancellationTokenSource linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
+                using (var linkedTokenSource =
+                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
                     var tasks = new Dictionary<string, Task<(HttpResponseMessage, string)>>();
 
-                    foreach (DeploymentTarget deploymentTarget in targets)
+                    foreach (var deploymentTarget in targets)
                     {
                         if (!deploymentTarget.Enabled)
                         {
@@ -121,7 +246,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         }
                         else if (deploymentTarget.Url != null)
                         {
-                            Task<(HttpResponseMessage, string)> getApplicationMetadataTask =
+                            var getApplicationMetadataTask =
                                 GetApplicationMetadataTask(deploymentTarget, linkedTokenSource.Token);
 
                             tasks.Add(deploymentTarget.Id, getApplicationMetadataTask);
@@ -136,11 +261,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                     await Task.WhenAll(tasks.Values);
 
-                    foreach (KeyValuePair<string, Task<(HttpResponseMessage, string)>> pair in tasks)
+                    foreach (var pair in tasks)
                     {
-                        DeploymentTarget target = targets.Single(deploymentTarget => deploymentTarget.Id == pair.Key);
+                        var target = targets.Single(deploymentTarget => deploymentTarget.Id == pair.Key);
 
-                        IReadOnlyCollection<PackageVersion> allowedPackages =
+                        var allowedPackages =
                             await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
 
                         try
@@ -148,9 +273,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             (HttpResponseMessage Response, string Message) result = await pair.Value;
 
                             AppVersion appVersion;
-                            using (HttpResponseMessage response = result.Response)
+                            using (var response = result.Response)
                             {
-                                string message = result.Message;
+                                var message = result.Message;
 
                                 if (response.HasValue() && response.IsSuccessStatusCode)
                                 {
@@ -163,7 +288,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                                 {
                                     if (message.HasValue())
                                     {
-                                        IReadOnlyCollection<PackageVersion> packages =
+                                        var packages =
                                             await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
                                         appVersion = new AppVersion(target, message, packages);
 
@@ -175,7 +300,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                                     }
                                     else
                                     {
-                                        IReadOnlyCollection<PackageVersion> packages =
+                                        var packages =
                                             await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
                                         appVersion = new AppVersion(target, "Unknown error", packages);
 
@@ -194,129 +319,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         {
                             appVersions.Add(new AppVersion(target, ex.Message, ImmutableArray<PackageVersion>.Empty));
 
-                            _logger.Error(ex, "Could not get metadata for target {Name} ({Url})", target.Name, target.Url);
+                            _logger.Error(ex,
+                                "Could not get metadata for target {Name} ({Url})",
+                                target.Name,
+                                target.Url);
                         }
                     }
                 }
             }
 
             return appVersions;
-        }
-
-        private async Task<AppVersion> GetAppVersionAsync(
-            HttpResponseMessage response,
-            DeploymentTarget target,
-            IReadOnlyCollection<PackageVersion> filtered, CancellationToken cancellationToken)
-        {
-            if (response.Content.Headers.ContentType?.MediaType.Equals("application/json",
-                    StringComparison.OrdinalIgnoreCase) != true)
-            {
-                return new AppVersion(target, "Response not JSON", filtered);
-            }
-
-            string json = await response.Content.ReadAsStringAsync();
-
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return new AppVersion(target, "Timeout", filtered);
-            }
-
-            ConfigurationItems configuration =
-                JsonConfigurationSerializer.Deserialize(json);
-
-            var nameValueCollection = new NameValueCollection();
-
-            foreach (KeyValue configurationItem in configuration.Keys)
-            {
-                nameValueCollection.Add(configurationItem.Key, configurationItem.Value);
-            }
-
-            var appVersion = new AppVersion(target, new InMemoryKeyValueConfiguration(nameValueCollection), filtered);
-
-            return appVersion;
-        }
-
-        private async Task<IReadOnlyCollection<PackageVersion>> GetAllowedPackagesAsync(DeploymentTarget target, CancellationToken cancellationToken)
-        {
-            try
-            {
-                IReadOnlyCollection<PackageVersion> allPackageVersions =
-                    await _packageService.GetPackageVersionsAsync(
-                        target.PackageId, nugetConfigFile: target.NuGetConfigFile,
-                        nugetPackageSource: target.NuGetPackageSource, logger: _logger,
-                        includePreReleased: target.AllowExplicitExplicitPreRelease == true || target.AllowPreRelease,
-                        cancellationToken: cancellationToken);
-
-                IReadOnlyCollection<PackageVersion> allTargetPackageVersions = allPackageVersions.Where(
-                        packageVersion =>
-                            target.PackageId.Equals(packageVersion.PackageId,
-                                StringComparison.OrdinalIgnoreCase))
-                    .SafeToReadOnlyCollection();
-
-                IReadOnlyCollection<PackageVersion> preReleaseFiltered = allTargetPackageVersions;
-
-                if (!target.AllowPreRelease)
-                {
-                    preReleaseFiltered =
-                        allTargetPackageVersions.Where(package => !package.Version.IsPrerelease).SafeToReadOnlyCollection();
-                }
-
-                IReadOnlyCollection<PackageVersion> filtered =
-                    preReleaseFiltered.OrderByDescending(packageVersion => packageVersion.Version)
-                        .SafeToReadOnlyCollection();
-
-                return filtered;
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Error(ex, "Could not get allowed packages for target {Target}", target.Id);
-                return ImmutableArray<PackageVersion>.Empty;
-            }
-        }
-
-        private Task<(HttpResponseMessage, string)> GetApplicationMetadataTask(
-            DeploymentTarget deploymentTarget,
-            CancellationToken cancellationToken)
-        {
-            var uriBuilder = new UriBuilder(deploymentTarget.Url)
-            {
-                Path = "applicationmetadata.json"
-            };
-
-            Uri applicationMetadataUri = uriBuilder.Uri;
-
-            Task<(HttpResponseMessage, string)> getApplicationMetadataTask = GetWrappedResponseAsync(
-
-                applicationMetadataUri,
-                cancellationToken);
-            return getApplicationMetadataTask;
-        }
-
-        private async Task<(HttpResponseMessage, string)> GetWrappedResponseAsync(
-
-            Uri applicationMetadataUri,
-            CancellationToken cancellationToken)
-        {
-            _logger.Debug("Making metadata request to {RequestUri}", applicationMetadataUri);
-
-            try
-            {
-                HttpClient client = _httpClientFactory.CreateClient(applicationMetadataUri.Host);
-                return (await client.GetAsync(applicationMetadataUri, cancellationToken), "");
-            }
-            catch (TaskCanceledException ex)
-            {
-                _logger.Error(ex,
-                    "Could not get application metadata for {ApplicationMetadataUri}",
-                    applicationMetadataUri);
-                return ((HttpResponseMessage)null, "Timeout");
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                _logger.Error(ex, "Could not get application metadata for {ApplicationMetadataUri}",
-                    applicationMetadataUri);
-                return ((HttpResponseMessage)null, ex.Message);
-            }
         }
     }
 }

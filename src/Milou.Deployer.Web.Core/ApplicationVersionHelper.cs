@@ -8,21 +8,25 @@ namespace Milou.Deployer.Web.Core
     {
         public static ApplicationVersionInfo GetAppVersion()
         {
-            Assembly executingAssembly = typeof(ApplicationVersionHelper).Assembly.ThrowIfNull();
+            var executingAssembly = typeof(ApplicationVersionHelper).Assembly.ThrowIfNull();
 
-            AssemblyName assemblyName = executingAssembly.GetName();
+            var assemblyName = executingAssembly.GetName();
 
-            string assemblyVersion = assemblyName.Version.ToString().ThrowIfNullOrEmpty();
+            var assemblyVersion = assemblyName.Version.ToString().ThrowIfNullOrEmpty();
 
-            var assemblyInformationalVersionAttribute = executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            var assemblyInformationalVersionAttribute =
+                executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
-            string location = executingAssembly.Location.ThrowIfNullOrEmpty();
+            var location = executingAssembly.Location.ThrowIfNullOrEmpty();
 
-            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(location);
+            var fvi = FileVersionInfo.GetVersionInfo(location);
 
-            string fileVersion = fvi.FileVersion;
+            var fileVersion = fvi.FileVersion;
 
-            return new ApplicationVersionInfo(assemblyVersion, fileVersion, assemblyInformationalVersionAttribute?.InformationalVersion, executingAssembly.FullName);
+            return new ApplicationVersionInfo(assemblyVersion,
+                fileVersion,
+                assemblyInformationalVersionAttribute?.InformationalVersion ?? fileVersion,
+                executingAssembly.FullName);
         }
     }
 }

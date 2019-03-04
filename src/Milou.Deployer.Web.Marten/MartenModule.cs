@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
@@ -7,6 +6,7 @@ using Autofac;
 using JetBrains.Annotations;
 using Marten;
 using Marten.Services;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Json;
 
@@ -20,12 +20,24 @@ namespace Milou.Deployer.Web.Marten
 
         public MartenModule([NotNull] IKeyValueConfiguration keyValueConfiguration)
         {
-            _keyValueConfiguration = keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+            _keyValueConfiguration =
+                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+        }
+
+        private void ConfigureMarten(StoreOptions options, string connectionString)
+        {
+            options.Connection(connectionString);
+
+            var jsonNetSerializer = new JsonNetSerializer();
+
+            jsonNetSerializer.Customize(serializer => serializer.UseCustomConverters());
+
+            options.Serializer(jsonNetSerializer);
         }
 
         protected override void Load(ContainerBuilder builder)
         {
-            ImmutableArray<MartenConfiguration> configurations = _keyValueConfiguration.GetInstances<MartenConfiguration>();
+            var configurations = _keyValueConfiguration.GetInstances<MartenConfiguration>();
 
             if (configurations.IsDefaultOrEmpty)
             {
@@ -34,11 +46,11 @@ namespace Milou.Deployer.Web.Marten
 
             if (configurations.Length > 1)
             {
-                throw new Core.DeployerAppException(
+                throw new DeployerAppException(
                     $"Expected exactly 1 instance of type {nameof(MartenConfiguration)} but got {configurations.Length}");
             }
 
-            MartenConfiguration configuration = configurations.Single();
+            var configuration = configurations.Single();
 
             if (!string.IsNullOrWhiteSpace(configuration.ConnectionString) && configuration.Enabled)
             {
@@ -52,17 +64,6 @@ namespace Milou.Deployer.Web.Marten
                     .AsSelf()
                     .SingleInstance();
             }
-        }
-
-        private void ConfigureMarten(StoreOptions options, string connectionString)
-        {
-            options.Connection(connectionString);
-
-            var jsonNetSerializer = new JsonNetSerializer();
-
-            jsonNetSerializer.Customize(serializer => serializer.UseCustomConverters());
-
-            options.Serializer(jsonNetSerializer);
         }
     }
 }

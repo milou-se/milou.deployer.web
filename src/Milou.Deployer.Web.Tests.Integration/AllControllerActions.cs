@@ -14,41 +14,38 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class AllControllerActions
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
         public AllControllerActions(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
         }
 
-        [Fact]
-        public void ShouldFindControllers()
-        {
-            Assert.NotEmpty(Data);
-        }
+        private readonly ITestOutputHelper _testOutputHelper;
 
         [MemberData(nameof(Data))]
         [Theory]
         public void ShouldHaveExplicitHttpMethodAttribute(string controller, string assembly, string action)
         {
-            Type type = Type.GetType($"{controller}, {assembly}");
+            var type = Type.GetType($"{controller}, {assembly}");
 
-            MethodInfo[] actionMethod = type.GetMethods().Where(method => method.Name.Equals(action, StringComparison.OrdinalIgnoreCase)).ToArray();
+            var actionMethod = type.GetMethods()
+                .Where(method => method.Name.Equals(action, StringComparison.OrdinalIgnoreCase)).ToArray();
 
-            Type[] httpMethodAttributes = {
+            Type[] httpMethodAttributes =
+            {
                 typeof(HttpPostAttribute),
                 typeof(HttpGetAttribute),
-                typeof(HttpDeleteAttribute),
+                typeof(HttpDeleteAttribute)
             };
 
-            foreach (MethodInfo methodInfo in actionMethod)
+            foreach (var methodInfo in actionMethod)
             {
-                Attribute[] attributes = methodInfo.GetCustomAttributes()
+                var attributes = methodInfo.GetCustomAttributes()
                     .Where(attribute =>
                         httpMethodAttributes.Any(httpMethodAttribute => httpMethodAttribute == attribute.GetType()))
                     .ToArray();
 
-                _testOutputHelper.WriteLine($"Controller '{controller}' with action '{action}' has http method attribute: {attributes.Length == 1}");
+                _testOutputHelper.WriteLine(
+                    $"Controller '{controller}' with action '{action}' has http method attribute: {attributes.Length == 1}");
 
                 Assert.NotEmpty(attributes);
                 Assert.Single(attributes);
@@ -62,9 +59,18 @@ namespace Milou.Deployer.Web.Tests.Integration
                 .Distinct()
                 .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
-                .Select(controllerType => (Controller:controllerType, Actions:controllerType.GetMethods(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly)))
-                .SelectMany(item => item.Actions.Select(action => (item.Controller, Action:action)))
-                .Select(item => new object[] { item.Controller.FullName, item.Controller.Assembly.GetName().Name, item.Action.Name })
+                .Select(controllerType => (Controller: controllerType,
+                    Actions: controllerType.GetMethods(BindingFlags.Public | BindingFlags.Instance |
+                                                       BindingFlags.DeclaredOnly)))
+                .SelectMany(item => item.Actions.Select(action => (item.Controller, Action: action)))
+                .Select(item => new object[]
+                    { item.Controller.FullName, item.Controller.Assembly.GetName().Name, item.Action.Name })
                 .ToArray();
+
+        [Fact]
+        public void ShouldFindControllers()
+        {
+            Assert.NotEmpty(Data);
+        }
     }
 }

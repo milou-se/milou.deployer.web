@@ -9,11 +9,14 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void ShouldMakeConnectionStringAnonymous()
         {
             var martenConfiguration = new MartenConfiguration(
-                "Server=localhost;Port=1000;User Id=testUser;Password=p@ssword;Database=postgres;Pooling=false", enabled: true);
+                "Server=localhost;Port=1000;User Id=testUser;Password=p@ssword;Database=postgres;Pooling=false",
+                true);
 
-            string asString = martenConfiguration.ToString();
+            var asString = martenConfiguration.ToString();
 
-            Assert.Equal("ConnectionString: [Server=localhost; Port=1000; User Id=*****; Password=*****; Database=postgres; Pooling=false], Enabled: true", asString);
+            Assert.Equal(
+                "ConnectionString: [Server=localhost; Port=1000; User Id=*****; Password=*****; Database=postgres; Pooling=false], Enabled: true",
+                asString);
         }
     }
 }

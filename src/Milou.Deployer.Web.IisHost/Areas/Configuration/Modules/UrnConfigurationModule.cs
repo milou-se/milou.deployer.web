@@ -7,6 +7,7 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using Autofac;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Validation;
@@ -34,6 +35,122 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
             _assemblies = assemblies.ThrowIfDefault();
         }
 
+        private void Register(ContainerBuilder builder, Type type, bool treatWarningsAsErrors)
+        {
+            var instances = _keyValueConfiguration.GetNamedInstances(type);
+
+            if (instances.IsDefaultOrEmpty)
+            {
+                var optionalAttribute = type.GetCustomAttribute<OptionalAttribute>();
+
+                if (optionalAttribute != null)
+                {
+                    return;
+                }
+
+                if (treatWarningsAsErrors)
+                {
+                    throw new DeployerAppException($"Could not get any instance of type {type.FullName}");
+                }
+
+                _logger.Warning("Could not get any instance of type {Type}", type);
+                return;
+            }
+
+            var validationObjects = instances
+                .OfType<INamedInstance<IValidationObject>>()
+                .Where(item => item != null)
+                .ToImmutableArray();
+
+            if (!validationObjects.IsDefaultOrEmpty && validationObjects.Length > 0
+                                                    && !validationObjects.Any(validatedObject =>
+                                                        validatedObject.Value.IsValid))
+            {
+                _logger.Warning("There are [{ValidationObjectCount}] but no valid instance of type {Type}",
+                    validationObjects.Length,
+                    type.FullName);
+
+                if (treatWarningsAsErrors)
+                {
+                    var invalidInstances = string.Join(Environment.NewLine,
+                        validationObjects
+                            .Where(validatedObject => !validatedObject.Value.IsValid)
+                            .Select(namedInstance => $"[{namedInstance.Value}] {namedInstance.Value}"));
+
+                    throw new DeployerAppException(
+                        $"Could not create instance of type {type.FullName}, the instances '{invalidInstances}' are invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
+                }
+            }
+
+            var validInstances = validationObjects
+                .Where(validationObject => validationObject.Value.IsValid)
+                .ToImmutableArray();
+
+            if (!validInstances.IsDefaultOrEmpty && validInstances.Length == 1)
+            {
+                var validationObject = validInstances.Single();
+
+                var instance = $"[{validationObject.Name}] {validationObject.Value}";
+
+                _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
+                    instance,
+                    validationObject.GetType().FullName);
+
+                _configurationHolder.Add(validationObject);
+
+                builder
+                    .Register(context =>
+                        _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name))
+                    .As(validationObject.Value.GetType());
+            }
+            else if (!validInstances.IsDefaultOrEmpty && validInstances.Length > 1)
+            {
+                foreach (var validationObject in validInstances)
+                {
+                    _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
+                        $"[{validationObject.Name}] {validationObject.Value}",
+                        validationObject.GetType().FullName);
+
+                    _configurationHolder.Add(validationObject);
+
+                    builder
+                        .Register(context =>
+                            _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name))
+                        .As(validationObject.Value.GetType());
+                }
+            }
+            else if (!validationObjects.IsDefaultOrEmpty)
+            {
+                foreach (var validationObject in validationObjects)
+                {
+                    _logger.Debug("Registering invalid URN-bound instance {Instance}, {Type}",
+                        $"[{validationObject.Name}] {validationObject.Value}",
+                        validationObject.GetType().FullName);
+
+                    _configurationHolder.Add(validationObject);
+
+                    builder
+                        .Register(context =>
+                            _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name))
+                        .As(validationObject.Value.GetType());
+                }
+            }
+            else
+            {
+                foreach (var instance in instances)
+                {
+                    _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
+                        $"[{instance.Name}] {instance.Value}",
+                        instance.GetType().FullName);
+                    _configurationHolder.Add(instance);
+
+                    builder
+                        .Register(context => _configurationHolder.Get(instance.Value.GetType(), instance.Name))
+                        .As(instance.Value.GetType());
+                }
+            }
+        }
+
         protected override void Load(ContainerBuilder builder)
         {
             _configurationHolder = new ConfigurationHolder();
@@ -48,17 +165,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 .AsSelf()
                 .SingleInstance();
 
-            ImmutableArray<Type> urnMappedTypes = UrnTypes.GetUrnTypesInAssemblies(_assemblies);
+            var urnMappedTypes = UrnTypes.GetUrnTypesInAssemblies(_assemblies);
 
             if (!bool.TryParse(_keyValueConfiguration[UrnConfigurationConstants.TreatWarningsAsErrors],
-                out bool treatWarningsAsErrors))
+                out var treatWarningsAsErrors))
             {
                 treatWarningsAsErrors = false;
             }
 
             var exceptions = new List<Exception>();
 
-            foreach (Type urnMappedType in urnMappedTypes)
+            foreach (var urnMappedType in urnMappedTypes)
             {
                 try
                 {
@@ -76,120 +193,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 if (treatWarningsAsErrors)
                 {
                     throw new AggregateException(exceptions);
-                }
-            }
-        }
-
-        private void Register(ContainerBuilder builder, Type type, bool treatWarningsAsErrors)
-        {
-            ImmutableArray<INamedInstance<object>> instances = _keyValueConfiguration.GetNamedInstances(type);
-
-            if (instances.IsDefaultOrEmpty)
-            {
-                var optionalAttribute = type.GetCustomAttribute<OptionalAttribute>();
-
-                if (optionalAttribute != null)
-                {
-                    return;
-                }
-
-                if (treatWarningsAsErrors)
-                {
-                    throw new Core.DeployerAppException($"Could not get any instance of type {type.FullName}");
-                }
-
-                _logger.Warning("Could not get any instance of type {Type}", type);
-                return;
-            }
-
-            ImmutableArray<INamedInstance<IValidationObject>> validationObjects = instances
-                .OfType<INamedInstance<IValidationObject>>()
-                .Where(item => item != null)
-                .ToImmutableArray();
-
-            if (!validationObjects.IsDefaultOrEmpty && validationObjects.Length > 0
-                && !validationObjects.Any(validatedObject => validatedObject.Value.IsValid))
-            {
-                _logger.Warning("There are [{ValidationObjectCount}] but no valid instance of type {Type}",
-                    validationObjects.Length,
-                    type.FullName);
-
-                if (treatWarningsAsErrors)
-                {
-                    string invalidInstances = string.Join(Environment.NewLine, validationObjects
-                        .Where(validatedObject => !validatedObject.Value.IsValid)
-                        .Select(namedInstance => $"[{namedInstance.Value}] {namedInstance.Value}"));
-
-                    throw new Core.DeployerAppException(
-                        $"Could not create instance of type {type.FullName}, the instances '{invalidInstances}' are invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
-                }
-            }
-
-            ImmutableArray<INamedInstance<IValidationObject>> validInstances = validationObjects
-                .Where(validationObject => validationObject.Value.IsValid)
-                .ToImmutableArray();
-
-            if (!validInstances.IsDefaultOrEmpty && validInstances.Length == 1)
-            {
-                INamedInstance<IValidationObject> validationObject = validInstances.Single();
-
-                string instance = $"[{validationObject.Name}] {validationObject.Value}";
-
-                _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
-                    instance,
-                    validationObject.GetType().FullName);
-
-                _configurationHolder.Add(validationObject);
-
-                builder
-                    .Register(context =>
-                        _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name))
-                    .As(validationObject.Value.GetType());
-            }
-            else if (!validInstances.IsDefaultOrEmpty && validInstances.Length > 1)
-            {
-                foreach (INamedInstance<IValidationObject> validationObject in validInstances)
-                {
-                    _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
-                        $"[{validationObject.Name}] {validationObject.Value}",
-                        validationObject.GetType().FullName);
-
-                    _configurationHolder.Add(validationObject);
-
-                    builder
-                        .Register(context =>
-                            _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name))
-                        .As(validationObject.Value.GetType());
-                }
-            }
-            else if (!validationObjects.IsDefaultOrEmpty)
-            {
-                foreach (INamedInstance<IValidationObject> validationObject in validationObjects)
-                {
-                    _logger.Debug("Registering invalid URN-bound instance {Instance}, {Type}",
-                         $"[{validationObject.Name}] {validationObject.Value}",
-                        validationObject.GetType().FullName);
-
-                    _configurationHolder.Add(validationObject);
-
-                    builder
-                        .Register(context =>
-                            _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name))
-                        .As(validationObject.Value.GetType());
-                }
-            }
-            else
-            {
-                foreach (INamedInstance<object> instance in instances)
-                {
-                    _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
-                         $"[{instance.Name}] {instance.Value}",
-                        instance.GetType().FullName);
-                    _configurationHolder.Add(instance);
-
-                    builder
-                        .Register(context => _configurationHolder.Get(instance.Value.GetType(), instance.Name))
-                        .As(instance.Value.GetType());
                 }
             }
         }

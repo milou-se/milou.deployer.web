@@ -8,16 +8,17 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Serilog.Events;
+using ILogger = Serilog.ILogger;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
     [UsedImplicitly]
     public class MilouAuthenticationHandler : AuthenticationHandler<MilouAuthenticationOptions>
     {
-        private readonly Serilog.ILogger _logger;
+        private readonly ILogger _logger;
 
         public MilouAuthenticationHandler(
-            [NotNull] Serilog.ILogger logger,
+            [NotNull] ILogger logger,
             IOptionsMonitor<MilouAuthenticationOptions> options,
             ILoggerFactory loggerFactory,
             UrlEncoder encoder,
@@ -31,7 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         {
             if (_logger.IsEnabled(LogEventLevel.Verbose))
             {
-                string address = Context.Connection.RemoteIpAddress?.ToString();
+                var address = Context.Connection.RemoteIpAddress?.ToString();
                 _logger.Verbose(
                     "User ip from address {Address} is forbidden, challenge not supported",
                     address);
@@ -44,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         {
             if (_logger.IsEnabled(LogEventLevel.Verbose))
             {
-                string address = Context.Connection.RemoteIpAddress?.ToString();
+                var address = Context.Connection.RemoteIpAddress?.ToString();
                 _logger.Verbose(
                     "Could not authenticate current user ip from address {Address}, challenge not supported",
                     address);
@@ -55,13 +56,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
         protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            string address = Context.Connection.RemoteIpAddress?.ToString();
+            var address = Context.Connection.RemoteIpAddress?.ToString();
 
             var claims = new List<Claim>();
             AuthenticateResult authenticateResult;
             if (!string.IsNullOrWhiteSpace(address))
             {
-                claims.Add(new Claim(CustomClaimTypes.IPAddress, address));
+                claims.Add(new Claim(CustomClaimTypes.IpAddress, address));
                 claims.Add(new Claim(ClaimTypes.NameIdentifier, address));
 
                 authenticateResult = AuthenticateResult.Success(

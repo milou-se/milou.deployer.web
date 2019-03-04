@@ -16,7 +16,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return default;
             }
 
-            bool found = dictionary.TryGetValue(key, out string value);
+            var found = dictionary.TryGetValue(key, out var value);
 
             if (!found)
             {

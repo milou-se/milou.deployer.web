@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.Core.Extensions
         public static ImmutableArray<Type> FindPublicConcreteTypesImplementing<T>(
             this IReadOnlyCollection<Assembly> assemblies)
         {
-            ImmutableArray<Type> types = assemblies
+            var types = assemblies
                 .Select(assembly =>
                     assembly.GetLoadableTypes()
                         .Where(IsPublicConcreteTypeImplementing<T>))
@@ -30,14 +30,14 @@ namespace Milou.Deployer.Web.Core.Extensions
                 throw new ArgumentNullException(nameof(type));
             }
 
-            ConstructorInfo[] constructorInfos = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+            var constructorInfos = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 
             if (constructorInfos.Length != 1)
             {
                 return false;
             }
 
-            ParameterInfo[] parameterInfos = constructorInfos[0].GetParameters();
+            var parameterInfos = constructorInfos[0].GetParameters();
 
             if (parameterInfos.Length != 1)
             {
@@ -54,7 +54,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 throw new ArgumentNullException(nameof(type));
             }
 
-            bool isCorrectType = IsConcreteTypeImplementing<T>(type);
+            var isCorrectType = IsConcreteTypeImplementing<T>(type);
 
             if (!isCorrectType)
             {
@@ -111,7 +111,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return false;
             }
 
-            bool isInstantiatable = type.GetConstructor(Type.EmptyTypes) != null;
+            var isInstantiatable = type.GetConstructor(Type.EmptyTypes) != null;
 
             return isInstantiatable;
         }

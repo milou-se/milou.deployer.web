@@ -38,7 +38,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public override string ToString()
         {
-            return $"{nameof(DeploymentTaskId)}: {DeploymentTaskId}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(ExitCode)}: {ExitCode}, {nameof(StartedAtUtc)}: {StartedAtUtc}, {nameof(FinishedAtUtc)}: {FinishedAtUtc}, {nameof(Metadata)}: {Metadata}";
+            return
+                $"{nameof(DeploymentTaskId)}: {DeploymentTaskId}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(ExitCode)}: {ExitCode}, {nameof(StartedAtUtc)}: {StartedAtUtc}, {nameof(FinishedAtUtc)}: {FinishedAtUtc}, {nameof(Metadata)}: {Metadata}";
         }
     }
 }

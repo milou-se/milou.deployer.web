@@ -59,8 +59,6 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public string PackageId { get; }
 
-        public bool IsValid { get; }
-
         public string ExcludedFilePatterns { get; }
         public bool Enabled { get; }
 
@@ -69,5 +67,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             return
                 $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
         }
+
+        public bool IsValid { get; }
     }
 }

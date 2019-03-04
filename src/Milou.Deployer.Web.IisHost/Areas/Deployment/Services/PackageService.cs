@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
-using Arbor.Tooler;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
@@ -27,14 +25,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private const string AllPackagesCacheKey = PackagesCacheKeyBaseUrn + ":AnyConfig";
         private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
         private readonly NuGetListConfiguration _deploymentConfiguration;
-        private readonly NuGetConfiguration _nuGetConfiguration;
 
         [NotNull]
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
         private readonly ICustomMemoryCache _memoryCache;
+        private readonly NuGetConfiguration _nuGetConfiguration;
 
-        private ILogger _logger;
+        private readonly ILogger _logger;
 
         public PackageService(
             [NotNull] NuGetListConfiguration deploymentConfiguration,
@@ -80,13 +78,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     .Replace(Path.DirectorySeparatorChar.ToString(), "_");
             }
 
-            string cacheKey = AllPackagesCacheKey;
+            var cacheKey = AllPackagesCacheKey;
 
             if (!string.IsNullOrWhiteSpace(nugetConfigFile))
             {
-                string configCachePart = $"{PackagesCacheKeyBaseUrn}:{NormalizeKey(nugetConfigFile)}";
+                var configCachePart = $"{PackagesCacheKeyBaseUrn}:{NormalizeKey(nugetConfigFile)}";
 
-                cacheKey = !string.IsNullOrWhiteSpace(nugetPackageSource) ? $"{configCachePart}:{NormalizeKey(nugetPackageSource)}" : configCachePart;
+                cacheKey = !string.IsNullOrWhiteSpace(nugetPackageSource)
+                    ? $"{configCachePart}:{NormalizeKey(nugetPackageSource)}"
+                    : configCachePart;
             }
             else if (!string.IsNullOrWhiteSpace(nugetPackageSource))
             {
@@ -118,12 +118,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (!File.Exists(_nuGetConfiguration.NugetExePath))
             {
-                throw new DeployerAppException($"The nuget.exe path '{_nuGetConfiguration.NugetExePath}' does not exist");
+                throw new DeployerAppException(
+                    $"The nuget.exe path '{_nuGetConfiguration.NugetExePath}' does not exist");
             }
 
-            string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
+            var packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
 
-            string packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
+            var packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 
             var args = new List<string> { "list", packageId };
 
@@ -150,7 +151,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             args.Add("-Verbosity");
             args.Add("normal");
 
-            string configFile =
+            var configFile =
                 nugetConfigFile.WithDefault(_keyValueConfiguration[ConfigurationConstants.NugetConfigFile]);
 
             if (configFile.HasValue() && File.Exists(configFile))
@@ -171,7 +172,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             using (var cancellationTokenSource =
                 new CancellationTokenSource(TimeSpan.FromSeconds(_deploymentConfiguration.ListTimeOutInSeconds)))
             {
-                using (CancellationTokenSource linked =
+                using (var linked =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
                     exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
@@ -186,14 +187,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             errorBuild.Add(message);
                             _logger.Error("{Category} {Message}", category, message);
                         },
-                        (message, category) => _logger.Debug("{Category} {ProcessToolMessage}",category, message),
-                        (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}",category, message),
+                        (message, category) => _logger.Debug("{Category} {ProcessToolMessage}", category, message),
+                        (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}", category, message),
                         cancellationToken: linked.Token);
                 }
             }
 
-            string standardOut = string.Join(Environment.NewLine, builder);
-            string standardErrorOut = string.Join(Environment.NewLine, errorBuild);
+            var standardOut = string.Join(Environment.NewLine, builder);
+            var standardErrorOut = string.Join(Environment.NewLine, errorBuild);
 
             if (!exitCode.IsSuccess)
             {
@@ -220,12 +221,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     sourcesArgs,
                     (message, _) => sources.Add(message),
                     (message, _) => sourcesError.Add(message),
-                    (message, category) => _logger.Information("{Category} {ProcessToolMessage}",category, message),
-                    (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}",category,message),
+                    (message, category) => _logger.Information("{Category} {ProcessToolMessage}", category, message),
+                    (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}", category, message),
                     cancellationToken: cancellationToken);
 
-                string sourcesOut = string.Join(Environment.NewLine, sources);
-                string sourcesErrorOut = string.Join(Environment.NewLine, sourcesError);
+                var sourcesOut = string.Join(Environment.NewLine, sources);
+                var sourcesErrorOut = string.Join(Environment.NewLine, sourcesError);
 
                 _logger.Error(
                     "Exit code {Code} when running NuGet list packages; standard out '{StandardOut}', standard error '{StandardErrorOut}', exe path '{NugetExe}', arguments '{Arguments}', nuget sources '{SourcesOut}', sources error '{SourcesErrorOut}'",
@@ -242,23 +243,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             var ignoredOutputStatements = new List<string> { "Using credentials", "No packages found" };
 
-            List<string> included =
+            var included =
                 builder.Where(line => !ignoredOutputStatements.Any(ignored =>
                         line.IndexOf(ignored, StringComparison.InvariantCultureIgnoreCase) >= 0))
                     .ToList();
 
-            List<PackageVersion> items = included.Select(
+            var items = included.Select(
                     package =>
                     {
-                        string[] parts = package.Split(' ');
+                        var parts = package.Split(' ');
 
-                        string currentPackageId = parts[0];
+                        var currentPackageId = parts[0];
 
                         try
                         {
-                            string version = parts.Last();
+                            var version = parts.Last();
 
-                            if (!SemanticVersion.TryParse(version, out SemanticVersion semanticVersion))
+                            if (!SemanticVersion.TryParse(version, out var semanticVersion))
                             {
                                 _logger.Debug(
                                     "Found package version {Version} for package {Package}, skipping because it could not be parsed as semantic version",
@@ -292,7 +293,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             var addedPackages = new List<string>();
 
-            foreach (PackageVersion packageVersion in items)
+            foreach (var packageVersion in items)
             {
                 addedPackages.Add(packageVersion.ToString());
             }

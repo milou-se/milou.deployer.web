@@ -47,8 +47,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
         public string RedirectUri { get; }
 
-        public bool IsValid { get; }
-
         public string AuthenticatedRedirectUri { get; }
+
+        public bool IsValid { get; }
     }
 }

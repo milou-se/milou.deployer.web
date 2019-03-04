@@ -6,15 +6,15 @@
 
     <script type="text/javascript">
 
-    $(function() {
-        const logElements = document.getElementById('logElements');
+        $(function() {
+            const logElements = document.getElementById('logElements');
 
-        const jsonLogs = String.raw`@Html.Raw(Model.Log)`;
+            const jsonLogs = String.raw`@Html.Raw(Model.Log)`;
 
-        const logLines = parseLogLines(jsonLogs);
+            const logLines = parseLogLines(jsonLogs);
 
-        logElements.appendChild(logLines);
-    });
+            logElements.appendChild(logLines);
+        });
 
     </script>
 }

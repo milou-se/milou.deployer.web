@@ -1,5 +1,4 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using MediatR;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware;
 using Xunit;
@@ -11,9 +10,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void Do()
         {
-            Type openType = typeof(INotificationHandler<>);
+            var openType = typeof(INotificationHandler<>);
 
-            Type closedType = typeof(DeploymentHubLogHandler);
+            var closedType = typeof(DeploymentHubLogHandler);
 
             Assert.True(closedType.IsClosedTypeOf(openType) && closedType.IsPublic && !closedType.IsAbstract);
         }

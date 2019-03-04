@@ -8,12 +8,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
     {
         public DeploymentLogViewOutputModel(string log)
         {
-            string pattern = @"{""MessageTemplate"":";
+            var pattern = @"{""MessageTemplate"":";
 
-            var items = new {items=
-                log
-                    .Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(d => JsonConvert.DeserializeObject(pattern + d)).ToArray()};
+            var items = new
+            {
+                items =
+                    log
+                        .Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(d => JsonConvert.DeserializeObject(pattern + d)).ToArray()
+            };
 
             Log = JsonConvert.SerializeObject(items);
         }

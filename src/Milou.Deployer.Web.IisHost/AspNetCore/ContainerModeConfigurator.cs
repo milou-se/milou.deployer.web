@@ -28,18 +28,18 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 throw new ArgumentNullException(nameof(environmentConfiguration));
             }
 
-            string proxiesValue = _keyValueConfiguration[ApplicationConstants.ProxyAddresses].WithDefault("");
+            var proxiesValue = _keyValueConfiguration[ApplicationConstants.ProxyAddresses].WithDefault("");
 
-            ImmutableArray<IPAddress> proxies = proxiesValue.Split(",", StringSplitOptions.RemoveEmptyEntries)
+            var proxies = proxiesValue.Split(",", StringSplitOptions.RemoveEmptyEntries)
                 .Select(ipString =>
-                    (HasIp: IPAddress.TryParse(ipString, out IPAddress address), IpAddress: address))
+                    (HasIp: IPAddress.TryParse(ipString, out var address), IpAddress: address))
                 .Where(address => address.HasIp)
                 .Select(address => address.IpAddress)
                 .ToImmutableArray();
 
             environmentConfiguration.ProxyAddresses.AddRange(proxies);
 
-            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.ProxyForwardLimit], out int proxyLimit) &&
+            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.ProxyForwardLimit], out var proxyLimit) &&
                 proxyLimit >= 0)
             {
                 environmentConfiguration.ForwardLimit = proxyLimit;

@@ -44,9 +44,6 @@ namespace Milou.Deployer.Web.Core.Email
 
         public bool EmailEnabled { get; }
 
-        public bool IsValid =>
-            !EmailEnabled || (SmtpHost.HasValue() && Port >= 0 && DefaultFromEmailAddress.HasValue());
-
         public int NotificationTimeOutInSeconds { get; }
 
         public override string ToString()
@@ -54,5 +51,8 @@ namespace Milou.Deployer.Web.Core.Email
             return
                 $"{nameof(DefaultFromEmailAddress)}: {DefaultFromEmailAddress}, {nameof(SmtpHost)}: {SmtpHost}, {nameof(Port)}: {Port}, {nameof(UseSsl)}: {UseSsl}, {nameof(Username)}: {Username}, {nameof(Password)}: ******, {nameof(EmailEnabled)}: {EmailEnabled}, {nameof(IsValid)}: {IsValid}";
         }
+
+        public bool IsValid =>
+            !EmailEnabled || SmtpHost.HasValue() && Port >= 0 && DefaultFromEmailAddress.HasValue();
     }
 }

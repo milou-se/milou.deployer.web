@@ -14,14 +14,15 @@ using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Serilog;
-using Serilog.Core;
 using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost
 {
     public static class AppStarter
     {
-        public static async Task<int> StartAsync(string[] args, ImmutableDictionary<string, string> environmentVariables)
+        public static async Task<int> StartAsync(
+            string[] args,
+            ImmutableDictionary<string, string> environmentVariables)
         {
             try
             {
@@ -33,7 +34,7 @@ namespace Milou.Deployer.Web.IisHost
                 if (args.Length > 0)
                 {
                     TempLogger.WriteLine("Started with arguments:");
-                    foreach (string arg in args)
+                    foreach (var arg in args)
                     {
                         TempLogger.WriteLine(arg);
                     }
@@ -43,7 +44,7 @@ namespace Milou.Deployer.Web.IisHost
 
                 if (int.TryParse(
                         environmentVariables.GetValueOrDefault(ConfigurationConstants.RestartTimeInSeconds),
-                        out int intervalInSeconds) && intervalInSeconds > 0)
+                        out var intervalInSeconds) && intervalInSeconds > 0)
                 {
                     cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
                 }
@@ -57,9 +58,9 @@ namespace Milou.Deployer.Web.IisHost
                     cancellationTokenSource.Token.Register(
                         () => TempLogger.WriteLine("App cancellation token triggered"));
 
-                    using (App app = await App.CreateAsync(cancellationTokenSource, null, args, environmentVariables))
+                    using (var app = await App.CreateAsync(cancellationTokenSource, null, args, environmentVariables))
                     {
-                        bool runAsService =
+                        var runAsService =
                             app.AppRootScope.Deepest().Lifetime.Resolve<IKeyValueConfiguration>()
                                 .ValueOrDefault(ApplicationConstants.RunAsService) && !Debugger.IsAttached;
 
@@ -107,7 +108,7 @@ namespace Milou.Deployer.Web.IisHost
 
                 if (int.TryParse(
                         environmentVariables.GetValueOrDefault(ConfigurationConstants.ShutdownTimeInSeconds),
-                        out int shutDownTimeInSeconds) && shutDownTimeInSeconds > 0)
+                        out var shutDownTimeInSeconds) && shutDownTimeInSeconds > 0)
                 {
                     await Task.Delay(TimeSpan.FromSeconds(shutDownTimeInSeconds), CancellationToken.None);
                 }
@@ -116,7 +117,7 @@ namespace Milou.Deployer.Web.IisHost
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(2000));
 
-                Logger logger = new LoggerConfiguration()
+                var logger = new LoggerConfiguration()
                     .WriteTo.Console()
                     .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exception.log"))
                     .CreateLogger();

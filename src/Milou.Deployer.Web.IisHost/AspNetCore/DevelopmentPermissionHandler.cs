@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authorization;
@@ -11,8 +10,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
     [UsedImplicitly]
     public class DevelopmentPermissionHandler : IAuthorizationHandler
     {
-        private readonly ILogger _logger;
         private readonly EnvironmentConfiguration _environmentConfiguration;
+        private readonly ILogger _logger;
 
         public DevelopmentPermissionHandler(EnvironmentConfiguration environmentConfiguration, ILogger logger)
         {
@@ -27,14 +26,16 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 return Task.CompletedTask;
             }
 
-            List<IAuthorizationRequirement> pendingRequirements = context.PendingRequirements.ToList();
+            var pendingRequirements = context.PendingRequirements.ToList();
 
             if (pendingRequirements.Count > 0)
             {
-                _logger.Warning("Development mode is enabled: request has [{Count}] pending requirements", pendingRequirements.Count);
-                foreach (IAuthorizationRequirement requirement in pendingRequirements)
+                _logger.Warning("Development mode is enabled: request has [{Count}] pending requirements",
+                    pendingRequirements.Count);
+                foreach (var requirement in pendingRequirements)
                 {
-                    _logger.Warning("Development mode is enabled: fulfilling authorization requirement {Requirement}", requirement.GetType().FullName);
+                    _logger.Warning("Development mode is enabled: fulfilling authorization requirement {Requirement}",
+                        requirement.GetType().FullName);
                     context.Succeed(requirement);
                 }
             }

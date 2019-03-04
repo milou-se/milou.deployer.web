@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 return;
             }
 
-            string key = typeof(T).FullName;
+            var key = typeof(T).FullName;
 
             tempData[key] = JsonConvert.SerializeObject(value);
         }
@@ -31,9 +31,9 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 throw new ArgumentNullException(nameof(tempData));
             }
 
-            string key = typeof(T).FullName;
+            var key = typeof(T).FullName;
 
-            tempData.TryGetValue(key, out object o);
+            tempData.TryGetValue(key, out var o);
 
             switch (o)
             {

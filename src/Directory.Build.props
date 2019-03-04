@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
+
 <Project>
-  <PropertyGroup>
-    <Deterministic>true</Deterministic>
-    <LangVersion>latest</LangVersion>
-    <CodeAnalysisRuleSet>..\Milou.ruleset</CodeAnalysisRuleSet>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <Features>IOperation</Features>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Deterministic>true</Deterministic>
+        <LangVersion>latest</LangVersion>
+        <CodeAnalysisRuleSet>..\Milou.ruleset</CodeAnalysisRuleSet>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <Features>IOperation</Features>
+    </PropertyGroup>
 </Project>

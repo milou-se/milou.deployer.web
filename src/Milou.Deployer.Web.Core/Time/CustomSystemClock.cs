@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Time
 
             if (timeZoneId.HasValue())
             {
-                TimeZoneInfo foundTimeZone = TimeZoneInfo.GetSystemTimeZones()
+                var foundTimeZone = TimeZoneInfo.GetSystemTimeZones()
                     .SingleOrDefault(zone => zone.Id.Equals(timeZoneId, StringComparison.OrdinalIgnoreCase));
 
                 if (foundTimeZone != null)
@@ -42,7 +42,7 @@ namespace Milou.Deployer.Web.Core.Time
                 return DateTimeOffset.UtcNow;
             }
 
-            DateTimeOffset utcDateTime =
+            var utcDateTime =
                 TimeZoneInfo.ConvertTimeBySystemTimeZoneId(DateTimeOffset.UtcNow, _timeZone.Id);
 
             return utcDateTime;
@@ -55,7 +55,7 @@ namespace Milou.Deployer.Web.Core.Time
                 return DateTime.UtcNow;
             }
 
-            DateTime localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _timeZone);
+            var localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _timeZone);
 
             return localNow;
         }

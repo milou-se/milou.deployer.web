@@ -14,7 +14,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [HttpGet]
         public async Task<IActionResult> Index([FromServices] IMediator mediator, [FromRoute] string deploymentTargetId)
         {
-            DeploymentHistoryResponse response = await mediator.Send(new DeploymentHistoryRequest(deploymentTargetId));
+            var response = await mediator.Send(new DeploymentHistoryRequest(deploymentTargetId));
 
             return View(new DeploymentHistoryViewOutputModel(response.DeploymentTasks));
         }
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             [FromServices] IMediator mediator,
             [FromRoute] string deploymentTaskId)
         {
-            DeploymentLogResponse response = await mediator.Send(new DeploymentLogRequest(deploymentTaskId));
+            var response = await mediator.Send(new DeploymentLogRequest(deploymentTaskId));
 
             return View(new DeploymentLogViewOutputModel(response.Log));
         }

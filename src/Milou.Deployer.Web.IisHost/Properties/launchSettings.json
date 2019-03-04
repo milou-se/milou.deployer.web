@@ -1,29 +1,29 @@
 {
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:54150/",
-      "sslPort": 0
-    }
-  },
-  "profiles": {
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+    "iisSettings": {
+        "windowsAuthentication": false,
+        "anonymousAuthentication": true,
+        "iisExpress": {
+            "applicationUrl": "http://localhost:54150/",
+            "sslPort": 0
+        }
     },
-    "Milou.Deployment.Web.IisHost": {
-      "commandName": "Project",
-      "launchBrowser": true,
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "testhostseq": "::1",
-        "urn:milou:deployer:web:logging:startup:serilog:startup-seq-url": "http://[%testhostseq%]:5341"
-      },
-      "applicationUrl": "http://localhost:54151/"
+    "profiles": {
+        "IIS Express": {
+            "commandName": "IISExpress",
+            "launchBrowser": true,
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        "Milou.Deployment.Web.IisHost": {
+            "commandName": "Project",
+            "launchBrowser": true,
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "testhostseq": "::1",
+                "urn:milou:deployer:web:logging:startup:serilog:startup-seq-url": "http://[%testhostseq%]:5341"
+            },
+            "applicationUrl": "http://localhost:54151/"
+        }
     }
-  }
 }

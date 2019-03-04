@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -21,8 +20,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly DeploymentWorker _deploymentWorker;
         private readonly MonitoringService _monitoringService;
-        private ILogger _logger;
-        private PackageService _packageService;
+        private readonly ILogger _logger;
+        private readonly PackageService _packageService;
 
         public AutoDeployBackgroundService(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -57,7 +56,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                 using (var targetsTokenSource =
                     new CancellationTokenSource(TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {
-                    using (CancellationTokenSource linked =
+                    using (var linked =
                         CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
                             targetsTokenSource.Token))
                     {
@@ -69,18 +68,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 if (deploymentTargets.IsDefaultOrEmpty)
                 {
-                    _logger.Verbose("Found no deployment targets with auto deployment enabled, waiting {DelayInSeconds} seconds", _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
-                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds), stoppingToken);
+                    _logger.Verbose(
+                        "Found no deployment targets with auto deployment enabled, waiting {DelayInSeconds} seconds",
+                        _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
+                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
+                        stoppingToken);
 
                     continue;
                 }
 
-                ImmutableArray<DeploymentTarget> targetsWithUrl = deploymentTargets.Where(target => target.Url.HasValue()).ToImmutableArray();
+                var targetsWithUrl = deploymentTargets.Where(target => target.Url.HasValue()).ToImmutableArray();
 
                 if (targetsWithUrl.IsDefaultOrEmpty)
                 {
-                    _logger.Verbose("Found no deployment targets with auto deployment enabled and URL defined, waiting {DelayInSeconds} seconds", _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
-                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds), stoppingToken);
+                    _logger.Verbose(
+                        "Found no deployment targets with auto deployment enabled and URL defined, waiting {DelayInSeconds} seconds",
+                        _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
+                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
+                        stoppingToken);
 
                     continue;
                 }
@@ -90,21 +95,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     new CancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds)))
                 {
-                    using (CancellationTokenSource linkedCancellationTokenSource =
+                    using (var linkedCancellationTokenSource =
                         CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken))
                     {
-                        CancellationToken cancellationToken = linkedCancellationTokenSource.Token;
+                        var cancellationToken = linkedCancellationTokenSource.Token;
 
-                        IEnumerable<Task<AppVersion>> tasks = targetsWithUrl.Select(target =>
+                        var tasks = targetsWithUrl.Select(target =>
                             _monitoringService.GetAppMetadataAsync(target, cancellationToken));
 
                         appVersions = await Task.WhenAll(tasks);
                     }
                 }
 
-                foreach (DeploymentTarget deploymentTarget in targetsWithUrl)
+                foreach (var deploymentTarget in targetsWithUrl)
                 {
-                    AppVersion appVersion = appVersions.SingleOrDefault(v =>
+                    var appVersion = appVersions.SingleOrDefault(v =>
                         v.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
 
                     if (appVersion?.SemanticVersion is null || appVersion.PackageId.IsNullOrWhiteSpace())
@@ -114,14 +119,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                     ImmutableHashSet<PackageVersion> packageVersions;
                     using (var packageVersionCancellationTokenSource =
-                        new CancellationTokenSource(TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
+                        new CancellationTokenSource(
+                            TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                     {
-                        using (CancellationTokenSource linked =
+                        using (var linked =
                             CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
                                 packageVersionCancellationTokenSource.Token))
                         {
                             packageVersions =
-                                (await _packageService.GetPackageVersionsAsync(deploymentTarget.PackageId, cancellationToken: linked.Token, logger: _logger)).ToImmutableHashSet();
+                                (await _packageService.GetPackageVersionsAsync(deploymentTarget.PackageId,
+                                    cancellationToken: linked.Token,
+                                    logger: _logger)).ToImmutableHashSet();
                         }
                     }
 
@@ -130,20 +138,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         continue;
                     }
 
-                    ImmutableHashSet<PackageVersion> filteredPackages = !deploymentTarget.AllowPreRelease ? packageVersions.Where(p => !p.Version.IsPrerelease).ToImmutableHashSet() : packageVersions;
+                    var filteredPackages = !deploymentTarget.AllowPreRelease
+                        ? packageVersions.Where(p => !p.Version.IsPrerelease).ToImmutableHashSet()
+                        : packageVersions;
 
                     if (filteredPackages.IsEmpty)
                     {
                         continue;
                     }
 
-                    ImmutableHashSet<PackageVersion> newerPackages = filteredPackages
+                    var newerPackages = filteredPackages
                         .Where(package =>
                             package.PackageId.Equals(appVersion.PackageId, StringComparison.OrdinalIgnoreCase)
                             && package.Version > appVersion.SemanticVersion)
                         .ToImmutableHashSet();
 
-                    PackageVersion packageToDeploy = newerPackages
+                    var packageToDeploy = newerPackages
                         .OrderByDescending(package => package.Version)
                         .FirstOrDefault();
 
@@ -159,7 +169,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.AfterDeployDelayInSeconds), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.AfterDeployDelayInSeconds),
+                    stoppingToken);
             }
         }
     }

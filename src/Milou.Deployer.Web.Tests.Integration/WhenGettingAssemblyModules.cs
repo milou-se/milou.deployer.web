@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Xunit;
@@ -11,7 +10,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ItShouldFindTestModule()
         {
-            ImmutableArray<OrderedModuleRegistration> registrations = ModuleExtensions.GetModules(
+            var registrations = ModuleExtensions.GetModules(
                 new[] { GetType().Assembly },
                 Array.Empty<Type>(),
                 new NoConfiguration());

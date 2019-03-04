@@ -1,9 +1,10 @@
 ﻿body {
-    padding-top: 50px;
     padding-bottom: 20px;
+    padding-top: 50px;
 }
 
 /* Set padding to keep content from hitting the edges */
+
 .body-content {
     padding-left: 15px;
     padding-right: 15px;
@@ -12,28 +13,20 @@
 /* Override the default bootstrap behavior where horizontal description lists
    will truncate terms that are too long to fit in the left column
 */
-.dl-horizontal dt {
-    white-space: normal;
-}
+
+.dl-horizontal dt { white-space: normal; }
 
 /* Set width on the form input elements since they're 100% wide by default */
+
 input,
 select,
-textarea {
-    max-width: 280px;
-}
+textarea { max-width: 280px; }
 
-.wawsdeploy {
-    color: blue;
-}
+.wawsdeploy { color: blue; }
 
-.miloudeployer {
-    color: green;
-}
+.miloudeployer { color: green; }
 
-.organization-toggler, .project-toggler {
-    cursor: pointer;
-}
+.organization-toggler, .project-toggler { cursor: pointer; }
 
 .after-projects {
     border-bottom: 3px solid #7d7d7d;
@@ -49,33 +42,29 @@ textarea {
     background-color: green;
     color: white;
 }
-.ThisMonth {
-    background-color: #adff2f
-}
-.ThisQuarter {
-   background-color: orange
-}
+
+.ThisMonth { background-color: #adff2f }
+
+.ThisQuarter { background-color: orange }
+
 .ThisYear {
     background-color: orangered;
     color: white;
 }
+
 .MoreThanAYear {
     background-color: red;
     color: white;
 }
 
-td, th {
-    padding: 5px;
-}
+td, th { padding: 5px; }
 
 .prerelease {
     color: #7d7d7d;
     font-style: italic;
 }
 
-.stable {
-    color: green;
-}
+.stable { color: green; }
 
 @media (min-width: 1600px) {
     .container { width: 1570px; }
@@ -102,29 +91,25 @@ td, th {
 }
 
 .level-Verbose {
-    font-weight: bold;
     color: lightgray;
+    font-weight: bold;
 }
 
-.input-field {
-    border-bottom: 1px solid #7d7d7d;
-}
+.input-field { border-bottom: 1px solid #7d7d7d; }
 
 .input-field label {
-    width: 200px;
-    text-align: right;
     padding-bottom: 7px;
     padding-top: 7px;
+    text-align: right;
+    width: 200px;
 }
 
-.timestamp {
-    color: lightgray;
-}
+.timestamp { color: lightgray; }
 
 .deployment-status {
-    text-transform: capitalize;
     display: inline-block;
     padding: 5px;
+    text-transform: capitalize;
 }
 
 .failure {
@@ -138,9 +123,9 @@ td, th {
 }
 
 .action-link {
-    display: inline-block;
     background-color: #7d7d7d;
     color: white;
+    display: inline-block;
     padding: 5px;
     padding-left: 10px;
     padding-right: 10px;
@@ -149,17 +134,14 @@ td, th {
 .action-link:link,
 .action-link:visited,
 .action-link:hover,
-.action-link:active {
-    color: white;
-}
+.action-link:active { color: white; }
 
 .package-select {
-    max-width: 300px;
     display: inline-block;
+    max-width: 300px;
 }
-.package-select select {
-    width: 300px;
-}
+
+.package-select select { width: 300px; }
 
 .deploy-status-latest {
     background-color: green;
@@ -173,10 +155,6 @@ td, th {
     font-style: italic;
 }
 
-.highlighted {
-    font-weight: bold;
-}
+.highlighted { font-weight: bold; }
 
-.versionInfoLine {
-    display: block;
-}
+.versionInfoLine { display: block; }

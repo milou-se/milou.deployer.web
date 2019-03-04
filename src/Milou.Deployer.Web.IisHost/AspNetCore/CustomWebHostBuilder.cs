@@ -13,6 +13,7 @@ using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog.Extensions.Logging;
+using ILogger = Serilog.ILogger;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
@@ -22,18 +23,19 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             IKeyValueConfiguration configuration,
             Scope startupScope,
             Scope webHostScope,
-            Serilog.ILogger logger, Scope scope)
+            ILogger logger,
+            Scope scope)
         {
             var environmentConfiguration =
                 startupScope.Deepest().Lifetime.ResolveOptional<EnvironmentConfiguration>();
 
-            string contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
+            var contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
 
             logger.Debug("Using content root {ContentRoot}", contentRoot);
 
             var kestrelServerOptions = new List<KestrelServerOptions>();
 
-            IWebHostBuilder webHostBuilder = new WebHostBuilder()
+            var webHostBuilder = new WebHostBuilder()
                 .UseStartup<Startup>()
                 .ConfigureLogging((context, builder) => { builder.AddProvider(new SerilogLoggerProvider(logger)); })
                 .ConfigureServices(services =>
@@ -42,9 +44,9 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     services.AddTransient(provider => webHostScope.Lifetime.Resolve<Startup>());
                 })
                 .ConfigureAppConfiguration((hostingContext, config) =>
-                    {
-                        config.AddKeyValueConfigurationSource(configuration);
-                    })
+                {
+                    config.AddKeyValueConfigurationSource(configuration);
+                })
                 .UseKestrel(options =>
                 {
                     if (kestrelServerOptions.Contains(options))
@@ -56,7 +58,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     {
                         if (environmentConfiguration.HttpPort.HasValue)
                         {
-                            logger.Information("Listening on http port {Port}", environmentConfiguration.HttpPort.Value);
+                            logger.Information("Listening on http port {Port}",
+                                environmentConfiguration.HttpPort.Value);
 
                             options.Listen(IPAddress.Any,
                                 environmentConfiguration.HttpPort.Value);
@@ -66,7 +69,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                             && environmentConfiguration.PfxFile.HasValue()
                             && environmentConfiguration.PfxPassword.HasValue())
                         {
-                            logger.Information("Listening on https port {Port}", environmentConfiguration.HttpsPort.Value);
+                            logger.Information("Listening on https port {Port}",
+                                environmentConfiguration.HttpsPort.Value);
 
                             options.Listen(IPAddress.Any,
                                 environmentConfiguration.HttpsPort.Value,

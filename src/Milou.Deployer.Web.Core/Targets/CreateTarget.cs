@@ -18,12 +18,12 @@ namespace Milou.Deployer.Web.Core.Targets
 
         public string Name { get; }
 
-        public bool IsValid => Id.HasValue() && Name.HasValue() &&
-                               !Id.Equals(Constants.NotAvailable, StringComparison.OrdinalIgnoreCase);
-
         public override string ToString()
         {
             return "";
         }
+
+        public bool IsValid => Id.HasValue() && Name.HasValue() &&
+                               !Id.Equals(Constants.NotAvailable, StringComparison.OrdinalIgnoreCase);
     }
 }

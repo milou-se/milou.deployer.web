@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Autofac;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Newtonsoft.Json;
-using ResolutionExtensions = Autofac.ResolutionExtensions;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
@@ -14,23 +14,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     {
         public static ImmutableArray<(object, string)> GetConfigurationValues(this Scope scope)
         {
-            ImmutableArray<Type> configurationValueTypes = Assemblies.FilteredAssemblies().SelectMany(assembly => TypeExtensions.GetLoadableTypes(assembly))
+            var configurationValueTypes = Assemblies.FilteredAssemblies()
+                .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(t => t.IsPublicConcreteTypeImplementing<IConfigurationValues>())
                 .ToImmutableArray();
 
             var logItems = new List<(object, string)>();
 
-            foreach (Type configurationValueType in configurationValueTypes)
+            foreach (var configurationValueType in configurationValueTypes)
             {
-                if (ResolutionExtensions.TryResolve(scope.Lifetime, configurationValueType, out object instance))
+                if (ResolutionExtensions.TryResolve(scope.Lifetime, configurationValueType, out var instance))
                 {
-                    string toString = instance.ToString();
+                    var toString = instance.ToString();
 
-                    string typeFullName = configurationValueType.FullName;
+                    var typeFullName = configurationValueType.FullName;
 
                     if (toString.Equals(typeFullName, StringComparison.OrdinalIgnoreCase))
                     {
-                        string asJson = JsonConvert.SerializeObject(instance);
+                        var asJson = JsonConvert.SerializeObject(instance);
 
                         logItems.Add((instance, asJson));
                     }

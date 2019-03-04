@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
         {
-            using (IDocumentSession session = _documentStore.OpenSession())
+            using (var session = _documentStore.OpenSession())
             {
                 var taskMetadata = new TaskLog
                 {

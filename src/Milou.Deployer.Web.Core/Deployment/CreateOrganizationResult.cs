@@ -6,11 +6,11 @@ namespace Milou.Deployer.Web.Core.Deployment
 {
     public class CreateOrganizationResult
     {
-        public ImmutableArray<ValidationError> ValidationErrors { get; }
-
         public CreateOrganizationResult(params ValidationError[] validationErrors)
         {
             ValidationErrors = validationErrors.SafeToImmutableArray();
         }
+
+        public ImmutableArray<ValidationError> ValidationErrors { get; }
     }
 }

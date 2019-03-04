@@ -21,9 +21,9 @@ namespace Milou.Deployer.Web.Core.Extensions
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(parameterName));
             }
 
-            string trimmedName = parameterName.Trim();
-            string prefix = trimmedName + "=";
-            string[] matchingArgs = parameters
+            var trimmedName = parameterName.Trim();
+            var prefix = trimmedName + "=";
+            var matchingArgs = parameters
                 .Where(param => param != null)
                 .Select(param => param.Trim())
                 .Where(param => param.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
@@ -39,7 +39,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 throw new DeployerAppException($"Found more than 1 parameter named '{parameterName}'");
             }
 
-            string value = matchingArgs[0].Substring(prefix.Length).Trim();
+            var value = matchingArgs[0].Substring(prefix.Length).Trim();
 
             return value;
         }

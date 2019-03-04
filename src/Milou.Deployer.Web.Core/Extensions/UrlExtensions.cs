@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            string query =
+            var query =
                 $"{string.Join("&", parameters.Select(parameter => $"{Uri.EscapeDataString(parameter.Key)}={Uri.EscapeDataString(parameter.Value)}"))}";
 
             return query;

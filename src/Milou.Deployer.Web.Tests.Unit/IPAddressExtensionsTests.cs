@@ -4,12 +4,12 @@ using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit
 {
-    public class IPAddressExtensionsTests
+    public class IpAddressExtensionsTests
     {
         [Fact]
         public void DifferentAddressesFamiliesShouldNotBeEqual()
         {
-            bool equal = IPAddressExtensions.EqualsAddress(IPAddress.Parse("::1"), IPAddress.Parse("127.0.0.1"));
+            var equal = IPAddress.Parse("::1").EqualsAddress(IPAddress.Parse("127.0.0.1"));
 
             Assert.False(equal);
         }
@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void DifferentIPv4AddressesShouldNotBeEqual()
         {
-            bool equal = IPAddressExtensions.EqualsAddress(IPAddress.Parse("192.168.0.1"), IPAddress.Parse("192.168.0.2"));
+            var equal = IPAddress.Parse("192.168.0.1").EqualsAddress(IPAddress.Parse("192.168.0.2"));
 
             Assert.False(equal);
         }
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void FirstNullAddressShouldNotBeEqual()
         {
-            bool equal = IPAddressExtensions.EqualsAddress(null, IPAddress.Parse("127.0.0.1"));
+            var equal = IpAddressExtensions.EqualsAddress(null, IPAddress.Parse("127.0.0.1"));
 
             Assert.False(equal);
         }
@@ -33,7 +33,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void LoopBackShouldBeEqual()
         {
-            bool equal = IPAddressExtensions.EqualsAddress(IPAddress.Loopback, IPAddress.Loopback);
+            var equal = IPAddress.Loopback.EqualsAddress(IPAddress.Loopback);
 
             Assert.True(equal);
         }
@@ -41,7 +41,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void SecondNullAddressShouldNotBeEqual()
         {
-            bool equal = IPAddressExtensions.EqualsAddress(IPAddress.Parse("127.0.0.1"), null);
+            var equal = IPAddress.Parse("127.0.0.1").EqualsAddress(null);
 
             Assert.False(equal);
         }

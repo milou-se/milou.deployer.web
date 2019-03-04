@@ -6,11 +6,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment
 {
     public class DeploymentTargetIds
     {
-        public IReadOnlyCollection<string> DeploymentWorkerIds { get; }
-
         public DeploymentTargetIds([NotNull] IReadOnlyCollection<string> deploymentWorkerIds)
         {
             DeploymentWorkerIds = deploymentWorkerIds ?? throw new ArgumentNullException(nameof(deploymentWorkerIds));
         }
+
+        public IReadOnlyCollection<string> DeploymentWorkerIds { get; }
     }
 }

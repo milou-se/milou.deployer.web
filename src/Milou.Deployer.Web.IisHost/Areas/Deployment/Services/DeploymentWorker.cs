@@ -6,13 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     public class DeploymentWorker : BackgroundService
     {
-        private ImmutableArray<DeploymentTargetWorker> _workers;
+        private readonly ImmutableArray<DeploymentTargetWorker> _workers;
 
         public DeploymentWorker([NotNull] IEnumerable<DeploymentTargetWorker> workers)
         {
@@ -33,10 +34,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (_workers.Length == 0)
             {
-                throw new Core.DeployerAppException("There are no registered deployment workers");
+                throw new DeployerAppException("There are no registered deployment workers");
             }
 
-            DeploymentTargetWorker workerByTargetId = _workers.SingleOrDefault(worker => worker.TargetId.Equals(targetId, StringComparison.OrdinalIgnoreCase));
+            var workerByTargetId = _workers.SingleOrDefault(worker =>
+                worker.TargetId.Equals(targetId, StringComparison.OrdinalIgnoreCase));
 
             return workerByTargetId;
         }
@@ -48,11 +50,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
-            DeploymentTargetWorker foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
+            var foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
 
             if (foundWorker is null)
             {
-                throw new Core.DeployerAppException(
+                throw new DeployerAppException(
                     $"Could not find worker for deployment target id {deploymentTask.DeploymentTargetId}");
             }
 
@@ -63,14 +65,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             var tasks = new List<Task>(_workers.Length);
 
-            foreach (DeploymentTargetWorker deploymentTargetWorker in _workers)
+            foreach (var deploymentTargetWorker in _workers)
             {
                 tasks.Add(Task.Run(() => deploymentTargetWorker.ExecuteAsync(stoppingToken), stoppingToken));
             }
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromHours(1),stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
             }
 
             await Task.WhenAll(tasks);

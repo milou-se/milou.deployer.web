@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.IO;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.Urns;
@@ -13,7 +12,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
     public sealed class UserConfigUpdater : IDisposable
     {
         private readonly ConfigurationHolder _configurationHolder;
-        private string _fileName;
+        private readonly string _fileName;
         private FileSystemWatcher _fileSystemWatcher;
         private bool _isDisposed;
 
@@ -23,7 +22,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
         {
             _configurationHolder = configurationHolder;
 
-            _fileName = Path.Combine(applicationEnvironment.ContentBasePath ?? Directory.GetCurrentDirectory(), "config.user");
+            _fileName = Path.Combine(applicationEnvironment.ContentBasePath ?? Directory.GetCurrentDirectory(),
+                "config.user");
 
             if (File.Exists(_fileName))
             {
@@ -39,6 +39,29 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
             }
         }
 
+        private void WatcherOnChanged(object sender, FileSystemEventArgs fileSystemEventArgs)
+        {
+            var types = _configurationHolder.RegisteredTypes;
+
+            var jsonKeyValueConfiguration = new JsonKeyValueConfiguration(_fileName);
+
+            foreach (var type in types)
+            {
+                var allInstances = jsonKeyValueConfiguration.GetNamedInstances(type);
+
+                foreach (var instance in allInstances)
+                {
+                    if (instance.Value is IValidationObject validationObject)
+                    {
+                        if (validationObject.IsValid)
+                        {
+                            _configurationHolder.Add(instance);
+                        }
+                    }
+                }
+            }
+        }
+
         public void Start()
         {
             if (_isDisposed)
@@ -49,29 +72,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
             if (File.Exists(_fileName))
             {
                 _fileSystemWatcher.EnableRaisingEvents = true;
-            }
-        }
-
-        private void WatcherOnChanged(object sender, FileSystemEventArgs fileSystemEventArgs)
-        {
-            ImmutableArray<Type> types = _configurationHolder.RegisteredTypes;
-
-            var jsonKeyValueConfiguration = new JsonKeyValueConfiguration(_fileName);
-
-            foreach (Type type in types)
-            {
-                ImmutableArray<INamedInstance<object>> allInstances = jsonKeyValueConfiguration.GetNamedInstances(type);
-
-                foreach (INamedInstance<object> instance in allInstances)
-                {
-                    if (instance.Value is IValidationObject validationObject)
-                    {
-                        if (validationObject.IsValid)
-                        {
-                            _configurationHolder.Add(instance);
-                        }
-                    }
-                }
             }
         }
 

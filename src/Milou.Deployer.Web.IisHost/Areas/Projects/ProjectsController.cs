@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Organizations;
 using Milou.Deployer.Web.IisHost.AspNetCore;
 using Milou.Deployer.Web.IisHost.Controllers;
@@ -30,7 +28,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
             [FromRoute] string organizationId)
         {
-            ImmutableArray<ProjectInfo> projects = await deploymentTargetReadService.GetProjectsAsync(organizationId);
+            var projects = await deploymentTargetReadService.GetProjectsAsync(organizationId);
 
             var createProjectResult = TempData.Get<CreateProjectResult>();
 
@@ -40,9 +38,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
         [HttpPost]
         [Route(ProjectConstants.CreateProjectPostRoute,
             Name = ProjectConstants.CreateProjectPostRouteName)]
-        public async Task<ActionResult<CreateProjectResult>> Post([FromBody] CreateProject createProject, [FromQuery] bool redirect = true)
+        public async Task<ActionResult<CreateProjectResult>> Post(
+            [FromBody] CreateProject createProject,
+            [FromQuery] bool redirect = true)
         {
-            CreateProjectResult createProjectResult = await _mediator.Send(createProject);
+            var createProjectResult = await _mediator.Send(createProject);
 
             if (redirect)
             {

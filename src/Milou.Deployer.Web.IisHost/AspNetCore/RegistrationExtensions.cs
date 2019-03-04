@@ -8,7 +8,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -57,56 +56,53 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             return services;
         }
 
-        public static IServiceCollection AddDeploymentAuthentication(this IServiceCollection serviceCollection,
+        public static IServiceCollection AddDeploymentAuthentication(
+            this IServiceCollection serviceCollection,
             CustomOpenIdConnectConfiguration openIdConnectConfiguration)
         {
-            AuthenticationBuilder authenticationBuilder = serviceCollection.AddAuthentication(option =>
+            var authenticationBuilder = serviceCollection.AddAuthentication(
+                option =>
                 {
                     option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                     option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-                })
-                .AddCookie();
+                }).AddCookie();
 
             if (openIdConnectConfiguration.Enabled)
             {
-                authenticationBuilder = authenticationBuilder
-                    .AddOpenIdConnect(
-                        openIdConnectOptions =>
+                authenticationBuilder = authenticationBuilder.AddOpenIdConnect(
+                    openIdConnectOptions =>
+                    {
+                        openIdConnectOptions.ClientId = openIdConnectConfiguration.ClientId;
+                        openIdConnectOptions.ClientSecret = openIdConnectConfiguration.ClientSecret;
+                        openIdConnectOptions.Authority = openIdConnectConfiguration.Authority;
+                        openIdConnectOptions.ResponseType = "code";
+                        openIdConnectOptions.GetClaimsFromUserInfoEndpoint = true;
+                        openIdConnectOptions.MetadataAddress = openIdConnectConfiguration.MetadataAddress;
+                        openIdConnectOptions.Scope.Add("email");
+                        openIdConnectOptions.TokenValidationParameters.ValidIssuer = openIdConnectConfiguration.Issuer;
+                        openIdConnectOptions.TokenValidationParameters.IssuerValidator = (issuer, token, parameters) =>
                         {
-                            openIdConnectOptions.ClientId = openIdConnectConfiguration.ClientId;
-                            openIdConnectOptions.ClientSecret = openIdConnectConfiguration.ClientSecret;
-                            openIdConnectOptions.Authority = openIdConnectConfiguration.Authority;
-                            openIdConnectOptions.ResponseType = "code";
-                            openIdConnectOptions.GetClaimsFromUserInfoEndpoint = true;
-                            openIdConnectOptions.MetadataAddress = openIdConnectConfiguration.MetadataAddress;
-                            openIdConnectOptions.Scope.Add("email");
-                            openIdConnectOptions.TokenValidationParameters.ValidIssuer =
-                                openIdConnectConfiguration.Issuer;
-                            openIdConnectOptions.TokenValidationParameters.IssuerValidator =
-                                (issuer, token, parameters) =>
-                                {
-                                    if (string.Equals(issuer, openIdConnectConfiguration.Issuer,
-                                        StringComparison.Ordinal))
-                                    {
-                                        return issuer;
-                                    }
-
-                                    throw new InvalidOperationException("Invalid issuer");
-                                };
-                            openIdConnectOptions.Events.OnRedirectToIdentityProvider = context =>
+                            if (string.Equals(issuer, openIdConnectConfiguration.Issuer, StringComparison.Ordinal))
                             {
-                                if (openIdConnectConfiguration.RedirectUri.HasValue())
-                                {
-                                    context.ProtocolMessage.RedirectUri = openIdConnectConfiguration.RedirectUri;
-                                }
+                                return issuer;
+                            }
 
-                                return Task.CompletedTask;
-                            };
-                        }
-                    );
+                            throw new InvalidOperationException("Invalid issuer");
+                        };
+                        openIdConnectOptions.Events.OnRedirectToIdentityProvider = context =>
+                        {
+                            if (openIdConnectConfiguration.RedirectUri.HasValue())
+                            {
+                                context.ProtocolMessage.RedirectUri = openIdConnectConfiguration.RedirectUri;
+                            }
+
+                            return Task.CompletedTask;
+                        };
+                    });
             }
 
-            authenticationBuilder.AddMilouAuthentication(MilouAuthenticationConstants.MilouAuthenticationScheme,
+            authenticationBuilder.AddMilouAuthentication(
+                MilouAuthenticationConstants.MilouAuthenticationScheme,
                 "Milou",
                 options => { });
 
@@ -115,15 +111,15 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
         public static IServiceCollection AddDeploymentMvc(this IServiceCollection services, ILogger logger)
         {
-            services
-                .AddMvc(options =>
+            services.AddMvc(
+                options =>
                 {
-                    options.InputFormatters.Insert(0,
-                        new XWwwFormUrlEncodedFormatter(new SerilogLoggerFactory(logger)
-                            .CreateLogger<XWwwFormUrlEncodedFormatter>()));
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddJsonOptions(options =>
+                    options.InputFormatters.Insert(
+                        0,
+                        new XWwwFormUrlEncodedFormatter(
+                            new SerilogLoggerFactory(logger).CreateLogger<XWwwFormUrlEncodedFormatter>()));
+                }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(
+                options =>
                 {
                     options.SerializerSettings.Converters.Add(new DateConverter());
                     options.SerializerSettings.Formatting = Formatting.Indented;
@@ -144,12 +140,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             this IServiceCollection services,
             EnvironmentConfiguration environmentConfiguration)
         {
-            services.AddAuthorization(options =>
-            {
-                options.AddPolicy(AuthorizationPolicies.IPOrToken,
-                    policy =>
-                        policy.Requirements.Add(new DefaultAuthorizationRequirement()));
-            });
+            services.AddAuthorization(
+                options =>
+                {
+                    options.AddPolicy(
+                        AuthorizationPolicies.IpOrToken,
+                        policy => policy.Requirements.Add(new DefaultAuthorizationRequirement()));
+                });
 
             services.AddSingleton<IAuthorizationHandler, DefaultAuthorizationHandler>();
 
@@ -163,39 +160,39 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
         public static IServiceCollection AddDeploymentSignalR(this IServiceCollection services)
         {
-            services.AddSignalR(options =>
-            {
-                options.EnableDetailedErrors = true;
-                options.KeepAliveInterval = TimeSpan.FromSeconds(5);
-            });
+            services.AddSignalR(
+                options =>
+                {
+                    options.EnableDetailedErrors = true;
+                    options.KeepAliveInterval = TimeSpan.FromSeconds(5);
+                });
 
             return services;
         }
 
-        public static Scope AddScopeModules(
-            this IServiceCollection services,
-            Scope webHostScope,
-            ILogger logger)
+        public static Scope AddScopeModules(this IServiceCollection services, Scope webHostScope, ILogger logger)
         {
             var deploymentTargetIds = webHostScope.Lifetime.Resolve<DeploymentTargetIds>();
 
-            ILifetimeScope aspNetScopeLifetimeScope = webHostScope.Lifetime.BeginLifetimeScope(Scope.AspNetCoreScope,
+            var aspNetScopeLifetimeScope = webHostScope.Lifetime.BeginLifetimeScope(
+                Scope.AspNetCoreScope,
                 builder =>
                 {
-                    foreach (string deploymentTargetId in deploymentTargetIds.DeploymentWorkerIds)
+                    foreach (var deploymentTargetId in deploymentTargetIds.DeploymentWorkerIds)
                     {
-                        builder.Register(context => new DeploymentTargetWorker(deploymentTargetId,
-                                context.Resolve<DeploymentService>(),
-                                context.Resolve<ILogger>(),
-                                context.Resolve<IMediator>(),
-                                context.Resolve<WorkerConfiguration>())).AsSelf().AsImplementedInterfaces()
+                        builder.Register(
+                                context => new DeploymentTargetWorker(
+                                    deploymentTargetId,
+                                    context.Resolve<DeploymentService>(),
+                                    context.Resolve<ILogger>(),
+                                    context.Resolve<IMediator>(),
+                                    context.Resolve<WorkerConfiguration>())).AsSelf().AsImplementedInterfaces()
                             .Named<DeploymentTargetWorker>(deploymentTargetId);
                     }
 
                     builder.Register(
                             context => new DeploymentWorker(context.Resolve<IEnumerable<DeploymentTargetWorker>>()))
-                        .AsSelf()
-                        .AsImplementedInterfaces().SingleInstance();
+                        .AsSelf().AsImplementedInterfaces().SingleInstance();
 
                     var keyValueConfiguration = webHostScope.Lifetime.Resolve<IKeyValueConfiguration>();
 
@@ -212,13 +209,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                         builder.RegisterModule(new AppServiceModule(keyValueConfiguration, logger));
                     }
 
-                    OrderedModuleRegistration[] orderedModuleRegistrations = webHostScope.Lifetime
+                    var orderedModuleRegistrations = webHostScope.Lifetime
                         .Resolve<IReadOnlyCollection<OrderedModuleRegistration>>()
                         .Where(orderedModuleRegistration => orderedModuleRegistration.ModuleRegistration.Tag != null)
                         .OrderBy(orderedModuleRegistration => orderedModuleRegistration.ModuleRegistration.Order)
                         .ToArray();
 
-                    foreach (OrderedModuleRegistration module in orderedModuleRegistrations)
+                    foreach (var module in orderedModuleRegistrations)
                     {
                         module.Module.RegisterModule(Scope.AspNetCoreScope, builder, logger);
                     }

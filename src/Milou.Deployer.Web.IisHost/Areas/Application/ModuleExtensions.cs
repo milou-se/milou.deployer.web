@@ -15,6 +15,34 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     public static class ModuleExtensions
     {
+        private static OrderedModuleRegistration CreateModuleInstance(
+            IModuleRegistration moduleRegistration,
+            IKeyValueConfiguration keyValueConfiguration)
+        {
+            if (!moduleRegistration.ModuleType.IsPublicClassWithDefaultConstructor())
+            {
+                if (moduleRegistration.ModuleType.TakesTypeInPublicCtor<IKeyValueConfiguration>())
+                {
+                    if (Activator.CreateInstance(moduleRegistration.ModuleType, keyValueConfiguration) is IModule
+                        moduleWithArgs)
+                    {
+                        return new OrderedModuleRegistration(moduleRegistration, moduleWithArgs);
+                    }
+                }
+
+                throw new DeployerAppException(
+                    $"Could not instantiate module type {moduleRegistration.ModuleType.FullName} with custom constructor");
+            }
+
+            if (Activator.CreateInstance(moduleRegistration.ModuleType) is IModule module)
+            {
+                return new OrderedModuleRegistration(moduleRegistration, module);
+            }
+
+            throw new DeployerAppException(
+                $"Could not instantiate module type {moduleRegistration.ModuleType.FullName} with default constructor");
+        }
+
         public static ImmutableArray<OrderedModuleRegistration> GetModules(
             [NotNull] IReadOnlyCollection<Assembly> assemblies,
             [NotNull] IReadOnlyCollection<Type> excludedTypes,
@@ -35,12 +63,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            Type[] moduleTypes = assemblies
+            var moduleTypes = assemblies
                 .FindPublicConcreteTypesImplementing<IModule>()
                 .Except(excludedTypes)
                 .ToArray();
 
-            ImmutableArray<OrderedModuleRegistration> modules = moduleTypes
+            var modules = moduleTypes
                 .Select(moduleType => new ModuleRegistration(moduleType))
                 .Select(item => CreateModuleInstance(item, configuration))
                 .OrderBy(item => item.ModuleRegistration.Order)
@@ -75,7 +103,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(scopeName));
             }
 
-            string moduleName = module.GetType().FullName;
+            var moduleName = module.GetType().FullName;
 
             try
             {
@@ -90,34 +118,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 logger.Error(ex, "Could not register module {Module}", moduleName);
                 throw new DeployerAppException($"Could not register module {moduleName}", ex);
             }
-        }
-
-        private static OrderedModuleRegistration CreateModuleInstance(
-            IModuleRegistration moduleRegistration,
-            IKeyValueConfiguration keyValueConfiguration)
-        {
-            if (!moduleRegistration.ModuleType.IsPublicClassWithDefaultConstructor())
-            {
-                if (moduleRegistration.ModuleType.TakesTypeInPublicCtor<IKeyValueConfiguration>())
-                {
-                    if (Activator.CreateInstance(moduleRegistration.ModuleType, keyValueConfiguration) is IModule
-                        moduleWithArgs)
-                    {
-                        return new OrderedModuleRegistration(moduleRegistration, moduleWithArgs);
-                    }
-                }
-
-                throw new DeployerAppException(
-                    $"Could not instantiate module type {moduleRegistration.ModuleType.FullName} with custom constructor");
-            }
-
-            if (Activator.CreateInstance(moduleRegistration.ModuleType) is IModule module)
-            {
-                return new OrderedModuleRegistration(moduleRegistration, module);
-            }
-
-            throw new DeployerAppException(
-                $"Could not instantiate module type {moduleRegistration.ModuleType.FullName} with default constructor");
         }
     }
 }

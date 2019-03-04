@@ -6,11 +6,11 @@ namespace Milou.Deployer.Web.Tests.Unit
 {
     public class DisposeTest
     {
-        [Fact]
-        public void DisposeNonDisposable()
+        private class TestDisposable : IDisposable
         {
-            var o = new object();
-            o.SafeDispose();
+            public void Dispose()
+            {
+            }
         }
 
         [Fact]
@@ -21,25 +21,18 @@ namespace Milou.Deployer.Web.Tests.Unit
         }
 
         [Fact]
+        public void DisposeNonDisposable()
+        {
+            var o = new object();
+            o.SafeDispose();
+        }
+
+        [Fact]
         public void DisposeNull()
         {
             object o = null;
             // ReSharper disable once ExpressionIsAlwaysNull
             o.SafeDispose();
-        }
-
-        class TestDisposable : IDisposable
-        {
-            public void Dispose()
-            {
-            }
-        }
-        class ThrowingTestDisposable : IDisposable
-        {
-            public void Dispose()
-            {
-                throw new InvalidOperationException("test exception");
-            }
         }
     }
 }

@@ -19,9 +19,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
     [Area(DeploymentConstants.AreaName)]
     public class DeploymentController : BaseApiController
     {
+        private readonly IDeploymentTargetReadService _getTargets;
+
         [NotNull]
         private readonly ILogger _logger;
-        private readonly IDeploymentTargetReadService _getTargets;
 
         public DeploymentController(
             [NotNull] ILogger logger,
@@ -48,7 +49,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                     targets =
                         (await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(
                             organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-
                         .SafeToReadOnlyCollection();
                 }
             }

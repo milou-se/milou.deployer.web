@@ -23,31 +23,32 @@
     {
         <h3>Successfully created organization</h3>
     }
-
 }
 
 <table>
     <thead>
-        <tr>
-            <th>Name</th>
-            <th>Projects</th>
-        </tr>
+    <tr>
+        <th>Name</th>
+        <th>Projects</th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (OrganizationInfo item in Model.Organizations)
-        {
-            <tr>
-                <td>@item.Organization</td>
-                <td><a href="/organizations/@item.Organization/projects">Projects</a></td>
-            </tr>
-        }
+    @foreach (OrganizationInfo item in Model.Organizations)
+    {
+        <tr>
+            <td>@item.Organization</td>
+            <td>
+                <a href="/organizations/@item.Organization/projects">Projects</a>
+            </td>
+        </tr>
+    }
 
     </tbody>
 </table>
 
 <form method="post" action="@Url.RouteUrl(OrganizationConstants.CreateOrganizationPostRouteName)">
 
-    <input type="text" name="id" />
+    <input type="text" name="id"/>
 
     <input type="submit" value="Create organization"/>
 

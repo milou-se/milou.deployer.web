@@ -40,21 +40,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             return !Equals(left, right);
         }
 
-        public bool Equals(PackageVersion other)
-        {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Key, other.Key);
-        }
-
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
@@ -83,6 +68,21 @@ namespace Milou.Deployer.Web.Core.Deployment
         public override string ToString()
         {
             return Key;
+        }
+
+        public bool Equals(PackageVersion other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Key, other.Key);
         }
     }
 }

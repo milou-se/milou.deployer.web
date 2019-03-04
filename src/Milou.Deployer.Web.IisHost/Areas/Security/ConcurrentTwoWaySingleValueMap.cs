@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             }
             else
             {
-                if (_forward.TryGetValue(t1, out T2 ov))
+                if (_forward.TryGetValue(t1, out var ov))
                 {
                     oldValue = ov;
                 }
@@ -47,7 +47,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
             if (oldValue != null && _reverse.ContainsKey(oldValue) && !t2.Equals(oldValue))
             {
-                _reverse.TryRemove(oldValue, out T1 _);
+                _reverse.TryRemove(oldValue, out _);
             }
 
             if (t2.Equals(oldValue))

@@ -6,18 +6,18 @@ namespace Milou.Deployer.Web.Core
 {
     public static class TempLogger
     {
-        private static readonly ConcurrentQueue<string> _logMessages = new ConcurrentQueue<string>();
+        private static readonly ConcurrentQueue<string> LogMessages = new ConcurrentQueue<string>();
 
         public static void WriteLine(string message)
         {
-            _logMessages.Enqueue(message);
+            LogMessages.Enqueue(message);
 
             Console.WriteLine(message);
         }
 
         public static void FlushWith(ILogger logger)
         {
-            while (_logMessages.TryDequeue(out string message))
+            while (LogMessages.TryDequeue(out var message))
             {
                 logger.Information("{Message}", message);
             }

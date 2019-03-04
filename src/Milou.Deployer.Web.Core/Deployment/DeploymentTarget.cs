@@ -57,7 +57,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageId));
             }
 
-            if (Uri.TryCreate(uri, UriKind.Absolute, out Uri parsedUri))
+            if (Uri.TryCreate(uri, UriKind.Absolute, out var parsedUri))
             {
                 Url = parsedUri;
             }
@@ -107,7 +107,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public bool AllowPreRelease
             =>
-                (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value)
+                AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value
                 || EnvironmentType.PreReleaseBehavior == PreReleaseBehavior.Allow;
 
         public EnvironmentType EnvironmentType { get; }

@@ -14,10 +14,10 @@ namespace Milou.Deployer.Web.Tests.Integration
             MeaningOfLife = keyValueConfiguration[nameof(MeaningOfLife)];
         }
 
+        public string MeaningOfLife { get; }
+
         protected override void Load(ContainerBuilder builder)
         {
         }
-
-        public string MeaningOfLife { get; }
     }
 }

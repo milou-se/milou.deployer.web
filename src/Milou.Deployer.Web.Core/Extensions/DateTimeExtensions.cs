@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return DeploymentInterval.Invalid;
             }
 
-            TimeSpan diff = customClock.LocalNow() - customClock.ToLocalTime(dateTimeUtc.Value);
+            var diff = customClock.LocalNow() - customClock.ToLocalTime(dateTimeUtc.Value);
 
             if (diff.TotalSeconds < 0)
             {
@@ -40,9 +40,9 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return Constants.NotAvailable;
             }
 
-            DateTime localThen = customClock.ToLocalTime(dateTimeUtc.Value);
+            var localThen = customClock.ToLocalTime(dateTimeUtc.Value);
 
-            DateTime localNow = customClock.LocalNow();
+            var localNow = customClock.LocalNow();
 
             return localNow.Since(localThen);
         }
@@ -77,31 +77,31 @@ namespace Milou.Deployer.Web.Core.Extensions
         [PublicAPI]
         public static string Since(this DateTime to, DateTime from)
         {
-            TimeSpan diff = to - from;
+            var diff = to - from;
 
             if (diff.TotalDays > 365)
             {
-                return ((int)diff.TotalDays) + " days ago";
+                return (int)diff.TotalDays + " days ago";
             }
 
             if (diff.TotalDays > 30)
             {
-                return ((int)diff.TotalDays / 30) + " months ago";
+                return (int)diff.TotalDays / 30 + " months ago";
             }
 
             if (diff.TotalDays > 1)
             {
-                return ((int)diff.TotalDays) + " days ago";
+                return (int)diff.TotalDays + " days ago";
             }
 
             if (diff.TotalHours > 1)
             {
-                return ((int)diff.TotalHours) + " hours ago";
+                return (int)diff.TotalHours + " hours ago";
             }
 
             if (diff.TotalMinutes > 1)
             {
-                return ((int)diff.TotalMinutes) + " minutes ago";
+                return (int)diff.TotalMinutes + " minutes ago";
             }
 
             if (diff.TotalSeconds < 0)
@@ -109,7 +109,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return Constants.NotAvailable;
             }
 
-            return ((int)diff.TotalSeconds) + " seconds ago";
+            return (int)diff.TotalSeconds + " seconds ago";
         }
     }
 }

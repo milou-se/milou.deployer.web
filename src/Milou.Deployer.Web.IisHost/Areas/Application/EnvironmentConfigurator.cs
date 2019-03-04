@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             var configureEnvironments = lifetimeScope.Resolve<IReadOnlyCollection<IConfigureEnvironment>>();
             var environmentConfiguration = lifetimeScope.Resolve<EnvironmentConfiguration>();
 
-            foreach (IConfigureEnvironment configureEnvironment in configureEnvironments)
+            foreach (var configureEnvironment in configureEnvironments)
             {
                 configureEnvironment.Configure(environmentConfiguration);
             }

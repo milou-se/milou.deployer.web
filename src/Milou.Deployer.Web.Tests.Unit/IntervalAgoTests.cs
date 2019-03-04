@@ -10,9 +10,9 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void Ago()
         {
-            DateTime? utcTime = new DateTime(2000,1,2,5,0,0,DateTimeKind.Utc);
+            DateTime? utcTime = new DateTime(2000, 1, 2, 5, 0, 0, DateTimeKind.Utc);
 
-            DeploymentInterval deploymentInterval = utcTime.IntervalAgo(new TestClock());
+            var deploymentInterval = utcTime.IntervalAgo(new TestClock());
 
             Assert.Equal(DeploymentInterval.ThisWeek, deploymentInterval);
         }

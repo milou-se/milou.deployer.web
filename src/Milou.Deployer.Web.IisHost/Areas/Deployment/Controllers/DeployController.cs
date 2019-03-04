@@ -24,10 +24,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             _deploymentService = deploymentService;
         }
 
-        [Route(DeploymentConstants.DeployRoute,Name= DeploymentConstants.DeployRouteName)]
+        [Route(DeploymentConstants.DeployRoute, Name = DeploymentConstants.DeployRouteName)]
         [HttpPost]
-        public IActionResult Index(
-            DeploymentTaskInput deploymentTaskInput)
+        public IActionResult Index(DeploymentTaskInput deploymentTaskInput)
         {
             if (deploymentTaskInput == null)
             {
@@ -67,7 +66,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
-        [Route(DeploymentConstants.DeploymentStatusRoute, Name=DeploymentConstants.DeploymentStatusRouteName)]
+        [Route(DeploymentConstants.DeploymentStatusRoute, Name = DeploymentConstants.DeploymentStatusRouteName)]
         public IActionResult Status(string deploymentTargetId)
         {
             return View(new StatusViewOutputModel(deploymentTargetId));

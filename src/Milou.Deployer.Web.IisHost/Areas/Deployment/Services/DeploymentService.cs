@@ -53,72 +53,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
         }
 
-        public async Task<DeploymentTaskResult> ExecuteDeploymentAsync(
-            [NotNull] DeploymentTask deploymentTask,
-            ILogger logger,
-            CancellationToken cancellationToken)
-        {
-            if (deploymentTask == null)
-            {
-                throw new ArgumentNullException(nameof(deploymentTask));
-            }
-
-            DateTime start = _customClock.UtcNow().UtcDateTime;
-            Stopwatch stopwatch = Stopwatch.StartNew();
-
-            (ExitCode, DateTime) result;
-
-            DirectoryInfo deploymentJobsDirectory = EnsureDeploymentJobsDirectoryExists();
-
-            DeploymentTarget deploymentTarget = null;
-
-            try
-            {
-                deploymentTarget = await _targetSource.GetDeploymentTargetAsync(deploymentTask.DeploymentTargetId,
-                    cancellationToken);
-
-                VerifyPreReleaseAllowed(deploymentTask.SemanticVersion,
-                    deploymentTarget,
-                    deploymentTask.PackageId,
-                    logger);
-
-                VerifyAllowedPackageIsAllowed(deploymentTarget, deploymentTask.PackageId, logger);
-
-                result = await RunDeploymentToolAsync(deploymentTask,
-                    deploymentJobsDirectory,
-                    deploymentTarget,
-                    logger,
-                    cancellationToken);
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                result = (ExitCode.Failure, _customClock.UtcNow().UtcDateTime);
-                logger.Error(ex, "Error deploying");
-            }
-
-            stopwatch.Stop();
-
-            string metadataContent = LogJobMetadata(deploymentTask,
-                start,
-                result.Item2,
-                stopwatch,
-                result.Item1,
-                deploymentJobsDirectory,
-                deploymentTarget);
-
-            var deploymentTaskResult = new DeploymentTaskResult(deploymentTask.DeploymentTaskId,
-                deploymentTask.DeploymentTargetId,
-                result.Item1,
-                start,
-                result.Item2,
-                metadataContent);
-
-            await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, deploymentTaskResult),
-                cancellationToken);
-
-            return deploymentTaskResult;
-        }
-
         private static string LogJobMetadata(
             DeploymentTask deploymentTask,
             DateTime start,
@@ -169,9 +103,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             metadata.Append("Exit code ").Append(exitCode).AppendLine();
 
-            string metadataContent = metadata.ToString();
+            var metadataContent = metadata.ToString();
 
-            string metadataFilePath = Path.Combine(deploymentJobsDirectory.FullName,
+            var metadataFilePath = Path.Combine(deploymentJobsDirectory.FullName,
                 $"{deploymentTask.DeploymentTaskId}.metadata.txt");
 
             File.WriteAllText(metadataFilePath, metadataContent, Encoding.UTF8);
@@ -181,7 +115,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private static string GetMainLogFilePath(DeploymentTask deploymentTask, DirectoryInfo deploymentJobsDirectory)
         {
-            string contentFilePath = Path.Combine(deploymentJobsDirectory.FullName,
+            var contentFilePath = Path.Combine(deploymentJobsDirectory.FullName,
                 $"{deploymentTask.DeploymentTaskId}.txt");
             return contentFilePath;
         }
@@ -192,7 +126,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 !deploymentTarget.PackageId.Equals(packageId,
                     StringComparison.InvariantCultureIgnoreCase))
             {
-                string allPackageIds = string.Join(", ",
+                var allPackageIds = string.Join(", ",
                     deploymentTarget.PackageId.Select(name => $"'{name}'"));
 
                 throw new DeployerAppException(
@@ -251,13 +185,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private DirectoryInfo EnsureDeploymentJobsDirectoryExists()
         {
-            string directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+            var directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
                 "App_Data");
 
-            string baseDir = _keyValueConfiguration["urn:milou:deployer:jobs-directory"]
+            var baseDir = _keyValueConfiguration["urn:milou:deployer:jobs-directory"]
                 .WithDefault(directoryPath);
 
-            string jobDirectoryPath = Path.Combine(baseDir, "DeploymentJobs");
+            var jobDirectoryPath = Path.Combine(baseDir, "DeploymentJobs");
 
             var directoryInfo = new DirectoryInfo(jobDirectoryPath);
 
@@ -276,14 +210,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             ILogger logger,
             CancellationToken cancellationToken = default)
         {
-            string contentFilePath = GetMainLogFilePath(deploymentTask,
+            var contentFilePath = GetMainLogFilePath(deploymentTask,
                 deploymentJobsDirectory);
 
             ExitCode exitCode;
 
             var logBuilder = new StringBuilder();
 
-            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+            var loggerConfiguration = new LoggerConfiguration()
                 .WriteTo.File(contentFilePath)
                 .WriteTo.DelegateSink(deploymentTask.Log)
                 .WriteTo.DelegateSink(message => logBuilder.AppendLine(message))
@@ -291,12 +225,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (Debugger.IsAttached)
             {
-                loggerConfiguration = loggerConfiguration.WriteTo.Debug(LogEventLevel.Verbose);
+                loggerConfiguration = loggerConfiguration.WriteTo.Debug();
             }
 
             loggerConfiguration = loggerConfiguration.MinimumLevel.ControlledBy(_loggingLevelSwitch);
 
-            using (Logger log = loggerConfiguration.CreateLogger())
+            using (var log = loggerConfiguration.CreateLogger())
             {
                 if (logger.IsEnabled(LogEventLevel.Debug))
                 {
@@ -319,13 +253,79 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
             }
 
-            DateTime finishedAtUtc = _customClock.UtcNow().UtcDateTime;
+            var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
 
             await _mediator.Publish(
                 new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString(), finishedAtUtc),
                 cancellationToken);
 
             return (exitCode, finishedAtUtc);
+        }
+
+        public async Task<DeploymentTaskResult> ExecuteDeploymentAsync(
+            [NotNull] DeploymentTask deploymentTask,
+            ILogger logger,
+            CancellationToken cancellationToken)
+        {
+            if (deploymentTask == null)
+            {
+                throw new ArgumentNullException(nameof(deploymentTask));
+            }
+
+            var start = _customClock.UtcNow().UtcDateTime;
+            var stopwatch = Stopwatch.StartNew();
+
+            (ExitCode, DateTime) result;
+
+            var deploymentJobsDirectory = EnsureDeploymentJobsDirectoryExists();
+
+            DeploymentTarget deploymentTarget = null;
+
+            try
+            {
+                deploymentTarget = await _targetSource.GetDeploymentTargetAsync(deploymentTask.DeploymentTargetId,
+                    cancellationToken);
+
+                VerifyPreReleaseAllowed(deploymentTask.SemanticVersion,
+                    deploymentTarget,
+                    deploymentTask.PackageId,
+                    logger);
+
+                VerifyAllowedPackageIsAllowed(deploymentTarget, deploymentTask.PackageId, logger);
+
+                result = await RunDeploymentToolAsync(deploymentTask,
+                    deploymentJobsDirectory,
+                    deploymentTarget,
+                    logger,
+                    cancellationToken);
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                result = (ExitCode.Failure, _customClock.UtcNow().UtcDateTime);
+                logger.Error(ex, "Error deploying");
+            }
+
+            stopwatch.Stop();
+
+            var metadataContent = LogJobMetadata(deploymentTask,
+                start,
+                result.Item2,
+                stopwatch,
+                result.Item1,
+                deploymentJobsDirectory,
+                deploymentTarget);
+
+            var deploymentTaskResult = new DeploymentTaskResult(deploymentTask.DeploymentTaskId,
+                deploymentTask.DeploymentTargetId,
+                result.Item1,
+                start,
+                result.Item2,
+                metadataContent);
+
+            await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, deploymentTaskResult),
+                cancellationToken);
+
+            return deploymentTaskResult;
         }
     }
 }

@@ -8,19 +8,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 {
     public class ConfigurationHolder
     {
-        private ConcurrentDictionary<Type, ConcurrentDictionary<string, object>> _configurationInstances =
+        private readonly ConcurrentDictionary<Type, ConcurrentDictionary<string, object>> _configurationInstances =
             new ConcurrentDictionary<Type, ConcurrentDictionary<string, object>>();
 
         public ImmutableArray<Type> RegisteredTypes => _configurationInstances.Keys.ToImmutableArray();
 
         public object Get(Type type, string key)
         {
-            if (!_configurationInstances.TryGetValue(type, out ConcurrentDictionary<string, object> instances))
+            if (!_configurationInstances.TryGetValue(type, out var instances))
             {
                 return ImmutableArray<object>.Empty;
             }
 
-            instances.TryGetValue(key, out object instance);
+            instances.TryGetValue(key, out var instance);
 
             return instance;
         }
@@ -33,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
             }
 
             if (!_configurationInstances.TryGetValue(instance.Value.GetType(),
-                out ConcurrentDictionary<string, object> bag))
+                out var bag))
             {
                 var typeDictionary = new ConcurrentDictionary<string, object>();
                 typeDictionary.AddOrUpdate(instance.Name, instance.Value, (name, found) => instance.Value);

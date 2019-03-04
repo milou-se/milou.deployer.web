@@ -1,15 +1,22 @@
-﻿using System;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using Milou.Deployer.Web.Core.Deployment;
 using Newtonsoft.Json;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Milou.Deployer.Web.Tests.Unit
 {
-    public class when_deserializing_targets_from_key_value_urns
+    public class WhenDeserializingTargetsFromKeyValueUrns
     {
+        private readonly ITestOutputHelper _testOutputHelper;
+
+        public WhenDeserializingTargetsFromKeyValueUrns(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         [Fact]
         public void Do()
         {
@@ -31,11 +38,11 @@ namespace Milou.Deployer.Web.Tests.Unit
                 { "urn:milou-deployer:target:instance2:allow-Prerelease", "false" }
             };
 
-            var key_value_configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
+            var keyValueConfiguration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var targets = key_value_configuration.GetInstances<DeploymentTarget>();
+            var targets = keyValueConfiguration.GetInstances<DeploymentTarget>();
 
-            Console.WriteLine(JsonConvert.SerializeObject(targets, Formatting.Indented));
+            _testOutputHelper.WriteLine(JsonConvert.SerializeObject(targets, Formatting.Indented));
 
             Assert.NotEqual(default, targets);
         }

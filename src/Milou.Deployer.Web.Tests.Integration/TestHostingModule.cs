@@ -10,7 +10,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         protected override void Load(ContainerBuilder builder)
         {
-            PortPoolRental availablePort = TcpHelper.GetAvailablePort(new PortPoolRange(5020, 100));
+            var availablePort = TcpHelper.GetAvailablePort(new PortPoolRange(5020, 100));
             builder.RegisterInstance(availablePort);
         }
     }

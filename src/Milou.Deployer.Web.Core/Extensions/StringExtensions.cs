@@ -10,10 +10,16 @@ namespace Milou.Deployer.Web.Core.Extensions
     [PublicAPI]
     public static class StringExtensions
     {
-        private static readonly Lazy<ImmutableArray<string>> _DefaultAnonymousKeyWords =
+        private static readonly Lazy<ImmutableArray<string>> LazyDefaultAnonymousKeyWords =
             new Lazy<ImmutableArray<string>>(Initialize);
 
-        public static ImmutableArray<string> DefaultAnonymousKeyWords => _DefaultAnonymousKeyWords.Value;
+        public static ImmutableArray<string> DefaultAnonymousKeyWords => LazyDefaultAnonymousKeyWords.Value;
+
+        private static ImmutableArray<string> Initialize()
+        {
+            return new[] { "password", "username", "user id", "connection-string", "connectionstring" }
+                .ToImmutableArray();
+        }
 
         public static string MakeAnonymous(this string value, string key, params string[] keyWords)
         {
@@ -47,7 +53,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return value;
             }
 
-            IEnumerable<KeyValuePair<string, string>> pairs = value.ParseValues(';', '=').Select(pair =>
+            var pairs = value.ParseValues(';', '=').Select(pair =>
             {
                 if (keyWords.Any(keyWord => keyWord.IndexOf(pair.Key, StringComparison.OrdinalIgnoreCase) >= 0))
                 {
@@ -57,7 +63,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return pair;
             });
 
-            string final = string.Join("; ", pairs.Select(pair => $"{pair.Key}={pair.Value}"));
+            var final = string.Join("; ", pairs.Select(pair => $"{pair.Key}={pair.Value}"));
 
             return final;
         }
@@ -87,12 +93,12 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return ImmutableArray<KeyValuePair<string, string>>.Empty;
             }
 
-            string[] pairs = value.Split(delimiter);
+            var pairs = value.Split(delimiter);
 
-            ImmutableArray<KeyValuePair<string, string>> keyValuePairs = pairs
+            var keyValuePairs = pairs
                 .Select(pair =>
                 {
-                    string[] parts = pair.Split(assignment);
+                    var parts = pair.Split(assignment);
 
                     return parts.Length != 2 ? default : new KeyValuePair<string, string>(parts[0], parts[1]);
                 })
@@ -114,7 +120,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return value;
             }
 
-            string[] strings = value.Split(separator);
+            var strings = value.Split(separator);
 
             if (strings.Length == 0)
             {
@@ -126,10 +132,10 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return new string(replacementChar, strings.Length);
             }
 
-            string result = strings[0] + separator + string.Join(separator.ToString(CultureInfo.InvariantCulture),
-                                strings.Skip(1)
-                                    .Where(text => text.HasValue())
-                                    .Select(text => new string(replacementChar, text.Length)));
+            var result = strings[0] + separator + string.Join(separator.ToString(CultureInfo.InvariantCulture),
+                             strings.Skip(1)
+                                 .Where(text => text.HasValue())
+                                 .Select(text => new string(replacementChar, text.Length)));
             return result;
         }
 
@@ -153,12 +159,9 @@ namespace Milou.Deployer.Web.Core.Extensions
             return !string.IsNullOrWhiteSpace(text);
         }
 
-        public static bool IsNullOrWhiteSpace(this string text) => string.IsNullOrWhiteSpace(text);
-
-        private static ImmutableArray<string> Initialize()
+        public static bool IsNullOrWhiteSpace(this string text)
         {
-            return new[] { "password", "username", "user id", "connection-string", "connectionstring" }
-                .ToImmutableArray();
+            return string.IsNullOrWhiteSpace(text);
         }
     }
 }

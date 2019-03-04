@@ -11,7 +11,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         {
             string[] args = { @"urn:milou:deployer:web:application-base-path=C:\Tools\Deployer\" };
 
-            string result = args.ParseParameter(ConfigurationConstants.ApplicationBasePath);
+            var result = args.ParseParameter(ConfigurationConstants.ApplicationBasePath);
 
             Assert.Equal(@"C:\Tools\Deployer\", result);
         }

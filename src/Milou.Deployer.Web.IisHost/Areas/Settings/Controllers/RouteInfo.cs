@@ -4,12 +4,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 {
     public class RouteInfo
     {
-        public string Type { get; }
-
-        public string Name { get; }
-
-        public string Value { get; }
-
         public RouteInfo(string type, string name, string value)
         {
             Type = type;
@@ -17,8 +11,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             Value = value;
         }
 
+        public string Type { get; }
+
+        public string Name { get; }
+
+        public string Value { get; }
+
         public string RouteName => Name + "Name";
 
-        public bool IsLinkable() => !Value.Contains("{") && !Name.Contains("Post", StringComparison.Ordinal);
+        public bool IsLinkable()
+        {
+            return !Value.Contains("{") && !Name.Contains("Post", StringComparison.Ordinal);
+        }
     }
 }

@@ -30,7 +30,10 @@ namespace Milou.Deployer.Web.Core.Time
         }
 
         [SuppressMessage("ReSharper", "ImpureMethodCallOnReadonlyValueField")]
-        public bool Equals(Date other) => _datePart.Equals(other._datePart);
+        public bool Equals(Date other)
+        {
+            return _datePart.Equals(other._datePart);
+        }
 
         public override bool Equals(object obj)
         {
@@ -42,7 +45,10 @@ namespace Milou.Deployer.Web.Core.Time
             return obj is Date date && Equals(date);
         }
 
-        public override int GetHashCode() => _datePart.GetHashCode();
+        public override int GetHashCode()
+        {
+            return _datePart.GetHashCode();
+        }
 
         public static bool operator ==(Date left, Date right)
         {
@@ -55,7 +61,10 @@ namespace Milou.Deployer.Web.Core.Time
         }
 
         [SuppressMessage("ReSharper", "ImpureMethodCallOnReadonlyValueField")]
-        public int CompareTo(Date other) => _datePart.CompareTo(other._datePart);
+        public int CompareTo(Date other)
+        {
+            return _datePart.CompareTo(other._datePart);
+        }
 
         public static bool operator <(Date date1, Date date2)
         {
