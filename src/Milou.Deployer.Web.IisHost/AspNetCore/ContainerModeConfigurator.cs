@@ -39,6 +39,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             environmentConfiguration.ProxyAddresses.AddRange(proxies);
 
+            environmentConfiguration.PublicHostname = _keyValueConfiguration[ApplicationConstants.PublicHostName];
+
+            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.PublicPort], out int port))
+            {
+                environmentConfiguration.PublicPort = port;
+            }
+
             if (int.TryParse(_keyValueConfiguration[ApplicationConstants.ProxyForwardLimit], out var proxyLimit) &&
                 proxyLimit >= 0)
             {

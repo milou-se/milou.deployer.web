@@ -4,6 +4,10 @@ namespace Milou.Deployer.Web.Core.Application
 {
     public static class ApplicationConstants
     {
+        public const string PublicHostName = "urn:milou:deployer:web:public-hostname";
+
+        public const string PublicPort = "urn:milou:deployer:web:public-port";
+
         public const string AspNetEnvironment = "ASPNETCORE_ENVIRONMENT";
 
         public const string RunAsService = "--run-as-service";

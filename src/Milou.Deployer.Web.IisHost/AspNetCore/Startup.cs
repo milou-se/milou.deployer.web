@@ -72,6 +72,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             app.AddExceptionHandling(_environmentConfiguration);
 
+            app.UseMiddleware<RedirectMiddleware>();
+
             app.UseAuthentication();
 
             app.UseStaticFiles();

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
@@ -27,6 +27,12 @@ namespace Milou.Deployer.Web.Core.Application
 
         [PublicAPI]
         public string EnvironmentName { get; set; }
+
+        [PublicAPI]
+        public string PublicHostname { get; set; }
+
+        [PublicAPI]
+        public int? PublicPort { get; set; }
 
         [PublicAPI]
         public int? HttpPort { get; set; }

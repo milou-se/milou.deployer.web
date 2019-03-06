@@ -25,7 +25,9 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (_configurationErrors.Count > 0 && !context.Request.Path.StartsWithSegments(ErrorRouteConstants.ErrorRoute, StringComparison.OrdinalIgnoreCase))
+            if (_configurationErrors.Count > 0 &&
+                !context.Request.Path.StartsWithSegments(ErrorRouteConstants.ErrorRoute,
+                    StringComparison.OrdinalIgnoreCase))
             {
                 var message = "Application configuration is invalid";
 
@@ -33,7 +35,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
                 stringBuilder.AppendLine(message);
 
-                foreach (ConfigurationError configurationError in _configurationErrors)
+                foreach (var configurationError in _configurationErrors)
                 {
                     stringBuilder.AppendLine(configurationError.Error);
                 }
