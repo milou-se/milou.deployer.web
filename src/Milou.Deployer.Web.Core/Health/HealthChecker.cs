@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.Core.Health
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task DoHealthChecksAsync(CancellationToken cancellationToken)
+        public async Task PerformHealthChecksAsync(CancellationToken cancellationToken)
         {
             if (_healthChecks.Count == 0)
             {

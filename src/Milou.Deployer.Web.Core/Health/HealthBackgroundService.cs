@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.Core.Health
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return _healthChecker.DoHealthChecksAsync(stoppingToken);
+            return _healthChecker.PerformHealthChecksAsync(stoppingToken);
         }
     }
 }

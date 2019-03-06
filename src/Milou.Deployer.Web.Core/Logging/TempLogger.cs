@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using Serilog;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Logging
 {
     public static class TempLogger
     {

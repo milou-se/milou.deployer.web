@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {

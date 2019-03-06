@@ -12,14 +12,14 @@ using Serilog;
 namespace Milou.Deployer.Web.Core.Email
 {
     [UsedImplicitly]
-    public class DeployFinishedNotificationHandler : INotificationHandler<DeploymentMetadataLogNotification>
+    public class DeployFinishedEmailNotificationHandler : INotificationHandler<DeploymentMetadataLogNotification>
     {
         private readonly EmailConfiguration _emailConfiguration;
         private readonly ILogger _logger;
         private readonly ISmtpService _smtpService;
         private readonly IDeploymentTargetReadService _targetSource;
 
-        public DeployFinishedNotificationHandler(
+        public DeployFinishedEmailNotificationHandler(
             [NotNull] ISmtpService smtpService,
             [NotNull] IDeploymentTargetReadService targetSource,
             [NotNull] ILogger logger,

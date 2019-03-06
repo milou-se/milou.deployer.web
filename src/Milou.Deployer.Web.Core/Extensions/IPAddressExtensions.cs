@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Net;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Extensions
 {
     public static class IpAddressExtensions
     {

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Marten;
 using MediatR;
-using Milou.Deployer.Web.Core.Email;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Targets;
 
 namespace Milou.Deployer.Web.Marten

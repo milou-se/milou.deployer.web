@@ -83,10 +83,7 @@ namespace Milou.Deployer.Web.Core.Configuration
         [Metadata]
         public const string NuGetExeDirectory = "urn:milou:deployer:web:nuget:nuget-directory";
 
-        public static class Logging
-        {
-            [Metadata]
-            public const string LogLevel = "urn:milou-deployer:web:log:level";
-        }
+        [Metadata]
+        public const string LogLevel = "urn:milou-deployer:web:log:level";
     }
 }

@@ -74,9 +74,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
             app.UseAuthentication();
 
-            app.UseSignalRHubs();
-
             app.UseStaticFiles();
+
+            app.UseMiddleware<ConfigurationErrorMiddleware>();
+
+            app.UseSignalRHubs();
 
             app.UseMvc();
 

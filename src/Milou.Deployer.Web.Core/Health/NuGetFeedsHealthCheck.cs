@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Arbor.Processing;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.NuGet;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Health

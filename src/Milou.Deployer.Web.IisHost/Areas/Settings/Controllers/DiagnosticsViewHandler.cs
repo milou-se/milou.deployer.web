@@ -12,7 +12,6 @@ using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Configuration;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;

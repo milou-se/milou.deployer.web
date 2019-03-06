@@ -6,7 +6,7 @@ using Autofac;
 using JetBrains.Annotations;
 using Marten;
 using Marten.Services;
-using Milou.Deployer.Web.Core;
+using MediatR;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Json;
 
@@ -46,15 +46,19 @@ namespace Milou.Deployer.Web.Marten
 
             if (configurations.Length > 1)
             {
-                throw new DeployerAppException(
-                    $"Expected exactly 1 instance of type {nameof(MartenConfiguration)} but got {configurations.Length}");
+                builder.RegisterInstance(new MartenConfiguration(string.Empty));
+                builder.RegisterInstance(new ConfigurationError(
+                    $"Expected exactly 1 instance of type {nameof(MartenConfiguration)} but got {configurations.Length}"));
+                return;
             }
 
             var configuration = configurations.Single();
 
             if (!string.IsNullOrWhiteSpace(configuration.ConnectionString) && configuration.Enabled)
             {
-                builder.RegisterType<MartenStore>()
+                builder.RegisterAssemblyTypes(typeof(MartenStore).Assembly)
+                    .Where(type => type == typeof(MartenStore))
+                    .AsClosedTypesOf(typeof(IRequestHandler<,>))
                     .AsImplementedInterfaces()
                     .SingleInstance();
 

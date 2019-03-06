@@ -13,6 +13,7 @@ using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Http;
+using Milou.Deployer.Web.Core.NuGet;
 using NuGet.Versioning;
 using Serilog;
 using Serilog.Events;

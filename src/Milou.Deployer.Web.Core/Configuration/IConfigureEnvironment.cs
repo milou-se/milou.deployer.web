@@ -1,6 +1,6 @@
 ﻿using Milou.Deployer.Web.Core.Application;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Configuration
 {
     public interface IConfigureEnvironment
     {

@@ -40,8 +40,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
 
             Type[] mediatorOpenTypes =
             {
-                typeof(IRequestHandler<,>),
-                typeof(IRequestHandler<>),
+                //typeof(IRequestHandler<,>),
+                //typeof(IRequestHandler<>),
                 typeof(INotificationHandler<>)
             };
 
@@ -62,7 +62,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
                         return isClosedType;
                     })
                     .AsClosedTypesOf(mediatorOpenType)
-                    .AsImplementedInterfaces();
+                    .AsImplementedInterfaces()
+                    .SingleInstance();
             }
 
             builder.RegisterGeneric(typeof(RequestPostProcessorBehavior<,>)).As(typeof(IPipelineBehavior<,>));

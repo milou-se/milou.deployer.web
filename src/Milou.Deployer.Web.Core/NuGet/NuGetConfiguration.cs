@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Web.Core
+﻿namespace Milou.Deployer.Web.Core.NuGet
 {
     public class NuGetConfiguration
     {

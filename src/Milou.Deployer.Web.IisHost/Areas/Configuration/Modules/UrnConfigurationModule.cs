@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -7,7 +7,6 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using Autofac;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Validation;
@@ -50,7 +49,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
                 if (treatWarningsAsErrors)
                 {
-                    throw new DeployerAppException($"Could not get any instance of type {type.FullName}");
+                    builder.RegisterInstance(new ConfigurationError($"Could not get any instance of type {type.FullName}"));
                 }
 
                 _logger.Warning("Could not get any instance of type {Type}", type);
@@ -77,8 +76,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                             .Where(validatedObject => !validatedObject.Value.IsValid)
                             .Select(namedInstance => $"[{namedInstance.Value}] {namedInstance.Value}"));
 
-                    throw new DeployerAppException(
-                        $"Could not create instance of type {type.FullName}, the instances '{invalidInstances}' are invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}");
+                    builder.RegisterInstance(new ConfigurationError(
+                        $"Could not create instance of type {type.FullName}, the instances '{invalidInstances}' are invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}"));
+                    return;
                 }
             }
 

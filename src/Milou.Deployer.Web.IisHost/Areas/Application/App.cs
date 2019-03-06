@@ -21,6 +21,7 @@ using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Logging;
+using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
@@ -168,7 +169,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
             }
 
-            var defaultLevel = configuration[ConfigurationConstants.Logging.LogLevel]
+            var defaultLevel = configuration[ConfigurationConstants.LogLevel]
                 .ParseOrDefault(LogEventLevel.Information);
 
             var loggingLevelSwitch = new LoggingLevelSwitch(defaultLevel);
@@ -210,10 +211,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             {
                 ApplicationBasePath = basePath,
                 ContentBasePath = contentBasePath,
-                CommandLineArgs = commandLineArgs.ToImmutableArray()
+                CommandLineArgs = commandLineArgs.ToImmutableArray(),
+                EnvironmentName = environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
             };
 
-            var singletons = new object[] { loggingLevelSwitch, environmentConfiguration, new NuGetConfiguration() };
+            var singletons = new object[] { loggingLevelSwitch, environmentConfiguration, new NuGetConfiguration()};
 
             Scope rootScope;
 
@@ -361,7 +363,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
                         startupToken.Token))
                     {
-                        scope.TryResolve(out IDeploymentTargetReadService deploymentTargetReadService);
+                        var deploymentTargetReadService = scope.ResolveOptional<IDeploymentTargetReadService>();
 
                         if (deploymentTargetReadService != null)
                         {
@@ -371,13 +373,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                         else
                         {
                             logger.Debug("Could not find any deployment target read service");
+                            return new DeploymentTargetIds(Array.Empty<string>());
                         }
 
-                        IReadOnlyCollection<string> targetIds = deploymentTargetReadService != null
-                            ? (await deploymentTargetReadService.GetDeploymentTargetsAsync(linkedToken.Token))
+                        IReadOnlyCollection<string> targetIds =
+                            (await deploymentTargetReadService.GetDeploymentTargetsAsync(linkedToken.Token))
                             .Select(deploymentTarget => deploymentTarget.Id)
-                            .ToArray()
-                            : Array.Empty<string>();
+                            .ToArray();
 
                         logger.Debug("Found deployment target IDs {IDs}", targetIds);
 

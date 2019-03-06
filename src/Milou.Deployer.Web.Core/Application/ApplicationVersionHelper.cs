@@ -2,7 +2,7 @@
 using System.Reflection;
 using Milou.Deployer.Core.Extensions;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Application
 {
     public static class ApplicationVersionHelper
     {
