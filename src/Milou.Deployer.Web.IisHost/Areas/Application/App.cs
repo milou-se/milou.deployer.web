@@ -134,12 +134,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             startupLogger.Information("Using application root directory {Directory}", basePath);
 
-            var configuration =
-                ConfigurationInitialization.InitializeConfiguration(file => GetBaseDirectoryFile(basePath, file),
-                    contentBasePath,
-                    scanAssemblies,
-                    commandLineArgs,
-                    environmentVariables);
+            MultiSourceKeyValueConfiguration configuration;
+            try
+            {
+                configuration =
+                    ConfigurationInitialization.InitializeConfiguration(file => GetBaseDirectoryFile(basePath, file),
+                        contentBasePath,
+                        scanAssemblies,
+                        commandLineArgs,
+                        environmentVariables);
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                startupLogger.Fatal(ex, "Could not initialize configuration");
+                throw;
+            }
 
             startupLogger.Information("Configuration done using chain {Chain}",
                 configuration.SourceChain);
