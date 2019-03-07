@@ -15,6 +15,7 @@ using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Http;
 using Newtonsoft.Json;
 using Serilog;
+using Serilog.Core;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
@@ -28,10 +29,6 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
 
-        private readonly IKeyValueConfiguration _keyValueConfiguration;
-
-        private readonly MilouDeployerConfiguration _milouDeployerConfiguration;
-
         public MilouDeployer(
             [NotNull] MilouDeployerConfiguration milouDeployerConfiguration,
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -39,16 +36,10 @@ namespace Milou.Deployer.Web.Core.Deployment
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] CustomHttpClientFactory clientFactory)
         {
-            _milouDeployerConfiguration = milouDeployerConfiguration ??
-                                          throw new ArgumentNullException(nameof(milouDeployerConfiguration));
-
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _credentialReadService =
                 credentialReadService ?? throw new ArgumentNullException(nameof(credentialReadService));
-
-            _keyValueConfiguration =
-                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
 
             _clientFactory = clientFactory;
         }
@@ -156,27 +147,36 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
         }
 
-        private void SetLogging()
+        private void SetLogging(LoggingLevelSwitch loggingLevelSwitch)
         {
-            if (!string.IsNullOrEmpty(_milouDeployerConfiguration.LogLevel))
-            {
-                Environment.SetEnvironmentVariable("loglevel", _milouDeployerConfiguration.LogLevel);
-            }
+            Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
         }
 
         public async Task<ExitCode> ExecuteAsync(
             DeploymentTask deploymentTask,
-            ILogger logger,
+            ILogger jobLogger,
+            LoggingLevelSwitch loggingLevelSwitch,
+            ILogger mainLogger,
             CancellationToken cancellationToken = default)
         {
             var jobId = "MDep_" + Guid.NewGuid();
 
-            logger.Information("Starting job {JobId}", jobId);
+            jobLogger.Information("Starting job {JobId}", jobId);
 
-            var deploymentTarget =
-                await GetDeploymentTarget(deploymentTask.DeploymentTargetId, cancellationToken);
+            DeploymentTarget deploymentTarget;
 
-            SetLogging();
+            try
+            {
+                deploymentTarget =
+                    await GetDeploymentTarget(deploymentTask.DeploymentTargetId, cancellationToken);
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                jobLogger.Error("Could not get deployment target with id {Id}", deploymentTask.DeploymentTargetId);
+                return ExitCode.Failure;
+            }
+
+            SetLogging(loggingLevelSwitch);
 
             var targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
 
@@ -185,7 +185,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             var arguments = new List<string>();
 
-            logger.Information("Using manifest file for job {JobId}", jobId);
+            jobLogger.Information("Using manifest file for job {JobId}", jobId);
 
             var publishSettingsFile = deploymentTarget.PublishSettingFile;
 
@@ -200,8 +200,9 @@ namespace Milou.Deployer.Web.Core.Deployment
             if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
                 && !Path.IsPathRooted(deploymentTargetParametersFile))
             {
-                throw new DeployerAppException(
+                jobLogger.Error(
                     $"The deployment target {deploymentTarget} parameter file '{deploymentTargetParametersFile}' is not a rooted path");
+                return ExitCode.Failure;
             }
 
             if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
@@ -213,12 +214,12 @@ namespace Milou.Deployer.Web.Core.Deployment
                 parameterDictionary = JsonConvert
                     .DeserializeObject<Dictionary<string, string[]>>(parametersJson).ToImmutableDictionary();
 
-                logger.Information("Using WebDeploy parameters from file {DeploymentTargetParametersFile}",
+                jobLogger.Information("Using WebDeploy parameters from file {DeploymentTargetParametersFile}",
                     deploymentTargetParametersFile);
             }
             else
             {
-                logger.Information("No WebDeploy parameters file exists ('{DeploymentTargetParametersFile}')",
+                jobLogger.Information("No WebDeploy parameters file exists ('{DeploymentTargetParametersFile}')",
                     deploymentTargetParametersFile);
 
                 parameterDictionary = deploymentTarget.Parameters;
@@ -296,32 +297,30 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             var json = JsonConvert.SerializeObject(definitions, Formatting.Indented);
 
-            logger.Information("Using definitions JSON: {Json}", json);
+            jobLogger.Information("Using definitions JSON: {Json}", json);
 
-            logger.Information("Using temp manifest file '{ManifestFile}'", tempManifestFile.FullName);
+            jobLogger.Information("Using temp manifest file '{ManifestFile}'", tempManifestFile.FullName);
 
             await File.WriteAllTextAsync(tempManifestFile.FullName, json, Encoding.UTF8, cancellationToken);
 
             arguments.Add(tempManifestFile.FullName);
-
-            //TODO propagate properties by direct command or default
-            Environment.SetEnvironmentVariable("urn:milou-deployer:tools:nuget:exe-path",
-                _keyValueConfiguration["urn:milou-deployer:tools:nuget:exe-path"]);
 
             arguments.Add(Bootstrapper.Common.Constants.AllowPreRelease);
             arguments.Add(LoggingConstants.PlainOutputFormatEnabled);
 
             var deployerArgs = arguments.ToArray();
 
-            logger.Verbose("Running Milou Deployer bootstrapper");
+            jobLogger.Verbose("Running Milou Deployer bootstrapper");
 
             var httpClient = _clientFactory.CreateClient("Bootstrapper");
 
             try
             {
+                mainLogger.Debug("Starting milou deployer process with args {Args}", string.Join(" ", deployerArgs));
+
                 using (var deployerApp =
                     await App.CreateAsync(deployerArgs,
-                        logger,
+                        jobLogger,
                         httpClient,
                         false,
                         cancellationToken))
@@ -331,7 +330,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                     if (result.PackageDirectory is null || result.SemanticVersion is null)
                     {
-                        logger.Warning("Milou.Deployer failed");
+                        jobLogger.Warning("Milou.Deployer failed");
                         return ExitCode.Failure;
                     }
                 }

@@ -243,7 +243,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 try
                 {
-                    exitCode = await _deployer.ExecuteAsync(deploymentTask, log, cancellationToken);
+                    exitCode = await _deployer.ExecuteAsync(deploymentTask, log, _loggingLevelSwitch, logger, cancellationToken);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
