@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -302,7 +302,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             await File.WriteAllTextAsync(tempManifestFile.FullName, json, Encoding.UTF8, cancellationToken);
 
-            arguments.Add($"\"{tempManifestFile.FullName}\"");
+            arguments.Add(tempManifestFile.FullName);
 
             //TODO propagate properties by direct command or default
             Environment.SetEnvironmentVariable("urn:milou-deployer:tools:nuget:exe-path",
