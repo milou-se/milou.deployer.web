@@ -28,6 +28,7 @@ using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Messaging;
 using Milou.Deployer.Web.IisHost.AspNetCore;
+using Milou.Deployer.Web.Marten;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -214,7 +215,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             var modules =
                 GetConfigurationModules(configuration, cancellationTokenSource, appLogger, scanAssemblies);
 
-            Type[] excludedModuleTypes = { typeof(AppServiceModule) };
+            Type[] excludedModuleTypes = { typeof(AppServiceModule), typeof(MediatorModule) };
 
             var environmentConfiguration = new EnvironmentConfiguration
             {
@@ -422,31 +423,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             var urnModule = new UrnConfigurationModule(configuration, logger, scanAssemblies);
 
-            var excludedTypes = configuration.GetInstances<ExcludedAutoRegistrationType>()
-                .Select(TryGetType)
-                .Where(type => type != null)
-                .ToArray();
 
             modules.Add(loggingModule);
             modules.Add(module);
             modules.Add(urnModule);
-            modules.Add(new MediatorModule(scanAssemblies, excludedTypes, logger));
             modules.Add(new DataModule(logger));
 
             return modules;
         }
 
-        private static Type TryGetType(ExcludedAutoRegistrationType excluded)
-        {
-            try
-            {
-                return Type.GetType(excluded.FullName);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
 
         private static string GetBaseDirectoryFile(string basePath, string fileName)
         {

@@ -1,15 +1,28 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
     [PublicAPI]
     public static class TypeExtensions
     {
+        public static Type TryGetType(this ExcludedAutoRegistrationType excluded)
+        {
+            try
+            {
+                return Type.GetType(excluded.FullName);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
+
         public static ImmutableArray<Type> FindPublicConcreteTypesImplementing<T>(
             this IReadOnlyCollection<Assembly> assemblies)
         {

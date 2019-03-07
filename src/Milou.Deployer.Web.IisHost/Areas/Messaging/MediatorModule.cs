@@ -40,8 +40,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
 
             Type[] mediatorOpenTypes =
             {
-                //typeof(IRequestHandler<,>),
-                //typeof(IRequestHandler<>),
+                typeof(IRequestHandler<,>),
+                typeof(IRequestHandler<>),
                 typeof(INotificationHandler<>)
             };
 
