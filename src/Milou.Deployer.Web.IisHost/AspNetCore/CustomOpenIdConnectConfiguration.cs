@@ -27,10 +27,10 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             Enabled = enabled;
             RedirectUri = redirectUri;
             AuthenticatedRedirectUri = authenticatedRedirectUri;
-            IsValid = !string.IsNullOrWhiteSpace(clientId)
-                      && !string.IsNullOrWhiteSpace(clientSecret)
-                      && (!string.IsNullOrWhiteSpace(authority) ||
-                          !string.IsNullOrWhiteSpace(metadataAddress));
+            IsValid = !enabled || (!string.IsNullOrWhiteSpace(clientId)
+                                   && !string.IsNullOrWhiteSpace(clientSecret)
+                                   && (!string.IsNullOrWhiteSpace(authority) ||
+                                       !string.IsNullOrWhiteSpace(metadataAddress)));
         }
 
         public string ClientId { get; }
