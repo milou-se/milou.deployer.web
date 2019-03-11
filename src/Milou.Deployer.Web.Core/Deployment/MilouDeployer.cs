@@ -231,8 +231,10 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 var tempFileName = Path.GetTempFileName();
 
+                var expandedXml = Environment.ExpandEnvironmentVariables(deploymentTarget.PublishSettingsXml);
+
                 await File.WriteAllTextAsync(tempFileName,
-                    deploymentTarget.PublishSettingsXml,
+                    expandedXml,
                     Encoding.UTF8,
                     cancellationToken);
 
