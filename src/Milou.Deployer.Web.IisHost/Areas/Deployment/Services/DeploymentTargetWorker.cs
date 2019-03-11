@@ -12,7 +12,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
-    public class DeploymentTargetWorker
+    public sealed class DeploymentTargetWorker : IDisposable
     {
         private readonly DeploymentService _deploymentService;
         private readonly ILogger _logger;
@@ -114,6 +114,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
+            if (deploymentTask.DeploymentTargetId.IsNullOrWhiteSpace())
+            {
+                throw new ArgumentNullException(nameof(deploymentTask), "Target id is missing");
+            }
+
             try
             {
                 using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
@@ -152,6 +157,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             var messageTask = Task.Run(() => StartTaskMessageHandler(stoppingToken), stoppingToken);
             await StartProcessingAsync(stoppingToken);
             await messageTask;
+        }
+
+        public void Dispose()
+        {
+            _queue?.Dispose();
+            _runningTasks?.Dispose();
         }
     }
 }

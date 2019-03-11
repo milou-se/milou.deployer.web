@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -67,13 +68,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 .Append("Started job ")
                 .Append(deploymentTask.DeploymentTaskId)
                 .Append(" at ")
-                .AppendFormat("{0:O}", start)
+                .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", start)
                 .Append(" and finished at ")
-                .AppendFormat("{0:O}", end).AppendLine();
+                .AppendFormat(CultureInfo.InvariantCulture, "{0:O}", end).AppendLine();
 
             metadata
                 .Append("Total time ")
-                .AppendFormat("{0:f}", stopwatch.Elapsed.TotalSeconds)
+                .AppendFormat(CultureInfo.InvariantCulture, "{0:f}", stopwatch.Elapsed.TotalSeconds)
                 .AppendLine(" seconds");
 
             metadata
@@ -145,16 +146,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     $"Could not deploy package with id '{packageId}' to target '{deploymentTarget}' because the package is a pre-release version and the target does not support it");
             }
 
-            if (version.IsPrerelease)
+            if (version.IsPrerelease && logger.IsEnabled(LogEventLevel.Debug))
             {
-                if (logger.IsEnabled(LogEventLevel.Debug))
-                {
-                    logger.Debug(
-                        "The deployment target '{DeploymentTarget}' allows package id '{PackageId}' version {Version}, pre-release",
-                        deploymentTarget,
-                        packageId,
-                        version.ToNormalizedString());
-                }
+                logger.Debug(
+                    "The deployment target '{DeploymentTarget}' allows package id '{PackageId}' version {Version}, pre-release",
+                    deploymentTarget,
+                    packageId,
+                    version.ToNormalizedString());
             }
         }
 
@@ -266,11 +264,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             ILogger logger,
             CancellationToken cancellationToken)
         {
-            if (deploymentTask == null)
-            {
-                throw new ArgumentNullException(nameof(deploymentTask));
-            }
-
             var start = _customClock.UtcNow().UtcDateTime;
             var stopwatch = Stopwatch.StartNew();
 

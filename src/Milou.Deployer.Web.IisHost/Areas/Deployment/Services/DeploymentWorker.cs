@@ -8,19 +8,25 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
+using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     public class DeploymentWorker : BackgroundService
     {
+        private readonly ILogger _logger;
         private readonly ImmutableArray<DeploymentTargetWorker> _workers;
 
-        public DeploymentWorker([NotNull] IEnumerable<DeploymentTargetWorker> workers)
+        public DeploymentWorker(
+            [NotNull] IEnumerable<DeploymentTargetWorker> workers,
+            ILogger logger)
         {
             if (workers == null)
             {
                 throw new ArgumentNullException(nameof(workers));
             }
+
+            _logger = logger;
 
             _workers = workers.ToImmutableArray();
         }
@@ -45,17 +51,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public void Enqueue([NotNull] DeploymentTask deploymentTask)
         {
-            if (deploymentTask == null)
-            {
-                throw new ArgumentNullException(nameof(deploymentTask));
-            }
-
             var foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
 
             if (foundWorker is null)
             {
-                throw new DeployerAppException(
-                    $"Could not find worker for deployment target id {deploymentTask.DeploymentTargetId}");
+                _logger.Error("Could not find worker for deployment target id {DeploymentTargetId}", deploymentTask.DeploymentTargetId);
+                return;
             }
 
             foundWorker.Enqueue(deploymentTask);

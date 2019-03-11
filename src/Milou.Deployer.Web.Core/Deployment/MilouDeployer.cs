@@ -48,11 +48,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             [NotNull] string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
-            if (string.IsNullOrWhiteSpace(deploymentTargetId))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
-            }
-
             var deploymentTarget =
                 await _deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId, cancellationToken);
 
@@ -201,7 +196,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 && !Path.IsPathRooted(deploymentTargetParametersFile))
             {
                 jobLogger.Error(
-                    $"The deployment target {deploymentTarget} parameter file '{deploymentTargetParametersFile}' is not a rooted path");
+                    "The deployment target {DeploymentTarget} parameter file '{DeploymentTargetParametersFile}' is not a rooted path", deploymentTarget, deploymentTargetParametersFile);
                 return ExitCode.Failure;
             }
 

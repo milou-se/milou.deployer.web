@@ -74,7 +74,7 @@ namespace Milou.Deployer.Web.Marten
                 deploymentTargetData.PackageId ?? Constants.NotAvailable,
                 deploymentTargetData.PublishSettingsXml,
                 deploymentTargetData.AllowExplicitPreRelease,
-                uri: deploymentTargetData.Url?.ToString(),
+                url: deploymentTargetData.Url,
                 nuGetConfigFile: deploymentTargetData.NuGetConfigFile,
                 nuGetPackageSource: deploymentTargetData.NuGetPackageSource,
                 iisSiteName: deploymentTargetData.IisSiteName,
@@ -120,7 +120,7 @@ namespace Milou.Deployer.Web.Marten
         {
             return organizations.Select(org => new OrganizationInfo(org.Id,
                     projects
-                        .Where(project => project.OrganizationId.Equals(org.Id))
+                        .Where(project => project.OrganizationId.Equals(org.Id, StringComparison.OrdinalIgnoreCase))
                         .Select(project =>
                             new ProjectInfo(org.Id,
                                 project.Id,
@@ -146,7 +146,7 @@ namespace Milou.Deployer.Web.Marten
                 .ToImmutableArray();
         }
 
-        public async Task<DeploymentTarget> GetDeploymentTargetAsync(
+        public Task<DeploymentTarget> GetDeploymentTargetAsync(
             [NotNull] string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
@@ -155,6 +155,11 @@ namespace Milou.Deployer.Web.Marten
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
             }
 
+            return FindDeploymentTargetAsync(deploymentTargetId, cancellationToken);
+        }
+
+        private async Task<DeploymentTarget> FindDeploymentTargetAsync(string deploymentTargetId, CancellationToken cancellationToken)
+        {
             using (var session = _documentStore.QuerySession())
             {
                 try
