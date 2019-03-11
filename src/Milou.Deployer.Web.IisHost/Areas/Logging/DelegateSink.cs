@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Serilog.Core;
@@ -32,7 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Logging
                 Level = logEvent.Level.ToString(),
                 logEvent.Timestamp,
                 RenderedTemplate = renderedTemplate,
-                FormattedTimestamp = logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff")
+                FormattedTimestamp = logEvent.Timestamp.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture)
             };
 
             var message = JsonConvert.SerializeObject(output);

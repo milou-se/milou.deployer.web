@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
@@ -34,7 +35,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             PackageId = packageId;
             DeploymentTargetId = deploymentTargetId;
             DeploymentTaskId =
-                $"{DateTime.UtcNow.ToString("O").Replace(":", "_")}_{deploymentTaskId.ToString().Substring(0, 8)}";
+                $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.InvariantCulture)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
 
         public DeploymentTask(
@@ -51,7 +52,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             PackageId = packageVersion.PackageId;
             DeploymentTargetId = deploymentTargetId;
             DeploymentTaskId =
-                $"{DateTime.UtcNow.ToString("O").Replace(":", "_")}_{deploymentTaskId.ToString().Substring(0, 8)}";
+                $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.Ordinal)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
 
         public List<DirectoryInfo> TempDirectories { get; } = new List<DirectoryInfo>();

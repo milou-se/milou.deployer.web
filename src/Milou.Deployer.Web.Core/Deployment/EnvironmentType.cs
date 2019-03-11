@@ -64,7 +64,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public override int GetHashCode()
         {
-            return Name != null ? Name.GetHashCode() : 0;
+            return Name != null ? Name.GetHashCode(StringComparison.OrdinalIgnoreCase) : 0;
         }
 
         public static bool operator ==(EnvironmentType left, EnvironmentType right)
@@ -107,7 +107,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 return true;
             }
 
-            return string.Equals(Name, other.Name);
+            return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

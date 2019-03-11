@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -12,7 +13,6 @@ using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Http;
 using Milou.Deployer.Web.Core.NuGet;
 using NuGet.Versioning;
 using Serilog;
@@ -40,7 +40,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] ICustomMemoryCache memoryCache,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ILogger logger,
-            [NotNull] CustomHttpClientFactory httpClientFactory,
             [NotNull] NuGetConfiguration nuGetConfiguration)
         {
             _deploymentConfiguration = deploymentConfiguration ??
@@ -73,10 +72,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             string NormalizeKey(string key)
             {
-                return key.Replace(":", "_")
-                    .Replace("/", "")
-                    .Replace(".", "")
-                    .Replace(Path.DirectorySeparatorChar.ToString(), "_");
+                return key.Replace(":", "_", StringComparison.OrdinalIgnoreCase)
+                    .Replace("/", "", StringComparison.OrdinalIgnoreCase)
+                    .Replace(".", "", StringComparison.OrdinalIgnoreCase)
+                    .Replace(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture), "_", StringComparison.OrdinalIgnoreCase);
             }
 
             var cacheKey = AllPackagesCacheKey;
@@ -98,18 +97,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             _logger.Verbose("Using package cache key {Key}", cacheKey);
 
-            if (useCache)
+            if (useCache && _memoryCache.TryGetValue(cacheKey, out IReadOnlyCollection<PackageVersion> packages) && packages.Count > 0)
             {
-                if (_memoryCache.TryGetValue(cacheKey, out IReadOnlyCollection<PackageVersion> packages))
-                {
-                    if (packages.Count > 0)
-                    {
-                        _logger.Debug("Returning packages from cache with key {Key} for package id {PackageId}",
-                            cacheKey,
-                            packageId);
-                        return packages;
-                    }
-                }
+                _logger.Debug("Returning packages from cache with key {Key} for package id {PackageId}",
+                    cacheKey,
+                    packageId);
+                return packages;
             }
 
             if (string.IsNullOrWhiteSpace(_nuGetConfiguration.NugetExePath))

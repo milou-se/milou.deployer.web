@@ -45,5 +45,15 @@ namespace Milou.Deployer.Web.Core.Extensions
 
             return builder.Uri;
         }
+
+        public static Uri ParseUriOrDefault(this string value)
+        {
+            if (!Uri.TryCreate(value, UriKind.Absolute, out Uri uri))
+            {
+                return uri;
+            }
+
+            return default;
+        }
     }
 }

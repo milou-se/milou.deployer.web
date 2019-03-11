@@ -496,7 +496,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 throw new DeployerAppException($"Could not build web host in {AppInstance}", ex);
             }
 
-            if (args.Any(arg => arg.Equals(ApplicationConstants.RunAsService)))
+            if (args.Any(arg => arg.Equals(ApplicationConstants.RunAsService, StringComparison.OrdinalIgnoreCase)))
             {
                 Logger.Information("Starting {AppInstance} as a Windows Service", AppInstance);
 

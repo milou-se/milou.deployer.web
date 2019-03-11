@@ -1,4 +1,5 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Email
@@ -20,6 +21,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
         }
 
         public bool IsValid => !string.IsNullOrWhiteSpace(Address)
-                               && Address.Contains("@");
+                               && Address.Contains("@", StringComparison.OrdinalIgnoreCase);
     }
 }

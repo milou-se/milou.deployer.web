@@ -206,7 +206,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     }
 
                     builder.Register(
-                            context => new DeploymentWorker(context.Resolve<IEnumerable<DeploymentTargetWorker>>()))
+                            context => new DeploymentWorker(context.Resolve<IEnumerable<DeploymentTargetWorker>>(), context.Resolve<ILogger>()))
                         .AsSelf().AsImplementedInterfaces().SingleInstance();
 
                     var keyValueConfiguration = webHostScope.Lifetime.Resolve<IKeyValueConfiguration>();
