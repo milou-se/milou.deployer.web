@@ -163,7 +163,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
 
             var environmentName = args?.ParseParameter(ApplicationConstants.AspNetEnvironment)
                                   ?? environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
-                                  ?? "Production";
+                                  ?? ApplicationConstants.EnvironmentProduction;
 
             return appSettingsBuilder.Add(new JsonKeyValueConfiguration(basePath("settings.json"), false))
                 .Add(new JsonKeyValueConfiguration(basePath($"settings.{environmentName}.json"), false));

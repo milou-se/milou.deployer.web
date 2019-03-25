@@ -56,6 +56,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                         builder.Port = _environmentConfiguration.PublicPort.Value;
                     }
 
+                    if (_environmentConfiguration.PublicPortIsHttps)
+                    {
+                        builder.Scheme = "https";
+                    }
+
                     context.Response.Headers.Remove(LocationHeader);
                     context.Response.Headers.Add(LocationHeader, builder.Uri.ToString());
                 }

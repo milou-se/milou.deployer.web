@@ -96,7 +96,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                         {
                             if (openIdConnectConfiguration.RedirectUri.HasValue())
                             {
-                                context.ProtocolMessage.RedirectUri = openIdConnectConfiguration.RedirectUri;
+                                context.ProtocolMessage.RedirectUri = openIdConnectConfiguration.RedirectUri.AbsoluteUri;
                             }
 
                             return Task.CompletedTask;

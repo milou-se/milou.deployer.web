@@ -65,7 +65,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageId));
             }
 
-            if (packageId.Equals(Constants.NotAvailable))
+            if (packageId.Equals(Constants.NotAvailable, StringComparison.OrdinalIgnoreCase))
             {
                 return ImmutableArray<PackageVersion>.Empty;
             }

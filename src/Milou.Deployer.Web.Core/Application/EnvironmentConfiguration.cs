@@ -13,10 +13,11 @@ namespace Milou.Deployer.Web.Core.Application
         public EnvironmentConfiguration()
         {
             HttpPort = 34343;
+            UseExplicitPorts = true;
         }
 
         public bool UseVerboseExceptions => !EnvironmentName.HasValue()
-                                            || EnvironmentName.Equals("production",
+                                            || EnvironmentName.Equals(ApplicationConstants.EnvironmentProduction,
                                                 StringComparison.OrdinalIgnoreCase);
 
         [PublicAPI]
@@ -31,8 +32,13 @@ namespace Milou.Deployer.Web.Core.Application
         [PublicAPI]
         public string PublicHostname { get; set; }
 
+        public bool UseExplicitPorts { get; set; }
+
         [PublicAPI]
         public int? PublicPort { get; set; }
+
+        [PublicAPI]
+        public bool PublicPortIsHttps { get; set; }
 
         [PublicAPI]
         public int? HttpPort { get; set; }

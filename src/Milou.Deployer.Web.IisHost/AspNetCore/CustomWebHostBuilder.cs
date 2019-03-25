@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using Arbor.KVConfiguration.Core;
@@ -56,29 +56,32 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
                     if (environmentConfiguration != null)
                     {
-                        if (environmentConfiguration.HttpPort.HasValue)
+                        if (environmentConfiguration.UseExplicitPorts)
                         {
-                            logger.Information("Listening on http port {Port}",
-                                environmentConfiguration.HttpPort.Value);
+                            if (environmentConfiguration.HttpPort.HasValue)
+                            {
+                                logger.Information("Listening on http port {Port}",
+                                    environmentConfiguration.HttpPort.Value);
 
-                            options.Listen(IPAddress.Any,
-                                environmentConfiguration.HttpPort.Value);
-                        }
+                                options.Listen(IPAddress.Any,
+                                    environmentConfiguration.HttpPort.Value);
+                            }
 
-                        if (environmentConfiguration.HttpsPort.HasValue
-                            && environmentConfiguration.PfxFile.HasValue()
-                            && environmentConfiguration.PfxPassword.HasValue())
-                        {
-                            logger.Information("Listening on https port {Port}",
-                                environmentConfiguration.HttpsPort.Value);
+                            if (environmentConfiguration.HttpsPort.HasValue
+                                && environmentConfiguration.PfxFile.HasValue()
+                                && environmentConfiguration.PfxPassword.HasValue())
+                            {
+                                logger.Information("Listening on https port {Port}",
+                                    environmentConfiguration.HttpsPort.Value);
 
-                            options.Listen(IPAddress.Any,
-                                environmentConfiguration.HttpsPort.Value,
-                                listenOptions =>
-                                {
-                                    listenOptions.UseHttps(environmentConfiguration.PfxFile,
-                                        environmentConfiguration.PfxPassword);
-                                });
+                                options.Listen(IPAddress.Any,
+                                    environmentConfiguration.HttpsPort.Value,
+                                    listenOptions =>
+                                    {
+                                        listenOptions.UseHttps(environmentConfiguration.PfxFile,
+                                            environmentConfiguration.PfxPassword);
+                                    });
+                            }
                         }
                     }
 

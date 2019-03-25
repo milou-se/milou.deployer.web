@@ -1,12 +1,16 @@
-﻿using Arbor.KVConfiguration.Urns;
+﻿using System;
+using Arbor.KVConfiguration.Urns;
+using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
     [Urn(UrnKey)]
+    [UsedImplicitly]
     public class CustomOpenIdConnectConfiguration : IValidationObject, IConfigurationValues
     {
+        [PublicAPI]
         public const string UrnKey = "urn:milou:deployer:web:open-id-connect";
 
         public CustomOpenIdConnectConfiguration(
@@ -16,8 +20,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             string metadataAddress,
             string issuer,
             bool enabled,
-            string redirectUri,
-            string authenticatedRedirectUri)
+            string redirectUri)
         {
             ClientId = clientId;
             ClientSecret = clientSecret;
@@ -25,8 +28,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             MetadataAddress = metadataAddress;
             Issuer = issuer;
             Enabled = enabled;
-            RedirectUri = redirectUri;
-            AuthenticatedRedirectUri = authenticatedRedirectUri;
+            if (Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri uri))
+            {
+                RedirectUri = uri;
+            }
+
             IsValid = !enabled || (!string.IsNullOrWhiteSpace(clientId)
                                    && !string.IsNullOrWhiteSpace(clientSecret)
                                    && (!string.IsNullOrWhiteSpace(authority) ||
@@ -45,9 +51,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 
         public bool Enabled { get; }
 
-        public string RedirectUri { get; }
-
-        public string AuthenticatedRedirectUri { get; }
+        public Uri RedirectUri { get; }
 
         public bool IsValid { get; }
     }
