@@ -16,14 +16,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
 {
     public static class ConfigurationInitialization
     {
-        private static AppSettingsBuilder AddUserSettings(this AppSettingsBuilder builder, string contentBasePath)
+        private static AppSettingsBuilder AddUserSettings(this AppSettingsBuilder builder, string basePath)
         {
-            if (string.IsNullOrWhiteSpace(contentBasePath))
+            if (string.IsNullOrWhiteSpace(basePath))
             {
                 return builder;
             }
 
-            return builder.Add(new UserJsonConfiguration(contentBasePath));
+            return builder.Add(new UserJsonConfiguration(basePath));
         }
 
         private static AppSettingsBuilder AddLoggingSettings(this AppSettingsBuilder builder)
