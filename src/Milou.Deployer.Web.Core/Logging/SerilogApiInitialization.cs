@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
@@ -17,14 +18,15 @@ namespace Milou.Deployer.Web.Core.Logging
         public static ILogger InitializeAppLogging(
             [NotNull] MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration,
             ILogger logger,
-            Action<LoggerConfiguration> loggerConfigurationAction, LoggingLevelSwitch loggingLevelSwitch)
+            Action<LoggerConfiguration> loggerConfigurationAction,
+            LoggingLevelSwitch loggingLevelSwitch)
         {
             if (multiSourceKeyValueConfiguration is null)
             {
                 throw new ArgumentNullException(nameof(multiSourceKeyValueConfiguration));
             }
 
-            SerilogConfiguration serilogConfiguration =
+            var serilogConfiguration =
                 multiSourceKeyValueConfiguration.GetInstances<SerilogConfiguration>().FirstOrDefault();
 
             if (!serilogConfiguration.HasValue())
@@ -40,7 +42,7 @@ namespace Milou.Deployer.Web.Core.Logging
                 throw new DeployerAppException(message);
             }
 
-            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+            var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.ControlledBy(loggingLevelSwitch)
                 .Enrich.WithProperty("Application", ApplicationConstants.ApplicationName);
 
@@ -53,14 +55,16 @@ namespace Milou.Deployer.Web.Core.Logging
             {
                 if (!string.IsNullOrWhiteSpace(serilogConfiguration.SeqUrl))
                 {
-                    if (Uri.TryCreate(serilogConfiguration.SeqUrl, UriKind.Absolute, out Uri serilogUrl))
+                    if (Uri.TryCreate(serilogConfiguration.SeqUrl, UriKind.Absolute, out var serilogUrl))
                     {
                         logger.Debug("Serilog configured to use Seq with URL {Url}", serilogUrl.AbsoluteUri);
                         loggerConfiguration = loggerConfiguration.WriteTo.Seq(serilogUrl.AbsoluteUri);
                     }
                     else
                     {
-                        logger.Debug("Serilog attempted to be configured to use Seq with URL '{Url}' but the url is invalid", serilogConfiguration.SeqUrl);
+                        logger.Debug(
+                            "Serilog attempted to be configured to use Seq with URL '{Url}' but the url is invalid",
+                            serilogConfiguration.SeqUrl);
                     }
                 }
                 else
@@ -75,7 +79,7 @@ namespace Milou.Deployer.Web.Core.Logging
 
             if (serilogConfiguration.RollingLogFilePathEnabled)
             {
-                string logFilePath = Path.IsPathRooted(serilogConfiguration.RollingLogFilePath)
+                var logFilePath = Path.IsPathRooted(serilogConfiguration.RollingLogFilePath)
                     ? serilogConfiguration.RollingLogFilePath
                     : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, serilogConfiguration.RollingLogFilePath);
 
@@ -83,7 +87,8 @@ namespace Milou.Deployer.Web.Core.Logging
 
                 if (fileInfo.Directory != null)
                 {
-                    string rollingLoggingFile = Path.Combine(fileInfo.Directory.FullName,
+                    fileInfo.Directory.EnsureExists();
+                    var rollingLoggingFile = Path.Combine(fileInfo.Directory.FullName,
                         $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}{Path.GetExtension(fileInfo.Name)}");
 
                     logger.Debug("Serilog configured to use rolling file with file path {LogFilePath}",
@@ -96,16 +101,16 @@ namespace Milou.Deployer.Web.Core.Logging
 
             loggerConfiguration = loggerConfiguration.WriteTo.Console();
 
-            LogEventLevel microsoftLevel =
+            var microsoftLevel =
                 multiSourceKeyValueConfiguration[LoggingConstants.MicrosoftLevel].ParseOrDefault(LogEventLevel.Warning);
 
-            LoggerConfiguration finalConfiguration = loggerConfiguration
+            var finalConfiguration = loggerConfiguration
                 .MinimumLevel.Override("Microsoft", microsoftLevel)
                 .Enrich.FromLogContext();
 
             loggerConfigurationAction?.Invoke(loggerConfiguration);
 
-            Logger appLogger = finalConfiguration
+            var appLogger = finalConfiguration
                 .CreateLogger();
 
             appLogger.Debug("Initialized app logging");
@@ -113,7 +118,9 @@ namespace Milou.Deployer.Web.Core.Logging
             return appLogger;
         }
 
-        public static ILogger InitializeStartupLogging([NotNull] Func<string, string> basePath)
+        public static ILogger InitializeStartupLogging(
+            [NotNull] Func<string, string> basePath,
+            ImmutableDictionary<string, string> environmentVariables)
         {
             var startupLevel = LogEventLevel.Verbose;
 
@@ -122,24 +129,25 @@ namespace Milou.Deployer.Web.Core.Logging
                 throw new ArgumentNullException(nameof(basePath));
             }
 
-            bool fileLoggingEnabled = bool.TryParse(Environment.GetEnvironmentVariable(LoggingConstants.SerilogStartupLogEnabled),
-                         out bool enabled) && enabled;
+            var fileLoggingEnabled = bool.TryParse(
+                                         environmentVariables.ValueOrDefault(LoggingConstants.SerilogStartupLogEnabled),
+                                         out var enabled) && enabled;
 
             string logFile = null;
 
             if (fileLoggingEnabled)
             {
-                string logFilePath = basePath("startup.log");
+                var logFilePath = basePath("startup.log");
 
-                Console.WriteLine($"Startup logging is configured to use log file {logFilePath}");
+                TempLogger.WriteLine($"Startup logging is configured to use log file {logFilePath}");
 
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {
                     throw new DeployerAppException("The log path for startup logging is not defined");
                 }
 
-                string pathFormat = Environment.ExpandEnvironmentVariables(
-                    Environment.GetEnvironmentVariable(LoggingConstants.SerilogStartupLogFilePath) ??
+                var pathFormat = Environment.ExpandEnvironmentVariables(
+                    environmentVariables.ValueOrDefault(LoggingConstants.SerilogStartupLogFilePath) ??
                     logFilePath);
 
                 var fileInfo = new FileInfo(pathFormat);
@@ -157,7 +165,7 @@ namespace Milou.Deployer.Web.Core.Logging
                 logFile = fileInfo.FullName;
             }
 
-            LoggerConfiguration loggerConfiguration = new LoggerConfiguration()
+            var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Is(startupLevel)
                 .WriteTo.Console(startupLevel);
 
@@ -167,24 +175,27 @@ namespace Milou.Deployer.Web.Core.Logging
                     .WriteTo.File(logFile, startupLevel, rollingInterval: RollingInterval.Day);
             }
 
-            string seq = Environment.GetEnvironmentVariable(LoggingConstants.SeqStartupUrl);
+            var seq = environmentVariables.ValueOrDefault(LoggingConstants.SeqStartupUrl);
 
             Uri usedSeqUri = null;
             if (!string.IsNullOrWhiteSpace(seq))
             {
-                string seqUrl = Environment.ExpandEnvironmentVariables(seq);
+                var seqUrl = Environment.ExpandEnvironmentVariables(seq);
 
-                if (Uri.TryCreate(seqUrl, UriKind.Absolute, out Uri uri))
+                if (Uri.TryCreate(seqUrl, UriKind.Absolute, out var uri))
                 {
                     usedSeqUri = uri;
                     loggerConfiguration.WriteTo.Seq(seqUrl).MinimumLevel.Is(startupLevel);
                 }
             }
 
-            Logger logger = loggerConfiguration
-                .CreateLogger();
+            var logger = loggerConfiguration.CreateLogger();
 
-            logger.Verbose("Startup logging configured, minimum log level {LogLevel}, seq {Seq}", startupLevel, usedSeqUri);
+            TempLogger.FlushWith(logger);
+
+            logger.Verbose("Startup logging configured, minimum log level {LogLevel}, seq {Seq}",
+                startupLevel,
+                usedSeqUri);
 
             return logger;
         }

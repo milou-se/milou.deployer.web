@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         {
             string[] strings = { parameter };
 
-            string actual = strings.ParseParameter(name);
+            var actual = strings.ParseParameter(name);
 
             Assert.Equal(expected, actual);
         }

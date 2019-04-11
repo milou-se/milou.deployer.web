@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Arbor.KVConfiguration.Urns;
@@ -24,7 +24,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             bool allowExplicitPreRelease = false,
             string nuGetConfigFile = null,
             string nuGetPackageSource = null,
-            string uri = null,
+            Uri url = null,
             string environmentConfiguration = null,
             string organization = null,
             string project = null,
@@ -57,11 +57,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageId));
             }
 
-            if (Uri.TryCreate(uri, UriKind.Absolute, out Uri parsedUri))
-            {
-                Url = parsedUri;
-            }
-
+            Url = url;
             EnvironmentConfiguration = environmentConfiguration;
             AutoDeployment = autoDeployment;
             AutoDeployEnabled = autoDeployEnabled;
@@ -107,7 +103,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public bool AllowPreRelease
             =>
-                (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value)
+                AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value
                 || EnvironmentType.PreReleaseBehavior == PreReleaseBehavior.Allow;
 
         public EnvironmentType EnvironmentType { get; }

@@ -2,6 +2,7 @@
 ## custom
 #################
 
+*.orig
 Artifacts
 [Pp]ackages
 .vs

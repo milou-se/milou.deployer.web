@@ -21,27 +21,6 @@ namespace Milou.Deployer.Web.Tests.Integration
             _testOutputHelper = testOutputHelper;
         }
 
-        [MemberData(nameof(Data))]
-        [Theory]
-        public void ShouldHaveAnonymousOrAuthorize(string controller, string assembly)
-        {
-            Type controllerType = Type.GetType($"{controller}, {assembly}");
-
-            Type[] httpMethodAttributes = {
-                typeof(AuthorizeAttribute),
-                typeof(AllowAnonymousAttribute),
-            };
-
-            Attribute[] attributes = controllerType.GetCustomAttributes().Where(attribute =>
-                    httpMethodAttributes.Any(authenticationAttribute => authenticationAttribute == attribute.GetType()))
-                .ToArray();
-
-            _testOutputHelper.WriteLine($"Controller '{controller}' anonymous or authorization attributes: {attributes.Length}, expected is 1");
-
-            Assert.NotEmpty(attributes);
-            Assert.Single(attributes);
-        }
-
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
             Assemblies.FilteredAssemblies(useCache: false)
@@ -49,5 +28,28 @@ namespace Milou.Deployer.Web.Tests.Integration
                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
                 .Select(type => new object[] { type.FullName, type.Assembly.GetName().Name })
                 .ToArray();
+
+        [MemberData(nameof(Data))]
+        [Theory]
+        public void ShouldHaveAnonymousOrAuthorize(string controller, string assembly)
+        {
+            var controllerType = Type.GetType($"{controller}, {assembly}");
+
+            Type[] httpMethodAttributes =
+            {
+                typeof(AuthorizeAttribute),
+                typeof(AllowAnonymousAttribute)
+            };
+
+            var attributes = controllerType.GetCustomAttributes().Where(attribute =>
+                    httpMethodAttributes.Any(authenticationAttribute => authenticationAttribute == attribute.GetType()))
+                .ToArray();
+
+            _testOutputHelper.WriteLine(
+                $"Controller '{controller}' anonymous or authorization attributes: {attributes.Length}, expected is 1");
+
+            Assert.NotEmpty(attributes);
+            Assert.Single(attributes);
+        }
     }
 }

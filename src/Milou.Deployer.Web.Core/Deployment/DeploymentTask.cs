@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
@@ -10,7 +11,10 @@ namespace Milou.Deployer.Web.Core.Deployment
 {
     public class DeploymentTask
     {
-        public DeploymentTask([NotNull] string packageVersion, [NotNull] string deploymentTargetId, Guid deploymentTaskId)
+        public DeploymentTask(
+            [NotNull] string packageVersion,
+            [NotNull] string deploymentTargetId,
+            Guid deploymentTaskId)
         {
             if (string.IsNullOrWhiteSpace(packageVersion))
             {
@@ -22,18 +26,22 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
             }
 
-            string[] parts = packageVersion.Split(' ');
-            string packageId = parts[0];
+            var parts = packageVersion.Split(' ');
+            var packageId = parts[0];
 
-            SemanticVersion version = SemanticVersion.Parse(parts.Last());
+            var version = SemanticVersion.Parse(parts.Last());
 
             SemanticVersion = version;
             PackageId = packageId;
             DeploymentTargetId = deploymentTargetId;
-            DeploymentTaskId = $"{DateTime.UtcNow.ToString("O").Replace(":", "_")}_{deploymentTaskId.ToString().Substring(0, 8)}";
+            DeploymentTaskId =
+                $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.InvariantCulture)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
 
-        public DeploymentTask([NotNull] PackageVersion packageVersion, [NotNull] string deploymentTargetId, Guid deploymentTaskId)
+        public DeploymentTask(
+            [NotNull] PackageVersion packageVersion,
+            [NotNull] string deploymentTargetId,
+            Guid deploymentTaskId)
         {
             if (packageVersion == null)
             {
@@ -43,7 +51,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             SemanticVersion = packageVersion.Version;
             PackageId = packageVersion.PackageId;
             DeploymentTargetId = deploymentTargetId;
-            DeploymentTaskId = $"{DateTime.UtcNow.ToString("O").Replace(":", "_")}_{deploymentTaskId.ToString().Substring(0, 8)}";
+            DeploymentTaskId =
+                $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.Ordinal)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
 
         public List<DirectoryInfo> TempDirectories { get; } = new List<DirectoryInfo>();
@@ -61,7 +70,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         [PublicAPI]
         public WorkTaskStatus Status { get; set; } = WorkTaskStatus.Created;
 
-        public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } = new BlockingCollection<(string, WorkTaskStatus)>();
+        public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } =
+            new BlockingCollection<(string, WorkTaskStatus)>();
 
         public void Log(string message)
         {
@@ -80,7 +90,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public override string ToString()
         {
-            return $"{nameof(SemanticVersion)}: {SemanticVersion.ToNormalizedString()}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(PackageId)}: {PackageId}, {nameof(DeploymentTaskId)}: {DeploymentTaskId}";
+            return
+                $"{nameof(SemanticVersion)}: {SemanticVersion.ToNormalizedString()}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(PackageId)}: {PackageId}, {nameof(DeploymentTaskId)}: {DeploymentTaskId}";
         }
     }
 }

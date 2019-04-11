@@ -7,7 +7,6 @@ using Arbor.KVConfiguration.Core;
 using Microsoft.AspNetCore.Authorization;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.IisHost.Areas.Security;
-using Serilog;
 using Serilog.Core;
 using Xunit;
 
@@ -16,23 +15,29 @@ namespace Milou.Deployer.Web.Tests.Integration
     public class DefaultAuthorizationHandlerTests
     {
         [Fact]
-        public async Task IPClaimInRangeForAllowedNetworkShouldMarkContextSucceeded()
+        public async Task IpClaimInRangeForAllowedNetworkShouldMarkContextSucceeded()
         {
-            ILogger logger = Logger.None;
+            var logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
-                [ConfigurationConstants.AllowedIPNetworks] = "192.168.0.0/24"
+                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/24"
             };
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
+            var allowedIpAddressHandler = new AllowedIpAddressHandler(new AllowedHostName[] { }, logger);
             var handler =
-                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(configuration,
+                    allowedIpAddressHandler,
+                    logger,
+                    ImmutableArray<AllowedEmail>.Empty,
+                    ImmutableArray<AllowedEmailDomain>.Empty);
 
-            IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IPAddress, "192.168.0.2")};
+            IEnumerable<Claim> claims = new[] { new Claim(CustomClaimTypes.IpAddress, "192.168.0.2") };
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(new IAuthorizationRequirement[]
-                {new DefaultAuthorizationRequirement()}, user, null);
+                    { new DefaultAuthorizationRequirement() },
+                user,
+                null);
 
             await handler.HandleAsync(authorizationHandlerContext);
 
@@ -40,24 +45,30 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         [Fact]
-        public async Task IPClaimInRangeForMultipleAllowedNetworksShouldMarkContextSucceeded()
+        public async Task IpClaimInRangeForMultipleAllowedNetworksShouldMarkContextSucceeded()
         {
-            ILogger logger = Logger.None;
+            var logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
-                [ConfigurationConstants.AllowedIPNetworks] = "192.168.0.0/24",
-                [ConfigurationConstants.AllowedIPNetworks] = "192.168.0.0/16"
+                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/24",
+                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/16"
             };
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
+            var allowedIpAddressHandler = new AllowedIpAddressHandler(System.Array.Empty<AllowedHostName>(), logger);
             var handler =
-                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(configuration,
+                    allowedIpAddressHandler,
+                    logger,
+                    ImmutableArray<AllowedEmail>.Empty,
+                    ImmutableArray<AllowedEmailDomain>.Empty);
 
-            IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IPAddress, "192.168.0.2")};
+            IEnumerable<Claim> claims = new[] { new Claim(CustomClaimTypes.IpAddress, "192.168.0.2") };
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(new IAuthorizationRequirement[]
-                {new DefaultAuthorizationRequirement()}, user, null);
+                    { new DefaultAuthorizationRequirement() },
+                user,
+                null);
 
             await handler.HandleAsync(authorizationHandlerContext);
 
@@ -65,23 +76,29 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         [Fact]
-        public async Task IPClaimMissingShouldMarkContextSucceeded()
+        public async Task IpClaimMissingShouldMarkContextSucceeded()
         {
-            ILogger logger = Logger.None;
+            var logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
-                [ConfigurationConstants.AllowedIPNetworks] = "192.168.0.0/24"
+                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/24"
             };
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
+            var allowedIpAddressHandler = new AllowedIpAddressHandler(new AllowedHostName[] { }, logger);
             var handler =
-                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(configuration,
+                    allowedIpAddressHandler,
+                    logger,
+                    ImmutableArray<AllowedEmail>.Empty,
+                    ImmutableArray<AllowedEmailDomain>.Empty);
 
             IEnumerable<Claim> claims = ImmutableArray<Claim>.Empty;
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(new IAuthorizationRequirement[]
-                {new DefaultAuthorizationRequirement()}, user, null);
+                    { new DefaultAuthorizationRequirement() },
+                user,
+                null);
 
             await handler.HandleAsync(authorizationHandlerContext);
 
@@ -89,23 +106,29 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         [Fact]
-        public async Task IPClaimOutOfRangeForAllowedNetworkShouldMarkContextNotSucceeded()
+        public async Task IpClaimOutOfRangeForAllowedNetworkShouldMarkContextNotSucceeded()
         {
-            ILogger logger = Logger.None;
+            var logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
-                [ConfigurationConstants.AllowedIPNetworks] = "192.168.0.0/24"
+                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/24"
             };
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
-            var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
+            var allowedIpAddressHandler = new AllowedIpAddressHandler(new AllowedHostName[] { }, logger);
             var handler =
-                new DefaultAuthorizationHandler(configuration, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(configuration,
+                    allowedIpAddressHandler,
+                    logger,
+                    ImmutableArray<AllowedEmail>.Empty,
+                    ImmutableArray<AllowedEmailDomain>.Empty);
 
-            IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IPAddress, "192.168.1.2")};
+            IEnumerable<Claim> claims = new[] { new Claim(CustomClaimTypes.IpAddress, "192.168.1.2") };
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(new IAuthorizationRequirement[]
-                {new DefaultAuthorizationRequirement()}, user, null);
+                    { new DefaultAuthorizationRequirement() },
+                user,
+                null);
 
             await handler.HandleAsync(authorizationHandlerContext);
 
@@ -113,18 +136,24 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         [Fact]
-        public async Task IPClaimWithoutNetworksShouldMarkContextNotSucceeded()
+        public async Task IpClaimWithoutNetworksShouldMarkContextNotSucceeded()
         {
-            ILogger logger = Logger.None;
+            var logger = Logger.None;
 
-            var allowedIpAddressHandler = new AllowedIPAddressHandler(new AllowedHostName[] { }, logger);
+            var allowedIpAddressHandler = new AllowedIpAddressHandler(new AllowedHostName[] { }, logger);
             var handler =
-                new DefaultAuthorizationHandler(NoConfiguration.Empty, allowedIpAddressHandler, logger, ImmutableArray<AllowedEmail>.Empty);
+                new DefaultAuthorizationHandler(NoConfiguration.Empty,
+                    allowedIpAddressHandler,
+                    logger,
+                    ImmutableArray<AllowedEmail>.Empty,
+                    ImmutableArray<AllowedEmailDomain>.Empty);
 
-            IEnumerable<Claim> claims = new[] {new Claim(CustomClaimTypes.IPAddress, "192.168.1.2")};
+            IEnumerable<Claim> claims = new[] { new Claim(CustomClaimTypes.IpAddress, "192.168.1.2") };
             var user = new ClaimsPrincipal(new ClaimsIdentity(claims));
             var authorizationHandlerContext = new AuthorizationHandlerContext(new IAuthorizationRequirement[]
-                {new DefaultAuthorizationRequirement()}, user, null);
+                    { new DefaultAuthorizationRequirement() },
+                user,
+                null);
 
             await handler.HandleAsync(authorizationHandlerContext);
 

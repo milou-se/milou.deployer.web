@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Web.IisHost.Areas.Application;
@@ -12,12 +11,12 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ShouldBeFound()
         {
-            ImmutableArray<OrderedModuleRegistration> registrations = ModuleExtensions.GetModules(
+            var registrations = ModuleExtensions.GetModules(
                 new[] { GetType().Assembly },
                 Array.Empty<Type>(),
                 new NoConfiguration());
 
-            OrderedModuleRegistration orderedModuleRegistration =
+            var orderedModuleRegistration =
                 registrations.SingleOrDefault(moduleRegistration =>
                     moduleRegistration.ModuleRegistration.ModuleType == typeof(SimpleNoOpTestModule));
 
@@ -27,12 +26,12 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ShouldHaveNoTag()
         {
-            ImmutableArray<OrderedModuleRegistration> registrations = ModuleExtensions.GetModules(
+            var registrations = ModuleExtensions.GetModules(
                 new[] { GetType().Assembly },
                 Array.Empty<Type>(),
                 new NoConfiguration());
 
-            OrderedModuleRegistration orderedModuleRegistration =
+            var orderedModuleRegistration =
                 registrations.SingleOrDefault(moduleRegistration =>
                     moduleRegistration.ModuleRegistration.ModuleType == typeof(SimpleNoOpTestModule));
 
@@ -42,12 +41,12 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ShouldHaveOrder0()
         {
-            ImmutableArray<OrderedModuleRegistration> registrations = ModuleExtensions.GetModules(
+            var registrations = ModuleExtensions.GetModules(
                 new[] { GetType().Assembly },
                 Array.Empty<Type>(),
                 new NoConfiguration());
 
-            OrderedModuleRegistration orderedModuleRegistration =
+            var orderedModuleRegistration =
                 registrations.SingleOrDefault(moduleRegistration =>
                     moduleRegistration.ModuleRegistration.ModuleType == typeof(SimpleNoOpTestModule));
 
@@ -57,12 +56,12 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ShouldRegisterInRootScopeFalse()
         {
-            ImmutableArray<OrderedModuleRegistration> registrations = ModuleExtensions.GetModules(
+            var registrations = ModuleExtensions.GetModules(
                 new[] { GetType().Assembly },
                 Array.Empty<Type>(),
                 new NoConfiguration());
 
-            OrderedModuleRegistration orderedModuleRegistration =
+            var orderedModuleRegistration =
                 registrations.SingleOrDefault(moduleRegistration =>
                     moduleRegistration.ModuleRegistration.ModuleType == typeof(SimpleNoOpTestModule));
 

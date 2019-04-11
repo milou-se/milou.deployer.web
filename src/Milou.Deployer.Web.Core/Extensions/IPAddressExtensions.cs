@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Net;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Extensions
 {
-    public static class IPAddressExtensions
+    public static class IpAddressExtensions
     {
         public static bool EqualsAddress(this IPAddress address, IPAddress otherAddress)
         {
@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Core
                 return false;
             }
 
-            bool sameFamily = address.AddressFamily == otherAddress.AddressFamily;
+            var sameFamily = address.AddressFamily == otherAddress.AddressFamily;
 
             if (!sameFamily)
             {

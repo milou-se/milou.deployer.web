@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -6,20 +6,27 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
+using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     public class DeploymentWorker : BackgroundService
     {
-        private ImmutableArray<DeploymentTargetWorker> _workers;
+        private readonly ILogger _logger;
+        private readonly ImmutableArray<DeploymentTargetWorker> _workers;
 
-        public DeploymentWorker([NotNull] IEnumerable<DeploymentTargetWorker> workers)
+        public DeploymentWorker(
+            [NotNull] IEnumerable<DeploymentTargetWorker> workers,
+            ILogger logger)
         {
             if (workers == null)
             {
                 throw new ArgumentNullException(nameof(workers));
             }
+
+            _logger = logger;
 
             _workers = workers.ToImmutableArray();
         }
@@ -33,27 +40,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (_workers.Length == 0)
             {
-                throw new Core.DeployerAppException("There are no registered deployment workers");
+                throw new DeployerAppException("There are no registered deployment workers");
             }
 
-            DeploymentTargetWorker workerByTargetId = _workers.SingleOrDefault(worker => worker.TargetId.Equals(targetId, StringComparison.OrdinalIgnoreCase));
+            var workerByTargetId = _workers.SingleOrDefault(worker =>
+                worker.TargetId.Equals(targetId, StringComparison.OrdinalIgnoreCase));
 
             return workerByTargetId;
         }
 
         public void Enqueue([NotNull] DeploymentTask deploymentTask)
         {
-            if (deploymentTask == null)
-            {
-                throw new ArgumentNullException(nameof(deploymentTask));
-            }
-
-            DeploymentTargetWorker foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
+            var foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
 
             if (foundWorker is null)
             {
-                throw new Core.DeployerAppException(
-                    $"Could not find worker for deployment target id {deploymentTask.DeploymentTargetId}");
+                _logger.Error("Could not find worker for deployment target id {DeploymentTargetId}", deploymentTask.DeploymentTargetId);
+                return;
             }
 
             foundWorker.Enqueue(deploymentTask);
@@ -63,14 +66,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             var tasks = new List<Task>(_workers.Length);
 
-            foreach (DeploymentTargetWorker deploymentTargetWorker in _workers)
+            foreach (var deploymentTargetWorker in _workers)
             {
                 tasks.Add(Task.Run(() => deploymentTargetWorker.ExecuteAsync(stoppingToken), stoppingToken));
             }
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromHours(1),stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
             }
 
             await Task.WhenAll(tasks);

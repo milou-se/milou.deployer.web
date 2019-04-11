@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Targets;
 
 namespace Milou.Deployer.Web.Tests.Integration
@@ -22,13 +23,13 @@ namespace Milou.Deployer.Web.Tests.Integration
                             "testproject",
                             new List<DeploymentTarget>
                             {
-                                new DeploymentTarget(id: Testtarget,
-                                    name: "Test target",
-                                    packageId: "MilouDeployerWebTest",
+                                new DeploymentTarget(Testtarget,
+                                    "Test target",
+                                    "MilouDeployerWebTest",
                                     allowExplicitPreRelease: false,
                                     autoDeployEnabled: true,
                                     targetDirectory: Environment.GetEnvironmentVariable("TestDeploymentTargetPath"),
-                                    uri: Environment.GetEnvironmentVariable("TestDeploymentUri"),
+                                    url:Environment.GetEnvironmentVariable("TestDeploymentUri").ParseUriOrDefault(),
                                     emailNotificationAddresses: new StringValues("noreply@localhost.local"),
                                     enabled: true)
                             })

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Collections.Specialized;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
@@ -18,12 +17,12 @@ namespace Milou.Deployer.Web.Tests.Integration
                 { nameof(NoOpTestModule.MeaningOfLife), "42" }
             };
 
-            ImmutableArray<OrderedModuleRegistration> registrations = ModuleExtensions.GetModules(
+            var registrations = ModuleExtensions.GetModules(
                 new[] { GetType().Assembly },
                 Array.Empty<Type>(),
                 new InMemoryKeyValueConfiguration(nameValueCollection));
 
-            OrderedModuleRegistration orderedModuleRegistration =
+            var orderedModuleRegistration =
                 registrations.SingleOrDefault(moduleRegistration =>
                     moduleRegistration.ModuleRegistration.ModuleType == typeof(NoOpTestModule));
 

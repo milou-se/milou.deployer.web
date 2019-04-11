@@ -18,9 +18,9 @@ namespace Milou.Deployer.Web.Core.Targets
     [UsedImplicitly]
     public class JsonTargetSource
     {
-        private readonly ILogger _logger;
         private readonly JsonDeploymentTargetSourceConfiguration _configuration;
         private readonly EnvironmentConfiguration _environment;
+        private readonly ILogger _logger;
 
         public JsonTargetSource(
             [NotNull] EnvironmentConfiguration environment,
@@ -34,7 +34,8 @@ namespace Milou.Deployer.Web.Core.Targets
 
         public Task<IReadOnlyCollection<OrganizationInfo>> GetTargetsAsync(CancellationToken cancellationToken)
         {
-            string jsonTargetsFile = _configuration.SourceFile.WithDefault(Path.Combine(_environment.ApplicationBasePath, "targets.json"));
+            var jsonTargetsFile =
+                _configuration.SourceFile.WithDefault(Path.Combine(_environment.ApplicationBasePath, "targets.json"));
 
             _logger.Information("Reading targets from JSON file '{JsonFile}'", jsonTargetsFile);
 
@@ -42,7 +43,7 @@ namespace Milou.Deployer.Web.Core.Targets
 
             IReadOnlyCollection<DeploymentTarget> targets = keyValueConfiguration.GetInstances<DeploymentTarget>();
 
-            IReadOnlyCollection<OrganizationInfo> organizations =
+            var organizations =
                 targets.GroupBy(target => target.Organization.WithDefault("Global"))
                     .Select(
                         organizationGroup => new

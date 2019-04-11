@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Immutable;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Web.Core.Configuration;
@@ -13,12 +12,12 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ShouldBeFound()
         {
-            ImmutableArray<OrderedModuleRegistration> registrations = ModuleExtensions.GetModules(
+            var registrations = ModuleExtensions.GetModules(
                 new[] { GetType().Assembly },
                 Array.Empty<Type>(),
                 new NoConfiguration());
 
-            OrderedModuleRegistration orderedModuleRegistration =
+            var orderedModuleRegistration =
                 registrations.SingleOrDefault(moduleRegistration =>
                     moduleRegistration.ModuleRegistration.ModuleType == typeof(NoOpTestModule));
 

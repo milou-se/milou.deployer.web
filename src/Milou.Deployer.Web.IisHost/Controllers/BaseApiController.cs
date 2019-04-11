@@ -4,7 +4,7 @@ using Milou.Deployer.Web.IisHost.Areas.Security;
 
 namespace Milou.Deployer.Web.IisHost.Controllers
 {
-    [Authorize(Policy = AuthorizationPolicies.IPOrToken)]
+    [Authorize(Policy = AuthorizationPolicies.IpOrToken)]
     public abstract class BaseApiController : Controller
     {
     }

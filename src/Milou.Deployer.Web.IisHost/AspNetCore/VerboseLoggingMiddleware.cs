@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         [UsedImplicitly]
         public async Task InvokeAsync(HttpContext context)
         {
-            bool loggingEnabled = _logger.IsEnabled(LogEventLevel.Verbose);
+            var loggingEnabled = _logger.IsEnabled(LogEventLevel.Verbose);
 
             string commonRequestInfo = null;
 

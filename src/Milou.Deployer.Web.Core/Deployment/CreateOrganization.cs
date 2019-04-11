@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
-    public sealed class CreateOrganization : IRequest<CreateOrganizationResult>, Validation.IValidationObject
+    public sealed class CreateOrganization : IRequest<CreateOrganizationResult>, IValidationObject
     {
         public CreateOrganization(string id)
         {

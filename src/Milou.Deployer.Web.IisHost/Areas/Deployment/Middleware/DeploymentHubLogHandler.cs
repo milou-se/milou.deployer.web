@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +20,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
 
         public async Task Handle(DeploymentLogNotification notification, CancellationToken cancellationToken)
         {
-            ImmutableHashSet<string> tryGetTargetSubscribers =
+            var tryGetTargetSubscribers =
                 DeploymentLogSubscriptionHandler.TryGetTargetSubscribers(notification.DeploymentTargetId);
 
             if (tryGetTargetSubscribers.Count == 0)
@@ -29,8 +28,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
                 return;
             }
 
-            string[] clients = tryGetTargetSubscribers.ToArray();
-            IClientProxy clientProxy = _hubContext.Clients.Clients(clients);
+            var clients = tryGetTargetSubscribers.ToArray();
+            var clientProxy = _hubContext.Clients.Clients(clients);
 
             await clientProxy.SendAsync(DeploymentLoggingHub.MessageMethod, notification.Message, cancellationToken);
         }

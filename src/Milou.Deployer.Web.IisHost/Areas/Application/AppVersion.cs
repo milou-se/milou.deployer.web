@@ -51,7 +51,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             get
             {
                 if (!SemanticVersion.TryParse(Properties[ConfigurationConstants.SemanticVersionNormalized],
-                    out SemanticVersion semver))
+                    out var semver))
                 {
                     return null;
                 }
@@ -72,7 +72,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     Properties[ConfigurationConstants.DeploymentStartTime],
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.AssumeUniversal,
-                    out DateTime deployedAtUtc))
+                    out var deployedAtUtc))
                 {
                     return null;
                 }

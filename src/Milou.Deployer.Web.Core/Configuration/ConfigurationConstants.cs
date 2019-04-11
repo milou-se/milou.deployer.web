@@ -69,13 +69,13 @@ namespace Milou.Deployer.Web.Core.Configuration
             "urn:milou:deployer:web:startup:targets-timeout-in-seconds";
 
         [Metadata]
-        public static string AllowedIPs = "urn:milou:deployer:authorization:allowed-ips";
+        public const string AllowedIPs = "urn:milou:deployer:authorization:allowed-ips";
 
         [Metadata]
-        public static string AllowedIPNetworks = "urn:milou:deployer:authorization:allowed-ip-networks";
+        public const string AllowedIpNetworks = "urn:milou:deployer:authorization:allowed-ip-networks";
 
         [Metadata]
-        public static string JsonSettingsFile = "urn:milou:deployer:settings:json-file";
+        public const string JsonSettingsFile = "urn:milou:deployer:settings:json-file";
 
         [Metadata]
         public const string NuGetDownloadTimeoutInSeconds = "urn:milou:deployer:web:nuget:download-timeout-in-seconds";
@@ -83,10 +83,7 @@ namespace Milou.Deployer.Web.Core.Configuration
         [Metadata]
         public const string NuGetExeDirectory = "urn:milou:deployer:web:nuget:nuget-directory";
 
-        public static class Logging
-        {
-            [Metadata]
-            public const string LogLevel = "urn:milou-deployer:web:log:level";
-        }
+        [Metadata]
+        public const string LogLevel = "urn:milou-deployer:web:log:level";
     }
 }

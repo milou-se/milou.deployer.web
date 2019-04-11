@@ -12,7 +12,7 @@ namespace Milou.Deployer.Web.Core.Json
             object existingValue,
             JsonSerializer serializer)
         {
-            return  EnvironmentType.Parse(reader.Value as string);
+            return EnvironmentType.Parse(reader.Value as string);
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

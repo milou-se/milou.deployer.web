@@ -6,9 +6,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
 {
     public class OrganizationsViewOutputModel
     {
-        public ImmutableArray<OrganizationInfo> Organizations { get; }
-        public CreateOrganizationResult CreateOrganizationResult { get; }
-
         public OrganizationsViewOutputModel(
             ImmutableArray<OrganizationInfo> organizations,
             CreateOrganizationResult createOrganizationResult)
@@ -16,5 +13,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Organizations
             Organizations = organizations;
             CreateOrganizationResult = createOrganizationResult;
         }
+
+        public ImmutableArray<OrganizationInfo> Organizations { get; }
+        public CreateOrganizationResult CreateOrganizationResult { get; }
     }
 }

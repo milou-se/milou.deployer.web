@@ -14,8 +14,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
     public sealed class WebHostWrapper : IWebHost
     {
-        private Scope _scope;
-        private IWebHost _webHostImplementation;
+        private readonly Scope _scope;
+        private readonly IWebHost _webHostImplementation;
 
         public WebHostWrapper([NotNull] IWebHost webHost, Scope scope)
         {

@@ -38,7 +38,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
         public override string ToString()
         {
-            return $"{nameof(EmptyTargetsDelayInSeconds)}: {EmptyTargetsDelayInSeconds}, {nameof(Enabled)}: {Enabled}, {nameof(StartupDelayInSeconds)}: {StartupDelayInSeconds}, {nameof(MetadataTimeoutInSeconds)}: {MetadataTimeoutInSeconds}, {nameof(DefaultTimeoutInSeconds)}: {DefaultTimeoutInSeconds}, {nameof(AfterDeployDelayInSeconds)}: {AfterDeployDelayInSeconds}";
+            return
+                $"{nameof(EmptyTargetsDelayInSeconds)}: {EmptyTargetsDelayInSeconds}, {nameof(Enabled)}: {Enabled}, {nameof(StartupDelayInSeconds)}: {StartupDelayInSeconds}, {nameof(MetadataTimeoutInSeconds)}: {MetadataTimeoutInSeconds}, {nameof(DefaultTimeoutInSeconds)}: {DefaultTimeoutInSeconds}, {nameof(AfterDeployDelayInSeconds)}: {AfterDeployDelayInSeconds}";
         }
     }
 }

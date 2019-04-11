@@ -10,104 +10,108 @@
 
 <h2>Deployed monitored applications</h2>
 
-<p><span><a class="action-link" href="@Url.RouteUrl(TargetConstants.CreateTargetGetRouteName)">Create new target</a></span></p>
+<p>
+    <span>
+        <a class="action-link" href="@Url.RouteUrl(TargetConstants.CreateTargetGetRouteName)">Create new target</a>
+    </span>
+</p>
 
 <table>
     <thead>
-        <tr>
-            <th>Target name</th>
-            <th>URL</th>
-            <th>Status</th>
-            <th>History</th>
-            <th>Message</th>
-            <th>
-                <span style="white-space: nowrap">Version</span>
-            </th>
-            <th>Deployed</th>
-            <th>
-                <span style="white-space: nowrap">Environment type</span>
-            </th>
-            <th>Metadata</th>
-            <th>Deploy</th>
-        </tr>
+    <tr>
+        <th>Target name</th>
+        <th>URL</th>
+        <th>Status</th>
+        <th>History</th>
+        <th>Message</th>
+        <th>
+            <span style="white-space: nowrap">Version</span>
+        </th>
+        <th>Deployed</th>
+        <th>
+            <span style="white-space: nowrap">Environment type</span>
+        </th>
+        <th>Metadata</th>
+        <th>Deploy</th>
+    </tr>
     </thead>
     <tbody>
-        @foreach (AppVersion item in Model.AppVersions)
-        {
-            <tr>
-                <td>
-                    <a href="@Url.RouteUrl(TargetConstants.EditTargetRouteName, new { targetId = item.Target.Id })">@item.Target.Name</a>
-                </td>
-                <td>
-                    @if (item.Target.Url.HasValue())
-                    {
-                        <a href="@item.Target.Url">@item.Target.Name</a>
-                    }
-                </td>
-                <td>
-                    <span class="deploy-status-@item.Status.Key">@item.Status.DisplayName</span>
-                </td>
-                <td>
-                    <a href="@Url.RouteUrl(DeploymentConstants.HistoryRouteName, new { deploymentTargetId = item.Target.Id })">History</a>
-                </td>
-                <td>@item.Message</td>
-                <td>
-                    <span class="@item.PreReleaseClass">@(item.SemanticVersion?.ToNormalizedString() ?? Constants.NotAvailable)</span>
-                </td>
-                <td class="traffic-light @item.DeployedAtUtc.IntervalAgo(Time).Name">
-                    <span title="@(item.DeployedAtUtc.ToLocalTimeFormatted(Time))">@item.DeployedAtUtc.RelativeUtcToLocalTime(Time)</span>
-                </td>
+    @foreach (AppVersion item in Model.AppVersions)
+    {
+        <tr>
+            <td>
+                <a href="@Url.RouteUrl(TargetConstants.EditTargetRouteName, new { targetId = item.Target.Id })">@item.Target.Name</a>
+            </td>
+            <td>
+                @if (item.Target.Url.HasValue())
+                {
+                    <a href="@item.Target.Url">@item.Target.Name</a>
+                }
+            </td>
+            <td>
+                <span class="deploy-status-@item.Status.Key">@item.Status.DisplayName</span>
+            </td>
+            <td>
+                <a href="@Url.RouteUrl(DeploymentConstants.HistoryRouteName, new { deploymentTargetId = item.Target.Id })">History</a>
+            </td>
+            <td>@item.Message</td>
+            <td>
+                <span class="@item.PreReleaseClass">@(item.SemanticVersion?.ToNormalizedString() ?? Constants.NotAvailable)</span>
+            </td>
+            <td class="traffic-light @item.DeployedAtUtc.IntervalAgo(Time).Name">
+                <span title="@(item.DeployedAtUtc.ToLocalTimeFormatted(Time))">@item.DeployedAtUtc.RelativeUtcToLocalTime(Time)</span>
+            </td>
 
-                <td>@item.Target.EnvironmentType</td>
-                <td>
-                    @if (item.Target.Url.HasValue())
-                    {
-                        <a href="@(item.Target.Url)applicationmetadata.json" target="_blank">Metadata</a>
-                    }
-                    else
-                    {
-                        @Constants.NotAvailable
-                    }
-                </td>
-                <td>
+            <td>@item.Target.EnvironmentType</td>
+            <td>
+                @if (item.Target.Url.HasValue())
+                {
+                    <a href="@(item.Target.Url)applicationmetadata.json" target="_blank">Metadata</a>
+                }
+                else
+                {
+                    @Constants.NotAvailable
+                }
+            </td>
+            <td>
 
-                    @if (item.Target.Enabled && item.AvailablePackageVersions.Any() && !item.Target.IsReadOnly)
-                    {
-                        <form method="POST" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
-                            <input type="hidden" name="targetId" value="@item.Target.Id" />
-                            <input type="hidden" name="current-version-major" value="@(item.SemanticVersion?.Major)" disabled="disabled" />
-                            <input type="hidden" name="current-version-minor" value="@(item.SemanticVersion?.Minor)" disabled="disabled" />
-                            <input type="hidden" name="current-version-patch" value="@(item.SemanticVersion?.Patch)" disabled="disabled" />
-                            <input type="hidden" name="current-version-isPreRelease" value="@(item.SemanticVersion != null && item.SemanticVersion.IsPrerelease ? "true" : string.Empty)" disabled="disabled" />
+                @if (item.Target.Enabled && item.AvailablePackageVersions.Any() && !item.Target.IsReadOnly)
+                {
+                    <form method="POST" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)">
+                        <input type="hidden" name="targetId" value="@item.Target.Id"/>
+                        <input type="hidden" name="current-version-major" value="@(item.SemanticVersion?.Major)" disabled="disabled"/>
+                        <input type="hidden" name="current-version-minor" value="@(item.SemanticVersion?.Minor)" disabled="disabled"/>
+                        <input type="hidden" name="current-version-patch" value="@(item.SemanticVersion?.Patch)" disabled="disabled"/>
+                        <input type="hidden" name="current-version-isPreRelease" value="@(item.SemanticVersion != null && item.SemanticVersion.IsPrerelease ? "true" : string.Empty)" disabled="disabled"/>
 
-                            <span class="package-select">
-                                <select name="packageVersion" id="packageVersion">
+                        <span class="package-select">
+                            <select name="packageVersion" id="packageVersion">
 
-                                    @foreach (IGrouping<string, PackageVersion> group in item.AvailablePackageVersions.GroupBy(p => p.PackageId).OrderBy(g => g.Key))
-                                    {
-                                        <optgroup label="@group.Key">
-                                            @foreach (PackageVersion allowPackageVersion in group.OrderByDescending(p => p.Version))
-                                            {
-                                                <option @Html.Raw(item.SemanticVersion != null && item.SemanticVersion == allowPackageVersion.Version ? "\"selected\"=\"selected\"" : string.Empty) value="@allowPackageVersion.PackageId @allowPackageVersion.Version.ToNormalizedString()" data-version-major="@allowPackageVersion.Version.Major" data-version-minor="@allowPackageVersion.Version.Minor" data-version-patch="@allowPackageVersion.Version.Patch" data-version-isPreRelease="@(allowPackageVersion.Version.IsPrerelease ? "true" : string.Empty)">@allowPackageVersion.PackageId @allowPackageVersion.Version.ToNormalizedString()</option>
-                                            }
-                                        </optgroup>
-                                    }
+                                @foreach (IGrouping<string, PackageVersion> group in item.AvailablePackageVersions.GroupBy(p => p.PackageId).OrderBy(g => g.Key))
+                                {
+                                    <optgroup label="@group.Key">
+                                        @foreach (PackageVersion allowPackageVersion in group.OrderByDescending(p => p.Version))
+                                        {
+                                            <option @Html.Raw(item.SemanticVersion != null && item.SemanticVersion == allowPackageVersion.Version ? "\"selected\"=\"selected\"" : string.Empty) value="@allowPackageVersion.PackageId @allowPackageVersion.Version.ToNormalizedString()" data-version-major="@allowPackageVersion.Version.Major" data-version-minor="@allowPackageVersion.Version.Minor" data-version-patch="@allowPackageVersion.Version.Patch" data-version-isPreRelease="@(allowPackageVersion.Version.IsPrerelease ? "true" : string.Empty)">@allowPackageVersion.PackageId @allowPackageVersion.Version.ToNormalizedString()</option>
+                                        }
+                                    </optgroup>
+                                }
 
-                                </select>
-                            </span>
+                            </select>
+                        </span>
 
-                            <input type="submit" value="Deploy" class="deploy-button" />
+                        <input type="submit" value="Deploy" class="deploy-button"/>
 
-                        </form>
-                    }
-                    @if (!item.Target.Enabled)
-                    {
-                        <span class="disabled">Disabled</span>
-                    }
+                    </form>
+                }
+                @if (!item.Target.Enabled)
+                {
+                    <span class="disabled">Disabled</span>
+                }
 
-                </td>
-            </tr>
-        }
+            </td>
+        </tr>
+    }
 
     </tbody>
 </table>

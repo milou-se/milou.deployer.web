@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Autofac;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
@@ -53,16 +53,6 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         public Scope Parent { get; private set; }
 
-        public void Dispose()
-        {
-            if (SubScope.HasValue())
-            {
-                SubScope.Dispose();
-            }
-
-            Lifetime?.Dispose();
-        }
-
         public override string ToString()
         {
             return $"ScopeName: {Name}";
@@ -70,7 +60,7 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         public string Diagnostics()
         {
-            string subScope = SubScope is null ? null : " --> " + SubScope.Diagnostics();
+            var subScope = SubScope is null ? null : " --> " + SubScope.Diagnostics();
             return Name + subScope;
         }
 
@@ -86,7 +76,7 @@ namespace Milou.Deployer.Web.Core.Configuration
 
         public Scope Top()
         {
-            Scope current = this;
+            var current = this;
 
             while (current.Parent != null)
             {
@@ -94,6 +84,16 @@ namespace Milou.Deployer.Web.Core.Configuration
             }
 
             return current;
+        }
+
+        public void Dispose()
+        {
+            if (SubScope.HasValue())
+            {
+                SubScope.Dispose();
+            }
+
+            Lifetime?.Dispose();
         }
     }
 }

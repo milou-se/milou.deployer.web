@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
-using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers;
 using Serilog.Events;
 

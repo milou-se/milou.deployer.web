@@ -26,6 +26,12 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
 
         public DirectoryInfo SiteAppRoot { get; }
 
+        public override string ToString()
+        {
+            return
+                $"{nameof(BaseDirectory)}: {BaseDirectory.FullName}, {nameof(NugetConfigFile)}: {NugetConfigFile.FullName}, {nameof(NugetPackageDirectory)}: {NugetPackageDirectory.FullName}, {nameof(SiteAppRoot)}: {SiteAppRoot.FullName}";
+        }
+
         public void Dispose()
         {
             if (BaseDirectory != null)
@@ -33,12 +39,6 @@ namespace Milou.Deployer.Web.Tests.Integration.TestData
                 BaseDirectory.Refresh();
                 BaseDirectory.Delete(true);
             }
-        }
-
-        public override string ToString()
-        {
-            return
-                $"{nameof(BaseDirectory)}: {BaseDirectory.FullName}, {nameof(NugetConfigFile)}: {NugetConfigFile.FullName}, {nameof(NugetPackageDirectory)}: {NugetPackageDirectory.FullName}, {nameof(SiteAppRoot)}: {SiteAppRoot.FullName}";
         }
     }
 }

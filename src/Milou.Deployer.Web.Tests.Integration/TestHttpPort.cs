@@ -1,11 +1,12 @@
 ﻿using JetBrains.Annotations;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
     [UsedImplicitly]
-    public class TestHttpPort : IConfigureEnvironment {
+    public class TestHttpPort : IConfigureEnvironment
+    {
         private readonly PortPoolRental _portPoolRental;
 
         public TestHttpPort(PortPoolRental portPoolRental)

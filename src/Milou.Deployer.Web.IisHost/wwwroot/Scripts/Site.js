@@ -4,6 +4,7 @@
 
     return createSpanLogItemElementFromJson(eventData);
 }
+
 function createSpanLogItemElementFromJson(jsonData) {
 
     const logElement = document.createElement("span");
@@ -29,7 +30,7 @@ function parseLogLines(jsonLogs) {
 
     lines.items.forEach(function(element) {
 
-        var spanElement = createSpanLogItemElementFromJson(element);
+        const spanElement = createSpanLogItemElementFromJson(element);
 
         logElements.appendChild(spanElement);
     });
@@ -37,22 +38,22 @@ function parseLogLines(jsonLogs) {
     return logElements;
 }
 
-$(function () {
+$(function() {
 
     $("div.projects").hide();
     $("div.targets").hide();
 
-    $('.organization-toggler').click(function () {
-        $(this).next('div.projects').toggle();
+    $(".organization-toggler").click(function() {
+        $(this).next("div.projects").toggle();
     });
 
-    $('.project-toggler').click(function () {
-        $(this).next('div.targets').toggle();
+    $(".project-toggler").click(function() {
+        $(this).next("div.targets").toggle();
     });
 
-    $('.deploy-button').closest('form').submit(function (e) {
+    $(".deploy-button").closest("form").submit(function(e) {
 
-        var packageVersion = $(this).find('select[name="packageVersion"]').val();
+        const packageVersion = $(this).find('select[name="packageVersion"]').val();
         var targetId = $(this).find('input[name="targetId"]').val();
 
         if (!targetId) {
@@ -61,56 +62,56 @@ $(function () {
 
         e.preventDefault();
 
-        var confirmMessage = 'Deploy ' + packageVersion + ' to ' + targetId;
+        var confirmMessage = `Deploy ${packageVersion} to ${targetId}`;
 
-        var selectedVersion = $(this).find('select[name="packageVersion"]').find('option:selected');
-        var currentVersionMajor = $(this).find('input[name="current-version-major"]').val();
-        var currentVersionMinor = $(this).find('input[name="current-version-minor"]').val();
-        var currentVersionPatch = $(this).find('input[name="current-version-patch"]').val();
-        var currentVersionIsPreRelease = Boolean($(this).find('input[name="current-version-isPreRelease"]').val());
+        const selectedVersion = $(this).find('select[name="packageVersion"]').find("option:selected");
+        const currentVersionMajor = $(this).find('input[name="current-version-major"]').val();
+        const currentVersionMinor = $(this).find('input[name="current-version-minor"]').val();
+        const currentVersionPatch = $(this).find('input[name="current-version-patch"]').val();
+        const currentVersionIsPreRelease = Boolean($(this).find('input[name="current-version-isPreRelease"]').val());
 
         if (selectedVersion && currentVersionMajor && currentVersionMinor && currentVersionPatch) {
-            var selectedVersionMajor = parseInt(selectedVersion.attr('data-version-major'));
-            var selectedVersionMinor = parseInt(selectedVersion.attr('data-version-minor'));
-            var selectedVersionPatch = parseInt(selectedVersion.attr('data-version-patch'));
-            var selectedVersionIsPreRelease = Boolean(selectedVersion.attr('data-version-isPreRelease'));
+            const selectedVersionMajor = parseInt(selectedVersion.attr("data-version-major"));
+            const selectedVersionMinor = parseInt(selectedVersion.attr("data-version-minor"));
+            const selectedVersionPatch = parseInt(selectedVersion.attr("data-version-patch"));
+            const selectedVersionIsPreRelease = Boolean(selectedVersion.attr("data-version-isPreRelease"));
 
-            var currentSemanticVersion = {
+            const currentSemanticVersion = {
                 major: currentVersionMajor,
                 minor: currentVersionMinor,
                 patch: currentVersionPatch
-            }
+            };
 
-            var selectedSemanticVersion = {
+            const selectedSemanticVersion = {
                 major: parseInt(selectedVersionMajor),
                 minor: parseInt(selectedVersionMinor),
                 patch: parseInt(selectedVersionPatch)
-            }
+            };
 
-            var compareValue = compareSemVer(currentSemanticVersion, selectedSemanticVersion);
+            const compareValue = compareSemVer(currentSemanticVersion, selectedSemanticVersion);
 
             if (compareValue === -1) {
-                confirmMessage += ' WARNING! older version';
+                confirmMessage += " WARNING! older version";
             }
 
             if (!currentVersionIsPreRelease && !selectedVersionIsPreRelease) {
 
                 if (compareValue === 0) {
-                    confirmMessage += ' WARNING! same version already deployed';
+                    confirmMessage += " WARNING! same version already deployed";
                 }
             }
 
             if (!currentVersionIsPreRelease && selectedVersionIsPreRelease) {
-                confirmMessage += ' WARNING! selected version is pre-release';
+                confirmMessage += " WARNING! selected version is pre-release";
             }
         }
 
-        var confirmed = confirm(confirmMessage);
+        const confirmed = confirm(confirmMessage);
 
         if (confirmed === true) {
             this.submit();
         } else {
-            console.log('aborted');
+            console.log("aborted");
         }
 
     });

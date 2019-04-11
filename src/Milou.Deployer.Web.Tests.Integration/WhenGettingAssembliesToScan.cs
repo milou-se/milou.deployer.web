@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Milou.Deployer.Web.Marten;
@@ -17,12 +16,12 @@ namespace Milou.Deployer.Web.Tests.Integration
             _output = output;
         }
 
-        private ITestOutputHelper _output;
+        private readonly ITestOutputHelper _output;
 
         [Fact]
         public void ItShouldFindAllKnownAssemblies()
         {
-            ImmutableArray<Assembly> assemblies = Assemblies.FilteredAssemblies(useCache: false)
+            var assemblies = Assemblies.FilteredAssemblies(useCache: false)
                 .Where(assembly => !assembly.GetName().Name.EndsWith(".Views", StringComparison.OrdinalIgnoreCase))
                 .ToImmutableArray();
 

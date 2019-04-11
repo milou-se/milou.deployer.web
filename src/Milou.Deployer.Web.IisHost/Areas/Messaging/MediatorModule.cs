@@ -14,11 +14,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
     [UsedImplicitly]
     public class MediatorModule : Module
     {
-        private readonly IReadOnlyCollection<Assembly> _scanAssemblies;
         private readonly IReadOnlyCollection<Type> _excludedTypes;
         private readonly ILogger _logger;
+        private readonly IReadOnlyCollection<Assembly> _scanAssemblies;
 
-        public MediatorModule(IReadOnlyCollection<Assembly> scanAssemblies, IReadOnlyCollection<Type> excludedTypes, ILogger logger)
+        public MediatorModule(
+            IReadOnlyCollection<Assembly> scanAssemblies,
+            IReadOnlyCollection<Type> excludedTypes,
+            ILogger logger)
         {
             _scanAssemblies = scanAssemblies;
             _excludedTypes = excludedTypes;
@@ -42,14 +45,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
                 typeof(INotificationHandler<>)
             };
 
-            foreach (Type mediatorOpenType in mediatorOpenTypes)
+            foreach (var mediatorOpenType in mediatorOpenTypes)
             {
                 builder
                     .RegisterAssemblyTypes(_scanAssemblies.ToArray())
                     .Where(type => !_excludedTypes.Contains(type))
                     .Where(type =>
                     {
-                        bool isClosedType = mediatorOpenTypes.Any(type.IsClosedTypeOf);
+                        var isClosedType = mediatorOpenTypes.Any(type.IsClosedTypeOf);
 
                         if (isClosedType)
                         {
@@ -59,7 +62,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Messaging
                         return isClosedType;
                     })
                     .AsClosedTypesOf(mediatorOpenType)
-                    .AsImplementedInterfaces();
+                    .AsImplementedInterfaces()
+                    .SingleInstance();
             }
 
             builder.RegisterGeneric(typeof(RequestPostProcessorBehavior<,>)).As(typeof(IPipelineBehavior<,>));

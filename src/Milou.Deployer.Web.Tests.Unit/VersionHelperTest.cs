@@ -1,4 +1,4 @@
-﻿using Milou.Deployer.Web.Core;
+﻿using Milou.Deployer.Web.Core.Application;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -6,17 +6,17 @@ namespace Milou.Deployer.Web.Tests.Unit
 {
     public class VersionHelperTest
     {
-        private readonly ITestOutputHelper _output;
-
         public VersionHelperTest(ITestOutputHelper output)
         {
             _output = output;
         }
 
+        private readonly ITestOutputHelper _output;
+
         [Fact]
         public void VersionInfoShouldNotBeNull()
         {
-            ApplicationVersionInfo applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
+            var applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
             _output.WriteLine(applicationVersionInfo.AssemblyVersion);
             _output.WriteLine(applicationVersionInfo.FileVersion);

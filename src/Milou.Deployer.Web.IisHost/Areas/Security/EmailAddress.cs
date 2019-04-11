@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
@@ -10,6 +11,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         }
 
         public string Address { get; }
+
+        public string Domain => Address.Split('@').Last();
 
         public static bool TryParse(string email, out EmailAddress emailAddress)
         {

@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
                 return customAttribute != null;
             }
 
-            ImmutableArray<Type> urnMappedTypes = assemblies
+            var urnMappedTypes = assemblies
                 .Select(assembly =>
                     assembly.GetLoadableTypes()
                         .Where(type => !type.IsAbstract && type.IsPublic)

@@ -9,17 +9,17 @@ namespace Milou.Deployer.Web.Core.Logging
     [Urn(HttpLoggingConfigurationUrn)]
     public class HttpLoggingConfiguration : IConfigurationValues
     {
-        public bool Enabled { get; }
+        [Metadata(defaultValue: "true")]
+        public const string HttpLoggingEnabled = "urn:milou:deployer:web:http-logging:default:enabled";
+
+        [Metadata]
+        public const string HttpLoggingConfigurationUrn = "urn:milou:deployer:web:http-logging";
 
         public HttpLoggingConfiguration(bool enabled)
         {
             Enabled = enabled;
         }
 
-        [Metadata(defaultValue:"true")]
-        public const string HttpLoggingEnabled = "urn:milou:deployer:web:http-logging:default:enabled";
-
-        [Metadata]
-        public const string HttpLoggingConfigurationUrn = "urn:milou:deployer:web:http-logging";
+        public bool Enabled { get; }
     }
 }

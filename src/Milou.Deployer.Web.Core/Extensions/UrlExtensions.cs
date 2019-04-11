@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Extensions
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            string query =
+            var query =
                 $"{string.Join("&", parameters.Select(parameter => $"{Uri.EscapeDataString(parameter.Key)}={Uri.EscapeDataString(parameter.Value)}"))}";
 
             return query;
@@ -44,6 +44,16 @@ namespace Milou.Deployer.Web.Core.Extensions
             };
 
             return builder.Uri;
+        }
+
+        public static Uri ParseUriOrDefault(this string value)
+        {
+            if (!Uri.TryCreate(value, UriKind.Absolute, out Uri uri))
+            {
+                return uri;
+            }
+
+            return default;
         }
     }
 }

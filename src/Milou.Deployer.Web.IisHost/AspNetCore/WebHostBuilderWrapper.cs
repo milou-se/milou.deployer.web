@@ -9,8 +9,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
     public sealed class WebHostBuilderWrapper : IWebHostBuilder
     {
-        private IWebHostBuilder _webHostBuilderImplementation;
         private readonly Scope _scope;
+        private readonly IWebHostBuilder _webHostBuilderImplementation;
 
         public WebHostBuilderWrapper([NotNull] IWebHostBuilder webHostBuilder, Scope scope)
         {
@@ -23,7 +23,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             return new WebHostWrapper(_webHostBuilderImplementation.Build(), _scope);
         }
 
-        public IWebHostBuilder ConfigureAppConfiguration(Action<WebHostBuilderContext, IConfigurationBuilder> configureDelegate)
+        public IWebHostBuilder ConfigureAppConfiguration(
+            Action<WebHostBuilderContext, IConfigurationBuilder> configureDelegate)
         {
             return _webHostBuilderImplementation.ConfigureAppConfiguration(configureDelegate);
         }

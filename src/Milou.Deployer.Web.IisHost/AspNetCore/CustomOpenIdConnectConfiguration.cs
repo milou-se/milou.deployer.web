@@ -1,17 +1,26 @@
-﻿using Arbor.KVConfiguration.Urns;
+﻿using System;
+using Arbor.KVConfiguration.Urns;
+using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
     [Urn(UrnKey)]
+    [UsedImplicitly]
     public class CustomOpenIdConnectConfiguration : IValidationObject, IConfigurationValues
     {
+        [PublicAPI]
         public const string UrnKey = "urn:milou:deployer:web:open-id-connect";
 
         public CustomOpenIdConnectConfiguration(
-            string clientId, string clientSecret, string authority,
-            string metadataAddress, string issuer, bool enabled)
+            string clientId,
+            string clientSecret,
+            string authority,
+            string metadataAddress,
+            string issuer,
+            bool enabled,
+            string redirectUri)
         {
             ClientId = clientId;
             ClientSecret = clientSecret;
@@ -19,11 +28,15 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
             MetadataAddress = metadataAddress;
             Issuer = issuer;
             Enabled = enabled;
-            IsValid = !string.IsNullOrWhiteSpace(clientId)
-                      && !string.IsNullOrWhiteSpace(clientSecret)
-                      && (!string.IsNullOrWhiteSpace(authority) ||
-                          !string.IsNullOrWhiteSpace(metadataAddress))
-                      && !string.IsNullOrWhiteSpace(issuer);
+            if (Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri uri))
+            {
+                RedirectUri = uri;
+            }
+
+            IsValid = !enabled || (!string.IsNullOrWhiteSpace(clientId)
+                                   && !string.IsNullOrWhiteSpace(clientSecret)
+                                   && (!string.IsNullOrWhiteSpace(authority) ||
+                                       !string.IsNullOrWhiteSpace(metadataAddress)));
         }
 
         public string ClientId { get; }
@@ -37,6 +50,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         public string Issuer { get; }
 
         public bool Enabled { get; }
+
+        public Uri RedirectUri { get; }
 
         public bool IsValid { get; }
     }

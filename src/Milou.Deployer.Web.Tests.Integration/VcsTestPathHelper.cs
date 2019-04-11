@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Arbor.Aesculus.Core;
+using NCrunch.Framework;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
@@ -7,7 +8,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         public static string GetRootDirectory()
         {
-            string originalSolutionPath = NCrunch.Framework.NCrunchEnvironment.GetOriginalSolutionPath();
+            var originalSolutionPath = NCrunchEnvironment.GetOriginalSolutionPath();
 
             if (!string.IsNullOrWhiteSpace(originalSolutionPath))
             {

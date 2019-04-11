@@ -1,9 +1,8 @@
 ﻿using System;
 using JetBrains.Annotations;
 using MediatR;
-using Milou.Deployer.Web.Core.Deployment;
 
-namespace Milou.Deployer.Web.Core.Email
+namespace Milou.Deployer.Web.Core.Deployment
 {
     public class DeploymentFinishedNotification : INotification
     {

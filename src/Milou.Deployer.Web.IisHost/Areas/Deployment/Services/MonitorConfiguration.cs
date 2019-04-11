@@ -8,12 +8,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     [UsedImplicitly]
     public class MonitorConfiguration : IConfigurationValues
     {
-        public int DefaultTimeoutInSeconds { get; }
-
         public MonitorConfiguration(int defaultTimeoutInSeconds)
         {
             DefaultTimeoutInSeconds = defaultTimeoutInSeconds > 0 ? defaultTimeoutInSeconds : 10;
         }
+
+        public int DefaultTimeoutInSeconds { get; }
 
         public override string ToString()
         {

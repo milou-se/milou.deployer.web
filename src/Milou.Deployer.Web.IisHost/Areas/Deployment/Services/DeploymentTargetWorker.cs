@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
@@ -12,7 +12,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
-    public class DeploymentTargetWorker
+    public sealed class DeploymentTargetWorker : IDisposable
     {
         private readonly DeploymentService _deploymentService;
         private readonly ILogger _logger;
@@ -42,6 +42,71 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public string TargetId { get; }
 
+        private async Task StartTaskMessageHandler(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var deploymentTask = _runningTasks.Take(stoppingToken);
+
+                while (!deploymentTask.MessageQueue.IsCompleted)
+                {
+                    if (!deploymentTask.MessageQueue.TryTake(out (string Message, WorkTaskStatus Status) valueTuple,
+                        TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
+                    {
+                        deploymentTask.MessageQueue.CompleteAdding();
+                    }
+
+                    if (valueTuple.Message.HasValue())
+                    {
+                        await _mediator.Publish(new DeploymentLogNotification(deploymentTask.DeploymentTargetId,
+                                valueTuple.Message),
+                            stoppingToken);
+                    }
+                }
+            }
+        }
+
+        private async Task StartProcessingAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var deploymentTask = _queue.Take(stoppingToken);
+
+                deploymentTask.Status = WorkTaskStatus.Started;
+                _runningTasks.Add(deploymentTask, stoppingToken);
+
+                _logger.Information("Deployment target worker has taken {DeploymentTask}", deploymentTask);
+
+                deploymentTask.Status = WorkTaskStatus.Started;
+
+                _logger.Information("Executing deployment task {DeploymentTask}", deploymentTask);
+
+                await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
+
+                var result =
+                    await _deploymentService.ExecuteDeploymentAsync(deploymentTask, _logger, stoppingToken);
+
+                if (result.ExitCode.IsSuccess)
+                {
+                    _logger.Information("Executed deployment task {DeploymentTask}", deploymentTask);
+
+                    deploymentTask.Status = WorkTaskStatus.Done;
+                    deploymentTask.Log("{\"Message\": \"Work task completed\"}");
+                }
+                else
+                {
+                    _logger.Error("Failed to deploy task {DeploymentTask}, result {Result}",
+                        deploymentTask,
+                        result.Metadata);
+
+                    deploymentTask.Status = WorkTaskStatus.Failed;
+                    deploymentTask.Log("{\"Message\": \"Work task failed\"}");
+                }
+            }
+
+            _queue?.Dispose();
+        }
+
         public void Enqueue([NotNull] DeploymentTask deploymentTask)
         {
             if (deploymentTask == null)
@@ -49,11 +114,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 throw new ArgumentNullException(nameof(deploymentTask));
             }
 
+            if (deploymentTask.DeploymentTargetId.IsNullOrWhiteSpace())
+            {
+                throw new ArgumentNullException(nameof(deploymentTask), "Target id is missing");
+            }
+
             try
             {
                 using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
-                    DeploymentTask[] tasksInQueue = _queue.ToArray();
+                    var tasksInQueue = _queue.ToArray();
 
                     if (tasksInQueue.Length > 0 && tasksInQueue.Any(queued =>
                             queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
@@ -84,74 +154,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Task messageTask = Task.Run(() => StartTaskMessageHandler(stoppingToken), stoppingToken);
+            var messageTask = Task.Run(() => StartTaskMessageHandler(stoppingToken), stoppingToken);
             await StartProcessingAsync(stoppingToken);
             await messageTask;
         }
 
-        private async Task StartTaskMessageHandler(CancellationToken stoppingToken)
+        public void Dispose()
         {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                DeploymentTask deploymentTask = _runningTasks.Take(stoppingToken);
-
-                while (!deploymentTask.MessageQueue.IsCompleted)
-                {
-                    if (!deploymentTask.MessageQueue.TryTake(out (string Message, WorkTaskStatus Status) valueTuple,
-                        TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
-                    {
-                        deploymentTask.MessageQueue.CompleteAdding();
-                    }
-
-                    if (valueTuple.Message.HasValue())
-                    {
-                        await _mediator.Publish(new DeploymentLogNotification(deploymentTask.DeploymentTargetId,
-                                valueTuple.Message),
-                            stoppingToken);
-                    }
-                }
-            }
-        }
-
-        private async Task StartProcessingAsync(CancellationToken stoppingToken)
-        {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                DeploymentTask deploymentTask = _queue.Take(stoppingToken);
-
-                deploymentTask.Status = WorkTaskStatus.Started;
-                _runningTasks.Add(deploymentTask, stoppingToken);
-
-                _logger.Information("Deployment target worker has taken {DeploymentTask}", deploymentTask);
-
-                deploymentTask.Status = WorkTaskStatus.Started;
-
-                _logger.Information("Executing deployment task {DeploymentTask}", deploymentTask);
-
-                await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
-
-                DeploymentTaskResult result =
-                    await _deploymentService.ExecuteDeploymentAsync(deploymentTask, _logger, stoppingToken);
-
-                if (result.ExitCode.IsSuccess)
-                {
-                    _logger.Information("Executed deployment task {DeploymentTask}", deploymentTask);
-
-                    deploymentTask.Status = WorkTaskStatus.Done;
-                    deploymentTask.Log("{\"Message\": \"Work task completed\"}");
-                }
-                else
-                {
-                    _logger.Error("Failed to deploy task {DeploymentTask}, result {Result}",
-                        deploymentTask,
-                        result.Metadata);
-
-                    deploymentTask.Status = WorkTaskStatus.Failed;
-                    deploymentTask.Log("{\"Message\": \"Work task failed\"}");
-                }
-            }
-
             _queue?.Dispose();
+            _runningTasks?.Dispose();
         }
     }
 }

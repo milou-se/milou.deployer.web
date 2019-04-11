@@ -14,7 +14,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
     [UsedImplicitly]
     public class ChangeLogLevelRequestHandler : IRequestHandler<ChangeLogLevelRequest>
     {
-        private static readonly ImmutableDictionary<string, LogEventLevel> _Levels =
+        private static readonly ImmutableDictionary<string, LogEventLevel> Levels =
             Enum.GetNames(typeof(LogEventLevel))
                 .Select(name =>
                     (name, Enum.TryParse(name, out LogEventLevel foundLevel), foundLevel))
@@ -32,11 +32,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             _logger = logger;
         }
 
+        private static bool TryParse(string attemptedValue, out LogEventLevel logEventLevel)
+        {
+            if (string.IsNullOrWhiteSpace(attemptedValue))
+            {
+                logEventLevel = default;
+                return false;
+            }
+
+            return Levels.TryGetValue(attemptedValue, out logEventLevel);
+        }
+
         public Task<Unit> Handle(ChangeLogLevelRequest request, CancellationToken cancellationToken)
         {
-            if (TryParse(request.ChangeLogLevel.NewLevel, out LogEventLevel newLevel))
+            if (TryParse(request.ChangeLogLevel.NewLevel, out var newLevel))
             {
-                LogEventLevel oldLevel = _levelSwitch.MinimumLevel;
+                var oldLevel = _levelSwitch.MinimumLevel;
 
                 if (oldLevel != newLevel)
                 {
@@ -53,17 +64,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             }
 
             return Unit.Task;
-        }
-
-        private static bool TryParse(string attemptedValue, out LogEventLevel logEventLevel)
-        {
-            if (string.IsNullOrWhiteSpace(attemptedValue))
-            {
-                logEventLevel = default;
-                return false;
-            }
-
-            return _Levels.TryGetValue(attemptedValue, out logEventLevel);
         }
     }
 }

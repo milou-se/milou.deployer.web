@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -15,7 +15,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
         IRequestHandler<SubscribeToDeploymentLog>,
         IRequestHandler<UnsubscribeToDeploymentLog>
     {
-        private static readonly ConcurrentDictionary<string, HashSet<string>> _TargetMapping =
+        private static readonly ConcurrentDictionary<string, HashSet<string>> TargetMapping =
             new ConcurrentDictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
 
         public static ImmutableHashSet<string> TryGetTargetSubscribers([NotNull] string deploymentTargetId)
@@ -25,8 +25,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(deploymentTargetId));
             }
 
-            bool tryGetTargetSubscribers =
-                _TargetMapping.TryGetValue(deploymentTargetId, out HashSet<string> subscribers);
+            var tryGetTargetSubscribers =
+                TargetMapping.TryGetValue(deploymentTargetId, out var subscribers);
 
             if (!tryGetTargetSubscribers)
             {
@@ -38,13 +38,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
 
         public Task<Unit> Handle(SubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
-            if (_TargetMapping.TryGetValue(request.DeploymentTargetId, out HashSet<string> subscribers))
+            if (TargetMapping.TryGetValue(request.DeploymentTargetId, out var subscribers))
             {
                 subscribers.Add(request.ConnectionId);
             }
             else
             {
-                _TargetMapping.TryAdd(request.DeploymentTargetId,
+                TargetMapping.TryAdd(request.DeploymentTargetId,
                     new HashSet<string>(StringComparer.OrdinalIgnoreCase) { request.ConnectionId });
             }
 
@@ -53,12 +53,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
 
         public Task<Unit> Handle(UnsubscribeToDeploymentLog request, CancellationToken cancellationToken)
         {
-            HashSet<string>[] hashSets = _TargetMapping
+            var hashSets = TargetMapping
                 .Where(pair => pair.Value.Contains(request.ConnectionId))
                 .Select(pair => pair.Value)
                 .ToArray();
 
-            foreach (HashSet<string> hashSet in hashSets)
+            foreach (var hashSet in hashSets)
             {
                 hashSet.Remove(request.ConnectionId);
             }

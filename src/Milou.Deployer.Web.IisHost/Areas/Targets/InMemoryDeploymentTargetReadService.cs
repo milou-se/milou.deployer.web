@@ -16,49 +16,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
     [UsedImplicitly]
     public class InMemoryDeploymentTargetReadService : IDeploymentTargetReadService
     {
-        private readonly ILogger _logger;
         private readonly Func<Task<IReadOnlyCollection<OrganizationInfo>>> _dataCreator;
+        private readonly ILogger _logger;
 
-        public InMemoryDeploymentTargetReadService(ILogger logger, Func<Task<IReadOnlyCollection<OrganizationInfo>>> dataCreator = null)
+        public InMemoryDeploymentTargetReadService(
+            ILogger logger,
+            Func<Task<IReadOnlyCollection<OrganizationInfo>>> dataCreator = null)
         {
             _logger = logger;
             _dataCreator = dataCreator;
-        }
-
-        public async Task<DeploymentTarget> GetDeploymentTargetAsync(
-            string deploymentTargetId,
-            CancellationToken cancellationToken = default)
-        {
-            ImmutableArray<OrganizationInfo> organizations = await GetOrganizationsAsync(cancellationToken);
-
-            DeploymentTarget foundDeploymentTarget = organizations
-                .SelectMany(organizationInfo => organizationInfo.Projects)
-                .SelectMany(projectInfo => projectInfo.DeploymentTargets)
-                .SingleOrDefault(deploymentTarget => deploymentTarget.Id == deploymentTargetId);
-
-            return foundDeploymentTarget;
-        }
-
-        public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
-            CancellationToken cancellationToken = default)
-        {
-            IReadOnlyCollection<OrganizationInfo> organizations = await GetTargetsAsync();
-
-            return organizations.ToImmutableArray();
-        }
-
-        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken)
-        {
-            ImmutableArray<OrganizationInfo> organizations = await GetOrganizationsAsync(stoppingToken);
-
-            return organizations
-                .SelectMany(organizationInfo => organizationInfo.Projects)
-                .SelectMany(projectInfo => projectInfo.DeploymentTargets).ToImmutableArray();
-        }
-
-        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(string organizationId, CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(ImmutableArray<ProjectInfo>.Empty);
         }
 
         [PublicAPI]
@@ -96,6 +62,44 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets
             };
 
             return Task.FromResult<IReadOnlyCollection<OrganizationInfo>>(targets);
+        }
+
+        public async Task<DeploymentTarget> GetDeploymentTargetAsync(
+            string deploymentTargetId,
+            CancellationToken cancellationToken = default)
+        {
+            var organizations = await GetOrganizationsAsync(cancellationToken);
+
+            var foundDeploymentTarget = organizations
+                .SelectMany(organizationInfo => organizationInfo.Projects)
+                .SelectMany(projectInfo => projectInfo.DeploymentTargets)
+                .SingleOrDefault(deploymentTarget => deploymentTarget.Id == deploymentTargetId);
+
+            return foundDeploymentTarget;
+        }
+
+        public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            var organizations = await GetTargetsAsync();
+
+            return organizations.ToImmutableArray();
+        }
+
+        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken)
+        {
+            var organizations = await GetOrganizationsAsync(stoppingToken);
+
+            return organizations
+                .SelectMany(organizationInfo => organizationInfo.Projects)
+                .SelectMany(projectInfo => projectInfo.DeploymentTargets).ToImmutableArray();
+        }
+
+        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(
+            string organizationId,
+            CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(ImmutableArray<ProjectInfo>.Empty);
         }
     }
 }

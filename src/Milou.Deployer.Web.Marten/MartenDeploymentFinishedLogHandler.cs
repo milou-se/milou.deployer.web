@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Marten;
 using MediatR;
-using Milou.Deployer.Web.Core.Email;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Targets;
 
 namespace Milou.Deployer.Web.Marten
@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.Marten
 
         public async Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
         {
-            using (IDocumentSession session = _documentStore.OpenSession())
+            using (var session = _documentStore.OpenSession())
             {
                 var taskMetadata = new TaskLog
                 {

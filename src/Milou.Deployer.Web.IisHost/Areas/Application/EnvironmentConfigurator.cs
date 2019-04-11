@@ -1,9 +1,9 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Autofac;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             var configureEnvironments = lifetimeScope.Resolve<IReadOnlyCollection<IConfigureEnvironment>>();
             var environmentConfiguration = lifetimeScope.Resolve<EnvironmentConfiguration>();
 
-            foreach (IConfigureEnvironment configureEnvironment in configureEnvironments)
+            foreach (var configureEnvironment in configureEnvironments)
             {
                 configureEnvironment.Configure(environmentConfiguration);
             }

@@ -6,11 +6,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
     [RegistrationOrder(0, Tag = Scope.AspNetCoreScope)]
     [UsedImplicitly]
-    public class IPModule : Module
+    public class IpModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterType<AllowedIPAddressHandler>().AsSelf().SingleInstance();
+            builder.RegisterType<AllowedIpAddressHandler>().AsSelf().SingleInstance();
         }
     }
 }

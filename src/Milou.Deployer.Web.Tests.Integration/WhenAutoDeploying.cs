@@ -5,6 +5,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.KVConfiguration.JsonConfiguration;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Extensions;
 using NuGet.Versioning;
 using Xunit;
@@ -26,23 +28,23 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             SemanticVersion semanticVersion = null;
 
-            TimeSpan timeout = TimeSpan.FromSeconds(120);
+            var timeout = TimeSpan.FromSeconds(120);
 
-            var expectedVersion = new SemanticVersion(1,2,5);
+            var expectedVersion = new SemanticVersion(1, 2, 5);
 
             if (WebFixture is null)
             {
-                throw new Core.DeployerAppException($"{nameof(WebFixture)} is null");
+                throw new DeployerAppException($"{nameof(WebFixture)} is null");
             }
 
             if (WebFixture.TestSiteHttpPort is null)
             {
-                throw new Core.DeployerAppException($"{nameof(WebFixture.TestSiteHttpPort)} is null");
+                throw new DeployerAppException($"{nameof(WebFixture.TestSiteHttpPort)} is null");
             }
 
             if (WebFixture is null)
             {
-                throw new Core.DeployerAppException($"{nameof(WebFixture)} is null");
+                throw new DeployerAppException($"{nameof(WebFixture)} is null");
             }
 
             using (var httpClient = new HttpClient())
@@ -52,11 +54,11 @@ namespace Milou.Deployer.Web.Tests.Integration
                     while (!cancellationTokenSource.Token.IsCancellationRequested
                            && semanticVersion != expectedVersion)
                     {
-                        string url = $"http://localhost:{WebFixture.TestSiteHttpPort.Port}/applicationmetadata.json";
+                        var url = $"http://localhost:{WebFixture.TestSiteHttpPort.Port}/applicationmetadata.json";
                         string json;
                         try
                         {
-                            using (HttpResponseMessage responseMessage = await httpClient.GetAsync(
+                            using (var responseMessage = await httpClient.GetAsync(
                                 url,
                                 cancellationTokenSource.Token))
                             {
@@ -67,21 +69,22 @@ namespace Milou.Deployer.Web.Tests.Integration
                         }
                         catch (Exception ex) when (!ex.IsFatal())
                         {
-                            throw new Core.DeployerAppException($"Could not get a valid response from request to '{url}'", ex);
+                            throw new DeployerAppException($"Could not get a valid response from request to '{url}'",
+                                ex);
                         }
 
-                        string tempFileName = Path.GetTempFileName();
+                        var tempFileName = Path.GetTempFileName();
                         await File.WriteAllTextAsync(tempFileName, json, Encoding.UTF8, cancellationTokenSource.Token);
 
                         var jsonKeyValueConfiguration =
-                            new Arbor.KVConfiguration.JsonConfiguration.JsonKeyValueConfiguration(tempFileName);
+                            new JsonKeyValueConfiguration(tempFileName);
 
                         if (File.Exists(tempFileName))
                         {
                             File.Delete(tempFileName);
                         }
 
-                        string actual = jsonKeyValueConfiguration["urn:versioning:semver2:normalized"];
+                        var actual = jsonKeyValueConfiguration["urn:versioning:semver2:normalized"];
 
                         semanticVersion = SemanticVersion.Parse(actual);
                         // ReSharper disable once MethodSupportsCancellation

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Network
 {
-    public class IpNetworkParser
+    public static class IpNetworkParser
     {
         public static bool TryParse(string value, out IPNetwork network)
         {
@@ -15,7 +14,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Network
                 return false;
             }
 
-            string[] parts = value.Split("/", StringSplitOptions.None);
+            var parts = value.Split("/");
 
             if (parts.Length != 2)
             {
@@ -23,13 +22,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Network
                 return false;
             }
 
-            if (!IPAddress.TryParse(parts[0], out IPAddress address))
+            if (!IPAddress.TryParse(parts[0], out var address))
             {
                 network = default;
                 return false;
             }
 
-            if (!int.TryParse(parts[1], out int length))
+            if (!int.TryParse(parts[1], out var length))
             {
                 network = default;
                 return false;

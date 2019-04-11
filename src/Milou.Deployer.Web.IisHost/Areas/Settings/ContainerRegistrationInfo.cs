@@ -2,13 +2,13 @@
 {
     public class ContainerRegistrationInfo
     {
-        public string Service { get; }
-        public string Scope { get; }
-
         public ContainerRegistrationInfo(string service, string scope)
         {
             Service = service;
             Scope = scope;
         }
+
+        public string Service { get; }
+        public string Scope { get; }
     }
 }

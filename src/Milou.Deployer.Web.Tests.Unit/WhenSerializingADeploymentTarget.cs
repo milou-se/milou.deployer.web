@@ -18,9 +18,9 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void ItShouldBeDeserializable()
         {
-            var target = new DeploymentTarget("myid", "myName", "tool", null, false);
+            var target = new DeploymentTarget("myid", "myName", "tool");
 
-            string json = JsonConvert.SerializeObject(target,
+            var json = JsonConvert.SerializeObject(target,
                 Formatting.Indented,
                 new JsonSerializerSettings().UseCustomConverters());
 

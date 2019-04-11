@@ -2,6 +2,6 @@
 {
     public static class CustomClaimTypes
     {
-        public const string IPAddress = "urn:milou:deployer:claims:ip";
+        public const string IpAddress = "urn:milou:deployer:claims:ip";
     }
 }

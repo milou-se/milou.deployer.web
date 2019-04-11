@@ -8,18 +8,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     public class ModuleRegistration : IModuleRegistration
     {
-        [NotNull]
-        public Type ModuleType { get; }
-
         public ModuleRegistration([NotNull] Type moduleType)
         {
             ModuleType = moduleType ?? throw new ArgumentNullException(nameof(moduleType));
 
-            Type interfaceType = typeof(IModule);
+            var interfaceType = typeof(IModule);
 
             if (!interfaceType.IsAssignableFrom(moduleType))
             {
-                throw new ArgumentException($"Type {moduleType.FullName} is not an instance of {interfaceType.FullName}", nameof(moduleType));
+                throw new ArgumentException(
+                    $"Type {moduleType.FullName} is not an instance of {interfaceType.FullName}",
+                    nameof(moduleType));
             }
 
             if (moduleType.IsAbstract)
@@ -35,6 +34,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             RegisterInRootScope = registrationOrderAttribute?.RegisterInRootScope ?? false;
         }
+
+        [NotNull]
+        public Type ModuleType { get; }
 
         public string Tag { get; }
 

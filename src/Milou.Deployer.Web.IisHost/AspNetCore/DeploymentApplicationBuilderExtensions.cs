@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
@@ -18,7 +17,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             };
 
-            foreach (IPAddress proxyAddress in environmentConfiguration.ProxyAddresses)
+            foreach (var proxyAddress in environmentConfiguration.ProxyAddresses)
             {
                 forwardedHeadersOptions.KnownProxies.Add(proxyAddress);
             }

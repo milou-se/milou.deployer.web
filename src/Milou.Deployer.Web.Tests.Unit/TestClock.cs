@@ -7,7 +7,7 @@ namespace Milou.Deployer.Web.Tests.Unit
     {
         public DateTimeOffset UtcNow()
         {
-            return new DateTime(2000,1,2,3,4,5,DateTimeKind.Utc);
+            return new DateTime(2000, 1, 2, 3, 4, 5, DateTimeKind.Utc);
         }
 
         public DateTime LocalNow()
@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 
         public DateTime ToLocalTime(DateTime dateTimeUtc)
         {
-            DateTime localTime = dateTimeUtc.AddHours(-1);
+            var localTime = dateTimeUtc.AddHours(-1);
 
             return new DateTime(localTime.Ticks, DateTimeKind.Local);
         }

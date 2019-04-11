@@ -4,6 +4,22 @@ namespace Milou.Deployer.Web.Core.Application
 {
     public static class ApplicationConstants
     {
+        public const string UseExplicitPorts = "urn:milou:deployer:web:use-explicit-ports";
+
+        public const string PublicHostName = "urn:milou:deployer:web:public-hostname";
+
+        public const string PublicPort = "urn:milou:deployer:web:public-port";
+
+        public const string PublicPortIsHttps = "urn:milou:deployer:web:public-port-is-https";
+
+        public const string HttpPort = "urn:milou:deployer:web:http-port";
+
+        public const string HttpsPort = "urn:milou:deployer:web:https-port";
+
+        public const string AspNetEnvironment = "ASPNETCORE_ENVIRONMENT";
+
+        public const string EnvironmentProduction = "Production";
+
         public const string RunAsService = "--run-as-service";
 
         public const string DevelopmentMode = "--development-mode";

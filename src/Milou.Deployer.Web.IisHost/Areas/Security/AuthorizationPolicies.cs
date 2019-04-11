@@ -2,6 +2,6 @@
 {
     public static class AuthorizationPolicies
     {
-        public const string IPOrToken = "urn:milou:deployer:web:authorization:policies:default";
+        public const string IpOrToken = "urn:milou:deployer:web:authorization:policies:default";
     }
 }

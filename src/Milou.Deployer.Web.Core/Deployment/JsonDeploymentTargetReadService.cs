@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -23,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
-            IReadOnlyCollection<OrganizationInfo> organizations = await _targetSource.GetTargetsAsync(cancellationToken);
+            var organizations = await _targetSource.GetTargetsAsync(cancellationToken);
 
             return organizations.SelectMany(org => org.Projects.SelectMany(project => project.DeploymentTargets))
                 .SingleOrDefault(target => target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase));
@@ -32,7 +31,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public async Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(
             CancellationToken cancellationToken = default)
         {
-            IReadOnlyCollection<OrganizationInfo> organizations = await _targetSource.GetTargetsAsync(cancellationToken);
+            var organizations = await _targetSource.GetTargetsAsync(cancellationToken);
 
             return organizations.ToImmutableArray();
         }
@@ -42,7 +41,9 @@ namespace Milou.Deployer.Web.Core.Deployment
             throw new NotImplementedException();
         }
 
-        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(string organizationId, CancellationToken cancellationToken = default)
+        public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(
+            string organizationId,
+            CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

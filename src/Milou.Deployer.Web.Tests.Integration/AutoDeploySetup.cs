@@ -12,6 +12,7 @@ using Autofac;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
@@ -31,7 +32,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public AutoDeploySetup(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink)
         {
-
             //TODO run entire test in temp dir
         }
 
@@ -39,20 +39,6 @@ namespace Milou.Deployer.Web.Tests.Integration
         public HttpResponseMessage ResponseMessage { get; private set; }
 
         public PortPoolRental TestSiteHttpPort { get; private set; }
-
-        protected override async Task RunAsync()
-        {
-            using (var httpClient = new HttpClient())
-            {
-                ResponseMessage =
-                    await httpClient.GetAsync($"http://localhost:{TestSiteHttpPort.Port}/applicationmetadata.json");
-            }
-        }
-
-        public override void Dispose()
-        {
-            base.Dispose();
-        }
 
         public override async Task DisposeAsync()
         {
@@ -62,6 +48,15 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
 
             await base.DisposeAsync();
+        }
+
+        protected override async Task RunAsync()
+        {
+            using (var httpClient = new HttpClient())
+            {
+                ResponseMessage =
+                    await httpClient.GetAsync($"http://localhost:{TestSiteHttpPort.Port}/applicationmetadata.json");
+            }
         }
 
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)
@@ -74,21 +69,22 @@ namespace Milou.Deployer.Web.Tests.Integration
             Environment.SetEnvironmentVariable("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
             Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port}");
 
-            string deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
+            var deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
 
             const string milouDeployerWebTestsIntegration = "Milou.Deployer.Web.Tests.Integration";
 
-            ImmutableArray<KeyValue> keys = new List<KeyValue>
+            var keys = new List<KeyValue>
             {
-                new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.NuGetSource, milouDeployerWebTestsIntegration, null),
+                new KeyValue(ConfigurationKeys.NuGetSource, milouDeployerWebTestsIntegration, null),
                 new KeyValue(ConfigurationConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName, null),
-                new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
-                new KeyValue(Deployer.Core.Configuration.ConfigurationKeys.LogLevel, "Verbose", null),
+                new KeyValue(ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
+                new KeyValue(ConfigurationKeys.LogLevel, "Verbose", null)
             }.ToImmutableArray();
 
-            string serializedConfigurationItems = JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
+            var serializedConfigurationItems =
+                JsonConfigurationSerializer.Serialize(new ConfigurationItems("1.0", keys));
 
-            string settingsFile = Path.Combine(deployerDir, $"{Environment.MachineName}.settings.json");
+            var settingsFile = Path.Combine(deployerDir, $"{Environment.MachineName}.settings.json");
 
             FilesToClean.Add(new FileInfo(settingsFile));
 
@@ -97,19 +93,20 @@ namespace Milou.Deployer.Web.Tests.Integration
             var integrationTestProjectDirectory = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
                 "src",
                 milouDeployerWebTestsIntegration));
-            FileInfo[] nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
+            var nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
 
             if (nugetPackages.Length == 0)
             {
-                throw new DeployerAppException($"Could not find nuget test packages located in {integrationTestProjectDirectory.FullName}");
+                throw new DeployerAppException(
+                    $"Could not find nuget test packages located in {integrationTestProjectDirectory.FullName}");
             }
 
-            foreach (FileInfo nugetPackage in nugetPackages)
+            foreach (var nugetPackage in nugetPackages)
             {
                 nugetPackage.CopyTo(Path.Combine(TestConfiguration.NugetPackageDirectory.FullName, nugetPackage.Name));
             }
 
-            Environment.SetEnvironmentVariable(Deployer.Core.Configuration.ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
+            Environment.SetEnvironmentVariable(ConfigurationKeys.KeyValueConfigurationFile, settingsFile);
 
             Environment.SetEnvironmentVariable(ConfigurationConstants.NugetConfigFile,
                 TestConfiguration.NugetConfigFile.FullName);
@@ -145,7 +142,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var deploymentService = App.AppRootScope.Deepest().Lifetime.Resolve<DeploymentService>();
             var readService = App.AppRootScope.Deepest().Lifetime.Resolve<IDeploymentTargetReadService>();
 
-            ImmutableArray<DeploymentTarget> targets = await readService.GetDeploymentTargetsAsync(CancellationToken);
+            var targets = await readService.GetDeploymentTargetsAsync(CancellationToken);
 
             if (targets.Length != 1)
             {
@@ -154,18 +151,19 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             const string packageVersion = "MilouDeployerWebTest 1.2.4";
 
-            Guid deploymentTaskId = Guid.NewGuid();
+            var deploymentTaskId = Guid.NewGuid();
             const string deploymentTargetId = TestDataCreator.Testtarget;
             var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId);
 
-            DeploymentTaskResult deploymentTaskResult = await deploymentService.ExecuteDeploymentAsync(
+            var deploymentTaskResult = await deploymentService.ExecuteDeploymentAsync(
                 deploymentTask,
                 App.Logger,
                 App.CancellationTokenSource.Token);
 
             if (!deploymentTaskResult.ExitCode.IsSuccess)
             {
-                throw new DeployerAppException($"Initial deployment failed, metadata: {deploymentTaskResult.Metadata}; test configuration: {TestConfiguration}");
+                throw new DeployerAppException(
+                    $"Initial deployment failed, metadata: {deploymentTaskResult.Metadata}; test configuration: {TestConfiguration}");
             }
 
             TestStartup.TestConfiguration = TestConfiguration;

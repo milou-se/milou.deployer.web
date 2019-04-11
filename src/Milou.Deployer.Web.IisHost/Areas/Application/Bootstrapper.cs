@@ -16,40 +16,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     public static class Bootstrapper
     {
-        public static Scope Start(
-            IKeyValueConfiguration configuration,
-            [NotNull] IReadOnlyList<IModule> modulesToRegister,
-            [NotNull] ILogger logger,
-            ImmutableArray<Assembly> assembliesToScan,
-            [NotNull] IReadOnlyList<Type> excludedModuleTypes,
-            [NotNull] IReadOnlyCollection<object> singletons)
-        {
-            GuardArgs(modulesToRegister, logger, assembliesToScan, excludedModuleTypes, singletons);
-
-            var builder = new ContainerBuilder();
-
-            RegisterSingletons(singletons, builder);
-
-            RegisterModules(modulesToRegister, logger, builder);
-
-            Scope rootScope = CreateRootScope(builder);
-
-            ILifetimeScope appRootScope = rootScope.Lifetime.BeginLifetimeScope(Scope.AppRootScopeName,
-                appScopeBuilder =>
-                    RegisterScannedModules(
-                        configuration,
-                        modulesToRegister,
-                        logger,
-                        assembliesToScan,
-                        excludedModuleTypes,
-                        Scope.AppRootScopeName,
-                        appScopeBuilder));
-
-            rootScope.SubScope = new Scope(Scope.AppRootScopeName, appRootScope);
-
-            return rootScope;
-        }
-
         private static void RegisterScannedModules(
             IKeyValueConfiguration configuration,
             IReadOnlyList<IModule> modulesToRegister,
@@ -59,13 +25,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             string scopeName,
             ContainerBuilder appScopeBuilder)
         {
-            Type[] existingTypes = modulesToRegister
+            var existingTypes = modulesToRegister
                 .Select(item => item.GetType())
                 .ToArray();
 
-            Type[] allExcludedTypes = excludedModuleTypes.Concat(existingTypes).ToArray();
+            var allExcludedTypes = excludedModuleTypes.Concat(existingTypes).ToArray();
 
-            ImmutableArray<OrderedModuleRegistration> orderedModuleRegistrations =
+            var orderedModuleRegistrations =
                 ModuleExtensions.GetModules(assembliesToScan, allExcludedTypes, configuration);
 
             if (logger.IsEnabled(LogEventLevel.Verbose))
@@ -80,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                         .ToArray());
             }
 
-            foreach (OrderedModuleRegistration module in orderedModuleRegistrations)
+            foreach (var module in orderedModuleRegistrations)
             {
                 appScopeBuilder.RegisterInstance(module);
 
@@ -127,7 +93,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             builder.RegisterInstance(rootScope);
 
-            IContainer container = builder.Build();
+            var container = builder.Build();
 
             rootScope.Lifetime = container;
             return rootScope;
@@ -135,7 +101,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         private static void RegisterSingletons(IReadOnlyCollection<object> singletons, ContainerBuilder builder)
         {
-            foreach (object singleton in singletons)
+            foreach (var singleton in singletons)
             {
                 builder
                     .RegisterInstance(singleton)
@@ -149,11 +115,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ILogger logger,
             ContainerBuilder builder)
         {
-            foreach (IModule module in modulesToRegister)
+            foreach (var module in modulesToRegister)
             {
                 if (logger.IsEnabled(LogEventLevel.Verbose))
                 {
-                    Type type = module.GetType();
+                    var type = module.GetType();
 
                     logger.Verbose("Registering pre-initialized module {Module} in container builder",
                         $"{type.FullName} assembly {type.Assembly.FullName} at {type.Assembly.Location}");
@@ -166,6 +132,40 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             {
                 logger.Debug("Done running configuration modules");
             }
+        }
+
+        public static Scope Start(
+            IKeyValueConfiguration configuration,
+            [NotNull] IReadOnlyList<IModule> modulesToRegister,
+            [NotNull] ILogger logger,
+            ImmutableArray<Assembly> assembliesToScan,
+            [NotNull] IReadOnlyList<Type> excludedModuleTypes,
+            [NotNull] IReadOnlyCollection<object> singletons)
+        {
+            GuardArgs(modulesToRegister, logger, assembliesToScan, excludedModuleTypes, singletons);
+
+            var builder = new ContainerBuilder();
+
+            RegisterSingletons(singletons, builder);
+
+            RegisterModules(modulesToRegister, logger, builder);
+
+            var rootScope = CreateRootScope(builder);
+
+            var appRootScope = rootScope.Lifetime.BeginLifetimeScope(Scope.AppRootScopeName,
+                appScopeBuilder =>
+                    RegisterScannedModules(
+                        configuration,
+                        modulesToRegister,
+                        logger,
+                        assembliesToScan,
+                        excludedModuleTypes,
+                        Scope.AppRootScopeName,
+                        appScopeBuilder));
+
+            rootScope.SubScope = new Scope(Scope.AppRootScopeName, appRootScope);
+
+            return rootScope;
         }
     }
 }

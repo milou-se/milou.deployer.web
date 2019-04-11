@@ -8,8 +8,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
 {
     public class KeyValueConfigurationModule : Module
     {
-        private readonly MultiSourceKeyValueConfiguration _multiSourceKeyValueConfiguration;
         private readonly ILogger _logger;
+        private readonly MultiSourceKeyValueConfiguration _multiSourceKeyValueConfiguration;
 
         public KeyValueConfigurationModule([NotNull] MultiSourceKeyValueConfiguration configuration, ILogger logger)
         {

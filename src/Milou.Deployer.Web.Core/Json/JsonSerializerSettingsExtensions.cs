@@ -15,7 +15,7 @@ namespace Milou.Deployer.Web.Core.Json
                 throw new ArgumentNullException(nameof(serializerSettings));
             }
 
-            foreach (JsonConverter customConverter in JsonConverterHelper.GetCustomConverters())
+            foreach (var customConverter in JsonConverterHelper.GetCustomConverters())
             {
                 serializerSettings.Converters.Add(customConverter);
             }
@@ -23,15 +23,14 @@ namespace Milou.Deployer.Web.Core.Json
             return serializerSettings;
         }
 
-        public static JsonSerializer UseCustomConverters(
-            [NotNull] this JsonSerializer serializerSettings)
+        public static JsonSerializer UseCustomConverters([NotNull] this JsonSerializer serializerSettings)
         {
             if (serializerSettings == null)
             {
                 throw new ArgumentNullException(nameof(serializerSettings));
             }
 
-            foreach (JsonConverter customConverter in JsonConverterHelper.GetCustomConverters())
+            foreach (var customConverter in JsonConverterHelper.GetCustomConverters())
             {
                 serializerSettings.Converters.Add(customConverter);
             }

@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             using (var httpClient = new HttpClient())
             {
-                string url = $"http://localhost:{HttpPort}";
+                var url = $"http://localhost:{HttpPort}";
 
                 try
                 {
@@ -29,7 +29,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                   App?.Logger?.Error(ex, "Error in test when making HTTP GET request {Url}", url);
+                    App?.Logger?.Error(ex, "Error in test when making HTTP GET request {Url}", url);
                     Assert.NotNull(ex);
                 }
             }

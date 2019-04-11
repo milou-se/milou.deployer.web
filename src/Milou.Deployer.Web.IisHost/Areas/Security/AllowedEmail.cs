@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         public AllowedEmail(string email)
         {
             Email = email;
-            IsValid = EmailAddress.TryParse(email, out EmailAddress _);
+            IsValid = EmailAddress.TryParse(email, out _);
         }
 
         public string Email { get; }

@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 return new StatusCodeResult(403);
             }
 
-            SettingsViewModel settingsViewModel = await mediator.Send(new SettingsViewRequest());
+            var settingsViewModel = await mediator.Send(new SettingsViewRequest());
 
             return View(settingsViewModel);
         }

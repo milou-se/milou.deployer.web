@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -12,8 +12,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             new EnvironmentType(nameof(Invalid), PreReleaseBehavior.Invalid);
 
         [PublicAPI]
-        public static readonly EnvironmentType QA =
-            new EnvironmentType(nameof(QA), PreReleaseBehavior.AllowWithForceFlag);
+        public static readonly EnvironmentType QualityAssurance =
+            new EnvironmentType(nameof(QualityAssurance), PreReleaseBehavior.AllowWithForceFlag);
 
         [PublicAPI]
         public static readonly EnvironmentType Production =
@@ -27,20 +27,25 @@ namespace Milou.Deployer.Web.Core.Deployment
         public static readonly EnvironmentType Development =
             new EnvironmentType(nameof(Development), PreReleaseBehavior.Allow);
 
-        public bool Equals(EnvironmentType other)
+        private EnvironmentType(string name, PreReleaseBehavior preReleaseBehavior)
         {
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return string.Equals(Name, other.Name);
+            Name = name;
+            PreReleaseBehavior = preReleaseBehavior;
         }
+
+        public string Name { get; }
+
+        public PreReleaseBehavior PreReleaseBehavior { get; }
+
+        [PublicAPI]
+        public static IReadOnlyCollection<EnvironmentType> All => new[]
+        {
+            Invalid,
+            QualityAssurance,
+            Production,
+            Integration,
+            Development
+        };
 
         public override bool Equals(object obj)
         {
@@ -59,7 +64,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public override int GetHashCode()
         {
-            return (Name != null ? Name.GetHashCode() : 0);
+            return Name != null ? Name.GetHashCode(StringComparison.OrdinalIgnoreCase) : 0;
         }
 
         public static bool operator ==(EnvironmentType left, EnvironmentType right)
@@ -71,26 +76,6 @@ namespace Milou.Deployer.Web.Core.Deployment
         {
             return !Equals(left, right);
         }
-
-        private EnvironmentType(string name, PreReleaseBehavior preReleaseBehavior)
-        {
-            Name = name;
-            PreReleaseBehavior = preReleaseBehavior;
-        }
-
-        public string Name { get; }
-
-        public PreReleaseBehavior PreReleaseBehavior { get; }
-
-        [PublicAPI]
-        public static IReadOnlyCollection<EnvironmentType> All => new[]
-        {
-            Invalid,
-            QA,
-            Production,
-            Integration,
-            Development
-        };
 
         public static EnvironmentType Parse(string value)
         {
@@ -106,7 +91,23 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 return Constants.NotAvailable;
             }
+
             return Name;
+        }
+
+        public bool Equals(EnvironmentType other)
+        {
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return string.Equals(Name, other.Name, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

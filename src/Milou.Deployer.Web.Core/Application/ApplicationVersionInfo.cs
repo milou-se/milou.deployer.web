@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Core
+namespace Milou.Deployer.Web.Core.Application
 {
     public class ApplicationVersionInfo
     {

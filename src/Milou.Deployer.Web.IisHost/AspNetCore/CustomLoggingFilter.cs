@@ -14,9 +14,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 throw new ArgumentNullException(nameof(next));
             }
 
-            return builder =>
-            {
-            };
+            return builder => { };
         }
     }
 }

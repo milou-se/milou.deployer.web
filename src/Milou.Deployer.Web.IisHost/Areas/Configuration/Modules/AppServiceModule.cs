@@ -28,15 +28,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            string jsonSourceValue =
+            var jsonSourceValue =
                 _keyValueConfiguration[ConfigurationConstants.JsonSourceEnabled];
 
-            JsonDeploymentTargetSourceConfiguration sourceConfiguration =
+            var sourceConfiguration =
                 _keyValueConfiguration.GetInstance<JsonDeploymentTargetSourceConfiguration>() ??
                 new JsonDeploymentTargetSourceConfiguration("");
 
             if (sourceConfiguration.SourceFile.HasValue()
-                && (!bool.TryParse(jsonSourceValue, out bool jsonSource) || jsonSource))
+                && (!bool.TryParse(jsonSourceValue, out var jsonSource) || jsonSource))
             {
                 _logger.Information("Using JSON as primary target source");
 

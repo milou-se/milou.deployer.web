@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
                 return BadRequest($"Model of type {typeof(CreateTarget)} {createTarget} is invalid");
             }
 
-            CreateTargetResult createTargetResult = await mediator.Send(createTarget);
+            var createTargetResult = await mediator.Send(createTarget);
 
             if (redirect)
             {
@@ -81,7 +81,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             [FromRoute] string targetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
         {
-            DeploymentTarget deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(targetId);
+            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(targetId);
 
             if (deploymentTarget is null)
             {
@@ -106,7 +106,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             {
                 return BadRequest($"Model of type {typeof(UpdateDeploymentTarget)} {updateDeploymentTarget} is null");
             }
-            UpdateDeploymentTargetResult updateDeploymentTargetResult = await mediator.Send(updateDeploymentTarget);
+
+            var updateDeploymentTargetResult = await mediator.Send(updateDeploymentTarget);
 
             return updateDeploymentTargetResult;
         }
