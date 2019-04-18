@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="2.10.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.3">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -69,14 +69,15 @@
 
   <ItemGroup>
     <PackageReference Include="Arbor.Processing" Version="0.2.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.3.0" />
+    <PackageReference Include="Arbor.Tooler" Version="0.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.2.0" />
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.2.5" />
-    <PackageReference Include="Milou.Deployer.Core" Version="4.2.5" />
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.3.1" />
+    <PackageReference Include="Milou.Deployer.Core" Version="4.3.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.1" />
-    <PackageReference Include="NuGet.Packaging" Version="4.9.4" />
+    <PackageReference Include="NuGet.Packaging" Version="5.0.0" />
+    <PackageReference Include="NuGet.Versioning" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

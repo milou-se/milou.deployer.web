@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Arbor.KVConfiguration.Urns;
 using Milou.Deployer.Web.Core.Configuration;
 using Xunit;
 
