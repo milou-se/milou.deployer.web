@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Milou.Deployer.Web.Core.Logging
         public static ILogger InitializeAppLogging(
             [NotNull] MultiSourceKeyValueConfiguration multiSourceKeyValueConfiguration,
             ILogger logger,
-            Action<LoggerConfiguration> loggerConfigurationAction,
+            IEnumerable<ILoggerConfigurationHandler> loggerConfigurationHandlers,
             LoggingLevelSwitch loggingLevelSwitch)
         {
             if (multiSourceKeyValueConfiguration is null)
@@ -108,7 +109,10 @@ namespace Milou.Deployer.Web.Core.Logging
                 .MinimumLevel.Override("Microsoft", microsoftLevel)
                 .Enrich.FromLogContext();
 
-            loggerConfigurationAction?.Invoke(loggerConfiguration);
+            foreach (var loggerConfigurationHandler in loggerConfigurationHandlers)
+            {
+                loggerConfiguration = loggerConfigurationHandler.Handle(loggerConfiguration);
+            }
 
             var appLogger = finalConfiguration
                 .CreateLogger();
@@ -120,7 +124,8 @@ namespace Milou.Deployer.Web.Core.Logging
 
         public static ILogger InitializeStartupLogging(
             [NotNull] Func<string, string> basePath,
-            ImmutableDictionary<string, string> environmentVariables)
+            ImmutableDictionary<string, string> environmentVariables,
+            IEnumerable<IStartupLoggerConfigurationHandler> startupLoggerConfigurationHandlers)
         {
             var startupLevel = LogEventLevel.Verbose;
 
@@ -189,6 +194,11 @@ namespace Milou.Deployer.Web.Core.Logging
                 }
             }
 
+            foreach (var startupLoggerConfigurationHandler in startupLoggerConfigurationHandlers)
+            {
+                loggerConfiguration = startupLoggerConfigurationHandler.Handle(loggerConfiguration);
+            }
+
             var logger = loggerConfiguration.CreateLogger();
 
             TempLogger.FlushWith(logger);
@@ -196,6 +206,8 @@ namespace Milou.Deployer.Web.Core.Logging
             logger.Verbose("Startup logging configured, minimum log level {LogLevel}, seq {Seq}",
                 startupLevel,
                 usedSeqUri);
+
+            logger.Information("Using application root directory {Directory}", basePath(""));
 
             return logger;
         }

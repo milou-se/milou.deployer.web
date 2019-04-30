@@ -23,7 +23,8 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
 
-        [Fact(Skip = "Issues with postgresql permissions")]
+        //[Fact(Skip = "Issues with postgresql permissions")]
+        [Fact]
         public async Task ThenNewVersionShouldBeDeployed()
         {
             SemanticVersion semanticVersion = null;

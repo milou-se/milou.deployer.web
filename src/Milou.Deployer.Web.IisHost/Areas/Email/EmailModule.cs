@@ -1,15 +1,16 @@
-﻿using Autofac;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Email;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Email
 {
     [UsedImplicitly]
-    public class EmailModule : Module
+    public class EmailModule : IModule
     {
-        protected override void Load(ContainerBuilder builder)
+        public IServiceCollection Register(IServiceCollection builder)
         {
-            builder.RegisterType<SmtpService>().AsImplementedInterfaces().SingleInstance();
+            return builder.AddSingleton<ISmtpService, SmtpService>();
         }
     }
 }

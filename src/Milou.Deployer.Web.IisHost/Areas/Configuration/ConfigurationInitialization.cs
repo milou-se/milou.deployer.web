@@ -16,6 +16,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
 {
     public static class ConfigurationInitialization
     {
+        public static MultiSourceKeyValueConfiguration InitializeStartupConfiguration(IReadOnlyList<string> args, IReadOnlyDictionary<string, string> environmentVariables, IReadOnlyCollection<Assembly> assemblies)
+        {
+            var multiSourceKeyValueConfiguration = KeyValueConfigurationManager
+                .Add(NoConfiguration.Empty)
+                .AddReflectionSettings(assemblies)
+                .AddEnvironmentVariables(environmentVariables)
+                .AddCommandLineArgsSettings(args)
+                .DecorateWith(new ExpandKeyValueConfigurationDecorator()).Build();
+
+            return multiSourceKeyValueConfiguration;
+        }
+
         private static AppSettingsBuilder AddUserSettings(this AppSettingsBuilder builder, string basePath)
         {
             if (string.IsNullOrWhiteSpace(basePath))

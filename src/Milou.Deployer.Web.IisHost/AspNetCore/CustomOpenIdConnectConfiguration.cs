@@ -8,6 +8,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
     [Urn(UrnKey)]
     [UsedImplicitly]
+
+    [Optional]
     public class CustomOpenIdConnectConfiguration : IValidationObject, IConfigurationValues
     {
         [PublicAPI]

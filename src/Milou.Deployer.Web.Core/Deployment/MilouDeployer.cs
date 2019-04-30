@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using JetBrains.Annotations;
 using Milou.Deployer.Bootstrapper.Common;
 using Milou.Deployer.Core;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Http;
 using Newtonsoft.Json;
 using Serilog;
 using Serilog.Core;
@@ -22,26 +21,23 @@ namespace Milou.Deployer.Web.Core.Deployment
     [UsedImplicitly]
     public class MilouDeployer
     {
-        [NotNull]
-        private readonly CustomHttpClientFactory _clientFactory;
-
         private readonly ICredentialReadService _credentialReadService;
 
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
+        private readonly IHttpClientFactory _clientFactory;
 
         public MilouDeployer(
-            [NotNull] MilouDeployerConfiguration milouDeployerConfiguration,
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] ICredentialReadService credentialReadService,
-            [NotNull] IKeyValueConfiguration keyValueConfiguration,
-            [NotNull] CustomHttpClientFactory clientFactory)
+            [NotNull] IHttpClientFactory clientFactory)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _credentialReadService =
                 credentialReadService ?? throw new ArgumentNullException(nameof(credentialReadService));
+            _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
 
-            _clientFactory = clientFactory;
+            //_clientFactory = clientFactory;
         }
 
         private async Task<DeploymentTarget> GetDeploymentTarget(
@@ -309,7 +305,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             jobLogger.Verbose("Running Milou Deployer bootstrapper");
 
-            var httpClient = _clientFactory.CreateClient("Bootstrapper");
+            HttpClient httpClient = _clientFactory.CreateClient("Bootstrapper");
 
             try
             {
@@ -323,7 +319,7 @@ namespace Milou.Deployer.Web.Core.Deployment
                         cancellationToken))
                 {
                     var result =
-                        await deployerApp.ExecuteAsync(deployerArgs.ToImmutableArray(), cancellationToken);
+                        await deployerApp.ExecuteAsync(deployerArgs.ToImmutableArray(), CancellationToken.None);
 
                     if (result.PackageDirectory is null || result.SemanticVersion is null)
                     {

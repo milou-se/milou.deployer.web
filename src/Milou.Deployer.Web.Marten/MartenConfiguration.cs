@@ -9,6 +9,7 @@ namespace Milou.Deployer.Web.Marten
 {
     [Urn(MartenConstants.MartenConfiguration)]
     [UsedImplicitly]
+    [Optional]
     public class MartenConfiguration : IValidationObject, IConfigurationValues
     {
         public MartenConfiguration(string connectionString, bool enabled = false)

@@ -6,13 +6,13 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="6.0.1" />
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.18.0" />
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.18.0" />
     <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.18.0" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.4.0" />
     <PackageReference Include="Arbor.Processing" Version="0.2.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.4.0" />
-    <PackageReference Include="Autofac" Version="4.9.2" />
     <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
     <PackageReference Include="MailKit" Version="2.1.4" />
     <PackageReference Include="Marten" Version="3.5.0" />

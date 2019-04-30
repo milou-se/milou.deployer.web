@@ -16,7 +16,7 @@ using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
+using Milou.Deployer.Web.IisHost.AspNetCore;
 using Serilog.Core;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
@@ -32,25 +32,28 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         private readonly EnvironmentConfiguration _environmentConfiguration;
 
         private readonly LoggingLevelSwitch _loggingLevelSwitch;
+        private readonly ServiceDiagnostics _serviceDiagnostics;
 
-        [NotNull]
-        private readonly Scope _scope;
+        private readonly IServiceProvider _serviceProvider;
 
         public DiagnosticsViewHandler(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] MultiSourceKeyValueConfiguration configuration,
-            [NotNull] Scope scope,
             [NotNull] IConfiguration aspNetConfiguration,
             [NotNull] LoggingLevelSwitch loggingLevelSwitch,
-            [NotNull] EnvironmentConfiguration environmentConfiguration)
+            [NotNull] EnvironmentConfiguration environmentConfiguration,
+            IServiceProvider serviceProvider,
+            ServiceDiagnostics serviceDiagnostics)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-            _scope = scope ?? throw new ArgumentNullException(nameof(scope));
+
             _aspNetConfiguration = aspNetConfiguration ?? throw new ArgumentNullException(nameof(aspNetConfiguration));
             _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
             _environmentConfiguration = environmentConfiguration;
+            _serviceProvider = serviceProvider;
+            _serviceDiagnostics = serviceDiagnostics;
         }
 
         private async Task<IKeyValueConfiguration> GetApplicationMetadataAsync(CancellationToken cancellationToken)
@@ -107,9 +110,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                             _configuration.ConfiguratorFor(key).GetType().Name))
                     .ToImmutableArray());
 
-            var registrations = _scope.Deepest().Lifetime.ComponentRegistry
-                .Registrations.SelectMany(reg => reg.Services.Select(service =>
-                    new ContainerRegistrationInfo(service.Description, reg.Lifetime.ToString()))).ToImmutableArray();
 
             var aspNetConfigurationValues = _aspNetConfiguration
                 .AsEnumerable()
@@ -120,22 +120,69 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
             var applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
-            var aspnetConfigurationValues = _scope.GetConfigurationValues();
+            var serviceDiagnosticsRegistrations = _serviceDiagnostics.Registrations;
 
             var applicationMetadata = await GetApplicationMetadataAsync(cancellationToken);
+
+            ServiceInstance GetInstance(ServiceRegistrationInfo serviceRegistrationInfo)
+            {
+                var registrationType = serviceRegistrationInfo.ServiceDescriptorServiceType;
+
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationInstance != null)
+                {
+                    return new ServiceInstance(registrationType, serviceRegistrationInfo.ServiceDescriptorImplementationInstance,serviceRegistrationInfo.Module);
+                }
+
+                if (serviceRegistrationInfo.Factory != null)
+                {
+                    try
+                    {
+                        return new ServiceInstance(
+                            registrationType,
+                            serviceRegistrationInfo.Factory(_serviceProvider),serviceRegistrationInfo.Module);
+                    }
+                    catch (Exception ex)
+                    {
+                        return new ServiceInstance(registrationType, ex, serviceRegistrationInfo.Module);
+                    }
+                }
+
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationType.IsGenericType)
+                {
+                    return new ServiceInstance(registrationType, "Generic type", serviceRegistrationInfo.Module);
+                }
+
+                return new ServiceInstance(registrationType,
+                    _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType),serviceRegistrationInfo.Module);
+            }
 
             var settingsViewModel = new SettingsViewModel(
                 _deploymentTargetReadService.GetType().Name,
                 routesWithController,
                 configurationValues,
-                registrations,
+                serviceDiagnosticsRegistrations,
                 aspNetConfigurationValues,
+                serviceDiagnosticsRegistrations
+                    .Select(GetInstance).ToImmutableArray(),
                 _loggingLevelSwitch.MinimumLevel,
                 applicationVersionInfo,
-                aspnetConfigurationValues,
                 applicationMetadata);
 
             return settingsViewModel;
+        }
+    }
+
+    public class ServiceInstance
+    {
+        public Type RegistrationType { get; }
+        public object Instance { get; }
+        public Type Module { get; }
+
+        public ServiceInstance(Type registrationType, object instance, Type module)
+        {
+            RegistrationType = registrationType;
+            Instance = instance;
+            Module = module;
         }
     }
 }

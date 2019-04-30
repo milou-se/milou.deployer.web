@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             new ConcurrentTwoWaySingleValueMap<string, IPAddress>();
 
         public AllowedIpAddressHandler(
-            [NotNull] IReadOnlyCollection<AllowedHostName> hostNames,
+            [NotNull] IEnumerable<AllowedHostName> hostNames,
             [NotNull] ILogger logger)
         {
             if (hostNames == null)

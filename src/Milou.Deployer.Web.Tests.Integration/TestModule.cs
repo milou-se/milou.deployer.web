@@ -1,20 +1,19 @@
-﻿using Autofac;
-using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Configuration;
+﻿using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Targets;
 using Serilog;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    [RegistrationOrder(int.MaxValue, Tag = Scope.AspNetCoreScope)]
     [UsedImplicitly]
-    public class TestModule : Module
+    public class TestModule : IModule
     {
-        protected override void Load(ContainerBuilder builder)
+        public IServiceCollection Register(IServiceCollection builder)
         {
-            builder.Register(context =>
-                    new InMemoryDeploymentTargetReadService(context.Resolve<ILogger>(), TestDataCreator.CreateData))
-                .AsImplementedInterfaces().SingleInstance();
+            return builder.AddSingleton<IDeploymentTargetReadService>(context =>
+                new InMemoryDeploymentTargetReadService(context.GetService<ILogger>(), TestDataCreator.CreateData));
         }
     }
 }

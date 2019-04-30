@@ -4,16 +4,26 @@
         <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Remove="App_Data\**" />
         <Compile Remove="Areas\NuGet\Controllers\**" />
+        <Compile Remove="Areas\Protocols\**" />
         <Compile Remove="logs\**" />
+        <Content Remove="App_Data\**" />
         <Content Remove="Areas\NuGet\Controllers\**" />
+        <Content Remove="Areas\Protocols\**" />
         <Content Remove="logs\**" />
+        <EmbeddedResource Remove="App_Data\**" />
         <EmbeddedResource Remove="Areas\NuGet\Controllers\**" />
+        <EmbeddedResource Remove="Areas\Protocols\**" />
         <EmbeddedResource Remove="logs\**" />
+        <None Remove="App_Data\**" />
         <None Remove="Areas\NuGet\Controllers\**" />
+        <None Remove="Areas\Protocols\**" />
         <None Remove="logs\**" />
     </ItemGroup>
     <ItemGroup>
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="6.0.1" />
+        <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.18.0" />
         <PackageReference Include="Arbor.Processing" Version="0.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.2" Condition="'$(NCrunch)' == '1'" />
         <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.7.0" />
@@ -24,8 +34,6 @@
         <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.18.0" />
         <PackageReference Include="Arbor.ModelBinding" Version="0.4.0" />
         <PackageReference Include="Arbor.Tooler" Version="0.4.0" />
-        <PackageReference Include="Autofac" Version="4.9.2" />
-        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.4.0" />
         <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
         <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
         <PackageReference Include="MediatR" Version="6.0.0" />
@@ -33,6 +41,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
+        <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.HttpOverrides" Version="2.2.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
@@ -45,6 +54,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
         <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.2.0" />
@@ -67,8 +77,6 @@
         <PackageReference Include="System.Diagnostics.EventLog" Version="4.5.0" />
     </ItemGroup>
     <ItemGroup>
-        <Folder Include="App_Data\DeploymentJobs\" />
-        <Folder Include="Areas\Protocols\Http\" />
         <Folder Include="Areas\Security\Views\Login\" />
     </ItemGroup>
     <ItemGroup>

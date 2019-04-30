@@ -1,20 +1,16 @@
-using Autofac;
-using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Configuration;
+﻿using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 {
     [UsedImplicitly]
-    [RegistrationOrder(0, Tag = Scope.AspNetCoreScope)]
-    public class StandardServiceModule : Module
+    public class StandardServiceModule : IModule
     {
-        protected override void Load(ContainerBuilder builder)
+        public IServiceCollection Register(IServiceCollection builder)
         {
-            builder.RegisterType<MonitoringService>()
-                .AsSelf()
-                .AsImplementedInterfaces()
-                .SingleInstance();
+            return builder.AddSingleton<MonitoringService>();
         }
     }
 }

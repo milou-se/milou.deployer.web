@@ -1,17 +1,16 @@
-using Autofac;
+﻿
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.Application;
 
 namespace Milou.Deployer.Web.Core.Time
 {
     [UsedImplicitly]
-    public class TimeModule : Module
+    public class TimeModule : IModule
     {
-        protected override void Load(ContainerBuilder builder)
+        public IServiceCollection Register(IServiceCollection builder)
         {
-            builder.RegisterType<CustomSystemClock>()
-                .AsImplementedInterfaces()
-                .SingleInstance()
-                .PreserveExistingDefaults();
+            return builder.AddSingleton<ICustomClock, CustomSystemClock>();
         }
     }
 }

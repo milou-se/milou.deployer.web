@@ -1,20 +1,16 @@
-﻿using System.Linq;
-using Autofac;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     [UsedImplicitly]
-    public class EnvironmentModule : Module
+    public class EnvironmentModule : IModule
     {
-        protected override void Load(ContainerBuilder builder)
+        public IServiceCollection Register(IServiceCollection builder)
         {
-            builder.RegisterAssemblyTypes(Assemblies.FilteredAssemblies().ToArray())
-                .Where(type => type.IsPublicConcreteTypeImplementing<IConfigureEnvironment>())
-                .As<IConfigureEnvironment>();
+            return builder.RegisterAssemblyTypesAsSingletons<IConfigureEnvironment>(Assemblies.FilteredAssemblies());
         }
     }
 }

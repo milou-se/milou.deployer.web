@@ -2,19 +2,20 @@
 using System.Linq;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
-using Autofac;
 using JetBrains.Annotations;
 using Marten;
 using Marten.Services;
-using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Json;
 
 namespace Milou.Deployer.Web.Marten
 {
     [RegistrationOrder(1000)]
     [UsedImplicitly]
-    public class MartenModule : Module
+    public class MartenModule : IModule
     {
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
@@ -35,39 +36,46 @@ namespace Milou.Deployer.Web.Marten
             options.Serializer(jsonNetSerializer);
         }
 
-        protected override void Load(ContainerBuilder builder)
+        public IServiceCollection Register(IServiceCollection builder)
         {
             var configurations = _keyValueConfiguration.GetInstances<MartenConfiguration>();
 
             if (configurations.IsDefaultOrEmpty)
             {
-                return;
+                return builder;
             }
 
             if (configurations.Length > 1)
             {
-                builder.RegisterInstance(new MartenConfiguration(string.Empty));
-                builder.RegisterInstance(new ConfigurationError(
+                builder.AddSingleton(new MartenConfiguration(string.Empty));
+                builder.AddSingleton(new ConfigurationError(
                     $"Expected exactly 1 instance of type {nameof(MartenConfiguration)} but got {configurations.Length}"));
-                return;
+                return builder;
             }
 
             var configuration = configurations.Single();
 
             if (!string.IsNullOrWhiteSpace(configuration.ConnectionString) && configuration.Enabled)
             {
-                builder.RegisterAssemblyTypes(typeof(MartenStore).Assembly)
-                    .Where(type => type == typeof(MartenStore))
-                    .AsClosedTypesOf(typeof(IRequestHandler<,>))
-                    .AsImplementedInterfaces()
-                    .SingleInstance();
+                builder.AddSingleton(typeof(MartenStore));
+                builder.AddSingleton(typeof(IDeploymentTargetReadService), typeof(MartenStore));
+                //builder.AddSingleton(typeof(IRequestHandler<,>).MakeGenericType() , typeof(MartenStore));
 
-                builder.Register(context =>
-                        DocumentStore.For(options => ConfigureMarten(options, configuration.ConnectionString)))
-                    .AsImplementedInterfaces()
-                    .AsSelf()
-                    .SingleInstance();
+                var genericInterfaces = typeof(MartenStore).GetInterfaces().Where(t => t.IsGenericType).ToArray();
+
+                foreach (var genericInterface in genericInterfaces)
+                {
+                    builder.Add(new ExtendedServiceDescriptor(genericInterface,
+                        typeof(MartenStore),
+                        ServiceLifetime.Singleton,
+                        GetType()));
+                }
+
+                builder.AddSingleton<IDocumentStore>(context =>
+                    DocumentStore.For(options => ConfigureMarten(options, configuration.ConnectionString)));
             }
+
+            return builder;
         }
     }
 }

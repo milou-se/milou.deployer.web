@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Configuration;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -14,6 +15,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             Output = output ?? throw new ArgumentNullException(nameof(output));
             WebFixture = webFixture ?? throw new ArgumentNullException(nameof(webFixture));
+            webFixture.App?.ConfigurationInstanceHolder?.AddInstance(output);
 
             CancellationTokenSource = WebFixture?.App?.CancellationTokenSource;
 

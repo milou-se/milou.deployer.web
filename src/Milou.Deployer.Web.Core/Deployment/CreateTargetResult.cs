@@ -1,6 +1,5 @@
 ﻿using System.Collections.Immutable;
 using Arbor.KVConfiguration.Core;
-using Arbor.KVConfiguration.Schema.Validators;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
 using Newtonsoft.Json;
@@ -9,8 +8,9 @@ namespace Milou.Deployer.Web.Core.Deployment
 {
     public class CreateTargetResult
     {
-        public CreateTargetResult(string targetName)
+        public CreateTargetResult(string targetId, string targetName)
         {
+            TargetId = targetId;
             TargetName = targetName;
             ValidationErrors = ImmutableArray<ValidationError>.Empty;
         }
@@ -26,6 +26,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             TargetName = targetName;
             ValidationErrors = validationErrors.ToImmutableArray();
         }
+
+        public string TargetId { get; }
 
         [PublicAPI]
         public string TargetName { get; }

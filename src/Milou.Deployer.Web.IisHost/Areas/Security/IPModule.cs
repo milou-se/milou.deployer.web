@@ -1,16 +1,16 @@
-﻿using Autofac;
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
-    [RegistrationOrder(0, Tag = Scope.AspNetCoreScope)]
     [UsedImplicitly]
-    public class IpModule : Module
+    public class IpModule : IModule
     {
-        protected override void Load(ContainerBuilder builder)
+        public IServiceCollection Register(IServiceCollection builder)
         {
-            builder.RegisterType<AllowedIpAddressHandler>().AsSelf().SingleInstance();
+            return builder.AddSingleton<AllowedIpAddressHandler>();
         }
     }
 }

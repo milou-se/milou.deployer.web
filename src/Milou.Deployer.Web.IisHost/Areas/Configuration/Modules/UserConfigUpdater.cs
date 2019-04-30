@@ -11,13 +11,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
     [UsedImplicitly]
     public sealed class UserConfigUpdater : IDisposable
     {
-        private readonly ConfigurationHolder _configurationHolder;
+        private readonly ConfigurationInstanceHolder _configurationHolder;
         private readonly string _fileName;
         private FileSystemWatcher _fileSystemWatcher;
         private bool _isDisposed;
 
         public UserConfigUpdater(
-            ConfigurationHolder configurationHolder,
+            ConfigurationInstanceHolder configurationHolder,
             EnvironmentConfiguration applicationEnvironment)
         {
             _configurationHolder = configurationHolder;

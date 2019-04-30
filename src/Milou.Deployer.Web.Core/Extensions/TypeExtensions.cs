@@ -145,5 +145,20 @@ namespace Milou.Deployer.Web.Core.Extensions
                 return ex.Types.Where(type => type != null).ToImmutableArray();
             }
         }
+
+        public static ImmutableArray<Type> GetLoadablePublicConcreteTypeImplementing<T>(this Assembly assembly)
+        {
+            return assembly
+                .GetLoadableTypes()
+                .Where(t => t.IsPublicConcreteTypeImplementing<T>())
+                .ToImmutableArray();
+        }
+
+        public static ImmutableArray<Type> GetLoadablePublicConcreteTypesImplementing<T>(this IEnumerable<Assembly> assemblies)
+        {
+            return assemblies
+                .SelectMany(assembly => assembly.GetLoadablePublicConcreteTypeImplementing<T>())
+                .ToImmutableArray();
+        }
     }
 }

@@ -31,8 +31,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             IKeyValueConfiguration keyValueConfiguration,
             AllowedIpAddressHandler allowedIpAddressHandler,
             ILogger logger,
-            IReadOnlyCollection<AllowedEmail> allowedEmails,
-            IReadOnlyCollection<AllowedEmailDomain> allowedEmailDomains)
+            IEnumerable<AllowedEmail> allowedEmails,
+            IEnumerable<AllowedEmailDomain> allowedEmailDomains)
         {
             _allowedIpAddressHandler = allowedIpAddressHandler;
             _logger = logger;

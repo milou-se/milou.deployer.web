@@ -182,11 +182,34 @@ else
     </tr>
     </thead>
     <tbody>
-    @foreach (ContainerRegistrationInfo item in Model.ContainerRegistrations)
+    @foreach (var item in Model.ServiceRegistrations)
     {
         <tr>
-            <td>@item.Service</td>
-            <td>@item.Scope</td>
+            <td>@item.ServiceDescriptorServiceType.FullName</td>
+            <td>@item.ServiceDescriptorLifetime</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Container instances</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Service</th>
+        <th>Instance</th>
+        <th>Module</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model.RegistrationInstances)
+    {
+        <tr>
+            <td>@item.RegistrationType.FullName</td>
+            <td>@item.Instance</td>
+            <td>@item.Module</td>
         </tr>
     }
     </tbody>

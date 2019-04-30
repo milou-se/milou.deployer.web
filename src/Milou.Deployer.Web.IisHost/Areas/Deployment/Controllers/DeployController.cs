@@ -14,11 +14,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
     [Area(DeploymentConstants.AreaName)]
     public class DeployController : BaseApiController
     {
-        private readonly DeploymentWorker _deploymentService;
+        private readonly DeploymentWorkerService _deploymentService;
 
         private readonly ILogger _logger;
 
-        public DeployController(ILogger logger, DeploymentWorker deploymentService)
+        public DeployController(ILogger logger, DeploymentWorkerService deploymentService)
         {
             _logger = logger;
             _deploymentService = deploymentService;

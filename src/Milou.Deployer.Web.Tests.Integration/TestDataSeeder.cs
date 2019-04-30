@@ -3,13 +3,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
+using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Targets;
+using Milou.Deployer.Web.IisHost.Areas.Application;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
+    public class DataSeederTestModule : IModule
+    {
+        public IServiceCollection Register(IServiceCollection builder)
+        {
+            return builder.RegisterAssemblyTypesAsSingletons<IDataSeeder>(Assemblies.FilteredAssemblies());
+        }
+    }
+
     [UsedImplicitly]
     public class TestDataSeeder : IDataSeeder
     {

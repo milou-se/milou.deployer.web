@@ -6,8 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
@@ -15,8 +15,8 @@ using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Milou.Deployer.Web.Marten;
+using Milou.Deployer.Web.Tests.Integration.TestData;
 using MysticMind.PostgresEmbed;
-using Serilog;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -25,6 +25,9 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public abstract class WebFixtureBase : IDisposable, IAsyncLifetime
     {
+        [PublicAPI]
+        protected TestConfiguration TestConfiguration;
+
         private const int CancellationTimeoutInSeconds = 180;
 
         private const string ConnectionStringFormat =
@@ -45,7 +48,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private PgServer _pgServer;
 
-        private bool _addLocalUserAccessPermission = true;
+        private bool _addLocalUserAccessPermission = false;
 
         protected WebFixtureBase(IMessageSink diagnosticMessageSink)
         {
@@ -70,7 +73,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private int? GetHttpPort()
         {
-            var environmentConfiguration = App.AppRootScope.Lifetime.ResolveOptional<EnvironmentConfiguration>();
+            var environmentConfiguration = App.WebHost.Services.GetService<EnvironmentConfiguration>();
 
             if (environmentConfiguration is null)
             {
@@ -134,17 +137,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
 
-            Builder = new StringBuilder();
-            var writer = new StringWriter(Builder);
-
-            void AddTestLogging(LoggerConfiguration loggerConfiguration)
-            {
-                loggerConfiguration
-                    .WriteTo.TextWriter(writer)
-                    .WriteTo.Debug();
-            }
-
-            App = await App.CreateAsync(_cancellationTokenSource, AddTestLogging, args, EnvironmentVariables.Get());
+            App = await App.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.Get(), TestConfiguration);
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);
@@ -169,6 +162,8 @@ namespace Milou.Deployer.Web.Tests.Integration
             {
                 useDefaultDirectory = useDefaultDirectoryEnabled;
             }
+
+            useDefaultDirectory = true;
 
             var version = Environment.GetEnvironmentVariable("urn:milou:deployer:web:tests:pgsql:version")
                 .WithDefault("10.5.1");
@@ -196,8 +191,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 {
                     _pgServer = new PgServer(
                         version,
-                        PostgresqlUser,
-                        postgresqlDbDir?.FullName ?? "",
+                        dbDir:postgresqlDbDir?.FullName ?? "",
                         addLocalUserAccessPermission: _addLocalUserAccessPermission,
                         clearInstanceDirOnStop: true);
                     _pgServer.Start();

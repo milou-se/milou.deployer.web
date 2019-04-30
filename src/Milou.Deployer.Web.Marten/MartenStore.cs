@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
-using Arbor.KVConfiguration.Schema.Validators;
 using JetBrains.Annotations;
 using Marten;
 using MediatR;
@@ -268,9 +267,9 @@ namespace Milou.Deployer.Web.Marten
             return CreateProjectAsync(request, cancellationToken);
         }
 
-        public async Task<CreateTargetResult> Handle(CreateTarget request, CancellationToken cancellationToken)
+        public async Task<CreateTargetResult> Handle(CreateTarget createTarget, CancellationToken cancellationToken)
         {
-            if (!request.IsValid)
+            if (!createTarget.IsValid)
             {
                 return new CreateTargetResult(new ValidationError("Invalid"));
             }
@@ -279,8 +278,8 @@ namespace Milou.Deployer.Web.Marten
             {
                 var data = new DeploymentTargetData
                 {
-                    Id = request.Id,
-                    Name = request.Name
+                    Id = createTarget.Id,
+                    Name = createTarget.Name
                 };
 
                 session.Store(data);
@@ -288,9 +287,9 @@ namespace Milou.Deployer.Web.Marten
                 await session.SaveChangesAsync(cancellationToken);
             }
 
-            _logger.Information("Created target with id {Id}", request.Id);
+            _logger.Information("Created target with id {Id}", createTarget.Id);
 
-            return new CreateTargetResult(request.Id);
+            return new CreateTargetResult(createTarget.Id, createTarget.Name);
         }
 
         public async Task<DeploymentHistoryResponse> Handle(

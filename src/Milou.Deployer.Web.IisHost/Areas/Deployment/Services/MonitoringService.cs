@@ -67,9 +67,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             var nameValueCollection = new NameValueCollection();
 
-            foreach (var configurationItem in configuration.Keys)
+            if (!configuration.Keys.IsDefaultOrEmpty)
             {
-                nameValueCollection.Add(configurationItem.Key, configurationItem.Value);
+                foreach (var configurationItem in configuration.Keys)
+                {
+                    nameValueCollection.Add(configurationItem.Key, configurationItem.Value);
+                }
             }
 
             var appVersion = new AppVersion(target, new InMemoryKeyValueConfiguration(nameValueCollection), filtered);

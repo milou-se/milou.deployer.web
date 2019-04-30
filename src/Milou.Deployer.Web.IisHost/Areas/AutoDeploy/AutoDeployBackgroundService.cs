@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
     {
         private readonly AutoDeployConfiguration _autoDeployConfiguration;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
-        private readonly DeploymentWorker _deploymentWorker;
+        private readonly DeploymentWorkerService _deploymentWorkerService;
         private readonly MonitoringService _monitoringService;
         private readonly ILogger _logger;
         private readonly PackageService _packageService;
@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         public AutoDeployBackgroundService(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] MonitoringService monitoringService,
-            [NotNull] DeploymentWorker deploymentWorker,
+            [NotNull] DeploymentWorkerService deploymentWorkerService,
             [NotNull] AutoDeployConfiguration autoDeployConfiguration,
             [NotNull] ILogger logger,
             [NotNull] PackageService packageService)
@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _monitoringService = monitoringService ?? throw new ArgumentNullException(nameof(monitoringService));
-            _deploymentWorker = deploymentWorker ?? throw new ArgumentNullException(nameof(deploymentWorker));
+            _deploymentWorkerService = deploymentWorkerService ?? throw new ArgumentNullException(nameof(deploymentWorkerService));
             _autoDeployConfiguration = autoDeployConfiguration ??
                                        throw new ArgumentNullException(nameof(autoDeployConfiguration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -165,7 +165,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                             packageToDeploy,
                             deploymentTarget.Id);
 
-                        _deploymentWorker.Enqueue(task);
+                        _deploymentWorkerService.Enqueue(task);
                     }
                 }
 

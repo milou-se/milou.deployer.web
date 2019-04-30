@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -12,20 +13,20 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
     [UsedImplicitly]
     public class ConfigurationErrorMiddleware
     {
-        private readonly IReadOnlyCollection<ConfigurationError> _configurationErrors;
+        private readonly ImmutableArray<ConfigurationError> _configurationErrors;
         private readonly RequestDelegate _next;
 
         public ConfigurationErrorMiddleware(
-            IReadOnlyCollection<ConfigurationError> configurationErrors,
+            IEnumerable<ConfigurationError> configurationErrors,
             RequestDelegate next)
         {
-            _configurationErrors = configurationErrors;
+            _configurationErrors = configurationErrors.ToImmutableArray();
             _next = next;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            if (_configurationErrors.Count > 0 &&
+            if (_configurationErrors.Length > 0 &&
                 !context.Request.Path.StartsWithSegments(ErrorRouteConstants.ErrorRoute,
                     StringComparison.OrdinalIgnoreCase))
             {

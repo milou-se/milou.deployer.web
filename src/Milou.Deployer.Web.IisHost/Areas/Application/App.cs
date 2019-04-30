@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -11,24 +10,17 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using Arbor.Tooler;
-using Autofac;
-using Autofac.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.NuGet;
-using Milou.Deployer.Web.Core.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
-using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
-using Milou.Deployer.Web.IisHost.Areas.Deployment;
-using Milou.Deployer.Web.IisHost.Areas.Messaging;
 using Milou.Deployer.Web.IisHost.AspNetCore;
-using Milou.Deployer.Web.Marten;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -46,12 +38,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             [NotNull] IWebHostBuilder webHost,
             [NotNull] CancellationTokenSource cancellationTokenSource,
             [NotNull] ILogger appLogger,
-            MultiSourceKeyValueConfiguration configuration)
+            MultiSourceKeyValueConfiguration configuration,
+            ConfigurationInstanceHolder configurationInstanceHolder)
         {
             CancellationTokenSource = cancellationTokenSource ??
                                       throw new ArgumentNullException(nameof(cancellationTokenSource));
             Logger = appLogger ?? throw new ArgumentNullException(nameof(appLogger));
             Configuration = configuration;
+            ConfigurationInstanceHolder = configurationInstanceHolder;
             HostBuilder = webHost ?? throw new ArgumentNullException(nameof(webHost));
             _instanceId = Guid.NewGuid();
             AppInstance = ApplicationConstants.ApplicationName + " " + _instanceId;
@@ -65,85 +59,78 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public MultiSourceKeyValueConfiguration Configuration { get; private set; }
 
+        public ConfigurationInstanceHolder ConfigurationInstanceHolder { get; }
+
         [PublicAPI]
         public IWebHostBuilder HostBuilder { get; private set; }
 
         public IWebHost WebHost { get; private set; }
 
-        public Scope AppRootScope { get; private set; }
-
-        private void LogConfigurationValues()
-        {
-            var configurationValues = AppRootScope.Deepest().GetConfigurationValues();
-            Logger.Debug("Using configuration values {ConfigurationValues}",
-                string.Join(Environment.NewLine,
-                    configurationValues.Select(configurationValue => configurationValue.Item2)));
-        }
-
         private static async Task<App> BuildAppAsync(
             CancellationTokenSource cancellationTokenSource,
-            Action<LoggerConfiguration> loggerConfigurationAction,
             string[] commandLineArgs,
-            ImmutableDictionary<string, string> environmentVariables)
+            ImmutableDictionary<string, string> environmentVariables,
+            params object[] instances)
         {
-            var scanAssemblies = Assemblies.FilteredAssemblies();
+            var scanAssemblies = Assemblies.FilteredAssemblies().ToArray();
 
-            var basePathFromArg = commandLineArgs.ParseParameter(ConfigurationConstants.ApplicationBasePath);
+            MultiSourceKeyValueConfiguration startupConfiguration = ConfigurationInitialization.InitializeStartupConfiguration(commandLineArgs, environmentVariables, scanAssemblies);
 
-            var contentBasePathFromArg = commandLineArgs.ParseParameter(ConfigurationConstants.ContentBasePath);
+            ConfigurationRegistrations startupRegistrations = startupConfiguration.ScanRegistrations(scanAssemblies);
 
-            bool IsRunningAsService()
+            if (startupRegistrations.UrnTypeRegistrations
+                .Any(registrationErrors => !registrationErrors.ConfigurationRegistrationErrors.IsDefaultOrEmpty))
             {
-                var hasRunAsServiceArgument = commandLineArgs.Any(arg =>
-                    arg.Equals(ApplicationConstants.RunAsService, StringComparison.OrdinalIgnoreCase));
+                var errors = startupRegistrations.UrnTypeRegistrations
+                    .Where(registrationErrors => registrationErrors.ConfigurationRegistrationErrors.Length > 0)
+                    .SelectMany(registrationErrors => registrationErrors.ConfigurationRegistrationErrors)
+                    .Select(registrationError => registrationError.ErrorMessage);
 
-                if (hasRunAsServiceArgument)
-                {
-                    return true;
-                }
-
-                FileInfo processFileInfo;
-                using (var currentProcess = Process.GetCurrentProcess())
-                {
-                    processFileInfo = new FileInfo(currentProcess.MainModule.FileName);
-                }
-
-                if (processFileInfo.Name.Equals("Milou.Deployer.Web.WindowsService.exe",
-                    StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-
-                return false;
+                throw new InvalidOperationException($"Error {string.Join(Environment.NewLine, errors)}"); // review exception
             }
 
-            var currentDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            ConfigurationInstanceHolder configurationInstanceHolder = startupRegistrations.CreateHolder();
 
-            if (IsRunningAsService())
+            configurationInstanceHolder.AddInstance(configurationInstanceHolder);
+
+            foreach (object instance in instances)
             {
-                TempLogger.WriteLine(
-                    $"Switching current directory from {Directory.GetCurrentDirectory()} to {currentDomainBaseDirectory}");
-                Directory.SetCurrentDirectory(currentDomainBaseDirectory);
+                configurationInstanceHolder.AddInstance(instance);
             }
 
-            var basePath = basePathFromArg ?? currentDomainBaseDirectory;
-            var contentBasePath = contentBasePathFromArg ?? Directory.GetCurrentDirectory();
+            var loggingLevelSwitch = new LoggingLevelSwitch();
+            configurationInstanceHolder.AddInstance(loggingLevelSwitch);
+            configurationInstanceHolder.AddInstance(cancellationTokenSource);
+            configurationInstanceHolder.AddInstance(new NuGetConfiguration());
+
+            ApplicationPaths paths = configurationInstanceHolder.GetInstances<ApplicationPaths>().SingleOrDefault().Value ?? new ApplicationPaths();
+
+            AppPathHelper.SetApplicationPaths(paths, commandLineArgs);
+
+            var startupLoggerConfigurationHandlers = Assemblies.FilteredAssemblies()
+                .GetLoadablePublicConcreteTypesImplementing<IStartupLoggerConfigurationHandler>()
+                .Select(type => configurationInstanceHolder.Create(type).Cast<IStartupLoggerConfigurationHandler>())
+                .ToImmutableArray();
+
+            SetLoggingLevelSwitch(loggingLevelSwitch, startupConfiguration);
 
             var startupLogger =
-                SerilogApiInitialization.InitializeStartupLogging(file => GetBaseDirectoryFile(basePath, file),
-                    environmentVariables);
-
-            startupLogger.Information("Using application root directory {Directory}", basePath);
+                SerilogApiInitialization.InitializeStartupLogging(
+                    file => GetBaseDirectoryFile(paths.BasePath, file),
+                    environmentVariables,
+                    startupLoggerConfigurationHandlers);
 
             MultiSourceKeyValueConfiguration configuration;
             try
             {
                 configuration =
-                    ConfigurationInitialization.InitializeConfiguration(file => GetBaseDirectoryFile(basePath, file),
-                        contentBasePath,
+                    ConfigurationInitialization.InitializeConfiguration(file => GetBaseDirectoryFile(paths.BasePath, file),
+                        paths.ContentBasePath,
                         scanAssemblies,
                         commandLineArgs,
                         environmentVariables);
+
+                configurationInstanceHolder.AddInstance(configuration);
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
@@ -158,31 +145,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 configuration.AllValues.Select(pair =>
                     $"\"{pair.Key}\": \"{pair.Value.MakeAnonymous(pair.Key, $"{StringExtensions.DefaultAnonymousKeyWords.ToArray()}\"")}"));
 
-            var tempDirectory = configuration[ApplicationConstants.ApplicationTempDirectory];
+            TempPathHelper.SetTempPath(configuration, startupLogger);
 
-            if (!string.IsNullOrWhiteSpace(tempDirectory))
-            {
-                if (tempDirectory.TryEnsureDirectoryExists(out var tempDirectoryInfo))
-                {
-                    Environment.SetEnvironmentVariable(TempConstants.Tmp, tempDirectoryInfo.FullName);
-                    Environment.SetEnvironmentVariable(TempConstants.Temp, tempDirectoryInfo.FullName);
+            SetLoggingLevelSwitch(loggingLevelSwitch, configuration);
 
-                    startupLogger.Debug("Using specified temp directory {TempDirectory} {AppName}",
-                        tempDirectory,
-                        ApplicationConstants.ApplicationName);
-                }
-                else
-                {
-                    startupLogger.Warning("Could not use specified temp directory {TempDirectory}, {AppName}",
-                        tempDirectory,
-                        ApplicationConstants.ApplicationName);
-                }
-            }
-
-            var defaultLevel = configuration[ConfigurationConstants.LogLevel]
-                .ParseOrDefault(LogEventLevel.Information);
-
-            var loggingLevelSwitch = new LoggingLevelSwitch(defaultLevel);
+            var loggerConfigurationHandlers = Assemblies.FilteredAssemblies()
+                .GetLoadablePublicConcreteTypesImplementing<ILoggerConfigurationHandler>()
+                .Select(type => configurationInstanceHolder.Create(type).Cast<ILoggerConfigurationHandler>());
 
             ILogger appLogger;
             try
@@ -191,8 +160,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     SerilogApiInitialization.InitializeAppLogging(
                         configuration,
                         startupLogger,
-                        loggerConfigurationAction,
+                        loggerConfigurationHandlers,
                         loggingLevelSwitch);
+
+                configurationInstanceHolder.AddInstance(appLogger);
             }
             catch (Exception ex)
             {
@@ -200,55 +171,31 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 startupLogger.Error(ex, "Could not create app logger");
             }
 
-            if (commandLineArgs.Length > 0)
-            {
-                appLogger.Debug("Application started with command line args, {Args}, {AppName}",
-                    commandLineArgs,
-                    ApplicationConstants.ApplicationName);
-            }
-            else if (appLogger.IsEnabled(LogEventLevel.Verbose))
-            {
-                appLogger.Verbose("Application started with no command line args, {AppName}",
-                    ApplicationConstants.ApplicationName);
-            }
-
-            var modules =
-                GetConfigurationModules(configuration, cancellationTokenSource, appLogger, scanAssemblies);
-
-            Type[] excludedModuleTypes = { typeof(AppServiceModule), typeof(MediatorModule) };
+            LogCommandLineArgs(commandLineArgs, appLogger);
 
             var environmentConfiguration = new EnvironmentConfiguration
             {
-                ApplicationBasePath = basePath,
-                ContentBasePath = contentBasePath,
+                ApplicationBasePath = paths.BasePath,
+                ContentBasePath = paths.ContentBasePath,
                 CommandLineArgs = commandLineArgs.ToImmutableArray(),
                 EnvironmentName = environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
             };
 
-            var singletons = new object[] { loggingLevelSwitch, environmentConfiguration, new NuGetConfiguration()};
+            configurationInstanceHolder.AddInstance(environmentConfiguration);
 
-            Scope rootScope;
+            IReadOnlyList<IModule> modules = GetConfigurationModules(configurationInstanceHolder, scanAssemblies);
+
+            ServiceCollection serviceCollection = new ServiceCollection();
 
             try
             {
-                rootScope = Bootstrapper.Start(
-                    configuration,
-                    modules,
-                    appLogger,
-                    scanAssemblies,
-                    excludedModuleTypes,
-                    singletons);
+                Bootstrapper.Start(modules, serviceCollection, appLogger);
             }
             catch (Exception ex)
             {
                 appLogger.Fatal(ex, "Could not initialize container registrations");
                 throw;
             }
-
-            var deploymentTargetIds = await GetDeploymentWorkerIdsAsync(rootScope.Deepest().Lifetime,
-                appLogger,
-                configuration,
-                cancellationTokenSource.Token);
 
             var nugetExePath = "";
 
@@ -287,151 +234,73 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 appLogger.Warning(ex, "Could not download nuget.exe");
             }
 
-            var nugetConfiguration = rootScope.Deepest().Lifetime.Resolve<NuGetConfiguration>();
+            var nugetConfiguration = configurationInstanceHolder.Get<NuGetConfiguration>();
 
             nugetConfiguration.NugetExePath = nugetExePath;
 
-            var webHostScope =
-                rootScope.Deepest().Lifetime.BeginLifetimeScope(builder =>
-                {
-                    builder.RegisterInstance(deploymentTargetIds).AsSelf().SingleInstance();
-                    builder.RegisterType<Startup>().AsSelf();
-                    builder.RegisterInstance(nugetConfiguration).AsSelf();
-                });
+            EnvironmentConfigurator.ConfigureEnvironment(configurationInstanceHolder);
 
-            var webHostScopeWrapper = new Scope(Scope.WebHostScope, webHostScope);
-            rootScope.Deepest().SubScope = webHostScopeWrapper;
-
-            EnvironmentConfigurator.ConfigureEnvironment(rootScope.Deepest().Lifetime);
-
-            var webHostBuilder =
-                CustomWebHostBuilder.GetWebHostBuilder(configuration,
-                    rootScope,
-                    webHostScopeWrapper,
-                    appLogger,
-                    rootScope.Top());
-
-            var app = new App(webHostBuilder, cancellationTokenSource, appLogger, configuration)
+            foreach (Type registeredType in configurationInstanceHolder.RegisteredTypes)
             {
-                AppRootScope = rootScope.SubScope
-            };
+                var interfaces = registeredType.GetInterfaces();
+
+                var instance = configurationInstanceHolder.GetInstances(registeredType).Single().Value;
+
+                foreach (var @interface in interfaces)
+                {
+                    serviceCollection.AddSingleton(@interface, context => instance);
+                }
+
+                var serviceType = instance.GetType();
+                serviceCollection.AddSingleton(serviceType, instance);
+            }
+
+            var app = new App(CustomWebHostBuilder.GetWebHostBuilder(environmentConfiguration, configuration, new ServiceProviderHolder(serviceCollection.BuildServiceProvider(), serviceCollection), appLogger), cancellationTokenSource, appLogger, configuration, configurationInstanceHolder);
 
             return app;
         }
 
-        private static async Task<DeploymentTargetIds> GetDeploymentWorkerIdsAsync(
-            ILifetimeScope scope,
-            ILogger logger,
-            MultiSourceKeyValueConfiguration configuration,
-            CancellationToken cancellationToken)
+        private static void LogCommandLineArgs(string[] commandLineArgs, ILogger appLogger)
         {
-            var dataSeeders = scope.Resolve<IReadOnlyCollection<IDataSeeder>>();
-
-            if (dataSeeders.Count > 0)
+            if (commandLineArgs.Length > 0)
             {
-                if (!int.TryParse(configuration[ConfigurationConstants.SeedTimeoutInSeconds],
-                        out var seedTimeoutInSeconds) ||
-                    seedTimeoutInSeconds <= 0)
-                {
-                    seedTimeoutInSeconds = 10;
-                }
-
-                logger.Debug("Running data seeders");
-
-                foreach (var dataSeeder in dataSeeders)
-                {
-                    using (var startupToken = new CancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds)))
-                    {
-                        using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
-                            cancellationToken,
-                            startupToken.Token))
-                        {
-                            logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
-                            await dataSeeder.SeedAsync(linkedToken.Token);
-                        }
-                    }
-                }
-
-                logger.Debug("Done running data seeders");
+                appLogger.Debug("Application started with command line args, {Args}, {AppName}",
+                    commandLineArgs,
+                    ApplicationConstants.ApplicationName);
             }
-            else
+            else if (appLogger.IsEnabled(LogEventLevel.Verbose))
             {
-                logger.Debug("No data seeders were found");
-            }
-
-            try
-            {
-                if (!int.TryParse(configuration[ConfigurationConstants.StartupTargetsTimeoutInSeconds],
-                        out var startupTimeoutInSeconds) ||
-                    startupTimeoutInSeconds <= 0)
-                {
-                    startupTimeoutInSeconds = 10;
-                }
-
-                using (var startupToken = new CancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))
-                {
-                    using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken,
-                        startupToken.Token))
-                    {
-                        var deploymentTargetReadService = scope.ResolveOptional<IDeploymentTargetReadService>();
-
-                        if (deploymentTargetReadService != null)
-                        {
-                            logger.Debug("Found deployment target read service of type {Type}",
-                                deploymentTargetReadService.GetType().FullName);
-                        }
-                        else
-                        {
-                            logger.Debug("Could not find any deployment target read service");
-                            return new DeploymentTargetIds(Array.Empty<string>());
-                        }
-
-                        IReadOnlyCollection<string> targetIds =
-                            (await deploymentTargetReadService.GetDeploymentTargetsAsync(linkedToken.Token))
-                            .Select(deploymentTarget => deploymentTarget.Id)
-                            .ToArray();
-
-                        logger.Debug("Found deployment target IDs {IDs}", targetIds);
-
-                        return new DeploymentTargetIds(targetIds);
-                    }
-                }
-            }
-            catch (Exception ex) when (!ex.IsFatal())
-            {
-                logger.Warning(ex, "Could not get target ids");
-                return new DeploymentTargetIds(Array.Empty<string>());
+                appLogger.Verbose("Application started with no command line args, {AppName}",
+                    ApplicationConstants.ApplicationName);
             }
         }
 
-        private static IReadOnlyList<IModule> GetConfigurationModules(
-            MultiSourceKeyValueConfiguration configuration,
-            CancellationTokenSource cancellationTokenSource,
-            ILogger logger,
-            ImmutableArray<Assembly> scanAssemblies)
+        private static void SetLoggingLevelSwitch(LoggingLevelSwitch loggingLevelSwitch, MultiSourceKeyValueConfiguration configuration)
         {
-            var modules = new List<IModule>();
+            var defaultLevel = configuration[ConfigurationConstants.LogLevel]
+                .ParseOrDefault(LogEventLevel.Information);
 
-            if (cancellationTokenSource == null)
-            {
-                throw new ArgumentNullException(nameof(cancellationTokenSource));
-            }
-
-            var loggingModule = new LoggingModule(logger);
-
-            var module = new KeyValueConfigurationModule(configuration, logger);
-
-            var urnModule = new UrnConfigurationModule(configuration, logger, scanAssemblies);
+            loggingLevelSwitch.MinimumLevel = defaultLevel;
+        }
 
 
-            modules.Add(loggingModule);
-            modules.Add(module);
-            modules.Add(urnModule);
-            modules.Add(new DataModule(logger));
+        private static ImmutableArray<IModule> GetConfigurationModules(
+            ConfigurationInstanceHolder holder,
+            Assembly[] scanAssemblies)
+        {
+            var moduleTypes = scanAssemblies
+                .SelectMany(assembly => assembly.GetLoadableTypes())
+                .Where(type => type.IsPublicConcreteTypeImplementing<IModule>())
+                .ToImmutableArray();
+
+            var modules = moduleTypes
+                .Select(moduleType =>
+                    holder.Create(moduleType) as IModule)
+                .Where(instance => instance is object)
+                .ToImmutableArray();
 
             return modules;
         }
-
 
         private static string GetBaseDirectoryFile(string basePath, string fileName)
         {
@@ -445,9 +314,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public static async Task<App> CreateAsync(
             CancellationTokenSource cancellationTokenSource,
-            Action<LoggerConfiguration> loggerConfigurationAction,
             string[] args,
-            ImmutableDictionary<string, string> environmentVariables)
+            ImmutableDictionary<string, string> environmentVariables,
+            params object[] instances)
         {
             if (args == null)
             {
@@ -456,10 +325,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             try
             {
-                var app = await BuildAppAsync(cancellationTokenSource,
-                    loggerConfigurationAction,
+                var app = await BuildAppAsync(
+                    cancellationTokenSource,
                     args,
-                    environmentVariables);
+                    environmentVariables,
+                    instances);
 
                 return app;
             }
@@ -502,7 +372,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 try
                 {
-                    WebHost.CustomRunAsService(this);
+                    //WebHost.CustomRunAsService(this);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
@@ -528,8 +398,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                         ex);
                 }
             }
-
-            LogConfigurationValues();
 
             return 0;
         }
@@ -557,9 +425,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Logger?.Verbose("Disposing Application root scope {Application} {Instance}",
                 ApplicationConstants.ApplicationName,
                 _instanceId);
-            var rootScope = AppRootScope.Top();
-            AppRootScope?.SafeDispose();
-            rootScope?.SafeDispose();
             Logger?.Verbose("Disposing configuration {Application} {Instance}",
                 ApplicationConstants.ApplicationName,
                 _instanceId);
@@ -587,9 +452,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             Logger = null;
             WebHost = null;
             HostBuilder = null;
-            AppRootScope = null;
             _disposed = true;
             _disposing = false;
+        }
+    }
+
+    public class ServiceProviderHolder
+    {
+        public IServiceProvider ServiceProvider { get; }
+        public IServiceCollection ServiceCollection { get; }
+
+        public ServiceProviderHolder(IServiceProvider serviceProvider, IServiceCollection serviceCollection)
+        {
+            ServiceProvider = serviceProvider;
+            ServiceCollection = serviceCollection;
         }
     }
 }

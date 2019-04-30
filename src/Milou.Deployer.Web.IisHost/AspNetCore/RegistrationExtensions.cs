@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
-using Arbor.KVConfiguration.Core;
-using Arbor.KVConfiguration.Urns;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using JetBrains.Annotations;
-using MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
@@ -20,18 +13,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
-using Milou.Deployer.Web.IisHost.Areas.Application;
-using Milou.Deployer.Web.IisHost.Areas.Configuration.Modules;
-using Milou.Deployer.Web.IisHost.Areas.Deployment;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
-using Milou.Deployer.Web.IisHost.Areas.Messaging;
 using Milou.Deployer.Web.IisHost.Areas.Security;
-using Milou.Deployer.Web.Marten;
 using Newtonsoft.Json;
 using Serilog.AspNetCore;
 using ILogger = Serilog.ILogger;
@@ -70,7 +55,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                     option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
                 }).AddCookie();
 
-            if (openIdConnectConfiguration.Enabled)
+            if (openIdConnectConfiguration?.Enabled == true)
             {
                 authenticationBuilder = authenticationBuilder.AddOpenIdConnect(
                     openIdConnectOptions =>
@@ -96,7 +81,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                         {
                             if (openIdConnectConfiguration.RedirectUri.HasValue())
                             {
-                                context.ProtocolMessage.RedirectUri = openIdConnectConfiguration.RedirectUri.AbsoluteUri;
+                                context.ProtocolMessage.RedirectUri =
+                                    openIdConnectConfiguration.RedirectUri.AbsoluteUri;
                             }
 
                             return Task.CompletedTask;
@@ -171,77 +157,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
                 });
 
             return services;
-        }
-
-        public static Scope AddScopeModules(this IServiceCollection services, Scope webHostScope, ILogger logger)
-        {
-            var deploymentTargetIds = webHostScope.Lifetime.Resolve<DeploymentTargetIds>();
-
-            var configuration = webHostScope.Lifetime.Resolve<IKeyValueConfiguration>();
-
-            var excludedTypes = configuration.GetInstances<ExcludedAutoRegistrationType>()
-                .Select(item => item.TryGetType())
-                .Where(type => type != null)
-                .Concat(new[] { typeof(MartenStore) })
-                .ToArray();
-
-            var mediatorModule = new MediatorModule(Assemblies.FilteredAssemblies(), excludedTypes, logger);
-
-            var aspNetScopeLifetimeScope = webHostScope.Lifetime.BeginLifetimeScope(
-                Scope.AspNetCoreScope,
-                builder =>
-                {
-                    builder.RegisterModule(mediatorModule);
-
-                    foreach (var deploymentTargetId in deploymentTargetIds.DeploymentWorkerIds)
-                    {
-                        builder.Register(
-                                context => new DeploymentTargetWorker(
-                                    deploymentTargetId,
-                                    context.Resolve<DeploymentService>(),
-                                    context.Resolve<ILogger>(),
-                                    context.Resolve<IMediator>(),
-                                    context.Resolve<WorkerConfiguration>())).AsSelf().AsImplementedInterfaces()
-                            .Named<DeploymentTargetWorker>(deploymentTargetId);
-                    }
-
-                    builder.Register(
-                            context => new DeploymentWorker(context.Resolve<IEnumerable<DeploymentTargetWorker>>(), context.Resolve<ILogger>()))
-                        .AsSelf().AsImplementedInterfaces().SingleInstance();
-
-                    var keyValueConfiguration = webHostScope.Lifetime.Resolve<IKeyValueConfiguration>();
-
-                    try
-                    {
-                        if (webHostScope.Lifetime.ResolveOptional<IDeploymentTargetReadService>() is null)
-                        {
-                            builder.RegisterModule(new AppServiceModule(keyValueConfiguration, logger));
-                        }
-                    }
-                    catch (Exception ex) when (!ex.IsFatal())
-                    {
-                        logger.Warning(ex, "Could not get deployment target read service, registering defaults");
-                        builder.RegisterModule(new AppServiceModule(keyValueConfiguration, logger));
-                    }
-
-                    var orderedModuleRegistrations = webHostScope.Lifetime
-                        .Resolve<IReadOnlyCollection<OrderedModuleRegistration>>()
-                        .Where(orderedModuleRegistration => orderedModuleRegistration.ModuleRegistration.Tag != null)
-                        .OrderBy(orderedModuleRegistration => orderedModuleRegistration.ModuleRegistration.Order)
-                        .ToArray();
-
-                    foreach (var module in orderedModuleRegistrations)
-                    {
-                        module.Module.RegisterModule(Scope.AspNetCoreScope, builder, logger);
-                    }
-
-                    builder.Populate(services);
-                });
-
-            var aspNetCoreScope = new Scope(Scope.AspNetCoreScope, aspNetScopeLifetimeScope);
-            webHostScope.Deepest().SubScope = aspNetCoreScope;
-
-            return aspNetCoreScope;
         }
     }
 }

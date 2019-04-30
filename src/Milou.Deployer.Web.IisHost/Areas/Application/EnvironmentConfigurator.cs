@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using Autofac;
+using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
@@ -9,15 +8,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     public static class EnvironmentConfigurator
     {
-        public static void ConfigureEnvironment([NotNull] ILifetimeScope lifetimeScope)
+        public static void ConfigureEnvironment([NotNull] ConfigurationInstanceHolder lifetimeScope)
         {
             if (lifetimeScope == null)
             {
                 throw new ArgumentNullException(nameof(lifetimeScope));
             }
 
-            var configureEnvironments = lifetimeScope.Resolve<IReadOnlyCollection<IConfigureEnvironment>>();
-            var environmentConfiguration = lifetimeScope.Resolve<EnvironmentConfiguration>();
+            var configureEnvironments = lifetimeScope.GetInstances<IConfigureEnvironment>().Values;
+            var environmentConfiguration = lifetimeScope.Get<EnvironmentConfiguration>();
 
             foreach (var configureEnvironment in configureEnvironments)
             {

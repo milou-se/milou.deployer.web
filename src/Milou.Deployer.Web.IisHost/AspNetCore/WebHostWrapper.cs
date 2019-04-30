@@ -1,26 +1,21 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Autofac;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Configuration;
 using Serilog;
-using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore
 {
     public sealed class WebHostWrapper : IWebHost
     {
-        private readonly Scope _scope;
         private readonly IWebHost _webHostImplementation;
 
-        public WebHostWrapper([NotNull] IWebHost webHost, Scope scope)
+        public WebHostWrapper([NotNull] IWebHost webHost)
         {
             _webHostImplementation = webHost ?? throw new ArgumentNullException(nameof(webHost));
-            _scope = scope;
         }
 
         public void Dispose()
@@ -37,13 +32,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore
         {
             var applicationLifetime = _webHostImplementation.Services.GetService<IApplicationLifetime>();
 
-            var logger = _scope.Lifetime.Resolve<ILogger>();
-
-            if (logger.IsEnabled(LogEventLevel.Debug))
-            {
-                applicationLifetime.ApplicationStarted.Register(() =>
-                    logger.Debug("Scope chain {Scopes}", _scope.Top().Diagnostics()));
-            }
+            var logger = _webHostImplementation.Services.GetService<ILogger>();
 
             return _webHostImplementation.StartAsync(cancellationToken);
         }

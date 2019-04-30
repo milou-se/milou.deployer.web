@@ -1,6 +1,6 @@
 ﻿using System;
-using Autofac;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Health;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Logging
@@ -14,9 +14,9 @@ namespace Milou.Deployer.Web.Core.Logging
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        protected override void Load(ContainerBuilder builder)
-        {
-            builder.Register(context => _logger).SingleInstance().AsImplementedInterfaces();
-        }
+        //protected override void Load(ContainerBuilder builder)
+        //{
+        //    builder.Register(context => _logger).SingleInstance().AsImplementedInterfaces();
+        //}
     }
 }
