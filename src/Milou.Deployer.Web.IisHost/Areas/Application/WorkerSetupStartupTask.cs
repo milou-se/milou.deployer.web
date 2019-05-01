@@ -83,9 +83,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             foreach (var targetId in targetIds)
             {
+                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _deploymentService, _logger, _mediator, _workerConfiguration);
+
                 _holder.Add(new NamedInstance<DeploymentTargetWorker>(
-                    new DeploymentTargetWorker(targetId, _deploymentService, _logger, _mediator, _workerConfiguration),
+                    deploymentTargetWorker,
                     targetId));
+
+                await _mediator.Send(new StartWorker(deploymentTargetWorker), stoppingToken);
             }
 
             IsCompleted = true;

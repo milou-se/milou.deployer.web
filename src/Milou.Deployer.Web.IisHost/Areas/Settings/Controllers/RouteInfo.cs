@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         public bool IsLinkable()
         {
-            return !Value.Contains("{") && !Name.Contains("Post", StringComparison.Ordinal);
+            return !Value.Contains("{", StringComparison.InvariantCulture) && !Name.Contains("Post", StringComparison.Ordinal);
         }
     }
 }

@@ -14,7 +14,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
-    public class DeploymentWorkerService : BackgroundService, INotificationHandler<WorkerCreated>
+    public class DeploymentWorkerService : BackgroundService, INotificationHandler<WorkerCreated>, IRequestHandler<StartWorker>
     {
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly ILogger _logger;
@@ -86,6 +86,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             StartWorker(notification.Worker, cancellationToken);
             return Task.CompletedTask;
+        }
+
+        public Task<Unit> Handle(StartWorker request, CancellationToken cancellationToken)
+        {
+            StartWorker(request.Worker, cancellationToken);
+
+            return Task.FromResult(Unit.Value);
         }
     }
 }
