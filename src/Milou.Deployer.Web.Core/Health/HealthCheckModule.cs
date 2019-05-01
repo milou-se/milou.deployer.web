@@ -1,19 +1,23 @@
 ﻿using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.DependencyInjection;
+using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Health
 {
     [UsedImplicitly]
-    public class HealthCheckModule : Module
+    public class HealthCheckModule : IModule
     {
-        //protected override void Load(ContainerBuilder builder)
-        //{
-        //    var assemblies = Assemblies.FilteredAssemblies().ToArray();
+        public IServiceCollection Register(IServiceCollection builder)
+        {
+            foreach (var type in ApplicationAssemblies.FilteredAssemblies()
+                .GetLoadablePublicConcreteTypesImplementing<IHealthCheck>())
+            {
+                builder.AddSingleton(type, this);
+            }
 
-        //    builder.RegisterAssemblyTypes(assemblies)
-        //        .Where(type => type.IsConcreteTypeImplementing<IHealthCheck>())
-        //        .AsImplementedInterfaces().SingleInstance();
-
-        //    builder.RegisterType<HealthChecker>().AsSelf().SingleInstance();
-        //}
+            return builder.AddSingleton<HealthChecker>(this);
+        }
     }
 }

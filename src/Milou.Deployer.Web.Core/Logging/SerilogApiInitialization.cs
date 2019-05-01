@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
@@ -8,6 +7,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.IO;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -54,19 +54,11 @@ namespace Milou.Deployer.Web.Core.Logging
 
             if (serilogConfiguration.SeqEnabled && serilogConfiguration.IsValid)
             {
-                if (!string.IsNullOrWhiteSpace(serilogConfiguration.SeqUrl))
+                if (serilogConfiguration.SeqUrl.HasValue())
                 {
-                    if (Uri.TryCreate(serilogConfiguration.SeqUrl, UriKind.Absolute, out var serilogUrl))
-                    {
-                        logger.Debug("Serilog configured to use Seq with URL {Url}", serilogUrl.AbsoluteUri);
-                        loggerConfiguration = loggerConfiguration.WriteTo.Seq(serilogUrl.AbsoluteUri);
-                    }
-                    else
-                    {
-                        logger.Debug(
-                            "Serilog attempted to be configured to use Seq with URL '{Url}' but the url is invalid",
-                            serilogConfiguration.SeqUrl);
-                    }
+                    logger.Debug("Serilog configured to use Seq with URL {Url}",
+                        serilogConfiguration.SeqUrl.AbsoluteUri);
+                    loggerConfiguration = loggerConfiguration.WriteTo.Seq(serilogConfiguration.SeqUrl.AbsoluteUri);
                 }
                 else
                 {
@@ -124,7 +116,7 @@ namespace Milou.Deployer.Web.Core.Logging
 
         public static ILogger InitializeStartupLogging(
             [NotNull] Func<string, string> basePath,
-            ImmutableDictionary<string, string> environmentVariables,
+            IReadOnlyDictionary<string, string> environmentVariables,
             IEnumerable<IStartupLoggerConfigurationHandler> startupLoggerConfigurationHandlers)
         {
             var startupLevel = LogEventLevel.Verbose;

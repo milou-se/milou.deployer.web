@@ -21,11 +21,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (webFixture.Exception != null)
             {
-                if (webFixture.Builder != null)
-                {
-                    output.WriteLine(webFixture.Builder?.ToString() ?? "");
-                }
-
                 output.WriteLine(webFixture.Exception.ToString());
             }
         }
@@ -38,6 +33,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public virtual void Dispose()
         {
+            GC.SuppressFinalize(this);
             Output?.WriteLine($"Disposing {nameof(TestBase<T>)}");
 
             if (CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)

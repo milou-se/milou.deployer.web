@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
@@ -11,14 +12,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         public static IServiceCollection RegisterAssemblyTypes<T>(
             this IServiceCollection serviceCollection,
             IEnumerable<Assembly> assemblies,
-            ServiceLifetime lifetime) where T : class
+            ServiceLifetime lifetime,
+            IModule module = null) where T : class
         {
             var types = assemblies.SelectMany(a => a.GetLoadableTypes())
                 .Where(t => t.IsPublicConcreteTypeImplementing<T>());
 
             foreach (var type in types)
             {
-                serviceCollection.Add(new ServiceDescriptor(typeof(T), type, lifetime));
+                serviceCollection.Add(new ExtendedServiceDescriptor(typeof(T), type, lifetime, module?.GetType()));
             }
 
             return serviceCollection;
@@ -26,9 +28,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public static IServiceCollection RegisterAssemblyTypesAsSingletons<T>(
             this IServiceCollection serviceCollection,
-            IEnumerable<Assembly> assemblies) where T : class
+            IEnumerable<Assembly> assemblies,
+            IModule module = null) where T : class
         {
-            return RegisterAssemblyTypes<T>(serviceCollection, assemblies, ServiceLifetime.Singleton);
+            return RegisterAssemblyTypes<T>(serviceCollection, assemblies, ServiceLifetime.Singleton, module);
         }
     }
 }

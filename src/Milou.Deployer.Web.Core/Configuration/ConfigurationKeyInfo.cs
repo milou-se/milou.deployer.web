@@ -15,7 +15,7 @@ namespace Milou.Deployer.Web.Core.Configuration
             }
 
             Key = key;
-            Value = value.MakeAnonymous(key, StringExtensions.DefaultAnonymousKeyWords.ToArray());
+            Value = value.MakeAnonymous(key, ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray());
             Source = source;
         }
 

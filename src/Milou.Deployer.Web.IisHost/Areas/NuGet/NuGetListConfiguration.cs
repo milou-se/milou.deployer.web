@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
+namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {
     [Urn(NuGetListConstants.Configuration)]
     [UsedImplicitly]

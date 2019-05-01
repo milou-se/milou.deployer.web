@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using Milou.Deployer.Web.Core.IO;
 using Milou.Deployer.Web.Core.Logging;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application

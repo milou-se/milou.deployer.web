@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
 using JetBrains.Annotations;
+using Milou.Deployer.Web.Core.Security;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Security
@@ -35,11 +36,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             }
         }
 
-        public ImmutableArray<string> Domains => IpAddressMap.ForwardKeys;
+        public static ImmutableArray<string> Domains => IpAddressMap.ForwardKeys;
 
-        public ImmutableArray<IPAddress> IpAddresses => IpAddressMap.ReverseKeys;
+        public static ImmutableArray<IPAddress> IpAddresses => IpAddressMap.ReverseKeys;
 
-        public bool SetDomainIp([NotNull] string domain, [NotNull] IPAddress ipAddress)
+        public static bool SetDomainIp([NotNull] string domain, [NotNull] IPAddress ipAddress)
         {
             if (ipAddress == null)
             {

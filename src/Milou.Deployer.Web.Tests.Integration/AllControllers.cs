@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
-            Assemblies.FilteredAssemblies(useCache: false)
+            ApplicationAssemblies.FilteredAssemblies(useCache: false)
                 .SelectMany(assembly => assembly.GetLoadableTypes())
                 .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
                 .Select(type => new object[] { type.FullName, type.Assembly.GetName().Name })

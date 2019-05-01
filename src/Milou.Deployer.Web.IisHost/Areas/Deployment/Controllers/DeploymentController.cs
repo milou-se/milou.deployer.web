@@ -6,9 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Packages;
+using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers;
 using Milou.Deployer.Web.IisHost.Controllers;
@@ -39,7 +41,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [HttpGet]
         [Route("/deployment")]
-        public async Task<IActionResult> Index(string prefix = null)
+        public async Task<IActionResult> Index()
         {
             IReadOnlyCollection<DeploymentTarget> targets;
             try

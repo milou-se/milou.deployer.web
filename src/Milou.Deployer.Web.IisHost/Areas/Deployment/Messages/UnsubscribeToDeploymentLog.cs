@@ -1,6 +1,6 @@
-using MediatR;
+﻿using MediatR;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
+namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Messages
 {
     public class UnsubscribeToDeploymentLog : IRequest
     {

@@ -6,11 +6,12 @@ using Milou.Deployer.Web.Tests.Integration.TestData;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
+    [PublicAPI]
     public class TestStartup
     {
-        [PublicAPI]
         public static TestConfiguration TestConfiguration { get; set; }
 
+        [PublicAPI]
         public void Configure(IApplicationBuilder app)
         {
             app.UseStaticFiles(new StaticFileOptions

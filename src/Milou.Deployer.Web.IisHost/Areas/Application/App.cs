@@ -16,11 +16,13 @@ using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.IO;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
-using Milou.Deployer.Web.IisHost.AspNetCore;
+using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -69,10 +71,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private static async Task<App> BuildAppAsync(
             CancellationTokenSource cancellationTokenSource,
             string[] commandLineArgs,
-            ImmutableDictionary<string, string> environmentVariables,
+            IReadOnlyDictionary<string, string> environmentVariables,
             params object[] instances)
         {
-            var scanAssemblies = Assemblies.FilteredAssemblies().ToArray();
+            var scanAssemblies = ApplicationAssemblies.FilteredAssemblies().ToArray();
 
             MultiSourceKeyValueConfiguration startupConfiguration = ConfigurationInitialization.InitializeStartupConfiguration(commandLineArgs, environmentVariables, scanAssemblies);
 
@@ -107,7 +109,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             AppPathHelper.SetApplicationPaths(paths, commandLineArgs);
 
-            var startupLoggerConfigurationHandlers = Assemblies.FilteredAssemblies()
+            var startupLoggerConfigurationHandlers = ApplicationAssemblies.FilteredAssemblies()
                 .GetLoadablePublicConcreteTypesImplementing<IStartupLoggerConfigurationHandler>()
                 .Select(type => configurationInstanceHolder.Create(type).Cast<IStartupLoggerConfigurationHandler>())
                 .ToImmutableArray();
@@ -143,13 +145,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             startupLogger.Verbose("Configuration values {KeyValues}",
                 configuration.AllValues.Select(pair =>
-                    $"\"{pair.Key}\": \"{pair.Value.MakeAnonymous(pair.Key, $"{StringExtensions.DefaultAnonymousKeyWords.ToArray()}\"")}"));
+                    $"\"{pair.Key}\": \"{pair.Value.MakeAnonymous(pair.Key, $"{ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray()}\"")}"));
 
             TempPathHelper.SetTempPath(configuration, startupLogger);
 
             SetLoggingLevelSwitch(loggingLevelSwitch, configuration);
 
-            var loggerConfigurationHandlers = Assemblies.FilteredAssemblies()
+            var loggerConfigurationHandlers = ApplicationAssemblies.FilteredAssemblies()
                 .GetLoadablePublicConcreteTypesImplementing<ILoggerConfigurationHandler>()
                 .Select(type => configurationInstanceHolder.Create(type).Cast<ILoggerConfigurationHandler>());
 
@@ -189,7 +191,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             try
             {
-                Bootstrapper.Start(modules, serviceCollection, appLogger);
+                ModuleRegistration.RegisterModules(modules, serviceCollection, appLogger);
             }
             catch (Exception ex)
             {
@@ -315,7 +317,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         public static async Task<App> CreateAsync(
             CancellationTokenSource cancellationTokenSource,
             string[] args,
-            ImmutableDictionary<string, string> environmentVariables,
+            IReadOnlyDictionary<string, string> environmentVariables,
             params object[] instances)
         {
             if (args == null)
@@ -372,7 +374,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 try
                 {
-                    //WebHost.CustomRunAsService(this);
+                    WebHost.CustomRunAsService();
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {

@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Network;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit

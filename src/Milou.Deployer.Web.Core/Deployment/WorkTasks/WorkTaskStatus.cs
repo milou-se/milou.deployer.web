@@ -1,0 +1,19 @@
+﻿namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
+{
+    public sealed class WorkTaskStatus
+    {
+        public static readonly WorkTaskStatus Started = new WorkTaskStatus();
+
+        public static readonly WorkTaskStatus Enqueued = new WorkTaskStatus();
+
+        public static readonly WorkTaskStatus Created = new WorkTaskStatus();
+
+        public static readonly WorkTaskStatus Done = new WorkTaskStatus();
+
+        public static readonly WorkTaskStatus Failed = new WorkTaskStatus();
+
+        private WorkTaskStatus()
+        {
+        }
+    }
+}

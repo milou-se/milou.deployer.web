@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Email;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Email
@@ -10,7 +10,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
     {
         public IServiceCollection Register(IServiceCollection builder)
         {
-            return builder.AddSingleton<ISmtpService, SmtpService>();
+            return builder.AddSingleton<ISmtpService, SmtpService>(this);
         }
     }
 }

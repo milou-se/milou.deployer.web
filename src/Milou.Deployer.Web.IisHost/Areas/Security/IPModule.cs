@@ -1,7 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.DependencyInjection;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Security
 {
@@ -10,7 +9,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     {
         public IServiceCollection Register(IServiceCollection builder)
         {
-            return builder.AddSingleton<AllowedIpAddressHandler>();
+            return builder.AddSingleton<AllowedIpAddressHandler>(this);
         }
     }
 }

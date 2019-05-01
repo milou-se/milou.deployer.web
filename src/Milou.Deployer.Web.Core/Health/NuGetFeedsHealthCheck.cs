@@ -76,9 +76,9 @@ namespace Milou.Deployer.Web.Core.Health
         }
 
         private async Task CheckFeedAsync(
-            CancellationToken cancellationToken,
             Uri nugetFeed,
-            ConcurrentDictionary<Uri, bool?> nugetFeeds)
+            ConcurrentDictionary<Uri, bool?> nugetFeeds,
+            CancellationToken cancellationToken)
         {
             try
             {
@@ -151,7 +151,7 @@ namespace Milou.Deployer.Web.Core.Health
             var nugetFeeds = GetFeedUrls(lines);
 
             var tasks = nugetFeeds.Keys
-                .Select(nugetFeed => CheckFeedAsync(cancellationToken, nugetFeed, nugetFeeds))
+                .Select(nugetFeed => CheckFeedAsync(nugetFeed, nugetFeeds, cancellationToken))
                 .ToList();
 
             await Task.WhenAll(tasks);

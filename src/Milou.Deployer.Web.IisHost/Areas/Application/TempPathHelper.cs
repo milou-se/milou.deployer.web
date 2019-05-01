@@ -1,7 +1,7 @@
 ﻿using System;
 using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.IO;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application

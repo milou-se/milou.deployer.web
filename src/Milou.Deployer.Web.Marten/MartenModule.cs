@@ -6,9 +6,9 @@ using JetBrains.Annotations;
 using Marten;
 using Marten.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.DependencyInjection;
+using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Json;
 
 namespace Milou.Deployer.Web.Marten
@@ -47,9 +47,10 @@ namespace Milou.Deployer.Web.Marten
 
             if (configurations.Length > 1)
             {
-                builder.AddSingleton(new MartenConfiguration(string.Empty));
+                builder.AddSingleton(new MartenConfiguration(string.Empty), this);
                 builder.AddSingleton(new ConfigurationError(
-                    $"Expected exactly 1 instance of type {nameof(MartenConfiguration)} but got {configurations.Length}"));
+                        $"Expected exactly 1 instance of type {nameof(MartenConfiguration)} but got {configurations.Length}"),
+                    this);
                 return builder;
             }
 
@@ -57,11 +58,13 @@ namespace Milou.Deployer.Web.Marten
 
             if (!string.IsNullOrWhiteSpace(configuration.ConnectionString) && configuration.Enabled)
             {
-                builder.AddSingleton(typeof(MartenStore));
-                builder.AddSingleton(typeof(IDeploymentTargetReadService), typeof(MartenStore));
-                //builder.AddSingleton(typeof(IRequestHandler<,>).MakeGenericType() , typeof(MartenStore));
+                builder.AddSingleton(typeof(MartenStore), this);
+                builder.AddSingleton(typeof(IDeploymentTargetReadService), typeof(MartenStore), this);
 
-                var genericInterfaces = typeof(MartenStore).GetInterfaces().Where(t => t.IsGenericType).ToArray();
+                var genericInterfaces = typeof(MartenStore)
+                    .GetInterfaces()
+                    .Where(type => type.IsGenericType)
+                    .ToArray();
 
                 foreach (var genericInterface in genericInterfaces)
                 {
@@ -72,7 +75,8 @@ namespace Milou.Deployer.Web.Marten
                 }
 
                 builder.AddSingleton<IDocumentStore>(context =>
-                    DocumentStore.For(options => ConfigureMarten(options, configuration.ConnectionString)));
+                        DocumentStore.For(options => ConfigureMarten(options, configuration.ConnectionString)),
+                    this);
             }
 
             return builder;

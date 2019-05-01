@@ -9,9 +9,11 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Validation;
 using Serilog;
+using UrnTypes = Milou.Deployer.Web.Core.Configuration.UrnTypes;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 {
@@ -77,7 +79,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                             .Select(namedInstance => $"[{namedInstance.Value}] {namedInstance.Value}"));
 
                     serviceCollection.AddSingleton(new ConfigurationError(
-                        $"Could not create instance of type {type.FullName}, the instances '{invalidInstances}' are invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}"));
+                            $"Could not create instance of type {type.FullName}, the instances '{invalidInstances}' are invalid, using configuration chain {(_keyValueConfiguration as MultiSourceKeyValueConfiguration)?.SourceChain}"),
+                        this);
                     return;
                 }
             }
@@ -101,7 +104,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 serviceCollection
                     .AddSingleton(validationObject.Value.GetType(),
                         context =>
-                            _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name));
+                            _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name),
+                        this);
             }
             else if (!validInstances.IsDefaultOrEmpty && validInstances.Length > 1)
             {
@@ -116,7 +120,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                     serviceCollection
                         .AddSingleton(validationObject.Value.GetType(),
                             context =>
-                                _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name));
+                                _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name),
+                            this);
                 }
             }
             else if (!validationObjects.IsDefaultOrEmpty)
@@ -132,7 +137,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                     serviceCollection
                         .AddSingleton(validationObject.Value.GetType(),
                             context =>
-                                _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name));
+                                _configurationHolder.Get(validationObject.Value.GetType(), validationObject.Name),
+                            this);
                 }
             }
             else
@@ -146,7 +152,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
                     serviceCollection
                         .AddSingleton(instance.Value.GetType(),
-                            context => _configurationHolder.Get(instance.Value.GetType(), instance.Name));
+                            context => _configurationHolder.Get(instance.Value.GetType(), instance.Name),
+                            this);
                 }
             }
         }
@@ -155,7 +162,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
         {
             builder.AddSingleton<UserConfigUpdater>();
 
-            var urnMappedTypes = UrnTypes.GetUrnTypesInAssemblies(Assemblies.FilteredAssemblies());
+            var urnMappedTypes = UrnTypes.GetUrnTypesInAssemblies(ApplicationAssemblies.FilteredAssemblies());
 
             if (!bool.TryParse(_keyValueConfiguration[UrnConfigurationConstants.TreatWarningsAsErrors],
                 out var treatWarningsAsErrors))

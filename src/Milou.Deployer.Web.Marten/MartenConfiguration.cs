@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
@@ -25,7 +26,7 @@ namespace Milou.Deployer.Web.Marten
         public override string ToString()
         {
             return
-                $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous(StringExtensions.DefaultAnonymousKeyWords.ToArray())}], {nameof(Enabled)}: {Enabled.ToString().ToLowerInvariant()}";
+                $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous(ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray())}], {nameof(Enabled)}: {Enabled.ToString(CultureInfo.InvariantCulture).ToLowerInvariant()}";
         }
 
         public bool IsValid => !Enabled || !string.IsNullOrWhiteSpace(ConnectionString);

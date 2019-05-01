@@ -9,6 +9,7 @@ using Arbor.KVConfiguration.Core.Decorators;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.UserConfiguration;
 using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Cli;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 

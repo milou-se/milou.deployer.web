@@ -4,11 +4,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
+using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
+using MediatR;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
@@ -17,17 +20,29 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     public class WorkerSetupStartupTask : BackgroundService, IStartupTask
     {
         private readonly IKeyValueConfiguration _configuration;
+        private readonly DeploymentService _deploymentService;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
+        private readonly ConfigurationInstanceHolder _holder;
         private readonly ILogger _logger;
+        private readonly IMediator _mediator;
+        private readonly WorkerConfiguration _workerConfiguration;
 
         public WorkerSetupStartupTask(
             IKeyValueConfiguration configuration,
             ILogger logger,
-            IDeploymentTargetReadService deploymentTargetReadService)
+            IDeploymentTargetReadService deploymentTargetReadService,
+            ConfigurationInstanceHolder holder,
+            DeploymentService deploymentService,
+            IMediator mediator,
+            WorkerConfiguration workerConfiguration)
         {
             _configuration = configuration;
             _logger = logger;
             _deploymentTargetReadService = deploymentTargetReadService;
+            _holder = holder;
+            _deploymentService = deploymentService;
+            _mediator = mediator;
+            _workerConfiguration = workerConfiguration;
         }
 
         public bool IsCompleted { get; private set; }
@@ -66,8 +81,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 return;
             }
 
-            foreach (var VARIABLE in targetIds)
+            foreach (var targetId in targetIds)
             {
+                _holder.Add(new NamedInstance<DeploymentTargetWorker>(
+                    new DeploymentTargetWorker(targetId, _deploymentService, _logger, _mediator, _workerConfiguration),
+                    targetId));
             }
 
             IsCompleted = true;

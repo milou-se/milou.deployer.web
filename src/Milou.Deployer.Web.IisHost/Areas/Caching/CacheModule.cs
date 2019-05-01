@@ -1,8 +1,8 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
+using Milou.Deployer.Web.Core.Caching;
+using Milou.Deployer.Web.Core.DependencyInjection;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Caching
 {
@@ -12,8 +12,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
         public IServiceCollection Register(IServiceCollection builder)
         {
             return builder
-                .AddSingleton<IMemoryCache>(new MemoryCache(new MemoryCacheOptions()))
-                .AddSingleton<ICustomMemoryCache, CustomMemoryCache>();
+                .AddSingleton<IMemoryCache, MemoryCache>(new MemoryCache(new MemoryCacheOptions()), this)
+                .AddSingleton<ICustomMemoryCache, CustomMemoryCache>(this);
         }
     }
 }

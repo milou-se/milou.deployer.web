@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -6,8 +6,39 @@ using JetBrains.Annotations;
 namespace Milou.Deployer.Web.Core.Time
 {
     [PublicAPI]
-    public struct DeploymentInterval
+    public struct DeploymentInterval : IEquatable<DeploymentInterval>
     {
+        public bool Equals(DeploymentInterval other)
+        {
+            return string.Equals(Name, other.Name, StringComparison.Ordinal) && FromExclusive == other.FromExclusive && ToInclusive == other.ToInclusive;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is DeploymentInterval other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                int hashCode = Name.GetHashCode(StringComparison.InvariantCulture);
+                hashCode = (hashCode * 397) ^ FromExclusive;
+                hashCode = (hashCode * 397) ^ ToInclusive;
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(DeploymentInterval left, DeploymentInterval right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(DeploymentInterval left, DeploymentInterval right)
+        {
+            return !left.Equals(right);
+        }
+
         public static readonly DeploymentInterval Invalid = new DeploymentInterval(nameof(Invalid), int.MinValue, -1);
 
         public static readonly DeploymentInterval ThisWeek = new DeploymentInterval(nameof(ThisWeek), -1, 7);

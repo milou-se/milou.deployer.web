@@ -1,11 +1,13 @@
 ﻿using System;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Health;
+using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.DependencyInjection;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Logging
 {
-    public class LoggingModule : Module
+    [UsedImplicitly]
+    public class LoggingModule : IModule
     {
         private readonly ILogger _logger;
 
@@ -14,9 +16,9 @@ namespace Milou.Deployer.Web.Core.Logging
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        //protected override void Load(ContainerBuilder builder)
-        //{
-        //    builder.Register(context => _logger).SingleInstance().AsImplementedInterfaces();
-        //}
+        public IServiceCollection Register(IServiceCollection builder)
+        {
+            return builder.AddSingleton(_logger, this);
+        }
     }
 }

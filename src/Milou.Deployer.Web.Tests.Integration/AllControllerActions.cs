@@ -32,9 +32,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Type[] httpMethodAttributes =
             {
-                typeof(HttpPostAttribute),
-                typeof(HttpGetAttribute),
-                typeof(HttpDeleteAttribute)
+                typeof(HttpPostAttribute), typeof(HttpGetAttribute), typeof(HttpDeleteAttribute)
             };
 
             foreach (var methodInfo in actionMethod)
@@ -54,7 +52,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
-            Assemblies.FilteredAssemblies(useCache: false)
+            ApplicationAssemblies.FilteredAssemblies(useCache: false)
                 .Concat(new[] { typeof(DeployController).Assembly })
                 .Distinct()
                 .SelectMany(assembly => assembly.GetLoadableTypes())
@@ -64,7 +62,9 @@ namespace Milou.Deployer.Web.Tests.Integration
                                                        BindingFlags.DeclaredOnly)))
                 .SelectMany(item => item.Actions.Select(action => (item.Controller, Action: action)))
                 .Select(item => new object[]
-                    { item.Controller.FullName, item.Controller.Assembly.GetName().Name, item.Action.Name })
+                {
+                    item.Controller.FullName, item.Controller.Assembly.GetName().Name, item.Action.Name
+                })
                 .ToArray();
 
         [Fact]

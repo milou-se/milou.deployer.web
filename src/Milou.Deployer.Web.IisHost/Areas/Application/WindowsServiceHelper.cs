@@ -22,6 +22,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             FileInfo processFileInfo;
             using (var currentProcess = Process.GetCurrentProcess())
             {
+                if (currentProcess.MainModule is null)
+                {
+                    throw new InvalidOperationException("The main module for the current process could not be found");
+                }
+
                 processFileInfo = new FileInfo(currentProcess.MainModule.FileName);
             }
 

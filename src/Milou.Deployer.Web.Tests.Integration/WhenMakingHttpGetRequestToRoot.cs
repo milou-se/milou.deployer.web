@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 : Constants.NotAvailable;
             Output.WriteLine($"Response body: {body}");
 
-            Assert.Contains("<html", body);
+            Assert.Contains("<html", body, StringComparison.Ordinal);
         }
 
 

@@ -1,5 +1,5 @@
-﻿using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Extensions;
+﻿using Milou.Deployer.Web.Core.Cli;
+using Milou.Deployer.Web.Core.Configuration;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit

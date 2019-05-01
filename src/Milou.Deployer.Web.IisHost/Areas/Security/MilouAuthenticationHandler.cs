@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Milou.Deployer.Web.Core.Security;
 using Serilog.Events;
 using ILogger = Serilog.ILogger;
 

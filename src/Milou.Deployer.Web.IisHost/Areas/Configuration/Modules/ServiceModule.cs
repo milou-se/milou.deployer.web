@@ -1,9 +1,11 @@
 ﻿using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Credentials;
+using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
+using Milou.Deployer.Web.IisHost.Areas.NuGet;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 {
@@ -12,13 +14,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
     {
         public IServiceCollection Register(IServiceCollection builder)
         {
-            builder.AddSingleton<PackageService>();
-            builder.AddSingleton<DeploymentService>();
-            builder.AddSingleton<MilouDeployer>();
+            builder.AddSingleton<PackageService>(this);
+            builder.AddSingleton<DeploymentService>(this);
+            builder.AddSingleton<MilouDeployer>(this);
             builder.AddSingleton(
-                context => new MilouDeployerConfiguration(context.GetService<IKeyValueConfiguration>()));
+                context => new MilouDeployerConfiguration(context.GetService<IKeyValueConfiguration>()),
+                this);
 
-            builder.AddSingleton<ICredentialReadService, ConfigurationCredentialReadService>();
+            builder.AddSingleton<ICredentialReadService, ConfigurationCredentialReadService>(this);
             return builder;
         }
     }

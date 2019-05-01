@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Network;
+using Milou.Deployer.Web.Core.Security;
 using Milou.Deployer.Web.IisHost.Areas.Network;
 using Serilog;
 using Serilog.Events;
@@ -23,18 +25,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         private readonly HashSet<IPAddress> _allowed;
         private readonly ImmutableArray<AllowedEmailDomain> _allowedEmailDomains;
         private readonly ImmutableArray<AllowedEmail> _allowedEmails;
-        private readonly AllowedIpAddressHandler _allowedIpAddressHandler;
         private readonly ImmutableHashSet<IPNetwork> _allowedNetworks;
         private readonly ILogger _logger;
 
         public DefaultAuthorizationHandler(
             IKeyValueConfiguration keyValueConfiguration,
-            AllowedIpAddressHandler allowedIpAddressHandler,
             ILogger logger,
             IEnumerable<AllowedEmail> allowedEmails,
             IEnumerable<AllowedEmailDomain> allowedEmailDomains)
         {
-            _allowedIpAddressHandler = allowedIpAddressHandler;
             _logger = logger;
             _allowedEmailDomains = allowedEmailDomains.SafeToImmutableArray();
             _allowedEmails = allowedEmails.SafeToImmutableArray();
@@ -165,7 +164,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                 return Task.CompletedTask;
             }
 
-            var dynamicIpAddresses = _allowedIpAddressHandler.IpAddresses;
+            var dynamicIpAddresses = AllowedIpAddressHandler.IpAddresses;
 
             var allAddresses = _allowed
                 .Concat(dynamicIpAddresses)

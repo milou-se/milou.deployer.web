@@ -1,4 +1,4 @@
-using Arbor.KVConfiguration.Core.Metadata;
+﻿using Arbor.KVConfiguration.Core.Metadata;
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Logging
@@ -26,6 +26,6 @@ namespace Milou.Deployer.Web.Core.Logging
         public const string MicrosoftLevel = "urn:milou:deployer:web:logging:microsoft:level";
 
         [Metadata]
-        public static string SerilogStartupLogEnabled = StartupSerilogBaseUrn + ":startup-log-file:enabled";
+        public const string SerilogStartupLogEnabled = StartupSerilogBaseUrn + ":startup-log-file:enabled";
     }
 }

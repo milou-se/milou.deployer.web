@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
-using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewInputModels;

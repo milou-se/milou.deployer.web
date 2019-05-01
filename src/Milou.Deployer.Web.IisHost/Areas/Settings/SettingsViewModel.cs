@@ -2,9 +2,10 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
-using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Application.Metadata;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers;
-using Milou.Deployer.Web.IisHost.AspNetCore;
+using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
 using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings
@@ -20,7 +21,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             IEnumerable<ServiceInstance> registrationInstances,
             LogEventLevel logEventLevel,
             ApplicationVersionInfo applicationVersionInfo,
-            IKeyValueConfiguration applicationmetadata)
+            IKeyValueConfiguration applicationmetadata,
+            ImmutableArray<DeploymentTargetWorker> deploymentTargetWorkers)
         {
             AspNetConfigurationValues = aspNetConfigurationValues.OrderBy(x => x.Key).ToImmutableArray();
             TargetReadService = targetReadService;
@@ -31,6 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             LogEventLevel = logEventLevel;
             ApplicationVersionInfo = applicationVersionInfo;
             Applicationmetadata = applicationmetadata;
+            DeploymentTargetWorkers = deploymentTargetWorkers;
             Routes = routes.OrderBy(route => route.Route.Value).ToImmutableArray();
             ConfigurationValues = ImmutableArray<(object, string)>.Empty;
         }
@@ -52,6 +55,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
         public ImmutableArray<(object, string)> ConfigurationValues { get; }
 
         public IKeyValueConfiguration Applicationmetadata { get; }
+        public ImmutableArray<DeploymentTargetWorker> DeploymentTargetWorkers { get; }
 
         public ImmutableArray<ControllerRouteInfo> Routes { get; }
     }

@@ -1,5 +1,4 @@
 ﻿using System;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Time;
 using Xunit;
 

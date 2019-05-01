@@ -10,8 +10,11 @@ using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Messages;
+using Milou.Deployer.Web.Core.Deployment.Sources;
+using Milou.Deployer.Web.Core.Deployment.Targets;
+using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Targets;
 using Serilog;
 
 namespace Milou.Deployer.Web.Marten

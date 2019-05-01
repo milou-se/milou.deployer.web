@@ -7,7 +7,8 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core;
-using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Sources;
+using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.Tests.Integration.TestData;
@@ -18,13 +19,18 @@ namespace Milou.Deployer.Web.Tests.Integration
     public class AutoDeployStartupTask : BackgroundService, IStartupTask
     {
         private readonly DeploymentService _deploymentService;
-        private readonly TestConfiguration _testConfiguration;
-        private readonly PortPoolRental _testSiteHttpPort;
         private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _readService;
+        private readonly TestConfiguration _testConfiguration;
+        private readonly PortPoolRental _testSiteHttpPort;
         private IWebHost _webHost;
 
-        public AutoDeployStartupTask(DeploymentService deploymentService, PortPoolRental testSiteHttpPort,  ILogger logger,  IDeploymentTargetReadService readService,TestConfiguration testConfiguration = null)
+        public AutoDeployStartupTask(
+            DeploymentService deploymentService,
+            PortPoolRental testSiteHttpPort,
+            ILogger logger,
+            IDeploymentTargetReadService readService,
+            TestConfiguration testConfiguration = null)
         {
             _deploymentService = deploymentService;
             _testConfiguration = testConfiguration;
@@ -80,9 +86,12 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             startupCancellationToken.Register(() => _webHost.StopAsync(startupCancellationToken));
             HttpResponseMessage response;
+
             using (var httpClient = new HttpClient())
             {
-                response = await httpClient.GetAsync($"http://localhost:{_testSiteHttpPort.Port}/applicationmetadata.json");
+                response = await httpClient.GetAsync(
+                    $"http://localhost:{_testSiteHttpPort.Port}/applicationmetadata.json",
+                    startupCancellationToken);
             }
 
             IsCompleted = true;

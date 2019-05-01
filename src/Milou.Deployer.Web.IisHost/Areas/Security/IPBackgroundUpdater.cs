@@ -11,14 +11,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     [UsedImplicitly]
     public class IpBackgroundUpdater : BackgroundService
     {
-        private readonly AllowedIpAddressHandler _ipHandler;
         private readonly ILogger _logger;
 
         public IpBackgroundUpdater(
-            [NotNull] AllowedIpAddressHandler ipHandler,
             [NotNull] ILogger logger)
         {
-            _ipHandler = ipHandler ?? throw new ArgumentNullException(nameof(ipHandler));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -26,7 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                foreach (var domain in _ipHandler.Domains)
+                foreach (var domain in AllowedIpAddressHandler.Domains)
                 {
                     try
                     {
@@ -38,7 +35,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                             {
                                 var ip = ipHostEntry.AddressList[0];
 
-                                if (!_ipHandler.SetDomainIp(domain, ip))
+                                if (!AllowedIpAddressHandler.SetDomainIp(domain, ip))
                                 {
                                     _logger.Verbose("Could not update domain ip for host {Host}", domain);
                                 }

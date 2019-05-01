@@ -1,6 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.DependencyInjection;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
@@ -10,7 +10,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         public IServiceCollection Register(IServiceCollection builder)
         {
             var availablePort = TcpHelper.GetAvailablePort(new PortPoolRange(5020, 100));
-            return builder.AddSingleton(availablePort);
+            return builder.AddSingleton(availablePort, this);
         }
     }
 }

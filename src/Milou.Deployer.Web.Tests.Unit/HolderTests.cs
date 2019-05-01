@@ -6,19 +6,19 @@ using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit
 {
-    public class HolderTests
+    [UsedImplicitly]
+    internal class EnvironmentConsumer
     {
-        [UsedImplicitly]
-        private class EnvironmentConsumer
+        public EnvironmentConsumer(EnvironmentConfiguration environmentConfiguration)
         {
-            public EnvironmentConsumer(EnvironmentConfiguration environmentConfiguration)
-            {
-                EnvironmentConfiguration = environmentConfiguration;
-            }
-
-            public EnvironmentConfiguration EnvironmentConfiguration { get; }
+            EnvironmentConfiguration = environmentConfiguration;
         }
 
+        public EnvironmentConfiguration EnvironmentConfiguration { get; }
+    }
+
+    public class HolderTests
+    {
         [Fact]
         public void CreateTypeWithSingletons()
         {

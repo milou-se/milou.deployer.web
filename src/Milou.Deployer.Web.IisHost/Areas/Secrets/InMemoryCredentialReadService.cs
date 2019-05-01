@@ -1,6 +1,6 @@
-using System.Threading;
+﻿using System.Threading;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Credentials;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Secrets
 {

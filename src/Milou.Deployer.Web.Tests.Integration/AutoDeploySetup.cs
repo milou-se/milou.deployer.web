@@ -18,7 +18,6 @@ namespace Milou.Deployer.Web.Tests.Integration
     [UsedImplicitly]
     public class AutoDeploySetup : WebFixtureBase, IAppHost
     {
-
         public AutoDeploySetup(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink)
         {
             //TODO run entire test in temp dir
@@ -36,13 +35,14 @@ namespace Milou.Deployer.Web.Tests.Integration
             await base.DisposeAsync();
         }
 
-        protected override async Task RunAsync()
+        protected override Task RunAsync()
         {
+            return Task.CompletedTask;
         }
 
         protected override async Task BeforeInitialize(CancellationToken cancellationToken)
         {
-            TestConfiguration = await new TestPathHelper().CreateTestConfigurationAsync(CancellationToken.None);
+            TestConfiguration = await TestPathHelper.CreateTestConfigurationAsync(CancellationToken.None);
 
             var portPoolRange = new PortPoolRange(5200, 100);
             TestSiteHttpPort = TcpHelper.GetAvailablePort(portPoolRange);
@@ -57,7 +57,9 @@ namespace Milou.Deployer.Web.Tests.Integration
             var keys = new List<KeyValue>
             {
                 new KeyValue(ConfigurationKeys.NuGetSource, milouDeployerWebTestsIntegration, null),
-                new KeyValue(ConfigurationConstants.NugetConfigFile, TestConfiguration.NugetConfigFile.FullName, null),
+                new KeyValue(ConfigurationConstants.NugetConfigFile,
+                    TestConfiguration.NugetConfigFile.FullName,
+                    null),
                 new KeyValue(ConfigurationKeys.NuGetConfig, TestConfiguration.NugetConfigFile.FullName, null),
                 new KeyValue(ConfigurationKeys.LogLevel, "Verbose", null)
             }.ToImmutableArray();
@@ -118,8 +120,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
-        protected override async Task BeforeStartAsync(IReadOnlyCollection<string> args)
+        protected override Task BeforeStartAsync(IReadOnlyCollection<string> args)
         {
+            return Task.CompletedTask;
         }
     }
 }

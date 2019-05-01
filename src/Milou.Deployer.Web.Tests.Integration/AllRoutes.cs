@@ -20,7 +20,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         [PublicAPI]
         public static IEnumerable<object[]> Data =>
-            RouteList.GetConstantRoutes(Assemblies.FilteredAssemblies(useCache: false))
+            RouteList.GetConstantRoutes(ApplicationAssemblies.FilteredAssemblies(useCache: false))
                 .Select(item => new object[] { item.Name, item.Value })
                 .ToArray();
 

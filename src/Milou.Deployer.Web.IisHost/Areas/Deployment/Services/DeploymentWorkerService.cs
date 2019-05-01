@@ -8,7 +8,8 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Hosting;
-using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.WorkTasks;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services

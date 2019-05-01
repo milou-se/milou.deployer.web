@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace Milou.Deployer.Web.Tests.Integration.TestData
 {
-    public class TestPathHelper
+    public static class TestPathHelper
     {
-        public async Task<TestConfiguration> CreateTestConfigurationAsync(CancellationToken cancellationToken)
+        public static async Task<TestConfiguration> CreateTestConfigurationAsync(CancellationToken cancellationToken)
         {
             var projectName = "Milou.Deployer.Web.Tests.Integration";
 

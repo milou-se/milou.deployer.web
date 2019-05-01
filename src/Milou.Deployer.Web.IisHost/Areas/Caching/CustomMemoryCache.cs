@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
+using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
+namespace Milou.Deployer.Web.IisHost.Areas.Caching
 {
     [UsedImplicitly]
     public class CustomMemoryCache : ICustomMemoryCache
@@ -63,7 +64,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return false;
         }
 
-        public void Set<T>(string key, T item) where T : class
+        public void SetValue<T>(string key, T item) where T : class
         {
             if (item == null)
             {

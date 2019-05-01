@@ -1,6 +1,6 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
 {

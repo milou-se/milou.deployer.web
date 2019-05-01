@@ -7,9 +7,8 @@ using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Targets;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
@@ -24,8 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         public DataSeedStartupTask(
             IEnumerable<IDataSeeder> dataSeeders,
             IKeyValueConfiguration configuration,
-            ILogger logger,
-            IDeploymentTargetReadService deploymentTargetReadService)
+            ILogger logger)
         {
             _dataSeeders = dataSeeders.SafeToImmutableArray();
             _configuration = configuration;

@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ItShouldFindAllKnownAssemblies()
         {
-            var assemblies = Assemblies.FilteredAssemblies(useCache: false)
+            var assemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false)
                 .Where(assembly => !assembly.GetName().Name.EndsWith(".Views", StringComparison.OrdinalIgnoreCase))
                 .ToImmutableArray();
 
@@ -33,7 +33,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             Assert.Contains(assemblies, assembly => assembly == typeof(DeployController).Assembly);
             Assert.Contains(assemblies, assembly => assembly == typeof(VcsTestPathHelper).Assembly);
-            Assert.Contains(assemblies, assembly => assembly == typeof(Assemblies).Assembly);
+            Assert.Contains(assemblies, assembly => assembly == typeof(ApplicationAssemblies).Assembly);
             Assert.Contains(assemblies, assembly => assembly == typeof(MartenConfiguration).Assembly);
         }
     }

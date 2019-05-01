@@ -1,4 +1,4 @@
-﻿using Milou.Deployer.Web.Core.Application;
+﻿using Milou.Deployer.Web.Core.Application.Metadata;
 using Xunit;
 using Xunit.Abstractions;
 

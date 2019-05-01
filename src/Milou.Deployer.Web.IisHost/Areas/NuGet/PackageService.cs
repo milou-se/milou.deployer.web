@@ -10,15 +10,16 @@ using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.NuGet;
 using NuGet.Versioning;
 using Serilog;
 using Serilog.Events;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
+namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {
     [UsedImplicitly]
     public class PackageService
@@ -316,7 +317,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             if (addedPackages.Any())
             {
-                _memoryCache.Set(cacheKey, items);
+                _memoryCache.SetValue(cacheKey, items);
             }
             else
             {

@@ -11,6 +11,9 @@ using Arbor.Processing;
 using JetBrains.Annotations;
 using Milou.Deployer.Bootstrapper.Common;
 using Milou.Deployer.Core;
+using Milou.Deployer.Web.Core.Credentials;
+using Milou.Deployer.Web.Core.Deployment.Sources;
+using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
 using Newtonsoft.Json;
 using Serilog;
@@ -138,7 +141,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
         }
 
-        private void SetLogging(LoggingLevelSwitch loggingLevelSwitch)
+        private static void SetLogging(LoggingLevelSwitch loggingLevelSwitch)
         {
             Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
         }
@@ -192,7 +195,9 @@ namespace Milou.Deployer.Web.Core.Deployment
                 && !Path.IsPathRooted(deploymentTargetParametersFile))
             {
                 jobLogger.Error(
-                    "The deployment target {DeploymentTarget} parameter file '{DeploymentTargetParametersFile}' is not a rooted path", deploymentTarget, deploymentTargetParametersFile);
+                    "The deployment target {DeploymentTarget} parameter file '{DeploymentTargetParametersFile}' is not a rooted path",
+                    deploymentTarget,
+                    deploymentTargetParametersFile);
                 return ExitCode.Failure;
             }
 

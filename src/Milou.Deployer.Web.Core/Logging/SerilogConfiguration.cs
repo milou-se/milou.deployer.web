@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
@@ -18,7 +18,14 @@ namespace Milou.Deployer.Web.Core.Logging
             bool consoleEnabled = false,
             bool debugConsoleEnabled = false)
         {
-            SeqUrl = seqUrl;
+            Uri uri = null;
+            if (!string.IsNullOrWhiteSpace(seqUrl) && Uri.TryCreate(seqUrl, UriKind.Absolute, out var foundUri))
+            {
+                uri = foundUri;
+                IsValid = true;
+            }
+
+            SeqUrl = uri;
             RollingLogFilePath = rollingLogFilePath;
             SeqEnabled = seqEnabled;
             RollingLogFilePathEnabled = rollingLogFilePathEnabled;
@@ -35,7 +42,7 @@ namespace Milou.Deployer.Web.Core.Logging
 
         public bool DebugConsoleEnabled { get; }
 
-        public string SeqUrl { get; }
+        public Uri SeqUrl { get; }
 
         public string RollingLogFilePath { get; }
 
@@ -45,7 +52,6 @@ namespace Milou.Deployer.Web.Core.Logging
                 $"{nameof(SeqEnabled)}: {SeqEnabled}, {nameof(RollingLogFilePathEnabled)}: {RollingLogFilePathEnabled}, {nameof(ConsoleEnabled)}: {ConsoleEnabled}, {nameof(DebugConsoleEnabled)}: {DebugConsoleEnabled}, {nameof(SeqUrl)}: {SeqUrl}, {nameof(RollingLogFilePath)}: {RollingLogFilePath}, {nameof(IsValid)}: {IsValid}";
         }
 
-        public bool IsValid =>
-            string.IsNullOrWhiteSpace(SeqUrl) || Uri.TryCreate(SeqUrl, UriKind.Absolute, out _);
+        public bool IsValid { get; }
     }
 }

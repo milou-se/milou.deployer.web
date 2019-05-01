@@ -1,12 +1,13 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
+namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 {
     [UsedImplicitly]
     public class DeploymentHubLogHandler : INotificationHandler<DeploymentLogNotification>

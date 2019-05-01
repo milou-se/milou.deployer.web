@@ -3,6 +3,7 @@ using Arbor.KVConfiguration.Core;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Core.Extensions;
+using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Controllers;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers

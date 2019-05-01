@@ -10,9 +10,11 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
+using Milou.Deployer.Web.IisHost.Areas.NuGet;
 using Newtonsoft.Json;
 using Serilog;
 using Serilog.Events;
@@ -43,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 monitorConfiguration ?? throw new ArgumentNullException(nameof(monitorConfiguration));
         }
 
-        private async Task<AppVersion> GetAppVersionAsync(
+        private static async Task<AppVersion> GetAppVersionAsync(
             HttpResponseMessage response,
             DeploymentTarget target,
             IReadOnlyCollection<PackageVersion> filtered,

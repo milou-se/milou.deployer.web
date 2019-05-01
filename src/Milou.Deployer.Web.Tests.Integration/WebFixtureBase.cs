@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.Primitives;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.IO;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Milou.Deployer.Web.Marten;
@@ -25,9 +27,6 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public abstract class WebFixtureBase : IDisposable, IAsyncLifetime
     {
-        [PublicAPI]
-        protected TestConfiguration TestConfiguration;
-
         private const int CancellationTimeoutInSeconds = 180;
 
         private const string ConnectionStringFormat =
@@ -35,20 +34,20 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private static readonly string PostgresqlUser = Environment.UserName; //"postgres";
         private readonly IMessageSink _diagnosticMessageSink;
-
-        [PublicAPI]
-        public readonly List<DirectoryInfo> DirectoriesToClean = new List<DirectoryInfo>();
-
-        [PublicAPI]
-        public List<FileInfo> FilesToClean { get; } = new List<FileInfo>();
-
-        private CancellationTokenSource _cancellationTokenSource;
         private readonly DirectoryInfo _globalTempDir;
         private readonly string _oldTemp;
 
+        [PublicAPI]
+        public List<DirectoryInfo> DirectoriesToClean { get; } = new List<DirectoryInfo>();
+
+        private bool _addLocalUserAccessPermission;
+
+        private CancellationTokenSource _cancellationTokenSource;
+
         private PgServer _pgServer;
 
-        private bool _addLocalUserAccessPermission = false;
+        [PublicAPI]
+        public TestConfiguration TestConfiguration { get; protected set; }
 
         protected WebFixtureBase(IMessageSink diagnosticMessageSink)
         {
@@ -60,9 +59,10 @@ namespace Milou.Deployer.Web.Tests.Integration
             _diagnosticMessageSink = diagnosticMessageSink;
         }
 
-        public Exception Exception { get; private set; }
+        [PublicAPI]
+        public List<FileInfo> FilesToClean { get; } = new List<FileInfo>();
 
-        public StringBuilder Builder { get; private set; }
+        public Exception Exception { get; private set; }
 
         public App App { get; private set; }
 
@@ -130,14 +130,11 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var appRootDirectory = Path.Combine(rootDirectory, "src", "Milou.Deployer.Web.IisHost");
 
-            string[] args =
-            {
-                $"{ConfigurationConstants.ContentBasePath}={appRootDirectory}"
-            };
+            string[] args = { $"{ConfigurationConstants.ContentBasePath}={appRootDirectory}" };
 
             _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
 
-            App = await App.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.Get(), TestConfiguration);
+            App = await App.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.GetEnvironmentVariables().Variables, TestConfiguration);
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);
@@ -191,7 +188,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 {
                     _pgServer = new PgServer(
                         version,
-                        dbDir:postgresqlDbDir?.FullName ?? "",
+                        dbDir: postgresqlDbDir?.FullName ?? "",
                         addLocalUserAccessPermission: _addLocalUserAccessPermission,
                         clearInstanceDirOnStop: true);
                     _pgServer.Start();
@@ -202,7 +199,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                         new CancellationTokenSource(TimeSpan.FromSeconds(CancellationTimeoutInSeconds));
                 }
 
-                var connStr = string.Format(ConnectionStringFormat, _pgServer.PgPort, PostgresqlUser);
+                var connStr = string.Format(CultureInfo.InvariantCulture, ConnectionStringFormat, _pgServer.PgPort, PostgresqlUser);
 
                 Environment.SetEnvironmentVariable("urn:milou:deployer:web:marten:singleton:connection-string",
                     connStr);
@@ -302,6 +299,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public virtual void Dispose()
         {
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void OnException(Exception exception)

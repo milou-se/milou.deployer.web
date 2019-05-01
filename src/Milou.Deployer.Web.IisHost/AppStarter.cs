@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
@@ -18,7 +20,8 @@ namespace Milou.Deployer.Web.IisHost
     {
         public static async Task<int> StartAsync(
             string[] args,
-            ImmutableDictionary<string, string> environmentVariables, params object[] instances)
+            IReadOnlyDictionary<string, string> environmentVariables,
+            params object[] instances)
         {
             try
             {
@@ -56,9 +59,8 @@ namespace Milou.Deployer.Web.IisHost
 
                     using (var app = await App.CreateAsync(cancellationTokenSource, args, environmentVariables, instances))
                     {
-                        var runAsService= false;//=Event Viewer p
-                            //app.AppRootScope.Deepest().Lifetime.Resolve<IKeyValueConfiguration>()
-                                //.ValueOrDefault(ApplicationConstants.RunAsService) && !Debugger.IsAttached;
+                        var runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
+                                           && !Debugger.IsAttached;
 
                         app.Logger.Information("Starting application {Application}", app.AppInstance);
 

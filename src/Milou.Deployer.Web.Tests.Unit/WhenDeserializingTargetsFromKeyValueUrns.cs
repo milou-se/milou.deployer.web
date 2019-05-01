@@ -10,12 +10,12 @@ namespace Milou.Deployer.Web.Tests.Unit
 {
     public class WhenDeserializingTargetsFromKeyValueUrns
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
         public WhenDeserializingTargetsFromKeyValueUrns(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
         }
+
+        private readonly ITestOutputHelper _testOutputHelper;
 
         [Fact]
         public void Do()
@@ -27,10 +27,7 @@ namespace Milou.Deployer.Web.Tests.Unit
                 { "urn:milou-deployer:target:instance1:name", "myName1" },
                 { "urn:milou-deployer:target:instance1:packageId", "myAllowedPackageId1.1" },
                 { "urn:milou-deployer:target:instance1:allow-Prerelease", "true" },
-                {
-                    "urn:milou-deployer:target:instance1:allowed-Package-Names",
-                    "myAllowedPackageId1.1"
-                },
+                { "urn:milou-deployer:target:instance1:allowed-Package-Names", "myAllowedPackageId1.1" },
                 { "urn:milou-deployer:target:instance1:uri", "http://www.google.se" },
                 { "urn:milou-deployer:target:instance2:id", "myId2" },
                 { "urn:milou-deployer:target:instance2:name", "myName2" },

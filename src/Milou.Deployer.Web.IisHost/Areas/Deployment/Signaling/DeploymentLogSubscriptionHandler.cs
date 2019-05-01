@@ -7,8 +7,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Middleware
+namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 {
     [UsedImplicitly]
     public class DeploymentLogSubscriptionHandler :

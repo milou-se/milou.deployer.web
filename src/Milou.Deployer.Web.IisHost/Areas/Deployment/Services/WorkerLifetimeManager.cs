@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Web.Core.Deployment.Targets;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services

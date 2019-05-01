@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 
 namespace Milou.Deployer.Web.Tests.Integration
@@ -9,7 +8,5 @@ namespace Milou.Deployer.Web.Tests.Integration
         App App { get; }
 
         Exception Exception { get; }
-
-        StringBuilder Builder { get; }
     }
 }

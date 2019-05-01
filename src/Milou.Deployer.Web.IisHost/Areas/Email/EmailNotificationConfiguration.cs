@@ -25,8 +25,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
 
         public EmailNotificationConfiguration(
             bool enabled,
-            IEnumerable<Email> to,
-            Email from)
+            IEnumerable<EmailAddress> to,
+            EmailAddress from)
         {
             Enabled = enabled;
             To = to.SafeToImmutableArray();
@@ -35,9 +35,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Email
 
         public bool Enabled { get; }
 
-        public ImmutableArray<Email> To { get; }
+        public ImmutableArray<EmailAddress> To { get; }
 
-        public Email From { get; }
+        public EmailAddress From { get; }
 
         public override string ToString()
         {
