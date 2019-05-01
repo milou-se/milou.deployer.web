@@ -23,8 +23,6 @@ namespace Milou.Deployer.Web.Tests.Integration
             //TODO run entire test in temp dir
         }
 
-        public PortPoolRental TestSiteHttpPort { get; private set; }
-
         public override async Task DisposeAsync()
         {
             if (TestConfiguration?.BaseDirectory != null)
@@ -45,7 +43,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             TestConfiguration = await TestPathHelper.CreateTestConfigurationAsync(CancellationToken.None);
 
             var portPoolRange = new PortPoolRange(5200, 100);
-            TestSiteHttpPort = TcpHelper.GetAvailablePort(portPoolRange);
+            TestSiteHttpPort = new TestHttpPort(TcpHelper.GetAvailablePort(portPoolRange));
 
             Environment.SetEnvironmentVariable("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
             Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port}");

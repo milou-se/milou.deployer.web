@@ -15,8 +15,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ServiceLifetime lifetime,
             IModule module = null) where T : class
         {
-            var types = assemblies.SelectMany(a => a.GetLoadableTypes())
-                .Where(t => t.IsPublicConcreteTypeImplementing<T>());
+            var types = assemblies
+                .SelectMany(assembly => assembly.GetLoadableTypes())
+                .Where(type => type.IsPublicConcreteTypeImplementing<T>());
 
             foreach (var type in types)
             {

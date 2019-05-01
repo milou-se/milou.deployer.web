@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Time;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
@@ -19,15 +20,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private readonly IKeyValueConfiguration _configuration;
         private readonly ImmutableArray<IDataSeeder> _dataSeeders;
         private readonly ILogger _logger;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public DataSeedStartupTask(
             IEnumerable<IDataSeeder> dataSeeders,
             IKeyValueConfiguration configuration,
-            ILogger logger)
+            ILogger logger,
+            TimeoutHelper timeoutHelper)
         {
             _dataSeeders = dataSeeders.SafeToImmutableArray();
             _configuration = configuration;
             _logger = logger;
+            _timeoutHelper = timeoutHelper;
         }
 
         public bool IsCompleted { get; private set; }
@@ -47,7 +51,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 foreach (var dataSeeder in _dataSeeders)
                 {
-                    using (var startupToken = new CancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds)))
+                    using (var startupToken =
+                        _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds)))
                     {
                         using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
                             startupCancellationToken,

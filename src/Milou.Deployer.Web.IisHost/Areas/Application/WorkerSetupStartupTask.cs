@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Serilog;
 
@@ -26,6 +27,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly WorkerConfiguration _workerConfiguration;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public WorkerSetupStartupTask(
             IKeyValueConfiguration configuration,
@@ -34,7 +36,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ConfigurationInstanceHolder holder,
             DeploymentService deploymentService,
             IMediator mediator,
-            WorkerConfiguration workerConfiguration)
+            WorkerConfiguration workerConfiguration,
+            TimeoutHelper timeoutHelper)
         {
             _configuration = configuration;
             _logger = logger;
@@ -43,6 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             _deploymentService = deploymentService;
             _mediator = mediator;
             _workerConfiguration = workerConfiguration;
+            _timeoutHelper = timeoutHelper;
         }
 
         public bool IsCompleted { get; private set; }
@@ -60,7 +64,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     startupTimeoutInSeconds = 10;
                 }
 
-                using (var startupToken = new CancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))
+                using (var startupToken = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))
                 {
                     using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
                         startupToken.Token))
@@ -83,7 +87,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             foreach (var targetId in targetIds)
             {
-                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _deploymentService, _logger, _mediator, _workerConfiguration);
+                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _deploymentService, _logger, _mediator, _workerConfiguration, _timeoutHelper);
 
                 _holder.Add(new NamedInstance<DeploymentTargetWorker>(
                     deploymentTargetWorker,

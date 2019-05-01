@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 using Serilog;
 
@@ -20,13 +21,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly BlockingCollection<DeploymentTask> _queue = new BlockingCollection<DeploymentTask>();
         private readonly BlockingCollection<DeploymentTask> _runningTasks = new BlockingCollection<DeploymentTask>();
         private readonly WorkerConfiguration _workerConfiguration;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public DeploymentTargetWorker(
             [NotNull] string targetId,
             [NotNull] DeploymentService deploymentService,
             [NotNull] ILogger logger,
             [NotNull] IMediator mediator,
-            [NotNull] WorkerConfiguration workerConfiguration)
+            [NotNull] WorkerConfiguration workerConfiguration,
+            TimeoutHelper timeoutHelper)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {
@@ -38,6 +41,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _workerConfiguration = workerConfiguration ?? throw new ArgumentNullException(nameof(workerConfiguration));
+            _timeoutHelper = timeoutHelper;
         }
 
         public string TargetId { get; }
@@ -121,7 +125,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                using (var cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
                     var tasksInQueue = _queue.ToArray();
 

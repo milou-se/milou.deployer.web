@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -6,8 +7,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.JsonConfiguration;
+using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using NuGet.Versioning;
 using Xunit;
 using Xunit.Abstractions;
@@ -29,8 +32,6 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
             SemanticVersion semanticVersion = null;
 
-            var timeout = TimeSpan.FromSeconds(120);
-
             var expectedVersion = new SemanticVersion(1, 2, 5);
 
             if (WebFixture is null)
@@ -50,22 +51,42 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             using (var httpClient = new HttpClient())
             {
-                using (var cancellationTokenSource = new CancellationTokenSource(timeout))
+                using (var cancellationTokenSource =
+                    WebFixture.App.WebHost.Services.GetService<CancellationTokenSource>())
                 {
+                    cancellationTokenSource.Token.Register(() =>
+                    {
+                        Debug.WriteLine("Cancellation for app in test");
+                    });
+
                     while (!cancellationTokenSource.Token.IsCancellationRequested
                            && semanticVersion != expectedVersion)
                     {
-                        var url = $"http://localhost:{WebFixture.TestSiteHttpPort.Port}/applicationmetadata.json";
-                        string json;
+                        var startupTaskContext = WebFixture.App.WebHost.Services.GetRequiredService<StartupTaskContext>();
+
+                        while (!startupTaskContext.IsCompleted && !cancellationTokenSource.Token.IsCancellationRequested)
+                        {
+                            await Task.Delay(TimeSpan.FromMilliseconds(50));
+                        }
+
+                        var url = $"http://localhost:{WebFixture.TestSiteHttpPort.Port.Port+1}/applicationmetadata.json";
+                        string contents;
                         try
                         {
-                            using (var responseMessage = await httpClient.GetAsync(
-                                url,
-                                cancellationTokenSource.Token))
+                            using (var responseMessage = await httpClient.GetAsync(url))
                             {
-                                Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+                                contents = await responseMessage.Content.ReadAsStringAsync();
 
-                                json = await responseMessage.Content.ReadAsStringAsync();
+                                Output.WriteLine(responseMessage.StatusCode + " " + contents);
+
+                                if (responseMessage.StatusCode == HttpStatusCode.ServiceUnavailable
+                                    || responseMessage.StatusCode == HttpStatusCode.NotFound)
+                                {
+                                    await Task.Delay(TimeSpan.FromMilliseconds(100));
+                                    continue;
+                                }
+
+                                Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
                             }
                         }
                         catch (Exception ex) when (!ex.IsFatal())
@@ -75,7 +96,10 @@ namespace Milou.Deployer.Web.Tests.Integration
                         }
 
                         var tempFileName = Path.GetTempFileName();
-                        await File.WriteAllTextAsync(tempFileName, json, Encoding.UTF8, cancellationTokenSource.Token);
+                        await File.WriteAllTextAsync(tempFileName,
+                            contents,
+                            Encoding.UTF8,
+                            cancellationTokenSource.Token);
 
                         var jsonKeyValueConfiguration =
                             new JsonKeyValueConfiguration(tempFileName);

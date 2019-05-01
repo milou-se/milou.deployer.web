@@ -15,6 +15,7 @@ using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.NuGet;
+using Milou.Deployer.Web.Core.Time;
 using NuGet.Versioning;
 using Serilog;
 using Serilog.Events;
@@ -27,6 +28,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         private const string AllPackagesCacheKey = PackagesCacheKeyBaseUrn + ":AnyConfig";
         private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
         private readonly NuGetListConfiguration _deploymentConfiguration;
+        private readonly TimeoutHelper _timeoutHelper;
 
         [NotNull]
         private readonly IKeyValueConfiguration _keyValueConfiguration;
@@ -41,7 +43,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             [NotNull] ICustomMemoryCache memoryCache,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ILogger logger,
-            [NotNull] NuGetConfiguration nuGetConfiguration)
+            [NotNull] NuGetConfiguration nuGetConfiguration,
+            TimeoutHelper timeoutHelper)
         {
             _deploymentConfiguration = deploymentConfiguration ??
                                        throw new ArgumentNullException(nameof(deploymentConfiguration));
@@ -50,6 +53,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _nuGetConfiguration = nuGetConfiguration ?? throw new ArgumentNullException(nameof(nuGetConfiguration));
+            _timeoutHelper = timeoutHelper;
         }
 
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
@@ -165,7 +169,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             ExitCode exitCode;
 
             using (var cancellationTokenSource =
-                new CancellationTokenSource(TimeSpan.FromSeconds(_deploymentConfiguration.ListTimeOutInSeconds)))
+                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_deploymentConfiguration.ListTimeOutInSeconds)))
             {
                 using (var linked =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))

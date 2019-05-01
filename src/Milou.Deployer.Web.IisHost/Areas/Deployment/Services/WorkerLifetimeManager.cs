@@ -4,6 +4,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Targets;
+using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 using Serilog;
 
@@ -17,19 +18,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly WorkerConfiguration _workerConfiguration;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public WorkerLifetimeManager(
             ConfigurationInstanceHolder configurationInstanceHolder,
             DeploymentService deploymentService,
             WorkerConfiguration workerConfiguration,
             IMediator mediator,
-            ILogger logger)
+            ILogger logger,
+            TimeoutHelper timeoutHelper)
         {
             _configurationInstanceHolder = configurationInstanceHolder;
             _deploymentService = deploymentService;
             _workerConfiguration = workerConfiguration;
             _mediator = mediator;
             _logger = logger;
+            _timeoutHelper = timeoutHelper;
         }
 
         public async Task Handle(TargetCreated notification, CancellationToken cancellationToken)
@@ -38,7 +42,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 _deploymentService,
                 _logger,
                 _mediator,
-                _workerConfiguration);
+                _workerConfiguration,
+                _timeoutHelper);
 
             // TODO remove old worker
 

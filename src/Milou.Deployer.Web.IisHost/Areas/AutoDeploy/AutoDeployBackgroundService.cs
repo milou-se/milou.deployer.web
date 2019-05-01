@@ -11,6 +11,7 @@ using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.NuGet;
 using Serilog;
@@ -23,9 +24,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         private readonly AutoDeployConfiguration _autoDeployConfiguration;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly DeploymentWorkerService _deploymentWorkerService;
-        private readonly MonitoringService _monitoringService;
         private readonly ILogger _logger;
+        private readonly MonitoringService _monitoringService;
         private readonly PackageService _packageService;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public AutoDeployBackgroundService(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -33,16 +35,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             [NotNull] DeploymentWorkerService deploymentWorkerService,
             [NotNull] AutoDeployConfiguration autoDeployConfiguration,
             [NotNull] ILogger logger,
-            [NotNull] PackageService packageService)
+            [NotNull] PackageService packageService,
+            TimeoutHelper timeoutHelper)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _monitoringService = monitoringService ?? throw new ArgumentNullException(nameof(monitoringService));
-            _deploymentWorkerService = deploymentWorkerService ?? throw new ArgumentNullException(nameof(deploymentWorkerService));
+            _deploymentWorkerService = deploymentWorkerService ??
+                                       throw new ArgumentNullException(nameof(deploymentWorkerService));
             _autoDeployConfiguration = autoDeployConfiguration ??
                                        throw new ArgumentNullException(nameof(autoDeployConfiguration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
+            _timeoutHelper = timeoutHelper;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -58,7 +63,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             {
                 ImmutableArray<DeploymentTarget> deploymentTargets;
                 using (var targetsTokenSource =
-                    new CancellationTokenSource(TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
+                    _timeoutHelper.CreateCancellationTokenSource(
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {
                     using (var linked =
                         CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
@@ -96,7 +102,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                 AppVersion[] appVersions;
                 using (var cancellationTokenSource =
-                    new CancellationTokenSource(
+                    _timeoutHelper.CreateCancellationTokenSource(
                         TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds)))
                 {
                     using (var linkedCancellationTokenSource =
@@ -123,7 +129,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                     ImmutableHashSet<PackageVersion> packageVersions;
                     using (var packageVersionCancellationTokenSource =
-                        new CancellationTokenSource(
+                        _timeoutHelper.CreateCancellationTokenSource(
                             TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                     {
                         using (var linked =

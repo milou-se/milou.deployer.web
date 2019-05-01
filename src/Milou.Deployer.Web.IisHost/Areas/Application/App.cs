@@ -95,7 +95,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             configurationInstanceHolder.AddInstance(configurationInstanceHolder);
 
-            foreach (object instance in instances)
+            foreach (object instance in instances.Where(i => i is object))
             {
                 configurationInstanceHolder.AddInstance(instance);
             }
@@ -347,7 +347,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         {
             if (!CancellationTokenSource.IsCancellationRequested)
             {
-                CancellationTokenSource.Cancel();
+                try
+                {
+                    CancellationTokenSource.Cancel();
+                }
+                catch (ObjectDisposedException)
+                {
+                }
             }
         }
 

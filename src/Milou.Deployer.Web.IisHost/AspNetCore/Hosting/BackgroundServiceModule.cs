@@ -1,4 +1,4 @@
-using System;
+﻿using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,12 +13,20 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
     {
         public IServiceCollection Register(IServiceCollection builder)
         {
-            var types = ApplicationAssemblies.FilteredAssemblies().GetLoadablePublicConcreteTypesImplementing<IHostedService>();
+            var types = ApplicationAssemblies.FilteredAssemblies()
+                .GetLoadablePublicConcreteTypesImplementing<IHostedService>();
 
-            foreach (Type type in types)
+            foreach (var type in types)
             {
-                builder.AddSingleton(type, this);
                 builder.AddSingleton<IHostedService>(context => context.GetService(type), this);
+
+                if (builder.Any(serviceDescriptor => serviceDescriptor.ImplementationType == type
+                                                     && serviceDescriptor.ServiceType == type))
+                {
+                    continue;
+                }
+
+                builder.AddSingleton(type, this);
             }
 
             return builder;

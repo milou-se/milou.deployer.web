@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Arbor.KVConfiguration.Urns;
 
@@ -19,6 +20,21 @@ namespace Milou.Deployer.Web.Core.Configuration
         public static T Create<T>(this ConfigurationInstanceHolder holder) where T : class
         {
             return (T)Create(holder, typeof(T));
+        }
+
+        public static IEnumerable<T> CreateInstances<T>(this ConfigurationInstanceHolder holder) where T : class
+        {
+            var registeredTypes = holder.RegisteredTypes
+                .Where(registered => typeof(T).IsAssignableFrom(registered) && !registered.IsAbstract)
+                .ToArray();
+
+            foreach (Type registeredType in registeredTypes)
+            {
+                foreach (T instance in holder.GetInstances(registeredType).Values.OfType<T>())
+                {
+                    yield return instance;
+                }
+            }
         }
 
         public static object Create(this ConfigurationInstanceHolder holder, Type type)

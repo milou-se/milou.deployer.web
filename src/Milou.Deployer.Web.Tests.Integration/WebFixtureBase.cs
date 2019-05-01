@@ -32,10 +32,13 @@ namespace Milou.Deployer.Web.Tests.Integration
         private const string ConnectionStringFormat =
             "Server=localhost;Port={0};User Id={1};Password=test;Database=postgres;Pooling=false";
 
-        private static readonly string PostgresqlUser = Environment.UserName; //"postgres";
+        private static readonly string PostgresqlUser = "postgres";
         private readonly IMessageSink _diagnosticMessageSink;
         private readonly DirectoryInfo _globalTempDir;
         private readonly string _oldTemp;
+
+        public TestHttpPort TestSiteHttpPort { get; protected set; }
+
 
         [PublicAPI]
         public List<DirectoryInfo> DirectoriesToClean { get; } = new List<DirectoryInfo>();
@@ -134,7 +137,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
 
-            App = await App.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.GetEnvironmentVariables().Variables, TestConfiguration);
+            App = await App.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.GetEnvironmentVariables().Variables, TestConfiguration, TestSiteHttpPort);
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);
@@ -259,7 +262,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public virtual async Task DisposeAsync()
         {
-            App?.Logger?.Information("Stopping app");
+            App?.Logger?.Information("Stopping app from {Type}", GetType().FullName);
             _cancellationTokenSource?.Dispose();
             App?.Dispose();
             _pgServer?.Dispose();

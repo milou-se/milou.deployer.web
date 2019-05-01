@@ -1,22 +1,26 @@
-﻿using JetBrains.Annotations;
+﻿using System;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    [UsedImplicitly]
-    public class TestHttpPort : IConfigureEnvironment
+    public sealed class TestHttpPort : IConfigureEnvironment, IDisposable
     {
-        private readonly PortPoolRental _portPoolRental;
-
         public TestHttpPort(PortPoolRental portPoolRental)
         {
-            _portPoolRental = portPoolRental;
+            Port = portPoolRental;
         }
+
+        public PortPoolRental Port { get; }
 
         public void Configure(EnvironmentConfiguration environmentConfiguration)
         {
-            environmentConfiguration.HttpPort = _portPoolRental.Port;
+            environmentConfiguration.HttpPort = Port.Port;
+        }
+
+        public void Dispose()
+        {
+            Port?.Dispose();
         }
     }
 }

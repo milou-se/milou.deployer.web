@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.KVConfiguration.Urns;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
+using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.Tests.Integration.TestData;
@@ -22,19 +26,19 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _readService;
         private readonly TestConfiguration _testConfiguration;
-        private readonly PortPoolRental _testSiteHttpPort;
         private IWebHost _webHost;
+        private readonly TestHttpPort _testSiteHttpPort;
 
         public AutoDeployStartupTask(
             DeploymentService deploymentService,
-            PortPoolRental testSiteHttpPort,
             ILogger logger,
             IDeploymentTargetReadService readService,
+            ConfigurationInstanceHolder configurationInstanceHolder,
             TestConfiguration testConfiguration = null)
         {
             _deploymentService = deploymentService;
             _testConfiguration = testConfiguration;
-            _testSiteHttpPort = testSiteHttpPort;
+            _testSiteHttpPort = configurationInstanceHolder.GetInstances<TestHttpPort>().Values.SingleOrDefault();
             _logger = logger;
             _readService = readService;
         }
@@ -74,10 +78,11 @@ namespace Milou.Deployer.Web.Tests.Integration
             }
 
             _webHost = WebHost.CreateDefaultBuilder()
+                .ConfigureServices(services => services.AddSingleton(_testConfiguration))
                 .UseKestrel(options =>
                 {
                     options.Listen(IPAddress.Loopback,
-                        _testSiteHttpPort.Port);
+                        _testSiteHttpPort.Port.Port+1);
                 })
                 .UseContentRoot(_testConfiguration.SiteAppRoot.FullName)
                 .UseStartup<TestStartup>().Build();
@@ -90,11 +95,19 @@ namespace Milou.Deployer.Web.Tests.Integration
             using (var httpClient = new HttpClient())
             {
                 response = await httpClient.GetAsync(
-                    $"http://localhost:{_testSiteHttpPort.Port}/applicationmetadata.json",
+                    $"http://localhost:{_testSiteHttpPort.Port.Port+1}/applicationmetadata.json",
                     startupCancellationToken);
             }
 
             IsCompleted = true;
+        }
+
+        public override void Dispose()
+        {
+            GC.SuppressFinalize(this);
+            base.Dispose();
+            _webHost.SafeDispose();
+            _testSiteHttpPort.SafeDispose();
         }
     }
 }

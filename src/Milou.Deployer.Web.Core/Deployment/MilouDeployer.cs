@@ -323,8 +323,9 @@ namespace Milou.Deployer.Web.Core.Deployment
                         false,
                         cancellationToken))
                 {
-                    var result =
-                        await deployerApp.ExecuteAsync(deployerArgs.ToImmutableArray(), CancellationToken.None);
+                    var result = await deployerApp.ExecuteAsync(
+                        deployerArgs.ToImmutableArray(),
+                        cancellationToken);
 
                     if (result.PackageDirectory is null || result.SemanticVersion is null)
                     {

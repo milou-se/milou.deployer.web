@@ -14,6 +14,7 @@ using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.NuGet;
 using Newtonsoft.Json;
 using Serilog;
@@ -32,17 +33,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private readonly PackageService _packageService;
 
+        private readonly TimeoutHelper _timeoutHelper;
+
         public MonitoringService(
             [NotNull] ILogger logger,
             [NotNull] IHttpClientFactory httpClientFactory,
             [NotNull] PackageService packageService,
-            [NotNull] MonitorConfiguration monitorConfiguration)
+            [NotNull] MonitorConfiguration monitorConfiguration,
+            TimeoutHelper timeoutHelper)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
             _monitorConfiguration =
                 monitorConfiguration ?? throw new ArgumentNullException(nameof(monitorConfiguration));
+            _timeoutHelper = timeoutHelper;
         }
 
         private static async Task<AppVersion> GetAppVersionAsync(
@@ -180,7 +185,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             AppVersion appMetadata;
             using (var cancellationTokenSource =
-                new CancellationTokenSource(TimeSpan.FromSeconds(_monitorConfiguration.DefaultTimeoutInSeconds)))
+                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_monitorConfiguration.DefaultTimeoutInSeconds)))
             {
                 if (_logger.IsEnabled(LogEventLevel.Verbose))
                 {
@@ -234,7 +239,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             var appVersions = new List<AppVersion>();
 
             using (var cancellationTokenSource =
-                new CancellationTokenSource(TimeSpan.FromSeconds(_monitorConfiguration.DefaultTimeoutInSeconds)))
+                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_monitorConfiguration.DefaultTimeoutInSeconds)))
             {
                 using (var linkedTokenSource =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))

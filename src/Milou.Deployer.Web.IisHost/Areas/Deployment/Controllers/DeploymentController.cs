@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +10,7 @@ using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers;
 using Milou.Deployer.Web.IisHost.Controllers;
@@ -26,9 +26,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         [NotNull]
         private readonly ILogger _logger;
 
+        private readonly TimeoutHelper _timeoutHelper;
+
         public DeploymentController(
             [NotNull] ILogger logger,
-            [NotNull] IDeploymentTargetReadService getTargets)
+            [NotNull] IDeploymentTargetReadService getTargets,
+            TimeoutHelper timeoutHelper)
         {
             if (logger == null)
             {
@@ -37,6 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _getTargets = getTargets ?? throw new ArgumentNullException(nameof(getTargets));
+            _timeoutHelper = timeoutHelper;
         }
 
         [HttpGet]
@@ -46,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             IReadOnlyCollection<DeploymentTarget> targets;
             try
             {
-                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+                using (var cts = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(30)))
                 {
                     targets =
                         (await _getTargets.GetOrganizationsAsync(cts.Token)).SelectMany(

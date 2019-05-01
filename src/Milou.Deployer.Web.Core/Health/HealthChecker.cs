@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Extensions;
+using Milou.Deployer.Web.Core.Time;
 using Serilog;
 using EnumerableExtensions = Milou.Deployer.Web.Core.Extensions.EnumerableExtensions;
 
@@ -14,11 +15,16 @@ namespace Milou.Deployer.Web.Core.Health
     {
         private readonly ImmutableArray<IHealthCheck> _healthChecks;
         private readonly ILogger _logger;
+        private readonly TimeoutHelper _timeoutHelper;
 
-        public HealthChecker([NotNull] IEnumerable<IHealthCheck> healthChecks, [NotNull] ILogger logger)
+        public HealthChecker(
+            [NotNull] IEnumerable<IHealthCheck> healthChecks,
+            [NotNull] ILogger logger,
+            TimeoutHelper timeoutHelper)
         {
             _healthChecks = EnumerableExtensions.SafeToImmutableArray(healthChecks);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _timeoutHelper = timeoutHelper;
         }
 
         public async Task PerformHealthChecksAsync(CancellationToken cancellationToken)
@@ -35,7 +41,9 @@ namespace Milou.Deployer.Web.Core.Health
             {
                 try
                 {
-                    using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(healthCheck.TimeoutInSeconds)))
+                    using (var cts =
+                        _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(healthCheck.TimeoutInSeconds))
+                    )
                     {
                         using (var combined =
                             CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token))

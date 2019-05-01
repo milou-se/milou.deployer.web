@@ -8,15 +8,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     public static class EnvironmentConfigurator
     {
-        public static void ConfigureEnvironment([NotNull] ConfigurationInstanceHolder lifetimeScope)
+        public static void ConfigureEnvironment([NotNull] ConfigurationInstanceHolder configurationInstanceHolder)
         {
-            if (lifetimeScope == null)
+            if (configurationInstanceHolder == null)
             {
-                throw new ArgumentNullException(nameof(lifetimeScope));
+                throw new ArgumentNullException(nameof(configurationInstanceHolder));
             }
 
-            var configureEnvironments = lifetimeScope.GetInstances<IConfigureEnvironment>().Values;
-            var environmentConfiguration = lifetimeScope.Get<EnvironmentConfiguration>();
+            var configureEnvironments = configurationInstanceHolder.CreateInstances<IConfigureEnvironment>();
+            var environmentConfiguration = configurationInstanceHolder.Get<EnvironmentConfiguration>();
 
             foreach (var configureEnvironment in configureEnvironments)
             {

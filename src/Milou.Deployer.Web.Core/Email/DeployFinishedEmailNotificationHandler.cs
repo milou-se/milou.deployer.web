@@ -7,6 +7,7 @@ using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Time;
 using MimeKit;
 using Serilog;
 
@@ -19,16 +20,19 @@ namespace Milou.Deployer.Web.Core.Email
         private readonly ILogger _logger;
         private readonly ISmtpService _smtpService;
         private readonly IDeploymentTargetReadService _targetSource;
+        private readonly TimeoutHelper _timeoutHelper;
 
         public DeployFinishedEmailNotificationHandler(
             [NotNull] ISmtpService smtpService,
             [NotNull] IDeploymentTargetReadService targetSource,
             [NotNull] ILogger logger,
+            TimeoutHelper timeoutHelper,
             EmailConfiguration emailConfiguration = null)
         {
             _smtpService = smtpService ?? throw new ArgumentNullException(nameof(smtpService));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _timeoutHelper = timeoutHelper;
 
             _emailConfiguration = emailConfiguration ?? new EmailConfiguration(
                                       null,
@@ -58,7 +62,7 @@ namespace Milou.Deployer.Web.Core.Email
             }
 
             using (var cancellationTokenSource =
-                new CancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds)))
+                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_emailConfiguration.NotificationTimeOutInSeconds)))
             {
                 var target =
                     await _targetSource.GetDeploymentTargetAsync(notification.DeploymentTask.DeploymentTargetId,
