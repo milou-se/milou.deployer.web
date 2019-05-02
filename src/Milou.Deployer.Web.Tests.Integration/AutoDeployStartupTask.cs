@@ -64,7 +64,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             var deploymentTaskId = Guid.NewGuid();
             const string deploymentTargetId = TestDataCreator.Testtarget;
-            var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId);
+            var deploymentTask = new DeploymentTask(packageVersion, deploymentTargetId, deploymentTaskId, nameof(AutoDeployStartupTask));
 
             var deploymentTaskResult = await _deploymentService.ExecuteDeploymentAsync(
                 deploymentTask,
@@ -94,9 +94,16 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             using (var httpClient = new HttpClient())
             {
-                response = await httpClient.GetAsync(
-                    $"http://localhost:{_testSiteHttpPort.Port.Port+1}/applicationmetadata.json",
-                    startupCancellationToken);
+                try
+                {
+                    response = await httpClient.GetAsync(
+                        $"http://localhost:{_testSiteHttpPort.Port.Port + 1}/applicationmetadata.json",
+                        startupCancellationToken);
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
 
             IsCompleted = true;

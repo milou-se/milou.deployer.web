@@ -81,6 +81,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     _logger.Verbose(
                         "Found no deployment targets with auto deployment enabled, waiting {DelayInSeconds} seconds",
                         _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
+
                     await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
                         stoppingToken);
 
@@ -94,6 +95,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     _logger.Verbose(
                         "Found no deployment targets with auto deployment enabled and URL defined, waiting {DelayInSeconds} seconds",
                         _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
+
                     await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
                         stoppingToken);
 
@@ -169,7 +171,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
                     if (packageToDeploy != null)
                     {
-                        var task = new DeploymentTask(packageToDeploy, deploymentTarget.Id, Guid.NewGuid());
+                        var task = new DeploymentTask(packageToDeploy, deploymentTarget.Id, Guid.NewGuid(), nameof(AutoDeployBackgroundService));
 
                         _logger.Information("Auto-deploying package {Package} to target {TargetId}",
                             packageToDeploy,

@@ -156,7 +156,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             try
             {
                 var client = _httpClientFactory.CreateClient(applicationMetadataUri.Host);
-                return (await client.GetAsync(applicationMetadataUri, cancellationToken), "");
+                var wrappedResponseAsync = (await client.GetAsync(applicationMetadataUri, cancellationToken), "");
+                return wrappedResponseAsync;
             }
             catch (TaskCanceledException ex)
             {

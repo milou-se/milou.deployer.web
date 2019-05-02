@@ -25,7 +25,6 @@ namespace Milou.Deployer.Web.Tests.Integration
         {
         }
 
-
         //[Fact(Skip = "Issues with postgresql permissions")]
         [Fact]
         public async Task ThenNewVersionShouldBeDeployed()
@@ -62,14 +61,18 @@ namespace Milou.Deployer.Web.Tests.Integration
                     while (!cancellationTokenSource.Token.IsCancellationRequested
                            && semanticVersion != expectedVersion)
                     {
-                        var startupTaskContext = WebFixture.App.WebHost.Services.GetRequiredService<StartupTaskContext>();
+                        // ReSharper disable MethodSupportsCancellation
+                        var startupTaskContext =
+                            WebFixture.App.WebHost.Services.GetRequiredService<StartupTaskContext>();
 
-                        while (!startupTaskContext.IsCompleted && !cancellationTokenSource.Token.IsCancellationRequested)
+                        while (!startupTaskContext.IsCompleted &&
+                               !cancellationTokenSource.Token.IsCancellationRequested)
                         {
                             await Task.Delay(TimeSpan.FromMilliseconds(50));
                         }
 
-                        var url = $"http://localhost:{WebFixture.TestSiteHttpPort.Port.Port+1}/applicationmetadata.json";
+                        var url =
+                            $"http://localhost:{WebFixture.TestSiteHttpPort.Port.Port + 1}/applicationmetadata.json";
                         string contents;
                         try
                         {
@@ -77,7 +80,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                             {
                                 contents = await responseMessage.Content.ReadAsStringAsync();
 
-                                Output.WriteLine(responseMessage.StatusCode + " " + contents);
+                                Output.WriteLine($"{responseMessage.StatusCode} {contents}");
 
                                 if (responseMessage.StatusCode == HttpStatusCode.ServiceUnavailable
                                     || responseMessage.StatusCode == HttpStatusCode.NotFound)
@@ -112,8 +115,8 @@ namespace Milou.Deployer.Web.Tests.Integration
                         var actual = jsonKeyValueConfiguration["urn:versioning:semver2:normalized"];
 
                         semanticVersion = SemanticVersion.Parse(actual);
-                        // ReSharper disable once MethodSupportsCancellation
                         await Task.Delay(TimeSpan.FromSeconds(1));
+                        // ReSharper restore MethodSupportsCancellation
                     }
                 }
             }

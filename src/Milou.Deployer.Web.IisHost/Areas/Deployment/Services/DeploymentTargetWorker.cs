@@ -8,6 +8,7 @@ using MediatR;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Time;
+using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 using Serilog;
 
@@ -19,7 +20,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly BlockingCollection<DeploymentTask> _queue = new BlockingCollection<DeploymentTask>();
-        private readonly BlockingCollection<DeploymentTask> _runningTasks = new BlockingCollection<DeploymentTask>();
+        private readonly BlockingCollection<DeploymentTask> _taskQueue = new BlockingCollection<DeploymentTask>();
         private readonly WorkerConfiguration _workerConfiguration;
         private readonly TimeoutHelper _timeoutHelper;
 
@@ -50,7 +51,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                var deploymentTask = _runningTasks.Take(stoppingToken);
+                var deploymentTask = _taskQueue.Take(stoppingToken);
 
                 while (!deploymentTask.MessageQueue.IsCompleted)
                 {
@@ -70,14 +71,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
+        private DeploymentTask _currentTask;
+
         private async Task StartProcessingAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
                 var deploymentTask = _queue.Take(stoppingToken);
 
+                _currentTask = deploymentTask;
+
                 deploymentTask.Status = WorkTaskStatus.Started;
-                _runningTasks.Add(deploymentTask, stoppingToken);
+                _taskQueue.Add(deploymentTask, stoppingToken);
 
                 _logger.Information("Deployment target worker has taken {DeploymentTask}", deploymentTask);
 
@@ -106,6 +111,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     deploymentTask.Status = WorkTaskStatus.Failed;
                     deploymentTask.Log("{\"Message\": \"Work task failed\"}");
                 }
+
+                _currentTask = null;
             }
 
             _queue?.Dispose();
@@ -142,6 +149,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         return;
                     }
 
+                    if (deploymentTask.StartedBy.Equals(nameof(AutoDeployBackgroundService),
+                        StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (tasksInQueue.Length > 0 && tasksInQueue.Any(queued => queued.StartedBy.Equals(
+                                nameof(AutoDeployBackgroundService),
+                                StringComparison.OrdinalIgnoreCase)))
+                        {
+                            return;
+                        }
+
+                        if (_currentTask != null && _currentTask.SemanticVersion == deploymentTask.SemanticVersion &&
+                            _currentTask.PackageId == deploymentTask.PackageId)
+                        {
+                            return;
+                        }
+                    }
+
                     deploymentTask.Status = WorkTaskStatus.Enqueued;
                     _queue.Add(deploymentTask, cts.Token);
 
@@ -166,7 +190,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public void Dispose()
         {
             _queue?.Dispose();
-            _runningTasks?.Dispose();
+            _taskQueue?.Dispose();
         }
     }
 }

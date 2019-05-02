@@ -38,7 +38,13 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             if (CancellationTokenSource != null && !CancellationTokenSource.IsCancellationRequested)
             {
-                CancellationTokenSource.Cancel(false);
+                try
+                {
+                    CancellationTokenSource.Cancel(false);
+                }
+                catch (ObjectDisposedException)
+                {
+                }
             }
 
             if (WebFixture != null)

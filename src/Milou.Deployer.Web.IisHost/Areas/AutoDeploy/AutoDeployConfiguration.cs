@@ -21,7 +21,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             Enabled = enabled;
             AfterDeployDelayInSeconds = afterDeployDelayInSeconds <= 0 ? 10 : afterDeployDelayInSeconds;
             DefaultTimeoutInSeconds = defaultTimeoutInSeconds <= 0 ? 30 : defaultTimeoutInSeconds;
-            EmptyTargetsDelayInSeconds = emptyTargetsDelayInSeconds <= 0 ? 60 : emptyTargetsDelayInSeconds;
+            EmptyTargetsDelayInSeconds = emptyTargetsDelayInSeconds <= 0 ? 5 : emptyTargetsDelayInSeconds;
         }
 
         public int EmptyTargetsDelayInSeconds { get; }

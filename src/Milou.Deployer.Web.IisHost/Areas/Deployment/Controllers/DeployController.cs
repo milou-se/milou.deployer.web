@@ -45,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             var deploymentTask = new DeploymentTask(deploymentTaskInput.PackageVersion,
                 deploymentTaskInput.TargetId,
-                Guid.NewGuid());
+                Guid.NewGuid(), User?.Identity?.Name);
 
             try
             {

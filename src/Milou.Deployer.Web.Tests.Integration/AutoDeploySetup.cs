@@ -20,7 +20,7 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         public AutoDeploySetup(IMessageSink diagnosticMessageSink) : base(diagnosticMessageSink)
         {
-            //TODO run entire test in temp dir
+            // TODO run entire test in temp dir
         }
 
         public override async Task DisposeAsync()
@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             TestSiteHttpPort = new TestHttpPort(TcpHelper.GetAvailablePort(portPoolRange));
 
             Environment.SetEnvironmentVariable("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
-            Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port}");
+            Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port.Port+1}");
 
             var deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
 
@@ -74,6 +74,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var integrationTestProjectDirectory = new DirectoryInfo(Path.Combine(VcsTestPathHelper.GetRootDirectory(),
                 "src",
                 milouDeployerWebTestsIntegration));
+
             var nugetPackages = integrationTestProjectDirectory.GetFiles("*.nupkg");
 
             if (nugetPackages.Length == 0)

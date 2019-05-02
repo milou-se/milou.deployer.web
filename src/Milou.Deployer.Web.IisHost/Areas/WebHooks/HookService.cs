@@ -90,7 +90,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                                     new DeploymentTask(
                                                         $"{packageIdentifier.PackageId}, {packageIdentifier.Version.ToNormalizedString()}",
                                                         deploymentTarget.Id,
-                                                        Guid.NewGuid()
+                                                        Guid.NewGuid(),
+                                                        "Web hook"
                                                     ),
                                                     _logger,
                                                     CancellationToken.None);

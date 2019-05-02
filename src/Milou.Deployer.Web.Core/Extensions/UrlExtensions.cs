@@ -48,7 +48,7 @@ namespace Milou.Deployer.Web.Core.Extensions
 
         public static Uri ParseUriOrDefault(this string value)
         {
-            if (!Uri.TryCreate(value, UriKind.Absolute, out Uri uri))
+            if (Uri.TryCreate(value, UriKind.Absolute, out Uri uri))
             {
                 return uri;
             }
