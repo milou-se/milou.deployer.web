@@ -23,7 +23,7 @@
                 "testhostseq": "::1",
                 "urn:milou:deployer:web:logging:startup:serilog:startup-seq-url": "http://[%testhostseq%]:5341"
             },
-            "applicationUrl": "http://localhost:54151/"
+            "applicationUrl": "http://localhost:34343/"
         }
     }
 }

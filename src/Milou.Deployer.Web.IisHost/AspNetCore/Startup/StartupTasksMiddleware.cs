@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Milou.Deployer.Web.Core.Startup;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 {
@@ -25,7 +26,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                 var response = httpContext.Response;
                 response.StatusCode = 503;
                 response.Headers["Retry-After"] = "30";
-                await response.WriteAsync("Service Unavailable");
+                await response.WriteAsync("Service Unavailable, application is starting up");
             }
         }
     }

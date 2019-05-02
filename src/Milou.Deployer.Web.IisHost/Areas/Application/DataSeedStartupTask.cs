@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Startup;
 using Milou.Deployer.Web.Core.Time;
 using Serilog;
 

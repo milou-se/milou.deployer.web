@@ -1,7 +1,9 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Core.Startup;
 
 namespace Milou.Deployer.Web.Core.Health
 {
@@ -9,15 +11,22 @@ namespace Milou.Deployer.Web.Core.Health
     public class HealthBackgroundService : BackgroundService
     {
         private readonly HealthChecker _healthChecker;
+        private readonly StartupTaskContext _startupTaskContext;
 
-        public HealthBackgroundService(HealthChecker healthChecker)
+        public HealthBackgroundService(HealthChecker healthChecker, StartupTaskContext startupTaskContext)
         {
             _healthChecker = healthChecker;
+            _startupTaskContext = startupTaskContext;
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return _healthChecker.PerformHealthChecksAsync(stoppingToken);
+            while (!_startupTaskContext.IsCompleted)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+            }
+
+            await _healthChecker.PerformHealthChecksAsync(stoppingToken);
         }
     }
 }

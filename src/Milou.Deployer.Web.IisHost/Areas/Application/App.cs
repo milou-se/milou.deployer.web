@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
-using Arbor.Tooler;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -68,7 +66,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public IWebHost WebHost { get; private set; }
 
-        private static async Task<App> BuildAppAsync(
+        private static Task<App> BuildAppAsync(
             CancellationTokenSource cancellationTokenSource,
             string[] commandLineArgs,
             IReadOnlyDictionary<string, string> environmentVariables,
@@ -199,47 +197,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 throw;
             }
 
-            var nugetExePath = "";
-
-            appLogger.Debug("Ensuring nuget.exe exists");
-
-            if (!int.TryParse(configuration[ConfigurationConstants.NuGetDownloadTimeoutInSeconds],
-                    out var initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
-            {
-                initialNuGetDownloadTimeoutInSeconds = 100;
-            }
-
-            try
-            {
-                using (var cts =
-                    new CancellationTokenSource(TimeSpan.FromSeconds(initialNuGetDownloadTimeoutInSeconds)))
-                {
-                    var downloadDirectory = configuration[ConfigurationConstants.NuGetExeDirectory].WithDefault(null);
-
-                    using (var httpClient = new HttpClient())
-                    {
-                        var nuGetDownloadResult = await new NuGetDownloadClient().DownloadNuGetAsync(
-                            new NuGetDownloadSettings(downloadDirectory: downloadDirectory),
-                            appLogger,
-                            httpClient,
-                            cts.Token);
-
-                        if (nuGetDownloadResult.Succeeded)
-                        {
-                            nugetExePath = nuGetDownloadResult.NuGetExePath;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                appLogger.Warning(ex, "Could not download nuget.exe");
-            }
-
-            var nugetConfiguration = configurationInstanceHolder.Get<NuGetConfiguration>();
-
-            nugetConfiguration.NugetExePath = nugetExePath;
-
             EnvironmentConfigurator.ConfigureEnvironment(configurationInstanceHolder);
 
             foreach (Type registeredType in configurationInstanceHolder.RegisteredTypes)
@@ -259,7 +216,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             var app = new App(CustomWebHostBuilder.GetWebHostBuilder(environmentConfiguration, configuration, new ServiceProviderHolder(serviceCollection.BuildServiceProvider(), serviceCollection), appLogger), cancellationTokenSource, appLogger, configuration, configurationInstanceHolder);
 
-            return app;
+            return Task.FromResult(app);
         }
 
         private static void LogCommandLineArgs(string[] commandLineArgs, ILogger appLogger)

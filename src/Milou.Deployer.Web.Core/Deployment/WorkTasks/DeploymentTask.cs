@@ -15,7 +15,8 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
         public DeploymentTask(
             [NotNull] string packageVersion,
             [NotNull] string deploymentTargetId,
-            Guid deploymentTaskId, string startedBy)
+            Guid deploymentTaskId,
+            string startedBy)
         {
             if (string.IsNullOrWhiteSpace(packageVersion))
             {
