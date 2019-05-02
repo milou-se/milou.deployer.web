@@ -26,7 +26,8 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<CreateTarget, CreateTargetResult>,
         IRequestHandler<UpdateDeploymentTarget, UpdateDeploymentTargetResult>,
         IRequestHandler<DeploymentHistoryRequest, DeploymentHistoryResponse>,
-        IRequestHandler<DeploymentLogRequest, DeploymentLogResponse>
+        IRequestHandler<DeploymentLogRequest, DeploymentLogResponse>,
+        IRequestHandler<RemoveTarget, Unit>
     {
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
@@ -377,6 +378,19 @@ namespace Milou.Deployer.Web.Marten
             _logger.Information("Updated target with id {Id}", request.Id);
 
             return new UpdateDeploymentTargetResult();
+        }
+
+        public async Task<Unit> Handle(RemoveTarget request, CancellationToken cancellationToken)
+        {
+            using (var session = _documentStore.OpenSession())
+            {
+                session.Delete<DeploymentTargetData>(request.TargetId);
+                session.DeleteWhere<TaskMetadata>(m => m.DeploymentTargetId.Equals(request.TargetId, StringComparison.OrdinalIgnoreCase));
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            return Unit.Value;
         }
     }
 }

@@ -4,6 +4,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 {
     public static class TargetConstants
     {
+        public const string RemoveTargetPostRoute = "/target/remove";
+
+        public const string RemoveTargetPostRouteName = nameof(RemoveTargetPostRoute);
+
         public const string EditTargetPostRoute = "/target";
 
         public const string EditTargetPostRouteName = nameof(EditTargetPostRoute);

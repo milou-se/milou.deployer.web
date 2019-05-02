@@ -36,6 +36,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         }
 
         [HttpPost]
+        [Route(TargetConstants.RemoveTargetPostRoute, Name = TargetConstants.RemoveTargetPostRouteName)]
+        public async Task<IActionResult> Remove([FromBody] RemoveTarget removeTarget, [FromServices] IMediator mediator)
+        {
+            if (removeTarget is null)
+            {
+                return BadRequest($"Model of type {typeof(RemoveTarget)} is null");
+            }
+
+            await mediator.Send(removeTarget);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
         [Route(TargetConstants.CreateTargetPostRoute, Name = TargetConstants.CreateTargetPostRouteName)]
         public async Task<ActionResult<CreateTargetResult>> Post(
             [FromBody] CreateTarget createTarget,
