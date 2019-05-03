@@ -41,11 +41,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
                         return;
                     }
 
-                    if (!uri.Host.Equals(context.Request.Host.Host, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return;
-                    }
-
                     var builder = new UriBuilder(uri)
                     {
                         Host = _environmentConfiguration.PublicHostname
