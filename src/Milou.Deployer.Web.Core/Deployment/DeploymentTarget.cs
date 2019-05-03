@@ -71,7 +71,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             AllowExplicitExplicitPreRelease = allowExplicitPreRelease;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
-            PackageId = packageId.WithDefault("N/A");
+            PackageId = packageId.WithDefault(Constants.NotAvailable);
             PublishSettingsXml = publishSettingsXml;
             EnvironmentType = EnvironmentType.Parse(environmentType);
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();

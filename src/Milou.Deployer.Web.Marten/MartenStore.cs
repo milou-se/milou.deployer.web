@@ -79,7 +79,7 @@ namespace Milou.Deployer.Web.Marten
                 deploymentTargetAsync = new DeploymentTarget(
                     deploymentTargetData.Id,
                     deploymentTargetData.Name,
-                    deploymentTargetData.PackageId ?? Constants.NotAvailable,
+                    deploymentTargetData.PackageId.WithDefault(Constants.NotAvailable),
                     deploymentTargetData.PublishSettingsXml,
                     deploymentTargetData.AllowExplicitPreRelease,
                     url: deploymentTargetData.Url,
