@@ -15,6 +15,7 @@ using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace Milou.Deployer.Web.Marten
@@ -65,28 +66,36 @@ namespace Milou.Deployer.Web.Marten
             return new CreateProjectResult(createProject.Id);
         }
 
-        private static DeploymentTarget MapDataToTarget(DeploymentTargetData deploymentTargetData)
+        private DeploymentTarget MapDataToTarget(DeploymentTargetData deploymentTargetData)
         {
             if (deploymentTargetData is null)
             {
                 return null;
             }
 
-            var deploymentTargetAsync = new DeploymentTarget(
-                deploymentTargetData.Id,
-                deploymentTargetData.Name,
-                deploymentTargetData.PackageId ?? Constants.NotAvailable,
-                deploymentTargetData.PublishSettingsXml,
-                deploymentTargetData.AllowExplicitPreRelease,
-                url: deploymentTargetData.Url,
-                nuGetConfigFile: deploymentTargetData.NuGetConfigFile,
-                nuGetPackageSource: deploymentTargetData.NuGetPackageSource,
-                iisSiteName: deploymentTargetData.IisSiteName,
-                autoDeployEnabled: deploymentTargetData.AutoDeployEnabled,
-                targetDirectory: deploymentTargetData.TargetDirectory,
-                webConfigTransform: deploymentTargetData.WebConfigTransform,
-                excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
-                enabled: deploymentTargetData.Enabled);
+            DeploymentTarget deploymentTargetAsync = null;
+            try
+            {
+                deploymentTargetAsync = new DeploymentTarget(
+                    deploymentTargetData.Id,
+                    deploymentTargetData.Name,
+                    deploymentTargetData.PackageId ?? Constants.NotAvailable,
+                    deploymentTargetData.PublishSettingsXml,
+                    deploymentTargetData.AllowExplicitPreRelease,
+                    url: deploymentTargetData.Url,
+                    nuGetConfigFile: deploymentTargetData.NuGetConfigFile,
+                    nuGetPackageSource: deploymentTargetData.NuGetPackageSource,
+                    iisSiteName: deploymentTargetData.IisSiteName,
+                    autoDeployEnabled: deploymentTargetData.AutoDeployEnabled,
+                    targetDirectory: deploymentTargetData.TargetDirectory,
+                    webConfigTransform: deploymentTargetData.WebConfigTransform,
+                    excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
+                    enabled: deploymentTargetData.Enabled);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Could not get deployment target from data {Data}", JsonConvert.SerializeObject(deploymentTargetData));
+            }
 
             return deploymentTargetAsync;
         }
@@ -132,7 +141,8 @@ namespace Milou.Deployer.Web.Marten
                                     .Where(target =>
                                         target.ProjectId != null
                                         && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase))
-                                    .Select(MapDataToTarget)))
+                                    .Select(MapDataToTarget)
+                                    .Where(t => t != null)))
                         .ToImmutableArray()))
                 .Concat(new[]
                 {
@@ -144,7 +154,8 @@ namespace Milou.Deployer.Web.Marten
                                 "NA",
                                 targets
                                     .Where(target => target.ProjectId is null)
-                                    .Select(MapDataToTarget))
+                                    .Select(MapDataToTarget)
+                                    .Where(t => t != null))
                         })
                 })
                 .ToImmutableArray();
@@ -175,7 +186,7 @@ namespace Milou.Deployer.Web.Marten
 
                     var deploymentTarget = MapDataToTarget(deploymentTargetData);
 
-                    return deploymentTarget;
+                    return deploymentTarget ?? DeploymentTarget.None;
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
