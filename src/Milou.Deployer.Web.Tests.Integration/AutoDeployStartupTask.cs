@@ -53,7 +53,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 return;
             }
 
-            var targets = await _readService.GetDeploymentTargetsAsync(startupCancellationToken);
+            var targets = await _readService.GetDeploymentTargetsAsync(stoppingToken: startupCancellationToken);
 
             if (targets.Length != 1)
             {

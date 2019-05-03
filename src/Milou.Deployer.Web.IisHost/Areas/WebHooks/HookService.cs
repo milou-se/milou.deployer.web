@@ -47,7 +47,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                 string.Join(", ", packageIdentifiers.Select(p => p.ToString())));
 
             var deploymentTargets =
-                (await _targetSource.GetDeploymentTargetsAsync(CancellationToken.None))
+                (await _targetSource.GetDeploymentTargetsAsync(stoppingToken: CancellationToken.None)) // TODO review no cancellation
                 .SafeToReadOnlyCollection();
 
             var withAutoDeploy = deploymentTargets.Where(t => t.AutoDeployEnabled).ToArray();
@@ -73,7 +73,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                             {
                                 var metadata = await _monitoringService.GetAppMetadataAsync(
                                     deploymentTarget,
-                                    CancellationToken.None);
+                                    CancellationToken.None); // TODO review no cancellation
 
                                 if (metadata.SemanticVersion != null)
                                 {
@@ -94,7 +94,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                                         "Web hook"
                                                     ),
                                                     _logger,
-                                                    CancellationToken.None);
+                                                    CancellationToken.None); // TODO review no cancellation
 
                                         _logger.Information(
                                             "Deployed package {PackageIdentifier} to target {Name} from web hook with result {Result}",

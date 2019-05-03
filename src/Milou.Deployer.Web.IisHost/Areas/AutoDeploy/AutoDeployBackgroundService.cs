@@ -70,7 +70,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
                             targetsTokenSource.Token))
                     {
-                        deploymentTargets = (await _deploymentTargetReadService.GetDeploymentTargetsAsync(linked.Token))
+                        deploymentTargets = (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linked.Token))
                             .Where(target => target.Enabled && target.AutoDeployEnabled)
                             .ToImmutableArray();
                     }

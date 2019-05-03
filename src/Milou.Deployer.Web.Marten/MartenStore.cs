@@ -28,7 +28,8 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<UpdateDeploymentTarget, UpdateDeploymentTargetResult>,
         IRequestHandler<DeploymentHistoryRequest, DeploymentHistoryResponse>,
         IRequestHandler<DeploymentLogRequest, DeploymentLogResponse>,
-        IRequestHandler<RemoveTarget, Unit>
+        IRequestHandler<RemoveTarget, Unit>,
+        IRequestHandler<EnableTarget, Unit>
     {
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
@@ -229,17 +230,29 @@ namespace Milou.Deployer.Web.Marten
             }
         }
 
-        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken)
+        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions options = default, CancellationToken stoppingToken = default)
         {
             using (var session = _documentStore.QuerySession())
             {
+                bool Filter(DeploymentTarget target)
+                {
+                    if (options is null || options.OnlyEnabled)
+                    {
+                        return target.Enabled;
+                    }
+
+                    return true;
+                }
+
                 try
                 {
                     var targets = await session.Query<DeploymentTargetData>()
                         .ToListAsync<DeploymentTargetData>(stoppingToken);
 
-                    var deploymentTargets =
-                        targets.Select(MapDataToTarget).ToImmutableArray();
+                    var deploymentTargets = targets
+                        .Select(MapDataToTarget)
+                        .Where(Filter)
+                        .ToImmutableArray();
 
                     return deploymentTargets;
                 }
@@ -397,6 +410,27 @@ namespace Milou.Deployer.Web.Marten
             {
                 session.Delete<DeploymentTargetData>(request.TargetId);
                 session.DeleteWhere<TaskMetadata>(m => m.DeploymentTargetId.Equals(request.TargetId, StringComparison.OrdinalIgnoreCase));
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            return Unit.Value;
+        }
+
+        public async Task<Unit> Handle(EnableTarget request, CancellationToken cancellationToken)
+        {
+            using (var session = _documentStore.OpenSession())
+            {
+                var deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+
+                if (deploymentTargetData is null)
+                {
+                    return Unit.Value;
+                }
+
+                deploymentTargetData.Enabled = true;
+
+                session.Store(deploymentTargetData);
 
                 await session.SaveChangesAsync(cancellationToken);
             }

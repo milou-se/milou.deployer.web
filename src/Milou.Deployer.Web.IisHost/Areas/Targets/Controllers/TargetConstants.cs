@@ -39,5 +39,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         public const string InvalidateCacheRoute = "/invalidatecache";
 
         public const string InvalidateCacheRouteName = nameof(InvalidateCacheRoute);
+
+        public const string EnableTargetPostRoute = "/target/enable";
+
+        public const string EnableTargetPostRouteName = nameof(EnableTargetPostRoute);
+
+        public const string DisabledTargetsRoute = "/targets/enabled";
+
+        public const string DisabledTargetsRouteName = nameof(DisabledTargetsRoute);
     }
 }

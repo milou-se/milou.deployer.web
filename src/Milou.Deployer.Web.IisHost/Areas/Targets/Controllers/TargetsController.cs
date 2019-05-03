@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
+using Milou.Deployer.Web.IisHost.Areas.Targets.ViewModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Views;
 using Milou.Deployer.Web.IisHost.Controllers;
 
@@ -126,6 +129,28 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             var updateDeploymentTargetResult = await mediator.Send(updateDeploymentTarget);
 
             return updateDeploymentTargetResult;
+        }
+
+        [Route(TargetConstants.EnableTargetPostRoute, Name = TargetConstants.EnableTargetPostRouteName)]
+        [HttpPost]
+        public async Task<IActionResult> Enable(
+            [FromBody] EnableTarget enableTarget,
+            [FromServices] IMediator mediator)
+        {
+            await mediator.Send(enableTarget);
+
+            return Redirect("/");
+        }
+
+        [Route(TargetConstants.DisabledTargetsRoute, Name = TargetConstants.DisabledTargetsRouteName)]
+        [HttpGet]
+        public async Task<IActionResult> Disabled(
+            [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
+        {
+            var targets =
+                await deploymentTargetReadService.GetDeploymentTargetsAsync(new TargetOptions { OnlyEnabled = false });
+
+            return View(new TargetListViewModel(targets.OrderBy(target => target.Enabled).ToImmutableArray()));
         }
     }
 }

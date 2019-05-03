@@ -71,7 +71,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                         startupToken.Token))
                     {
                         targetIds =
-                            (await _deploymentTargetReadService.GetDeploymentTargetsAsync(linkedToken.Token))
+                            (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linkedToken.Token))
                             .Select(deploymentTarget => deploymentTarget.Id)
                             .ToArray();
 
