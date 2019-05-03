@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public DeploymentTarget(
             [NotNull] string id,
             [NotNull] string name,
-            [NotNull] string packageId,
+            string packageId,
             string publishSettingsXml = null,
             bool allowExplicitPreRelease = false,
             string nuGetConfigFile = null,
@@ -52,11 +52,6 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            if (string.IsNullOrWhiteSpace(packageId))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageId));
-            }
-
             Url = url;
             EnvironmentConfiguration = environmentConfiguration;
             AutoDeployment = autoDeployment;
@@ -76,7 +71,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             AllowExplicitExplicitPreRelease = allowExplicitPreRelease;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
-            PackageId = packageId;
+            PackageId = packageId.WithDefault("N/A");
             PublishSettingsXml = publishSettingsXml;
             EnvironmentType = EnvironmentType.Parse(environmentType);
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
