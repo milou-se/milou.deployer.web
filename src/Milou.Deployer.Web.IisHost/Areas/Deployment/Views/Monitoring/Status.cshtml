@@ -41,7 +41,7 @@
                   <a v-bind:href="target.url" v-if="target.url">{{target.name}}</a>
             </td>
             <td>
-
+                <span v-bind:class="target.statusKey">{{target.statusDisplayName}}</span>
             </td>
             <td>
                 <a v-bind:href="target.historyUrl">History</a>

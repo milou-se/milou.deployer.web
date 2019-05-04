@@ -176,12 +176,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         }
 
         public async Task<AppVersion> GetAppMetadataAsync(
-            [NotNull] DeploymentTarget target,
+            [NotNull] DeploymentTarget targetId,
             CancellationToken cancellationToken)
         {
-            if (target == null)
+            if (targetId == null)
             {
-                throw new ArgumentNullException(nameof(target));
+                throw new ArgumentNullException(nameof(targetId));
             }
 
             AppVersion appMetadata;
@@ -194,7 +194,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     {
                         _logger.Verbose("{Method} for {Target}, cancellation token invoked out after {Seconds} seconds",
                             nameof(GetAppMetadataAsync),
-                            target.Id,
+                            targetId,
                             _monitorConfiguration.DefaultTimeoutInSeconds);
                     });
                 }
@@ -202,30 +202,30 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 using (var linkedTokenSource =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
-                    var (response, message) = await GetApplicationMetadataTask(target, linkedTokenSource.Token);
+                    var (response, message) = await GetApplicationMetadataTask(targetId, linkedTokenSource.Token);
 
                     using (var httpResponseMessage = response)
                     {
                         var packages =
-                            await GetAllowedPackagesAsync(target, linkedTokenSource.Token);
+                            await GetAllowedPackagesAsync(targetId, linkedTokenSource.Token);
 
                         if (httpResponseMessage == null)
                         {
-                            return new AppVersion(target,
-                                message ?? $"Could not get application metadata from target {target.Url}, no response",
+                            return new AppVersion(targetId,
+                                message ?? $"Could not get application metadata from target {targetId.Url}, no response",
                                 packages);
                         }
 
                         if (!httpResponseMessage.IsSuccessStatusCode)
                         {
-                            return new AppVersion(target,
+                            return new AppVersion(targetId,
                                 message ??
-                                $"Could not get application metadata from target {target.Url}, status code not successful {httpResponseMessage.StatusCode}",
+                                $"Could not get application metadata from target {targetId.Url}, status code not successful {httpResponseMessage.StatusCode}",
                                 packages);
                         }
 
                         appMetadata =
-                            await GetAppVersionAsync(httpResponseMessage, target, packages, linkedTokenSource.Token);
+                            await GetAppVersionAsync(httpResponseMessage, targetId, packages, linkedTokenSource.Token);
                     }
                 }
             }

@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 
         public const string CreateTargetGetRouteName = nameof(CreateTargetGetRoute);
 
-        public const string EditTargetRoute = "/target/{targetId}/edit";
+        public const string EditTargetRoute = "/target/{deploymentTargetId}/edit";
 
         public const string EditTargetRouteName = nameof(EditTargetRoute);
 
@@ -47,5 +47,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         public const string DisabledTargetsRoute = "/targets/enabled";
 
         public const string DisabledTargetsRouteName = nameof(DisabledTargetsRoute);
+
+        public const string TargetStatusApiRoute = "/api/target/{deploymentTargetId}/status";
+
+        public const string TargetStatusApiRouteName = nameof(TargetStatusApiRoute);
     }
 }

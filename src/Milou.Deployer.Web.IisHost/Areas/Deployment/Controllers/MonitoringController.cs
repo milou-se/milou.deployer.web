@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
@@ -59,16 +60,57 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             var targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
                 .SelectMany(
                     organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
-                .Select(t => new
+                .Select(deploymentTarget =>
                 {
-                    targetId = t.Id,
-                    name = t.Name,
-                    url = t.Url,
-                    editUrl = Url.RouteUrl(TargetConstants.EditTargetRouteName, new { deploymentTargetId = t.Id }),
-                    historyUrl = Url.RouteUrl(DeploymentConstants.HistoryRouteName, new { deploymentTargetId = t.Id })
+                    var editUrl = Url.RouteUrl(TargetConstants.EditTargetRouteName,
+                        new { deploymentTargetId = deploymentTarget.Id });
+                    var historyUrl = Url.RouteUrl(DeploymentConstants.HistoryRouteName,
+                        new { deploymentTargetId = deploymentTarget.Id });
+                    var statusUrl = Url.RouteUrl(TargetConstants.TargetStatusApiRouteName,
+                        new { deploymentTargetId = deploymentTarget.Id });
+                    return new
+                    {
+                        targetId = deploymentTarget.Id,
+                        name = deploymentTarget.Name,
+                        url = deploymentTarget.Url,
+                        editUrl,
+                        historyUrl,
+                        statusKey = DeployStatus.Unknown.Key,
+                        statusDisplayName = DeployStatus.Unknown.DisplayName,
+                        statusUrl
+                    };
                 });
 
-            return Json(new { targets = targets });
+            return Json(new { targets });
+        }
+
+        [HttpGet]
+        [Route(TargetConstants.TargetStatusApiRoute, Name = TargetConstants.TargetStatusApiRouteName)]
+        public async Task<IActionResult> Status(
+            string deploymentTargetId,
+            [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
+            [FromServices] MonitoringService monitoringService)
+        {
+            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+
+            if (deploymentTarget is null)
+            {
+                return new NotFoundResult();
+            }
+
+            if (deploymentTarget.Url is null)
+            {
+                return Json(DeployStatus.Unavailable);
+            }
+
+            if (!deploymentTarget.Enabled)
+            {
+                return Json(DeployStatus.Unavailable);
+            }
+
+            var appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
+
+            return Json(appVersion.Status);
         }
     }
 }

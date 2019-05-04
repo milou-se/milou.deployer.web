@@ -97,10 +97,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [Route(TargetConstants.EditTargetRoute, Name = TargetConstants.EditTargetRouteName)]
         [HttpGet]
         public async Task<IActionResult> Edit(
-            [FromRoute] string targetId,
+            [FromRoute] string deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
         {
-            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(targetId);
+            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
             {

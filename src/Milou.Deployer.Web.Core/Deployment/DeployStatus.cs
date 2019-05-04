@@ -11,6 +11,8 @@
 
         public static readonly DeployStatus Unavailable = new DeployStatus("unavailable", "Unavailable");
 
+        public static readonly DeployStatus Unknown = new DeployStatus("unknown", "unknown");
+
         private DeployStatus(string key, string displayName)
         {
             Key = key;
