@@ -117,9 +117,19 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
                 return DeployStatus.NoPackagesAvailable;
             }
 
-            return SemanticVersion == AvailablePackageVersions.Latest()
-                ? DeployStatus.Latest
-                : DeployStatus.UpdateAvailable;
+            var latestAvailable = AvailablePackageVersions.Latest();
+
+            if (SemanticVersion == latestAvailable)
+            {
+                return DeployStatus.Latest;
+            }
+
+            if (latestAvailable > SemanticVersion)
+            {
+                return DeployStatus.UpdateAvailableOf(latestAvailable);
+            }
+
+            return DeployStatus.NoLaterAvailable;
         }
     }
 }
