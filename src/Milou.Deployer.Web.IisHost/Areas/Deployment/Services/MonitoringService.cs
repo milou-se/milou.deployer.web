@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -155,8 +156,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             try
             {
+                Stopwatch stopwatch = Stopwatch.StartNew();
                 var client = _httpClientFactory.CreateClient(applicationMetadataUri.Host);
                 var wrappedResponseAsync = (await client.GetAsync(applicationMetadataUri, cancellationToken), "");
+                stopwatch.Stop();
+                _logger.Debug("Metadata call to {Url} took {Elapsed} milliseconds", applicationMetadataUri, stopwatch.ElapsedMilliseconds);
+
                 return wrappedResponseAsync;
             }
             catch (TaskCanceledException ex)
@@ -176,12 +181,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         }
 
         public async Task<AppVersion> GetAppMetadataAsync(
-            [NotNull] DeploymentTarget targetId,
+            [NotNull] DeploymentTarget target,
             CancellationToken cancellationToken)
         {
-            if (targetId == null)
+            if (target == null)
             {
-                throw new ArgumentNullException(nameof(targetId));
+                throw new ArgumentNullException(nameof(target));
             }
 
             AppVersion appMetadata;
@@ -194,7 +199,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     {
                         _logger.Verbose("{Method} for {Target}, cancellation token invoked out after {Seconds} seconds",
                             nameof(GetAppMetadataAsync),
-                            targetId,
+                            target,
                             _monitorConfiguration.DefaultTimeoutInSeconds);
                     });
                 }
@@ -202,30 +207,35 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 using (var linkedTokenSource =
                     CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
                 {
-                    var (response, message) = await GetApplicationMetadataTask(targetId, linkedTokenSource.Token);
+                    var metadataTask = GetApplicationMetadataTask(target, linkedTokenSource.Token);
+
+                    var allowedPackagesTask = GetAllowedPackagesAsync(target, linkedTokenSource.Token);
+
+                    await Task.WhenAll(metadataTask, allowedPackagesTask);
+
+                    var (response, message) = await metadataTask;
+
+                    var packages = await allowedPackagesTask;
 
                     using (var httpResponseMessage = response)
                     {
-                        var packages =
-                            await GetAllowedPackagesAsync(targetId, linkedTokenSource.Token);
-
                         if (httpResponseMessage == null)
                         {
-                            return new AppVersion(targetId,
-                                message ?? $"Could not get application metadata from target {targetId.Url}, no response",
+                            return new AppVersion(target,
+                                message ?? $"Could not get application metadata from target {target.Url}, no response",
                                 packages);
                         }
 
                         if (!httpResponseMessage.IsSuccessStatusCode)
                         {
-                            return new AppVersion(targetId,
+                            return new AppVersion(target,
                                 message ??
-                                $"Could not get application metadata from target {targetId.Url}, status code not successful {httpResponseMessage.StatusCode}",
+                                $"Could not get application metadata from target {target.Url}, status code not successful {httpResponseMessage.StatusCode}",
                                 packages);
                         }
 
                         appMetadata =
-                            await GetAppVersionAsync(httpResponseMessage, targetId, packages, linkedTokenSource.Token);
+                            await GetAppVersionAsync(httpResponseMessage, target, packages, linkedTokenSource.Token);
                     }
                 }
             }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -168,6 +169,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             ExitCode exitCode;
 
+            Stopwatch stopwatch = Stopwatch.StartNew();
             using (var cancellationTokenSource =
                 _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_deploymentConfiguration.ListTimeOutInSeconds)))
             {
@@ -191,6 +193,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                         cancellationToken: linked.Token);
                 }
             }
+
+            stopwatch.Stop();
+
+            _logger.Debug("Get package versions external process took {Elapsed} milliseconds", stopwatch.ElapsedMilliseconds);
 
             var standardOut = string.Join(Environment.NewLine, builder);
             var standardErrorOut = string.Join(Environment.NewLine, errorBuild);
