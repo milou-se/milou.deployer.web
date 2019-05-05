@@ -91,6 +91,7 @@ namespace Milou.Deployer.Web.Marten
                     targetDirectory: deploymentTargetData.TargetDirectory,
                     webConfigTransform: deploymentTargetData.WebConfigTransform,
                     excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
+                    environmentType: deploymentTargetData.EnvironmentType,
                     enabled: deploymentTargetData.Enabled);
             }
             catch (Exception ex)
@@ -395,6 +396,7 @@ namespace Milou.Deployer.Web.Marten
                 data.WebConfigTransform = request.WebConfigTransform;
                 data.ExcludedFilePatterns = request.ExcludedFilePatterns;
                 data.Enabled = request.Enabled;
+                data.EnvironmentType = request.EnvironmentType.Name;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);

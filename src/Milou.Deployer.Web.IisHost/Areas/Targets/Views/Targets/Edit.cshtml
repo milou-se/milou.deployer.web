@@ -1,4 +1,6 @@
-﻿@using Milou.Deployer.Web.Core
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Milou.Deployer.Web.Core
+@using Milou.Deployer.Web.Core.Deployment
 @using Milou.Deployer.Web.Core.Html
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @model Milou.Deployer.Web.IisHost.Areas.Targets.Views.EditTargetViewOutputModel
@@ -99,6 +101,19 @@ else
             <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">
             @Model.DeploymentTarget.PublishSettingsXml
         </textarea>
+        </div>
+        <div class="input-field">
+
+            <label for="environmentType">Environment type</label>
+            <select name="environmentType" id="environmentType">
+
+                @foreach (var type in EnvironmentType.All)
+                {
+                    <option name="@type.Name" @Model.DeploymentTarget.EnvironmentType.Equals(type).Selected()>@type.Name</option>
+                }
+
+            </select>
+
         </div>
 
         <div class="input-field">

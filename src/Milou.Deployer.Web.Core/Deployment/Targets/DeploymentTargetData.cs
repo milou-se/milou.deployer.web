@@ -37,5 +37,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
         public string ExcludedFilePatterns { get; set; }
 
         public bool Enabled { get; set; }
+
+        public string EnvironmentType { get; set; }
     }
 }

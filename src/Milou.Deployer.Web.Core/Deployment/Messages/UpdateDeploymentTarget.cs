@@ -19,7 +19,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string targetDirectory = null,
             string webConfigTransform = null,
             string excludedFilePatterns = null,
-            bool enabled = false)
+            bool enabled = false,
+            string environmentType = null)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
@@ -35,7 +36,10 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             TargetDirectory = targetDirectory;
             WebConfigTransform = webConfigTransform;
             IsValid = !string.IsNullOrWhiteSpace(Id);
+            EnvironmentType = EnvironmentType.Parse(environmentType);
         }
+
+        public EnvironmentType EnvironmentType { get; }
 
         public string Id { get; }
 
