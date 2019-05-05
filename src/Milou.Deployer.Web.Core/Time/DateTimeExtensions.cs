@@ -90,7 +90,8 @@ namespace Milou.Deployer.Web.Core.Time
 
             if (diff.TotalDays > 30)
             {
-                return $"{diffTotalDays / 30} month{PluralSuffix(diffTotalDays)} ago";
+                var totalMonths = diffTotalDays / 30;
+                return $"{totalMonths} month{PluralSuffix(totalMonths)} ago";
             }
 
             if (diff.TotalDays > 1)
@@ -116,6 +117,7 @@ namespace Milou.Deployer.Web.Core.Time
             }
 
             var diffTotalSeconds = (int)diff.TotalSeconds;
+
             return $"{diffTotalSeconds} second{PluralSuffix(diffTotalSeconds)} ago";
         }
     }
