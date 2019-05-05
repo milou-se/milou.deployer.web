@@ -105,6 +105,8 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
 
         public DeployStatus Status { get; }
 
+        public SemanticVersion LatestNewerAvailable { get; private set; }
+
         private DeployStatus GetStatus()
         {
             if (SemanticVersion is null)
@@ -126,7 +128,8 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
 
             if (latestAvailable > SemanticVersion)
             {
-                return DeployStatus.UpdateAvailableOf(latestAvailable);
+                LatestNewerAvailable = latestAvailable;
+                return DeployStatus.UpdateAvailable;
             }
 
             return DeployStatus.NoLaterAvailable;

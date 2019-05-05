@@ -1,6 +1,4 @@
-﻿using NuGet.Versioning;
-
-namespace Milou.Deployer.Web.Core.Deployment
+﻿namespace Milou.Deployer.Web.Core.Deployment
 {
     public sealed class DeployStatus
     {
@@ -15,7 +13,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public static readonly DeployStatus Unknown = new DeployStatus("unknown", "unknown");
 
-        public static readonly DeployStatus NoLaterAvailable = new DeployStatus("no-later-available", "No later version available");
+        public static readonly DeployStatus NoLaterAvailable =
+            new DeployStatus("no-later-available", "No later version available");
 
         private DeployStatus(string key, string displayName)
         {
@@ -26,11 +25,5 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string Key { get; }
 
         public string DisplayName { get; }
-
-        public static DeployStatus UpdateAvailableOf(SemanticVersion latestAvailable)
-        {
-            return new DeployStatus(UpdateAvailable.Key,
-                $"{UpdateAvailable.DisplayName} ({latestAvailable.ToNormalizedString()})");
-        }
     }
 }

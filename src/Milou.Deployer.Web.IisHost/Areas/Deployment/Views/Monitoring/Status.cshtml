@@ -18,13 +18,12 @@
                 <th>Target</th>
                 <th>Status</th>
                 <th>History</th>
-                <th>Message</th>
                 <th>
                     <span style="white-space: nowrap">Version</span>
                 </th>
                 <th>Deployed</th>
                 <th>
-                    <span style="white-space: nowrap">Environment type</span>
+                    <span style="white-space: nowrap">Environment</span>
                 </th>
                 <th>Metadata</th>
                 <th>Deploy</th>
@@ -39,12 +38,11 @@
                     <a v-bind:href="target.url" v-if="target.url">{{target.name}}</a>
                 </td>
                 <td>
-                    <span v-bind:class="target.statusKey">{{target.statusDisplayName}}</span>
+                    <span v-bind:title="target.statusTitle" v-bind:class="'deploy-status-' + target.statusKey">{{target.statusDisplayName}}</span>
                 </td>
                 <td>
                     <a v-bind:href="target.historyUrl">History</a>
                 </td>
-                <td></td>
                 <td>
                     <span v-bind:class="target.preReleaseClass">{{target.semanticVersion}}</span>
                 </td>

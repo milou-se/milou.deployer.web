@@ -15,7 +15,9 @@
     intervalAgoName,
     deployedAtLocalTime,
     environmentType,
-    metadataUrl) {
+    metadataUrl,
+    statusMessage,
+    latestNewerAvailable) {
         this.targetId = targetId;
         this.name = name;
         this.url = url;
@@ -32,6 +34,20 @@
         this.deployedAtLocalTime = deployedAtLocalTime;
         this.environmentType = environmentType;
         this.metadataUrl = metadataUrl;
+        this.statusMessage = statusMessage;
+        this.latestNewerAvailable = latestNewerAvailable;
+    }
+
+    get statusTitle() {
+        if (this.latestNewerAvailable) {
+            return this.latestNewerAvailable;
+        }
+
+        if (this.statusMessage) {
+            return this.statusMessage;
+        }
+
+        return "";
     }
 
     static from(json) {
@@ -48,7 +64,9 @@ class TargetStatus {
     preReleaseClass,
     intervalAgo,
     intervalAgoName,
-    deployedAtLocalTime) {
+    deployedAtLocalTime,
+    statusMessage,
+    latestNewerAvailable) {
         this.key = key;
         this.displayName = displayName;
         this.isPreReleaseVersion = isPreReleaseVersion;
@@ -57,6 +75,8 @@ class TargetStatus {
         this.intervalAgo = intervalAgo;
         this.intervalAgoName = intervalAgoName;
         this.deployedAtLocalTime = deployedAtLocalTime;
+        this.statusMessage = statusMessage;
+        this.latestNewerAvailable = latestNewerAvailable;
     }
 
     static from(json) {
@@ -109,7 +129,7 @@ async function buildApp() {
         }
 
         getTargetStatus(target).then(status => {
-            target.statusKey = `deploy-status-${status.key}`;
+            target.statusKey = status.key;
             target.statusDisplayName = status.displayName;
             target.isPreReleaseVersion = status.isPreReleaseVersion;
             target.semanticVersion = status.semanticVersion;
@@ -117,6 +137,8 @@ async function buildApp() {
             target.intervalAgo = status.intervalAgo;
             target.intervalAgoName = status.intervalAgoName;
             target.deployedAtLocalTime = status.deployedAtLocalTime;
+            target.statusMessage = status.statusMessage;
+            target.latestNewerAvailable = status.latestNewerAvailable;
         });
     });
 }

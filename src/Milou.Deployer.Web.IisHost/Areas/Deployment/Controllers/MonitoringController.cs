@@ -87,7 +87,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                         intervalAgoName = "",
                         deployedAtLocalTime = "",
                         environmentType = deploymentTarget.EnvironmentType.Name,
-                        metadataUrl = deploymentTarget.Url is null ? null : $"{deploymentTarget.Url.AbsoluteUri.TrimEnd('/')}/applicationmetadata.json"
+                        metadataUrl = deploymentTarget.Url is null ? null : $"{deploymentTarget.Url.AbsoluteUri.TrimEnd('/')}/applicationmetadata.json",
+                        statusMessage = "",
+                        latestNewerAvailabe = ""
                     };
                 });
 
@@ -133,6 +135,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 intervalAgo = appVersion.DeployedAtUtc.RelativeUtcToLocalTime(clock),
                 intervalAgoName = deploymentInterval.Name,
                 deployedAtLocalTime = appVersion.DeployedAtUtc.ToLocalTimeFormatted(clock),
+                statusMessage = appVersion.Message,
+                latestNewerAvailable = appVersion.LatestNewerAvailable?.ToNormalizedString() ?? ""
             });
         }
     }
