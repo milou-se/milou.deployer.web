@@ -11,60 +11,56 @@
 </p>
 
 <div id="app">
-
-
-<table>
-    <thead>
-    <tr>
-        <th>Edit</th>
-        <th>Target</th>
-        <th>Status</th>
-        <th>History</th>
-        <th>Message</th>
-        <th>
-            <span style="white-space: nowrap">Version</span>
-        </th>
-        <th>Deployed</th>
-        <th>
-            <span style="white-space: nowrap">Environment type</span>
-        </th>
-        <th>Metadata</th>
-        <th>Deploy</th>
-    </tr>
-    </thead>
-    <tbody>
-        <tr v-for="target in targets">
-            <td>
-                <a v-bind:href="target.editUrl">Edit</a>
-            </td>
-            <td>
-                  <a v-bind:href="target.url" v-if="target.url">{{target.name}}</a>
-            </td>
-            <td>
-                <span v-bind:class="target.statusKey">{{target.statusDisplayName}}</span>
-            </td>
-            <td>
-                <a v-bind:href="target.historyUrl">History</a>
-            </td>
-            <td></td>
-            <td>
-              </td>
-            <td class="traffic-light">
-
-            </td>
-
-            <td></td>
-            <td>
-            </td>
-            <td>
-
-
-            </td>
-        </tr>
-    }
-
-    </tbody>
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th>Edit</th>
+                <th>Target</th>
+                <th>Status</th>
+                <th>History</th>
+                <th>Message</th>
+                <th>
+                    <span style="white-space: nowrap">Version</span>
+                </th>
+                <th>Deployed</th>
+                <th>
+                    <span style="white-space: nowrap">Environment type</span>
+                </th>
+                <th>Metadata</th>
+                <th>Deploy</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="target in targets">
+                <td>
+                    <a v-bind:href="target.editUrl">Edit</a>
+                </td>
+                <td>
+                    <a v-bind:href="target.url" v-if="target.url">{{target.name}}</a>
+                </td>
+                <td>
+                    <span v-bind:class="target.statusKey">{{target.statusDisplayName}}</span>
+                </td>
+                <td>
+                    <a v-bind:href="target.historyUrl">History</a>
+                </td>
+                <td></td>
+                <td>
+                    <span v-bind:class="target.preReleaseClass">{{target.semanticVersion}}</span>
+                </td>
+                <td v-bind:class="'traffic-light ' + target.intervalAgoName">
+                    <span v-bind:title="target.deployedAtLocalTime">{{target.intervalAgo}}</span>
+                </td>
+                <td>
+                    {{target.environmentType}}
+                <td>
+                    <span v-if="target.metadataUrl"><a v-bind:href="target.metadataUrl">Metadata</a></span>
+                    <span v-else>@Milou.Deployer.Web.Core.Constants.NotAvailable</span>
+                </td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
 
 </div>
 <script src="/Scripts/Status.js"></script>

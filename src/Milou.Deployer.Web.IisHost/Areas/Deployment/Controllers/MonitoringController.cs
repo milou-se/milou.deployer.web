@@ -2,9 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers;
@@ -77,7 +80,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                         historyUrl,
                         statusKey = DeployStatus.Unknown.Key,
                         statusDisplayName = DeployStatus.Unknown.DisplayName,
-                        statusUrl
+                        statusUrl,
+                        isPreReleaseVersion = false,
+                        semanticVersion = "",
+                        preReleaseClass = "",
+                        intervalAgo = "",
+                        intervalAgoName = "",
+                        deployedAtLocalTime = "",
+                        environmentType = deploymentTarget.EnvironmentType.Name,
+                        metadataUrl = deploymentTarget.Url is null ? null : $"{deploymentTarget.Url.AbsoluteUri.TrimEnd('/')}/applicationmetadata.json"
                     };
                 });
 
@@ -89,7 +100,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         public async Task<IActionResult> Status(
             string deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
-            [FromServices] MonitoringService monitoringService)
+            [FromServices] MonitoringService monitoringService,
+            [FromServices] ICustomClock clock)
         {
             var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
@@ -110,7 +122,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             var appVersion = await monitoringService.GetAppMetadataAsync(deploymentTarget, default);
 
-            return Json(appVersion.Status);
+            var deploymentInterval = appVersion.DeployedAtUtc.IntervalAgo(clock);
+
+            return Json(new
+            {
+                displayName = appVersion.Status.DisplayName,
+                key = appVersion.Status.Key,
+                semanticVersion = appVersion.SemanticVersion?.ToNormalizedString().WithDefault(Constants.NotAvailable),
+                isPreReleaseVersion = appVersion.SemanticVersion?.IsPrerelease ?? false,
+                preReleaseClass = appVersion.PreReleaseClass,
+                intervalAgo = appVersion.DeployedAtUtc.RelativeUtcToLocalTime(clock),
+                intervalAgoName = deploymentInterval.Name,
+                deployedAtLocalTime = appVersion.DeployedAtUtc.ToLocalTimeFormatted(clock),
+            });
         }
     }
 }

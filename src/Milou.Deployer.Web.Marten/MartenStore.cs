@@ -206,7 +206,8 @@ namespace Milou.Deployer.Web.Marten
                 {
                     var targets =
                         await session.Query<DeploymentTargetData>()
-                            .ToListAsync<DeploymentTargetData>(cancellationToken);
+                            .Where(target => target.Enabled)
+                            .ToListAsync(cancellationToken);
 
                     var projects =
                         await session.Query<ProjectData>()
