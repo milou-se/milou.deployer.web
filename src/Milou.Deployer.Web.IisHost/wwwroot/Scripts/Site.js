@@ -1,4 +1,52 @@
-﻿function createSpanLogItemElement(data) {
+﻿class SemanticVersion {
+    constructor(normalized) {
+        this.normalized = normalized;
+
+        this.major = parseInt("1");
+        this.minor = parseInt("0");
+        this.patch = parseInt("0");
+    }
+
+    static parse(normalized) {
+
+        if (!normalized) {
+            return null;
+        }
+
+        return new SemanticVersion(normalized);
+    }
+
+    static compare(left, right) {
+
+        if (right.major > left.major) {
+            return 1;
+        }
+
+        if (right.major < left.major) {
+            return -1;
+        }
+
+        if (right.minor > left.minor) {
+            return 1;
+        }
+
+        if (right.minor < left.minor) {
+            return -1;
+        }
+
+        if (right.patch > left.patch) {
+            return 1;
+        }
+
+        if (right.patch < left.patch) {
+            return -1;
+        }
+
+        return 0;
+    }
+}
+
+function createSpanLogItemElement(data) {
 
     const eventData = JSON.parse(data);
 
@@ -116,29 +164,29 @@ $(function() {
 
     });
 
-    function compareSemVer(orignal, newer) {
+    function compareSemVer(original, newer) {
 
-        if (newer.major > orignal.major) {
+        if (newer.major > original.major) {
             return 1;
         }
 
-        if (newer.major < orignal.major) {
+        if (newer.major < original.major) {
             return -1;
         }
 
-        if (newer.minor > orignal.minor) {
+        if (newer.minor > original.minor) {
             return 1;
         }
 
-        if (newer.minor < orignal.minor) {
+        if (newer.minor < original.minor) {
             return -1;
         }
 
-        if (newer.patch > orignal.patch) {
+        if (newer.patch > original.patch) {
             return 1;
         }
 
-        if (newer.patch < orignal.patch) {
+        if (newer.patch < original.patch) {
             return -1;
         }
 

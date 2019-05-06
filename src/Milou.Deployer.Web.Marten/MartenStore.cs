@@ -29,7 +29,8 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<DeploymentHistoryRequest, DeploymentHistoryResponse>,
         IRequestHandler<DeploymentLogRequest, DeploymentLogResponse>,
         IRequestHandler<RemoveTarget, Unit>,
-        IRequestHandler<EnableTarget, Unit>
+        IRequestHandler<EnableTarget, Unit>,
+        IRequestHandler<DisableTarget, Unit>
     {
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
@@ -395,7 +396,6 @@ namespace Milou.Deployer.Web.Marten
                 data.TargetDirectory = request.TargetDirectory;
                 data.WebConfigTransform = request.WebConfigTransform;
                 data.ExcludedFilePatterns = request.ExcludedFilePatterns;
-                data.Enabled = request.Enabled;
                 data.EnvironmentType = request.EnvironmentType.Name;
                 session.Store(data);
 
@@ -432,6 +432,27 @@ namespace Milou.Deployer.Web.Marten
                 }
 
                 deploymentTargetData.Enabled = true;
+
+                session.Store(deploymentTargetData);
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            return Unit.Value;
+        }
+
+        public async Task<Unit> Handle(DisableTarget request, CancellationToken cancellationToken)
+        {
+            using (var session = _documentStore.OpenSession())
+            {
+                var deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+
+                if (deploymentTargetData is null)
+                {
+                    return Unit.Value;
+                }
+
+                deploymentTargetData.Enabled = false;
 
                 session.Store(deploymentTargetData);
 

@@ -421,16 +421,4 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             _disposing = false;
         }
     }
-
-    public class ServiceProviderHolder
-    {
-        public IServiceProvider ServiceProvider { get; }
-        public IServiceCollection ServiceCollection { get; }
-
-        public ServiceProviderHolder(IServiceProvider serviceProvider, IServiceCollection serviceCollection)
-        {
-            ServiceProvider = serviceProvider;
-            ServiceCollection = serviceCollection;
-        }
-    }
 }

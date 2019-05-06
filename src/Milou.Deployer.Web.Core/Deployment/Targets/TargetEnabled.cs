@@ -2,9 +2,9 @@
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
-    public class EnableTarget : IRequest
+    public class TargetEnabled : INotification
     {
-        public EnableTarget(string targetId)
+        public TargetEnabled(string targetId)
         {
             TargetId = targetId;
         }

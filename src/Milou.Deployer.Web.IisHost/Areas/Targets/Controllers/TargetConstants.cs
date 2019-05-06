@@ -44,6 +44,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 
         public const string EnableTargetPostRouteName = nameof(EnableTargetPostRoute);
 
+        public const string DisableTargetPostRoute = "/target/disable";
+
+        public const string DisableTargetPostRouteName = nameof(DisableTargetPostRoute);
+
         public const string DisabledTargetsRoute = "/targets/enabled";
 
         public const string DisabledTargetsRouteName = nameof(DisabledTargetsRoute);

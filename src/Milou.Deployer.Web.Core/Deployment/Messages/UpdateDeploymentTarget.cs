@@ -19,7 +19,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string targetDirectory = null,
             string webConfigTransform = null,
             string excludedFilePatterns = null,
-            bool enabled = false,
             string environmentType = null)
         {
             Id = id;
@@ -27,7 +26,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             Url = url;
             PackageId = packageId;
             ExcludedFilePatterns = excludedFilePatterns;
-            Enabled = enabled;
             IisSiteName = iisSiteName;
             NugetPackageSource = nugetPackageSource;
             NugetConfigFile = nugetConfigFile;
@@ -64,7 +62,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public string PackageId { get; }
 
         public string ExcludedFilePatterns { get; }
-        public bool Enabled { get; }
 
         public override string ToString()
         {

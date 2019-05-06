@@ -23,6 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly BlockingCollection<DeploymentTask> _taskQueue = new BlockingCollection<DeploymentTask>();
         private readonly WorkerConfiguration _workerConfiguration;
         private readonly TimeoutHelper _timeoutHelper;
+        private bool _isExecuting;
 
         public DeploymentTargetWorker(
             [NotNull] string targetId,
@@ -49,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private async Task StartTaskMessageHandler(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            while (!stoppingToken.IsCancellationRequested && _isExecuting)
             {
                 var deploymentTask = _taskQueue.Take(stoppingToken);
 
@@ -75,9 +76,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private async Task StartProcessingAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            while (!stoppingToken.IsCancellationRequested && _isExecuting)
             {
                 var deploymentTask = _queue.Take(stoppingToken);
+
+                if (!_isExecuting)
+                {
+                    return;
+                }
 
                 _currentTask = deploymentTask;
 
@@ -180,15 +186,27 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
+        public async Task StopAsync(CancellationToken stoppingToken)
+        {
+            _isExecuting = false;
+        }
+
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            if (_isExecuting)
+            {
+                return;
+            }
+
             var messageTask = Task.Run(() => StartTaskMessageHandler(stoppingToken), stoppingToken);
             await StartProcessingAsync(stoppingToken);
+            _isExecuting = true;
             await messageTask;
         }
 
         public void Dispose()
         {
+            _isExecuting = false;
             _queue?.Dispose();
             _taskQueue?.Dispose();
         }

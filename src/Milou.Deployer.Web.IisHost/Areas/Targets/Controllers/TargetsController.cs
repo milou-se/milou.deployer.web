@@ -142,6 +142,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             return Redirect("/");
         }
 
+        [Route(TargetConstants.DisableTargetPostRoute, Name = TargetConstants.DisableTargetPostRouteName)]
+        [HttpPost]
+        public async Task<IActionResult> Disable(
+            [FromBody] DisableTarget disableTarget,
+            [FromServices] IMediator mediator)
+        {
+            await mediator.Send(disableTarget);
+
+            return Redirect("/");
+        }
+
         [Route(TargetConstants.DisabledTargetsRoute, Name = TargetConstants.DisabledTargetsRouteName)]
         [HttpGet]
         public async Task<IActionResult> Disabled(

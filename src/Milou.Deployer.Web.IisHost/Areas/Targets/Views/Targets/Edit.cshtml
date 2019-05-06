@@ -27,13 +27,6 @@ else
                 <input id="target-name" type="text" name="name" readonly="readonly" value="@Model.DeploymentTarget.Name"/>
             </div>
 
-
-            <div class="input-field">
-                <label for="target-enabled">Enabled</label>
-                <input id="target-enabled" type="checkbox" name="enabled" @(Model.DeploymentTarget.Enabled ? "checked=\"checked\"" : "") value="true"/>
-            </div>
-
-
             <div class="input-field">
                 <label for="target-url">URL</label>
                 <input id="target-url" type="text" name="url" value="@Model.DeploymentTarget.Url"/>

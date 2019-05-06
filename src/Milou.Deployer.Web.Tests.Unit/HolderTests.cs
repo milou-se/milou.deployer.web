@@ -1,22 +1,10 @@
 ﻿using Arbor.KVConfiguration.Urns;
-using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit
 {
-    [UsedImplicitly]
-    internal class EnvironmentConsumer
-    {
-        public EnvironmentConsumer(EnvironmentConfiguration environmentConfiguration)
-        {
-            EnvironmentConfiguration = environmentConfiguration;
-        }
-
-        public EnvironmentConfiguration EnvironmentConfiguration { get; }
-    }
-
     public class HolderTests
     {
         [Fact]

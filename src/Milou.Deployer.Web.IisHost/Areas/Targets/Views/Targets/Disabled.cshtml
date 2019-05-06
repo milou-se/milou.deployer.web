@@ -28,7 +28,13 @@
             <td>
                 @if (target.Enabled)
                 {
-                    <span>Enabled</span>
+                    <form method="post" action="@Url.RouteUrl(TargetConstants.DisableTargetPostRouteName)">
+
+                        <input type="hidden" name="targetId" value="@target.Id"/>
+
+                        <input type="submit" value="Disable"/>
+
+                    </form>
                 }
                 else
                 {
