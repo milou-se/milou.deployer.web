@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [HttpGet]
         [Route("~/status")]
-        public async Task<IActionResult> Status(CancellationToken cancellationToken)
+        public IActionResult Status()
         {
             return View();
         }

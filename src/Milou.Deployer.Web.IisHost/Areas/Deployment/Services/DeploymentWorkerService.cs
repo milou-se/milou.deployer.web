@@ -201,7 +201,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
                 catch (ObjectDisposedException)
                 {
-
                 }
             }
         }

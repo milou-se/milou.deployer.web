@@ -197,9 +197,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        public async Task StopAsync(CancellationToken stoppingToken)
+        public Task StopAsync(CancellationToken stoppingToken)
         {
             IsExecuting = false;
+            return Task.CompletedTask;
         }
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
-using MediatR.Pipeline;
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
