@@ -40,7 +40,7 @@
     {
         <tr>
             <td>
-                <a href="@Url.RouteUrl(TargetConstants.EditTargetRouteName, new { targetId = item.Target.Id })">@item.Target.Name</a>
+                <a href="@Url.RouteUrl(TargetConstants.EditTargetRouteName, new { deploymentTargetId = item.Target.Id })">@item.Target.Name</a>
             </td>
             <td>
                 @if (item.Target.Url.HasValue())
