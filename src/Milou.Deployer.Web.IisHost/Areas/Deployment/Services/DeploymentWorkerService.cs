@@ -15,7 +15,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
-    public class DeploymentWorkerService : BackgroundService,
+    public sealed class DeploymentWorkerService : BackgroundService,
         INotificationHandler<WorkerCreated>,
         INotificationHandler<TargetEnabled>,
         INotificationHandler<TargetDisabled>,
@@ -24,6 +24,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly ILogger _logger;
         private readonly Dictionary<string, Task> _tasks;
+        private readonly Dictionary<string, CancellationTokenSource> _cancellations;
 
         public DeploymentWorkerService(
             ConfigurationInstanceHolder configurationInstanceHolder,
@@ -32,6 +33,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _configurationInstanceHolder = configurationInstanceHolder;
             _logger = logger;
             _tasks = new Dictionary<string, Task>();
+            _cancellations = new Dictionary<string, CancellationTokenSource>();
         }
 
         private DeploymentTargetWorker GetWorkerByTargetId([NotNull] string targetId)
@@ -104,7 +106,43 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private void StartWorker(DeploymentTargetWorker deploymentTargetWorker, CancellationToken stoppingToken)
         {
-            _tasks.Add(deploymentTargetWorker.TargetId, Task.Run(() => deploymentTargetWorker.ExecuteAsync(stoppingToken), stoppingToken));
+            if (_tasks.ContainsKey(deploymentTargetWorker.TargetId))
+            {
+                if (deploymentTargetWorker.IsExecuting)
+                {
+                    return;
+                }
+
+                var task = _tasks[deploymentTargetWorker.TargetId];
+
+                if (!task.IsCompleted)
+                {
+                    if (_cancellations.ContainsKey(deploymentTargetWorker.TargetId))
+                    {
+                        var tokenSource = _cancellations[deploymentTargetWorker.TargetId];
+                        try
+                        {
+                            tokenSource.Cancel();
+                            tokenSource.Dispose();
+                        }
+                        catch (ObjectDisposedException)
+                        {
+                        }
+
+                        _cancellations.Remove(deploymentTargetWorker.TargetId);
+                    }
+                }
+
+                _tasks.Remove(deploymentTargetWorker.TargetId);
+            }
+
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+            var linked = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken, cancellationTokenSource.Token);
+
+            _cancellations.TryAdd(deploymentTargetWorker.TargetId, cancellationTokenSource);
+
+            _tasks.Add(deploymentTargetWorker.TargetId, Task.Run(() => deploymentTargetWorker.ExecuteAsync(linked.Token), linked.Token));
         }
 
         public Task Handle(WorkerCreated notification, CancellationToken cancellationToken)
@@ -121,7 +159,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 _logger.Warning("Could not get worker for target id {TargetId}", notification.TargetId);
                 return Task.CompletedTask;
             }
+
             StartWorker(worker, cancellationToken);
+
             return Task.CompletedTask;
         }
 
@@ -147,6 +187,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private async Task StopWorkerAsync(DeploymentTargetWorker worker, CancellationToken cancellationToken)
         {
             await worker.StopAsync(cancellationToken);
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+            foreach (CancellationTokenSource cancellationTokenSource in _cancellations.Values)
+            {
+                try
+                {
+                    cancellationTokenSource.Cancel();
+                    cancellationTokenSource.Dispose();
+                }
+                catch (ObjectDisposedException)
+                {
+
+                }
+            }
         }
     }
 }

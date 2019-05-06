@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly BlockingCollection<DeploymentTask> _taskQueue = new BlockingCollection<DeploymentTask>();
         private readonly WorkerConfiguration _workerConfiguration;
         private readonly TimeoutHelper _timeoutHelper;
-        private bool _isExecuting;
+        public bool IsExecuting { get; private set; }
 
         public DeploymentTargetWorker(
             [NotNull] string targetId,
@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private async Task StartTaskMessageHandler(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested && _isExecuting)
+            while (!stoppingToken.IsCancellationRequested && IsExecuting)
             {
                 var deploymentTask = _taskQueue.Take(stoppingToken);
 
@@ -76,11 +76,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private async Task StartProcessingAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested && _isExecuting)
+            while (!stoppingToken.IsCancellationRequested && IsExecuting)
             {
                 var deploymentTask = _queue.Take(stoppingToken);
 
-                if (!_isExecuting)
+                if (!IsExecuting)
                 {
                     return;
                 }
@@ -121,7 +121,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 _currentTask = null;
             }
 
-            _queue?.Dispose();
+            while (_queue.Count > 0)
+            {
+                try
+                {
+                    _queue.Take();
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Could not clear queue");
+                }
+            }
         }
 
         public void Enqueue([NotNull] DeploymentTask deploymentTask)
@@ -155,8 +165,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         return;
                     }
 
-                    if (deploymentTask.StartedBy.Equals(nameof(AutoDeployBackgroundService),
-                        StringComparison.OrdinalIgnoreCase))
+                    if (deploymentTask.StartedBy != null
+                        && deploymentTask.StartedBy.Equals(nameof(AutoDeployBackgroundService),
+                            StringComparison.OrdinalIgnoreCase))
                     {
                         if (tasksInQueue.Length > 0 && tasksInQueue.Any(queued => queued.StartedBy.Equals(
                                 nameof(AutoDeployBackgroundService),
@@ -188,25 +199,25 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public async Task StopAsync(CancellationToken stoppingToken)
         {
-            _isExecuting = false;
+            IsExecuting = false;
         }
 
         public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (_isExecuting)
+            if (IsExecuting)
             {
                 return;
             }
 
+            IsExecuting = true;
             var messageTask = Task.Run(() => StartTaskMessageHandler(stoppingToken), stoppingToken);
             await StartProcessingAsync(stoppingToken);
-            _isExecuting = true;
             await messageTask;
         }
 
         public void Dispose()
         {
-            _isExecuting = false;
+            IsExecuting = false;
             _queue?.Dispose();
             _taskQueue?.Dispose();
         }
