@@ -52,7 +52,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
 
                     var httpLoggingConfiguration = serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
 
-                    services.AddDeploymentAuthentication(openIdConnectConfiguration)
+                    services.AddDeploymentAuthentication(openIdConnectConfiguration, logger)
                         .AddDeploymentAuthorization(environmentConfiguration)
                         .AddDeploymentHttpClients(httpLoggingConfiguration)
                         .AddDeploymentSignalR()

@@ -46,15 +46,18 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return services;
         }
 
-        public static IServiceCollection AddDeploymentAuthentication(
-            this IServiceCollection serviceCollection,
-            CustomOpenIdConnectConfiguration openIdConnectConfiguration)
+        public static IServiceCollection AddDeploymentAuthentication(this IServiceCollection serviceCollection,
+            CustomOpenIdConnectConfiguration openIdConnectConfiguration, ILogger logger)
         {
             var authenticationBuilder = serviceCollection.AddAuthentication(
                 option =>
                 {
                     option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+
+                    if (openIdConnectConfiguration?.Enabled == true)
+                    {
+                        option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                    }
                 }).AddCookie();
 
             if (openIdConnectConfiguration?.Enabled == true)
@@ -79,6 +82,14 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
                             throw new InvalidOperationException("Invalid issuer");
                         };
+
+                        openIdConnectOptions.Events.OnRemoteFailure = context =>
+                        {
+                            logger.Error(context.Failure, "Remote call to OpenIDConnect {Uri} failed", context.Options.Backchannel.BaseAddress);
+
+                            return Task.CompletedTask;
+                        };
+
                         openIdConnectOptions.Events.OnRedirectToIdentityProvider = context =>
                         {
                             if (openIdConnectConfiguration.RedirectUri.HasValue())
