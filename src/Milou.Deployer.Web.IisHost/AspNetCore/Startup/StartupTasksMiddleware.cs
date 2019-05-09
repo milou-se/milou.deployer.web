@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Milou.Deployer.Web.Core.Startup;
 
@@ -8,6 +11,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
     {
         private readonly StartupTaskContext _context;
         private readonly RequestDelegate _next;
+        private readonly PathString _startupSegment = new PathString("/startup");
 
         public StartupTasksMiddleware(StartupTaskContext context, RequestDelegate next)
         {
@@ -17,16 +21,16 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
         public async Task Invoke(HttpContext httpContext)
         {
-            if (_context.IsCompleted)
+            if (_context.IsCompleted || httpContext.Request.Path.StartsWithSegments(_startupSegment, StringComparison.OrdinalIgnoreCase))
             {
                 await _next(httpContext);
             }
             else
             {
                 var response = httpContext.Response;
-                response.StatusCode = 503;
-                response.Headers["Retry-After"] = "30";
-                await response.WriteAsync("Service Unavailable, application is starting up");
+                response.StatusCode = (int)HttpStatusCode.TemporaryRedirect;
+
+                response.Headers.TryAdd("location", _startupSegment.Value);
             }
         }
     }
