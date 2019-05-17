@@ -87,6 +87,10 @@ else
                 <label for="target-nugetPackageSource">NuGet package source</label>
                 <input id="target-nugetPackageSource" type="text" name="nugetPackageSource" value="@Model.DeploymentTarget.NuGetPackageSource"/>
             </div>
+            <div class="input-field">
+                <label for="target-packageListTimeout">Timeout</label>
+                <input id="target-packageListTimeout" type="text" name="packageListTimeout" value="@Model.DeploymentTarget.PackageListTimeout?.ToString()"/>
+            </div>
         </fieldset>
         <div class="input-field">
             <label for="target-publishSettingsXml">Publish settings XML</label>

@@ -40,7 +40,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             string iisSiteName = default,
             string webConfigTransform = default,
             string excludedFilePatterns = default,
-            bool enabled = false)
+            bool enabled = false,
+            TimeSpan? packageListTimeout = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -64,6 +65,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             WebConfigTransform = webConfigTransform;
             ExcludedFilePatterns = excludedFilePatterns;
             Enabled = enabled;
+            PackageListTimeout = packageListTimeout;
             Organization = organization ?? string.Empty;
             ProjectInvariantName = project ?? string.Empty;
             Name = name;
@@ -130,6 +132,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string NuGetConfigFile { get; }
 
         public string NuGetPackageSource { get; }
+
+        public TimeSpan? PackageListTimeout { get; }
 
         public override string ToString()
         {

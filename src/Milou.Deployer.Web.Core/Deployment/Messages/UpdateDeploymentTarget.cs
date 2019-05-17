@@ -19,7 +19,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string targetDirectory = null,
             string webConfigTransform = null,
             string excludedFilePatterns = null,
-            string environmentType = null)
+            string environmentType = null,
+            string packageListTimeout = null)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
@@ -35,6 +36,11 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             WebConfigTransform = webConfigTransform;
             IsValid = !string.IsNullOrWhiteSpace(Id);
             EnvironmentType = EnvironmentType.Parse(environmentType);
+
+            if (TimeSpan.TryParse(packageListTimeout, out TimeSpan timeout) && timeout.TotalSeconds > 0.5D)
+            {
+                PackageListTimeout = timeout;
+            }
         }
 
         public EnvironmentType EnvironmentType { get; }
@@ -70,5 +76,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         }
 
         public bool IsValid { get; }
+
+        public TimeSpan? PackageListTimeout { get; }
     }
 }

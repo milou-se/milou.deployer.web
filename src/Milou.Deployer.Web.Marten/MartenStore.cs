@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -93,7 +94,8 @@ namespace Milou.Deployer.Web.Marten
                     webConfigTransform: deploymentTargetData.WebConfigTransform,
                     excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
                     environmentType: deploymentTargetData.EnvironmentType,
-                    enabled: deploymentTargetData.Enabled);
+                    enabled: deploymentTargetData.Enabled,
+                    packageListTimeout: deploymentTargetData.PackageListTimeout);
             }
             catch (Exception ex)
             {
@@ -397,6 +399,7 @@ namespace Milou.Deployer.Web.Marten
                 data.WebConfigTransform = request.WebConfigTransform;
                 data.ExcludedFilePatterns = request.ExcludedFilePatterns;
                 data.EnvironmentType = request.EnvironmentType.Name;
+                data.PackageListTimeout = request.PackageListTimeout;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);

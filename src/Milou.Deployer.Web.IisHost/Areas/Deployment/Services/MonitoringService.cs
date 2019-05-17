@@ -92,6 +92,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTarget target,
             CancellationToken cancellationToken)
         {
+            CancellationTokenSource cancellationTokenSource = null;
+            if (target.PackageListTimeout.HasValue)
+            {
+                cancellationTokenSource = new CancellationTokenSource(target.PackageListTimeout.Value);
+                cancellationToken = cancellationTokenSource.Token;
+            }
+
             try
             {
                 var allPackageVersions =
@@ -128,6 +135,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             {
                 _logger.Error(ex, "Could not get allowed packages for target {Target}", target.Id);
                 return ImmutableArray<PackageVersion>.Empty;
+            }
+            finally
+            {
+                cancellationTokenSource?.Dispose();
             }
         }
 
