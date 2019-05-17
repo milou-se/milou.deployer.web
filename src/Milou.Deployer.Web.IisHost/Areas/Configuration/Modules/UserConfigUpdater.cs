@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.Urns;
+using Baseline.Reflection;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Validation;
@@ -41,7 +43,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
         private void WatcherOnChanged(object sender, FileSystemEventArgs fileSystemEventArgs)
         {
-            var types = _configurationHolder.RegisteredTypes;
+            if (!File.Exists(_fileName))
+            {
+                return;
+            }
+
+            var types = _configurationHolder.RegisteredTypes
+                .Where(type => type.HasAttribute<UrnAttribute>())
+                .ToArray();
 
             var jsonKeyValueConfiguration = new JsonKeyValueConfiguration(_fileName);
 
