@@ -46,19 +46,29 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return services;
         }
 
-        public static IServiceCollection AddDeploymentAuthentication(this IServiceCollection serviceCollection,
-            CustomOpenIdConnectConfiguration openIdConnectConfiguration, ILogger logger)
+        public static IServiceCollection AddDeploymentAuthentication(
+            this IServiceCollection serviceCollection,
+            CustomOpenIdConnectConfiguration openIdConnectConfiguration,
+            MilouAuthenticationConfiguration milouAuthenticationConfiguration,
+            ILogger logger,
+            EnvironmentConfiguration environmentConfiguration)
         {
-            var authenticationBuilder = serviceCollection.AddAuthentication(
-                option =>
-                {
-                    option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-
-                    if (openIdConnectConfiguration?.Enabled == true)
+            var authenticationBuilder = serviceCollection
+                .AddAuthentication(
+                    option =>
                     {
-                        option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-                    }
-                }).AddCookie();
+                        option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
+                        if (openIdConnectConfiguration?.Enabled == true)
+                        {
+                            option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                        }
+                        else
+                        {
+                            option.DefaultAuthenticateScheme = MilouAuthenticationConstants.MilouAuthenticationScheme;
+                        }
+                    })
+                .AddCookie();
 
             if (openIdConnectConfiguration?.Enabled == true)
             {
@@ -92,21 +102,36 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
                         openIdConnectOptions.Events.OnRedirectToIdentityProvider = context =>
                         {
-                            if (openIdConnectConfiguration.RedirectUri.HasValue())
+                            var redirectUrl = new Uri("http://localhost/signin-oidc");
+
+                            UriBuilder builder = new UriBuilder(redirectUrl);
+
+                            if (!string.IsNullOrWhiteSpace(environmentConfiguration.PublicHostname))
                             {
-                                context.ProtocolMessage.RedirectUri =
-                                    openIdConnectConfiguration.RedirectUri.AbsoluteUri;
+                                builder.Host = environmentConfiguration.PublicHostname;
                             }
+
+                            if (environmentConfiguration.PublicPortIsHttps == true
+                                && environmentConfiguration.HttpsPort.HasValue)
+                            {
+                                builder.Scheme = "https";
+                                builder.Port = environmentConfiguration.HttpsPort.Value;
+                            }
+
+                            context.ProtocolMessage.RedirectUri = builder.Uri.AbsoluteUri;
 
                             return Task.CompletedTask;
                         };
                     });
             }
 
-            authenticationBuilder.AddMilouAuthentication(
-                MilouAuthenticationConstants.MilouAuthenticationScheme,
-                "Milou",
-                options => { });
+            if (milouAuthenticationConfiguration?.Enabled == true)
+            {
+                authenticationBuilder.AddMilouAuthentication(
+                    MilouAuthenticationConstants.MilouAuthenticationScheme,
+                    "Milou",
+                    options => { });
+            }
 
             return serviceCollection;
         }

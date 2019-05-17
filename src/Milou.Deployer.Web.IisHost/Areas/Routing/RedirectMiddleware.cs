@@ -47,6 +47,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
                         return;
                     }
 
+                    if (!_environmentConfiguration.PublicHostname.Equals(values, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return;
+                    }
+
                     var uri = new Uri(values, UriKind.RelativeOrAbsolute);
 
                     if (!uri.IsAbsoluteUri)
@@ -64,9 +69,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
                         builder.Port = _environmentConfiguration.PublicPort.Value;
                     }
 
-                    if (_environmentConfiguration.PublicPortIsHttps)
+                    if (_environmentConfiguration.PublicPortIsHttps == true)
                     {
                         builder.Scheme = "https";
+                    }
+                    else if (_environmentConfiguration.PublicPortIsHttps == false)
+                    {
+                        builder.Scheme = "http";
                     }
 
                     context.Response.Headers.Remove(LocationHeader);

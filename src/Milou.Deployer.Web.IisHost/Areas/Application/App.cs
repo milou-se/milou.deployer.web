@@ -21,6 +21,7 @@ using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
+using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -202,6 +203,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 appLogger.Fatal(ex, "Could not initialize container registrations");
                 throw;
             }
+
+            configurationInstanceHolder.AddInstance(new ApplicationEnvironmentConfigurator(configuration));
 
             EnvironmentConfigurator.ConfigureEnvironment(configurationInstanceHolder);
 

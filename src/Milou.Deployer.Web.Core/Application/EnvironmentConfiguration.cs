@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.Core.Application
         public int? PublicPort { get; set; }
 
         [PublicAPI]
-        public bool PublicPortIsHttps { get; set; }
+        public bool? PublicPortIsHttps { get; set; }
 
         [PublicAPI]
         public int? HttpPort { get; set; }

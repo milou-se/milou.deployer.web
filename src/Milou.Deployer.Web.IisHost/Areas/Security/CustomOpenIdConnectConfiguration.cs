@@ -20,8 +20,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             string authority,
             string metadataAddress,
             string issuer,
-            bool enabled,
-            string redirectUri)
+            bool enabled)
         {
             ClientId = clientId;
             ClientSecret = clientSecret;
@@ -29,11 +28,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             MetadataAddress = metadataAddress;
             Issuer = issuer;
             Enabled = enabled;
-            if (Uri.TryCreate(redirectUri, UriKind.Absolute, out Uri uri))
-            {
-                RedirectUri = uri;
-            }
-
             IsValid = !enabled || (!string.IsNullOrWhiteSpace(clientId)
                                    && !string.IsNullOrWhiteSpace(clientSecret)
                                    && (!string.IsNullOrWhiteSpace(authority) ||
@@ -51,8 +45,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
         public string Issuer { get; }
 
         public bool Enabled { get; }
-
-        public Uri RedirectUri { get; }
 
         public bool IsValid { get; }
     }

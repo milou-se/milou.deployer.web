@@ -3,6 +3,7 @@ using Milou.Deployer.Web.Core.Startup;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Startup
 {
+    [Area(StartupConstants.AreaName)]
     public class StartupController : Controller
     {
         [Route("~/startup")]

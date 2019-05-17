@@ -43,16 +43,16 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
                         services.Add(serviceDescriptor);
                     }
 
-                    //services.AddSingleton(logger);
                     services.AddSingleton(environmentConfiguration);
-                    //services.AddSingleton(configuration);
                     services.AddHttpClient();
 
                     var openIdConnectConfiguration = serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
 
                     var httpLoggingConfiguration = serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
 
-                    services.AddDeploymentAuthentication(openIdConnectConfiguration, logger)
+                    var milouAuthenticationConfiguration = serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
+
+                    services.AddDeploymentAuthentication(openIdConnectConfiguration, milouAuthenticationConfiguration, logger, environmentConfiguration)
                         .AddDeploymentAuthorization(environmentConfiguration)
                         .AddDeploymentHttpClients(httpLoggingConfiguration)
                         .AddDeploymentSignalR()

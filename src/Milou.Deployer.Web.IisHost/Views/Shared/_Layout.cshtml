@@ -1,10 +1,12 @@
-﻿@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
+﻿@using Milou.Deployer.Web.Core.Startup
+@using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 @using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@inject StartupTaskContext StartupContext
 <!DOCTYPE html>
 <html>
 <head>
-    @RenderSectionAsync("headerTop", false);
+    @RenderSection("headerTop", false)
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Milou NuGet Web Package Deployment</title>
@@ -23,18 +25,21 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li>
-                    <a href="/@Url.RouteUrl(TargetConstants.TargetsRoute)">Targets</a>
-                </li>
-                <li>
-                    <a href="/@MonitoringController.BaseRoute">Monitor and deploy</a>
-                </li>
-                <li>
-                    <a href="@Url.RouteUrl(TargetConstants.DisabledTargetsRouteName)">Enable targets</a>
-                </li>
-                <li>
-                    <a href="/@SettingsController.BaseRoute">Settings</a>
-                </li>
+                @if (StartupContext.IsCompleted)
+                {
+                    <li>
+                        <a href="/@Url.RouteUrl(TargetConstants.TargetsRoute)">Targets</a>
+                    </li>
+                    <li>
+                        <a href="/@MonitoringController.BaseRoute">Monitor and deploy</a>
+                    </li>
+                    <li>
+                        <a href="@Url.RouteUrl(TargetConstants.DisabledTargetsRouteName)">Enable targets</a>
+                    </li>
+                    <li>
+                        <a href="/@SettingsController.BaseRoute">Settings</a>
+                    </li>
+                }
             </ul>
         </div>
     </div>

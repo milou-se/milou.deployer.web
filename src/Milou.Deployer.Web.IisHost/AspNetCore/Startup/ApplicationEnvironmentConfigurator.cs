@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Net;
 using Arbor.KVConfiguration.Core;
@@ -54,12 +55,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             if (int.TryParse(_keyValueConfiguration[ApplicationConstants.HttpPort], out var httpPort) && port >= 0)
             {
                 environmentConfiguration.HttpPort = httpPort;
-
-                if (int.TryParse(_keyValueConfiguration[ApplicationConstants.HttpsPort], out var httpsPort) &&
-                    httpsPort >= 0)
-                {
-                    environmentConfiguration.HttpsPort = httpsPort;
-                }
             }
             else if (bool.TryParse(_keyValueConfiguration[ApplicationConstants.UseExplicitPorts],
                 out var useExplicitPorts))
@@ -67,10 +62,29 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                 environmentConfiguration.UseExplicitPorts = useExplicitPorts;
             }
 
+            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.HttpsPort], out var httpsPort) &&
+                httpsPort >= 0)
+            {
+                environmentConfiguration.HttpsPort = httpsPort;
+            }
+
             if (int.TryParse(_keyValueConfiguration[ApplicationConstants.ProxyForwardLimit], out var proxyLimit) &&
                 proxyLimit >= 0)
             {
                 environmentConfiguration.ForwardLimit = proxyLimit;
+            }
+
+            var pfxFile = _keyValueConfiguration[ApplicationConstants.PfxFile];
+            var pfxPassword = _keyValueConfiguration[ApplicationConstants.PfxPassword];
+
+            if (!string.IsNullOrWhiteSpace(pfxFile) && File.Exists(pfxFile))
+            {
+                environmentConfiguration.PfxFile = pfxFile;
+            }
+
+            if (!string.IsNullOrWhiteSpace(pfxPassword))
+            {
+                environmentConfiguration.PfxPassword = pfxPassword;
             }
         }
     }
