@@ -235,3 +235,4 @@ pip-log.txt
 **/nCrunchTemp_*
 NuGet.Config
 src/Milou.Deployer.Web.IisHost/settings.*.json
+tools/DevRootCert.txt
