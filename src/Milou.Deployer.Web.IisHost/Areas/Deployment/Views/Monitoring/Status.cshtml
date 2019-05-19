@@ -1,5 +1,7 @@
-﻿@using Milou.Deployer.Web.Core.Time
+﻿@using Milou.Deployer.Core.Deployment
+@using Milou.Deployer.Web.Core.Time
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@using DeploymentConstants = Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentConstants
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.MonitoringViewOutputModel
 @inject ICustomClock Time;
 <h2>Deployed monitored applications</h2>
@@ -55,10 +57,56 @@
                     <span v-if="target.metadataUrl"><a v-bind:href="target.metadataUrl">Metadata</a></span>
                     <span v-else>@Milou.Deployer.Web.Core.Constants.NotAvailable</span>
                 </td>
-                <td></td>
+                <td>
+                    <div v-if="target.deployEnabled && target.packages.length > 0">
+
+                        <form method="post" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)"> @*v-on:submit.prevent*@
+                            <input type="hidden" name="targetId" v-bind:value="target.targetId" />
+
+                            <span class="package-select">
+                                <select class="packageVersionSelect" v-model="target.selectedPackage">
+
+                                    <option v-for="(package, index) in target.packages" v-bind:value="index">{{package.packageId}} {{package.version}}</option>
+
+                                </select>
+
+                            </span>
+
+                            <label class="modal-button-trigger" v-bind:for="'modal_' + target.targetId">Deploy...</label>
+
+                            <input class="modal-state" v-bind:id="'modal_' + target.targetId" type="checkbox" />
+                            <div class="modal">
+                                <label class="modal__bg" v-bind:for="'modal_' + target.targetId"></label>
+                                <div class="modal__inner">
+                                    <label class="modal__close" v-bind:for="'modal_' + target.targetId"></label>
+
+                                    <template v-if="target.selectedPackage >= 0">
+                                        <h3>{{target.packages[target.selectedPackage].packageId}}</h3>
+
+                                        <h4>Version {{target.packages[target.selectedPackage].version}}</h4>
+
+                                        <p v-if="target.packages[target.selectedPackage].preReleaseWarning">Warning</p>
+
+                                        <p v-if="target.packages[target.selectedPackage].isNewer">Package is newer than the currently deployed version {{target.semanticVersion}}</p>
+                                        <p v-else-if="target.packages[target.selectedPackage].isCurrent">Current version is already deployed</p>
+                                        <p v-else>Warning! Package is older than the currently deployed version {{target.semanticVersion}}</p>
+
+                                        <input type="hidden" name="packageId" v-bind:value="target.packages[target.selectedPackage].packageId" />
+                                        <input type="hidden" name="version" v-bind:value="target.packages[target.selectedPackage].version" />
+                                    </template>
+
+                                    <button v-on:click="deployPackageVersion" type="submit" class="deploy-button-v">Deploy</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div v-else></div>
+                </td>
             </tr>
         </tbody>
     </table>
 
 </div>
+
 <script src="/Scripts/Status.js"></script>

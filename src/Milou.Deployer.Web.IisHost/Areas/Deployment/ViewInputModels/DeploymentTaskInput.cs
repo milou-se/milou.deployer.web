@@ -1,4 +1,4 @@
-using JetBrains.Annotations;
+﻿using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.ViewInputModels
 {
@@ -7,6 +7,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.ViewInputModels
     {
         public string TargetId { get; set; }
 
-        public string PackageVersion { get; set; }
+        public string PackageId { get; set; }
+
+        public string Version { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -89,7 +90,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                         environmentType = deploymentTarget.EnvironmentType.Name,
                         metadataUrl = deploymentTarget.Url is null ? null : $"{deploymentTarget.Url.AbsoluteUri.TrimEnd('/')}/applicationmetadata.json",
                         statusMessage = "",
-                        latestNewerAvailabe = ""
+                        latestNewerAvailabe = "",
+                        deployEnabled = deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
+                        packages = Array.Empty<object>()
                     };
                 });
 
@@ -125,18 +128,39 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             var deploymentInterval = appVersion.DeployedAtUtc.IntervalAgo(clock);
 
+            var selectedPackageIndex = appVersion.AvailablePackageVersions
+                        .Select((item, index) => new
+                        {
+                            Selected = item.PackageId == deploymentTarget.PackageId &&
+                                       item.Version == appVersion.SemanticVersion,
+                            Index = index
+                        }).SingleOrDefault(t => t.Selected)?.Index ?? -1;
             return Json(new
             {
                 displayName = appVersion.Status.DisplayName,
                 key = appVersion.Status.Key,
-                semanticVersion = appVersion.SemanticVersion?.ToNormalizedString().WithDefault(Constants.NotAvailable),
+                semanticVersion =
+                    appVersion.SemanticVersion?.ToNormalizedString().WithDefault(Constants.NotAvailable),
                 isPreReleaseVersion = appVersion.SemanticVersion?.IsPrerelease ?? false,
                 preReleaseClass = appVersion.PreReleaseClass,
                 intervalAgo = appVersion.DeployedAtUtc.RelativeUtcToLocalTime(clock),
                 intervalAgoName = deploymentInterval.Name,
                 deployedAtLocalTime = appVersion.DeployedAtUtc.ToLocalTimeFormatted(clock),
                 statusMessage = appVersion.Message,
-                latestNewerAvailable = appVersion.LatestNewerAvailable?.ToNormalizedString() ?? ""
+                latestNewerAvailable = appVersion.LatestNewerAvailable?.ToNormalizedString() ?? "",
+                deployEnabled =
+                    deploymentTarget.Enabled && !deploymentTarget.IsReadOnly &&
+                    appVersion.AvailablePackageVersions.Any(),
+                packages = appVersion.AvailablePackageVersions.Select(availableVersion => new
+                {
+                    packageId = availableVersion.PackageId,
+                    version = availableVersion.Version.ToNormalizedString(),
+                    combinedName = availableVersion.Key,
+                    isNewer = availableVersion.Version > appVersion.SemanticVersion,
+                    isCurrent = availableVersion.Version == appVersion.SemanticVersion,
+                    preReleaseWarning = availableVersion.Version.IsPrerelease && appVersion.SemanticVersion?.IsPrerelease == false
+                }).ToArray(),
+                selectedPackageIndex
             });
         }
     }

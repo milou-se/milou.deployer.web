@@ -20,7 +20,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
 
             PackageId = packageId;
             Version = version;
-            Key = $"{PackageId}_{Version.ToNormalizedString()}";
+            Key = $"{PackageId}__v{Version.ToNormalizedString()}";
         }
 
         public string PackageId { get; }

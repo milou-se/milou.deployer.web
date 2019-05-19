@@ -1,0 +1,144 @@
+{
+  "vue": {
+    "version": "2.6.10",
+    "files": [
+      {
+        "file": "/dist/README.md",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/README.md",
+        "local": "wwwroot/lib/vue/README.md",
+        "integrity": "sha384-nS/UkQ8dfwhBEH24+3xaSHBJHPHKJZF/C1injmWB/ED+NSL+cEAEoN7mxaDp18j6"
+      },
+      {
+        "file": "/dist/vue.common.dev.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.common.dev.js",
+        "local": "wwwroot/lib/vue/vue.common.dev.js",
+        "integrity": "sha384-9d6EoIG8j0F+9F5p67DNMlqMAD7yIgbW+snoBoe3B7bP/Q/rUBECFlPKV0WBTMui"
+      },
+      {
+        "file": "/dist/vue.common.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.common.js",
+        "local": "wwwroot/lib/vue/vue.common.js",
+        "integrity": "sha384-NYm2gJbr/2HOYSfMirdo5YPtkjjLfOC3QPCjSHVUDlT3nZniBrvbMnNkYZiIR+Rv"
+      },
+      {
+        "file": "/dist/vue.common.prod.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.common.prod.js",
+        "local": "wwwroot/lib/vue/vue.common.prod.js",
+        "integrity": "sha384-5xWspv7mHRLD70mpAJWSWScc+0CubHu7JZQx02jbSlzEMcWMCByx4MCXgpxpPrGD"
+      },
+      {
+        "file": "/dist/vue.esm.browser.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.esm.browser.js",
+        "local": "wwwroot/lib/vue/vue.esm.browser.js",
+        "integrity": "sha384-UVpRCRqQXnUvhAv3LTz06yHxAGvigbuquXAnbnz4KylJS4ufQ8krpTPImsScFer8"
+      },
+      {
+        "file": "/dist/vue.esm.browser.min.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.esm.browser.min.js",
+        "local": "wwwroot/lib/vue/vue.esm.browser.min.js",
+        "integrity": "sha384-iNYSb+lCZG2GCc+ePg0ZC//awF1eB5ypBQfIH8d3rFm1SlpIVqPZRrd4cZsLtpAc"
+      },
+      {
+        "file": "/dist/vue.esm.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.esm.js",
+        "local": "wwwroot/lib/vue/vue.esm.js",
+        "integrity": "sha384-OB97ZpdnVBX9denQ7w+5iXzFZ5OWYHyJOYfp1bBpF2/sjhKNRa4/UZZT0Yex55sa"
+      },
+      {
+        "file": "/dist/vue.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.js",
+        "local": "wwwroot/lib/vue/vue.js",
+        "integrity": "sha384-9u9lzb/hr8e14GLHe5TEOrTiH3Qtw5DX2Zw9X/g7cqj81W2McEMx5CKOszxdb8jg"
+      },
+      {
+        "file": "/dist/vue.min.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.min.js",
+        "local": "wwwroot/lib/vue/vue.min.js",
+        "integrity": "sha384-8t+aLluUVnn5SPPG/NbeZCH6TWIvaXIm/gDbutRvtEeElzxxWaZN+G/ZIEdI/f+y"
+      },
+      {
+        "file": "/dist/vue.runtime.common.dev.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.runtime.common.dev.js",
+        "local": "wwwroot/lib/vue/vue.runtime.common.dev.js",
+        "integrity": "sha384-C8p+0KT2wGrj4sAntVxZU4o2N0QAxXUSvH2RN6peS6G3hA/RU6Y2kRfXtTqNrphG"
+      },
+      {
+        "file": "/dist/vue.runtime.common.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.runtime.common.js",
+        "local": "wwwroot/lib/vue/vue.runtime.common.js",
+        "integrity": "sha384-6o3X46AGXUixaYiO+D8RW3Y94zda/7C6/PqVzTvxxVORgZW7a20YNJnvc0mVm2UG"
+      },
+      {
+        "file": "/dist/vue.runtime.common.prod.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.runtime.common.prod.js",
+        "local": "wwwroot/lib/vue/vue.runtime.common.prod.js",
+        "integrity": "sha384-r4iC7JfrZw2k8mPhRUQfUWPImEQaSCw6IztJVdCCkJJZ+NMTM6GZrZzwe+pAGfcw"
+      },
+      {
+        "file": "/dist/vue.runtime.esm.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.runtime.esm.js",
+        "local": "wwwroot/lib/vue/vue.runtime.esm.js",
+        "integrity": "sha384-x3GGlNHdoU9hED1GVmK1KRH/HHDGa0xUveG4rjhafq/qb1QscK+S5MFuGQvoiKpO"
+      },
+      {
+        "file": "/dist/vue.runtime.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.runtime.js",
+        "local": "wwwroot/lib/vue/vue.runtime.js",
+        "integrity": "sha384-R1fgavACZPbAtJewo2ttZ0EQ/MYWeUBsfvJbf2BWefyAB1WuQvfXoR7P7pXj9Xfk"
+      },
+      {
+        "file": "/dist/vue.runtime.min.js",
+        "cdn": "https://unpkg.com/vue@2.6.10/dist/vue.runtime.min.js",
+        "local": "wwwroot/lib/vue/vue.runtime.min.js",
+        "integrity": "sha384-beqFrndldewALO3EnL39fb2REqmsgtzzMWgRCO+EyqmNeOMkJJ8QiWVtFsf+BJ+g"
+      }
+    ]
+  },
+  "semver": {
+    "version": "6.0.0",
+    "files": [
+      {
+        "file": "/package.json",
+        "cdn": "https://unpkg.com/semver@6.0.0/package.json",
+        "local": "wwwroot/lib/semver/package.json",
+        "integrity": "sha384-CeaaiVJsSQWQRl6DSUozt4N52nwVJg/a3F3RX5HnLM9ILrffRIztq4Hyg8DIgqbZ"
+      },
+      {
+        "file": "/CHANGELOG.md",
+        "cdn": "https://unpkg.com/semver@6.0.0/CHANGELOG.md",
+        "local": "wwwroot/lib/semver/CHANGELOG.md",
+        "integrity": "sha384-uQ7mzszDEyOguWUgFk4QeQNaSs7k8epR5SLBEu7qp9hZ0VzAnbbcF4Ftg0CdbYki"
+      },
+      {
+        "file": "/LICENSE",
+        "cdn": "https://unpkg.com/semver@6.0.0/LICENSE",
+        "local": "wwwroot/lib/semver/LICENSE",
+        "integrity": "sha384-VsFc0H+o29RZXy2BKcKvmLLp5wplFBkrxVzpZI9WQDnLS8W6UFjlg2yCZe2NhHNe"
+      },
+      {
+        "file": "/range.bnf",
+        "cdn": "https://unpkg.com/semver@6.0.0/range.bnf",
+        "local": "wwwroot/lib/semver/range.bnf",
+        "integrity": "sha384-oiKe6ElF/isr9xrPzNAvyMe8aUzRIdDaRgVGDyymR/q9W1r2Cn2rJ0o9rBvHcQvj"
+      },
+      {
+        "file": "/README.md",
+        "cdn": "https://unpkg.com/semver@6.0.0/README.md",
+        "local": "wwwroot/lib/semver/README.md",
+        "integrity": "sha384-2QptTCgUOTpit6AWHboTN61yGjEKF/PwnKkFIg0yuw96cXCoHxIfKHPNmVfAPet9"
+      },
+      {
+        "file": "/semver.js",
+        "cdn": "https://unpkg.com/semver@6.0.0/semver.js",
+        "local": "wwwroot/lib/semver/semver.js",
+        "integrity": "sha384-5Jl5nWCQuXllGJCVzIQx7yiPsO1DDq34GrKsxe/sIjVUbkbCSmh6U4Ta6bxiRlmy"
+      },
+      {
+        "file": "/bin/semver",
+        "cdn": "https://unpkg.com/semver@6.0.0/bin/semver",
+        "local": "wwwroot/lib/semver/bin/semver",
+        "integrity": "sha384-i/j7LZuRFrdm4K0hUXybFCfz8Cxps6xw1xd2wcZFd82kJXKEfAnuw0GJ7ayWUs6e"
+      }
+    ]
+  }
+}

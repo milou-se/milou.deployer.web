@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewInputModels;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
 using Milou.Deployer.Web.IisHost.Controllers;
+using NuGet.Versioning;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
@@ -33,7 +35,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            if (string.IsNullOrWhiteSpace(deploymentTaskInput.PackageVersion))
+            if (string.IsNullOrWhiteSpace(deploymentTaskInput.PackageId))
+            {
+                return new StatusCodeResult((int)HttpStatusCode.BadRequest);
+            }
+
+            if (string.IsNullOrWhiteSpace(deploymentTaskInput.Version))
+            {
+                return new StatusCodeResult((int)HttpStatusCode.BadRequest);
+            }
+
+            if (!SemanticVersion.TryParse(deploymentTaskInput.Version, out SemanticVersion semanticVersion))
             {
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
@@ -43,7 +55,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 return new StatusCodeResult((int)HttpStatusCode.BadRequest);
             }
 
-            var deploymentTask = new DeploymentTask(deploymentTaskInput.PackageVersion,
+            PackageVersion packageVersion = new PackageVersion(deploymentTaskInput.PackageId, semanticVersion);
+
+            var deploymentTask = new DeploymentTask(packageVersion,
                 deploymentTaskInput.TargetId,
                 Guid.NewGuid(),
                 User?.Identity?.Name);

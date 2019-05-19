@@ -17,7 +17,10 @@
     environmentType,
     metadataUrl,
     statusMessage,
-    latestNewerAvailable) {
+    latestNewerAvailable,
+    deployEnabled,
+    packages,
+    selectedPackage) {
         this.targetId = targetId;
         this.name = name;
         this.url = url;
@@ -36,6 +39,9 @@
         this.metadataUrl = metadataUrl;
         this.statusMessage = statusMessage;
         this.latestNewerAvailable = latestNewerAvailable;
+        this.deployEnabled = deployEnabled;
+        this.packages = packages;
+        this.selectedPackage = selectedPackage || -1;
     }
 
     get statusTitle() {
@@ -66,7 +72,10 @@ class TargetStatus {
     intervalAgoName,
     deployedAtLocalTime,
     statusMessage,
-    latestNewerAvailable) {
+    latestNewerAvailable,
+    deployEnabled,
+    packages,
+    selectedPackageIndex) {
         this.key = key;
         this.displayName = displayName;
         this.isPreReleaseVersion = isPreReleaseVersion;
@@ -77,6 +86,9 @@ class TargetStatus {
         this.deployedAtLocalTime = deployedAtLocalTime;
         this.statusMessage = statusMessage;
         this.latestNewerAvailable = latestNewerAvailable;
+        this.deployEnabled = deployEnabled;
+        this.packages = packages;
+        this.selectedPackageIndex = selectedPackageIndex;
     }
 
     static from(json) {
@@ -88,7 +100,7 @@ async function getTargetStatus(target) {
 
     const response = await fetch(target.statusUrl);
 
-    console.dir(response);
+    //console.dir(response);
 
     const json = await response.json();
 
@@ -101,7 +113,7 @@ async function getTargets() {
 
     const response = await fetch("/api/targets");
 
-    console.dir(response);
+    //console.dir(response);
 
     const json = await response.json();
 
@@ -119,6 +131,25 @@ async function buildApp() {
         el: "#app",
         data: {
             targets: targets
+        },
+        methods: {
+            deployPackageVersion: function (event) {
+
+                //let button = event.target;
+
+                //let formElement = button.form;
+
+                //let packageVersionElement = formElement.querySelector(".packageVersionSelect");
+
+
+            }
+        },
+        computed: {
+
+            reversedMessage: function() {
+
+                return "";
+            }
         }
     });
 
@@ -139,6 +170,16 @@ async function buildApp() {
             target.deployedAtLocalTime = status.deployedAtLocalTime;
             target.statusMessage = status.statusMessage;
             target.latestNewerAvailable = status.latestNewerAvailable;
+            target.deployEnabled = status.deployEnabled;
+            target.packages = status.packages;
+
+            if (target.packages && target.packages.length > 0) {
+                if (status.selectedPackageIndex >= 0) {
+                    target.selectedPackage = status.selectedPackageIndex;
+                } else {
+                    target.selectedPackage = 0;
+                }
+            }
         });
     });
 }
