@@ -152,78 +152,95 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 configuration.AllValues.Select(pair =>
                     $"\"{pair.Key}\": \"{pair.Value.MakeAnonymous(pair.Key, $"{ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray()}\"")}"));
 
-            TempPathHelper.SetTempPath(configuration, startupLogger);
-
-            SetLoggingLevelSwitch(loggingLevelSwitch, configuration);
-
-            var loggerConfigurationHandlers = ApplicationAssemblies.FilteredAssemblies()
-                .GetLoadablePublicConcreteTypesImplementing<ILoggerConfigurationHandler>()
-                .Select(type => configurationInstanceHolder.Create(type).Cast<ILoggerConfigurationHandler>());
-
-            ILogger appLogger;
+            App app;
             try
             {
-                appLogger =
-                    SerilogApiInitialization.InitializeAppLogging(
-                        configuration,
-                        startupLogger,
-                        loggerConfigurationHandlers,
-                        loggingLevelSwitch);
+                TempPathHelper.SetTempPath(configuration, startupLogger);
 
-                configurationInstanceHolder.AddInstance(appLogger);
-            }
-            catch (Exception ex)
-            {
-                appLogger = startupLogger;
-                startupLogger.Error(ex, "Could not create app logger");
-            }
+                SetLoggingLevelSwitch(loggingLevelSwitch, configuration);
 
-            LogCommandLineArgs(commandLineArgs, appLogger);
+                var loggerConfigurationHandlers = ApplicationAssemblies.FilteredAssemblies()
+                    .GetLoadablePublicConcreteTypesImplementing<ILoggerConfigurationHandler>()
+                    .Select(type => configurationInstanceHolder.Create(type).Cast<ILoggerConfigurationHandler>());
 
-            var environmentConfiguration = new EnvironmentConfiguration
-            {
-                ApplicationBasePath = paths.BasePath,
-                ContentBasePath = paths.ContentBasePath,
-                CommandLineArgs = commandLineArgs.ToImmutableArray(),
-                EnvironmentName = environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
-            };
-
-            configurationInstanceHolder.AddInstance(environmentConfiguration);
-
-            IReadOnlyList<IModule> modules = GetConfigurationModules(configurationInstanceHolder, scanAssemblies);
-
-            ServiceCollection serviceCollection = new ServiceCollection();
-
-            try
-            {
-                ModuleRegistration.RegisterModules(modules, serviceCollection, appLogger);
-            }
-            catch (Exception ex)
-            {
-                appLogger.Fatal(ex, "Could not initialize container registrations");
-                throw;
-            }
-
-            configurationInstanceHolder.AddInstance(new ApplicationEnvironmentConfigurator(configuration));
-
-            EnvironmentConfigurator.ConfigureEnvironment(configurationInstanceHolder);
-
-            foreach (Type registeredType in configurationInstanceHolder.RegisteredTypes)
-            {
-                var interfaces = registeredType.GetInterfaces();
-
-                var instance = configurationInstanceHolder.GetInstances(registeredType).Single().Value;
-
-                foreach (var @interface in interfaces)
+                ILogger appLogger;
+                try
                 {
-                    serviceCollection.AddSingleton(@interface, context => instance);
+                    appLogger =
+                        SerilogApiInitialization.InitializeAppLogging(
+                            configuration,
+                            startupLogger,
+                            loggerConfigurationHandlers,
+                            loggingLevelSwitch);
+
+                    configurationInstanceHolder.AddInstance(appLogger);
+                }
+                catch (Exception ex)
+                {
+                    appLogger = startupLogger;
+                    startupLogger.Error(ex, "Could not create app logger");
                 }
 
-                var serviceType = instance.GetType();
-                serviceCollection.AddSingleton(serviceType, instance);
-            }
+                LogCommandLineArgs(commandLineArgs, appLogger);
 
-            var app = new App(CustomWebHostBuilder.GetWebHostBuilder(environmentConfiguration, configuration, new ServiceProviderHolder(serviceCollection.BuildServiceProvider(), serviceCollection), appLogger), cancellationTokenSource, appLogger, configuration, configurationInstanceHolder);
+                var environmentConfiguration = new EnvironmentConfiguration
+                {
+                    ApplicationBasePath = paths.BasePath,
+                    ContentBasePath = paths.ContentBasePath,
+                    CommandLineArgs = commandLineArgs.ToImmutableArray(),
+                    EnvironmentName = environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
+                };
+
+                configurationInstanceHolder.AddInstance(environmentConfiguration);
+
+                IReadOnlyList<IModule> modules = GetConfigurationModules(configurationInstanceHolder, scanAssemblies);
+
+                ServiceCollection serviceCollection = new ServiceCollection();
+
+                try
+                {
+                    ModuleRegistration.RegisterModules(modules, serviceCollection, appLogger);
+                }
+                catch (Exception ex)
+                {
+                    appLogger.Fatal(ex, "Could not initialize container registrations");
+                    throw;
+                }
+
+                configurationInstanceHolder.AddInstance(new ApplicationEnvironmentConfigurator(configuration));
+
+                EnvironmentConfigurator.ConfigureEnvironment(configurationInstanceHolder);
+
+                foreach (Type registeredType in configurationInstanceHolder.RegisteredTypes)
+                {
+                    var interfaces = registeredType.GetInterfaces();
+
+                    var instance = configurationInstanceHolder.GetInstances(registeredType).Single().Value;
+
+                    foreach (var @interface in interfaces)
+                    {
+                        serviceCollection.AddSingleton(@interface, context => instance);
+                    }
+
+                    var serviceType = instance.GetType();
+                    serviceCollection.AddSingleton(serviceType, instance);
+                }
+
+                app = new App(
+                    CustomWebHostBuilder.GetWebHostBuilder(environmentConfiguration,
+                        configuration,
+                        new ServiceProviderHolder(serviceCollection.BuildServiceProvider(), serviceCollection),
+                        appLogger),
+                    cancellationTokenSource,
+                    appLogger,
+                    configuration,
+                    configurationInstanceHolder);
+            }
+            catch (Exception ex)
+            {
+                startupLogger.Fatal(ex, "Startup error");
+                throw;
+            }
 
             return Task.FromResult(app);
         }
