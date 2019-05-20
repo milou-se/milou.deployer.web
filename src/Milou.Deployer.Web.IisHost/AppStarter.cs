@@ -115,10 +115,16 @@ namespace Milou.Deployer.Web.IisHost
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(2000));
 
-                var logger = new LoggerConfiguration()
+                var loggerConfiguration = new LoggerConfiguration()
                     .WriteTo.Console()
-                    .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exception.log"))
-                    .CreateLogger();
+                    .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exception.log"));
+
+                if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string url))
+                {
+                    loggerConfiguration = loggerConfiguration.WriteTo.Seq(url);
+                }
+
+                var logger = loggerConfiguration.CreateLogger();
 
                 using (logger)
                 {
