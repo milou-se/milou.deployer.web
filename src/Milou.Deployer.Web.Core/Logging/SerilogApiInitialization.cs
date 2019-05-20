@@ -88,7 +88,7 @@ namespace Milou.Deployer.Web.Core.Logging
                         rollingLoggingFile);
 
                     loggerConfiguration = loggerConfiguration
-                        .WriteTo.File(rollingLoggingFile);
+                        .WriteTo.File(rollingLoggingFile, rollingInterval: RollingInterval.Day);
                 }
             }
 
