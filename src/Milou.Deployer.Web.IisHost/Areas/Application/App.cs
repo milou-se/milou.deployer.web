@@ -181,6 +181,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     configurationInstanceHolder.AddInstance(appLogger);
 
                     startupLogger.Verbose("Application logger created");
+                    appLogger.Verbose("Application logger is created");
                 }
                 catch (Exception ex)
                 {
@@ -198,19 +199,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     EnvironmentName = environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
                 };
 
-                configurationInstanceHolder.AddInstance(environmentConfiguration);
-
-                IReadOnlyList<IModule> modules = GetConfigurationModules(configurationInstanceHolder, scanAssemblies);
-
                 ServiceCollection serviceCollection = new ServiceCollection();
 
                 try
                 {
+                    configurationInstanceHolder.AddInstance(environmentConfiguration);
+
+                    IReadOnlyList<IModule> modules =
+                        GetConfigurationModules(configurationInstanceHolder, scanAssemblies);
+
                     ModuleRegistration.RegisterModules(modules, serviceCollection, appLogger);
                 }
                 catch (Exception ex)
                 {
                     appLogger.Fatal(ex, "Could not initialize container registrations");
+
+                    Thread.Sleep(TimeSpan.FromMilliseconds(2500));
                     throw;
                 }
 
@@ -246,6 +250,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             catch (Exception ex)
             {
                 startupLogger.Fatal(ex, "Startup error");
+                Thread.Sleep(TimeSpan.FromMilliseconds(2500));
                 throw;
             }
 
