@@ -131,7 +131,11 @@ namespace Milou.Deployer.Web.IisHost
                 {
                     logger.Fatal(ex, "Could not start application");
                     TempLogger.FlushWith(logger);
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(500));
                 }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(500));
 
                 return 1;
             }
