@@ -118,9 +118,10 @@ namespace Milou.Deployer.Web.IisHost
 
                 var exceptionLogDirectory = args?.ParseParameter("exceptionDir");
 
+                var exceptionLogFile = Path.Combine(exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory,
+                    "Exception.log");
                 var loggerConfiguration = new LoggerConfiguration()
-                    .WriteTo.File(Path.Combine(exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory,
-                        "Exception.log"));
+                    .WriteTo.File(exceptionLogFile, flushToDiskInterval: TimeSpan.FromMilliseconds(50));
 
                 if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string url))
                 {
