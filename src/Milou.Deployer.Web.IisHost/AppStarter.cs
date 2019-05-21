@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
@@ -118,10 +119,12 @@ namespace Milou.Deployer.Web.IisHost
 
                 var exceptionLogDirectory = args?.ParseParameter("exceptionDir");
 
-                var exceptionLogFile = Path.Combine(exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory,
-                    "Exception.log");
+                var logDirectory = exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory;
+
+                var fatalLogFile = Path.Combine(logDirectory, "Fatal.log");
+
                 var loggerConfiguration = new LoggerConfiguration()
-                    .WriteTo.File(exceptionLogFile, flushToDiskInterval: TimeSpan.FromMilliseconds(50));
+                    .WriteTo.File(fatalLogFile, flushToDiskInterval: TimeSpan.FromMilliseconds(50));
 
                 if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string url))
                 {
@@ -139,6 +142,10 @@ namespace Milou.Deployer.Web.IisHost
 
                     await Task.Delay(TimeSpan.FromMilliseconds(1000));
                 }
+
+                var exceptionLogFile = Path.Combine(logDirectory, "Exception.log");
+
+                await File.WriteAllTextAsync(exceptionLogFile, ex.ToString(), Encoding.UTF8);
 
                 await Task.Delay(TimeSpan.FromMilliseconds(3000));
 

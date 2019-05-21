@@ -21,9 +21,9 @@ namespace Milou.Deployer.Web.Core.Logging
             while (LogMessages.TryDequeue(out var message))
             {
                 logger.Information("{Message}", message);
-
-                Thread.Sleep(TimeSpan.FromMilliseconds(100));
             }
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
         }
     }
 }
