@@ -161,6 +161,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 SetLoggingLevelSwitch(loggingLevelSwitch, configuration);
 
+                startupLogger.Verbose("Log level: {Level}", loggingLevelSwitch.MinimumLevel);
+
                 var loggerConfigurationHandlers = ApplicationAssemblies.FilteredAssemblies()
                     .GetLoadablePublicConcreteTypesImplementing<ILoggerConfigurationHandler>()
                     .Select(type => configurationInstanceHolder.Create(type).Cast<ILoggerConfigurationHandler>());
@@ -168,6 +170,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 ILogger appLogger;
                 try
                 {
+                    startupLogger.Verbose("Creating application logger");
                     appLogger =
                         SerilogApiInitialization.InitializeAppLogging(
                             configuration,
@@ -176,6 +179,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                             loggingLevelSwitch);
 
                     configurationInstanceHolder.AddInstance(appLogger);
+
+                    startupLogger.Verbose("Application logger created");
                 }
                 catch (Exception ex)
                 {

@@ -119,15 +119,17 @@ namespace Milou.Deployer.Web.IisHost
                 var exceptionLogDirectory = args?.ParseParameter("exceptionDir");
 
                 var loggerConfiguration = new LoggerConfiguration()
-                    .WriteTo.File(Path.Combine(exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory, "Exception.log"))
-                    .MinimumLevel.Verbose();
+                    .WriteTo.File(Path.Combine(exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory,
+                        "Exception.log"));
 
                 if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string url))
                 {
                     loggerConfiguration = loggerConfiguration.WriteTo.Seq(url);
                 }
 
-                var logger = loggerConfiguration.CreateLogger();
+                var logger = loggerConfiguration
+                    .MinimumLevel.Verbose()
+                    .CreateLogger();
 
                 using (logger)
                 {
@@ -137,7 +139,7 @@ namespace Milou.Deployer.Web.IisHost
                     await Task.Delay(TimeSpan.FromMilliseconds(1000));
                 }
 
-                await Task.Delay(TimeSpan.FromMilliseconds(500));
+                await Task.Delay(TimeSpan.FromMilliseconds(3000));
 
                 return 1;
             }
