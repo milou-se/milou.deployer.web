@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Cli;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Application;
@@ -115,9 +116,10 @@ namespace Milou.Deployer.Web.IisHost
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(2000));
 
+                var exceptionLogDirectory = args?.ParseParameter("exceptionDir");
+
                 var loggerConfiguration = new LoggerConfiguration()
-                    .WriteTo.Console()
-                    .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exception.log"))
+                    .WriteTo.File(Path.Combine(exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory, "Exception.log"))
                     .MinimumLevel.Verbose();
 
                 if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string url))
@@ -132,7 +134,7 @@ namespace Milou.Deployer.Web.IisHost
                     logger.Fatal(ex, "Could not start application");
                     TempLogger.FlushWith(logger);
 
-                    await Task.Delay(TimeSpan.FromMilliseconds(500));
+                    await Task.Delay(TimeSpan.FromMilliseconds(1000));
                 }
 
                 await Task.Delay(TimeSpan.FromMilliseconds(500));
