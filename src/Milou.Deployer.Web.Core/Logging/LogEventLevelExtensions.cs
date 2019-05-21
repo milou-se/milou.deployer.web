@@ -5,6 +5,31 @@ namespace Milou.Deployer.Web.Core.Logging
 {
     public static class LogEventLevelExtensions
     {
+        public static bool TryParse(this string levelText, out LogEventLevel level)
+        {
+            switch (levelText)
+            {
+                case nameof(LogEventLevel.Debug):
+                    level = LogEventLevel.Debug;
+                    return true;
+                case nameof(LogEventLevel.Verbose):
+                    level = LogEventLevel.Verbose;
+                    return true;
+                case nameof(LogEventLevel.Warning):
+                    level = LogEventLevel.Warning;
+                    return true;
+                case nameof(LogEventLevel.Error):
+                    level = LogEventLevel.Error;
+                    return true;
+                case nameof(LogEventLevel.Fatal):
+                    level = LogEventLevel.Fatal;
+                    return true;
+            }
+
+            level = LogEventLevel.Information;
+            return false;
+        }
+
         public static LogEventLevel ParseOrDefault(this string levelText, LogEventLevel level)
         {
             if (levelText.IsNullOrWhiteSpace())
@@ -12,22 +37,12 @@ namespace Milou.Deployer.Web.Core.Logging
                 return level;
             }
 
-            switch (levelText)
+            if (!TryParse(levelText, out var parsedLevel))
             {
-                case nameof(LogEventLevel.Debug):
-                    return LogEventLevel.Debug;
-                case nameof(LogEventLevel.Verbose):
-                    return LogEventLevel.Verbose;
-                case nameof(LogEventLevel.Warning):
-                    return LogEventLevel.Warning;
-                case nameof(LogEventLevel.Error):
-                    return LogEventLevel.Error;
-                case nameof(LogEventLevel.Fatal):
-                    return LogEventLevel.Fatal;
-
-                default:
-                    return LogEventLevel.Information;
+                return level;
             }
+
+            return parsedLevel;
         }
     }
 }

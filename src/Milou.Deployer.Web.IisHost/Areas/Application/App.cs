@@ -155,6 +155,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             App app;
             try
             {
+                startupLogger.Verbose("Trying to create application");
+
                 TempPathHelper.SetTempPath(configuration, startupLogger);
 
                 SetLoggingLevelSwitch(loggingLevelSwitch, configuration);
@@ -263,7 +265,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private static void SetLoggingLevelSwitch(LoggingLevelSwitch loggingLevelSwitch, MultiSourceKeyValueConfiguration configuration)
         {
             var defaultLevel = configuration[ConfigurationConstants.LogLevel]
-                .ParseOrDefault(LogEventLevel.Information);
+                .ParseOrDefault(loggingLevelSwitch.MinimumLevel);
 
             loggingLevelSwitch.MinimumLevel = defaultLevel;
         }

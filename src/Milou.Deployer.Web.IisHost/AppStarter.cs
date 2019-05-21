@@ -117,7 +117,8 @@ namespace Milou.Deployer.Web.IisHost
 
                 var loggerConfiguration = new LoggerConfiguration()
                     .WriteTo.Console()
-                    .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exception.log"));
+                    .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exception.log"))
+                    .MinimumLevel.Verbose();
 
                 if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string url))
                 {

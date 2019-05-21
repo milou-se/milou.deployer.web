@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.Core.Logging
         {
             while (LogMessages.TryDequeue(out var message))
             {
-                logger.Information("{Message}", message);
+                logger.Fatal("{Message}", message);
             }
         }
     }
