@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace Milou.Deployer.Web.Core.Extensions
 {
@@ -19,6 +19,10 @@ namespace Milou.Deployer.Web.Core.Extensions
             try
             {
                 disposableItem.Dispose();
+            }
+            catch (ObjectDisposedException)
+            {
+                // ignore
             }
             catch (Exception)
             {

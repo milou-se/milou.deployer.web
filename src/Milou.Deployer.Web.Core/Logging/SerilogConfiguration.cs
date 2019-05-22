@@ -19,10 +19,18 @@ namespace Milou.Deployer.Web.Core.Logging
             bool debugConsoleEnabled = false)
         {
             Uri uri = null;
-            if (!string.IsNullOrWhiteSpace(seqUrl) && Uri.TryCreate(seqUrl, UriKind.Absolute, out var foundUri))
+            if (!seqEnabled)
+            {
+                IsValid = true;
+            }
+            else if (Uri.TryCreate(seqUrl, UriKind.Absolute, out var foundUri))
             {
                 uri = foundUri;
                 IsValid = true;
+            }
+            else
+            {
+                IsValid = false;
             }
 
             SeqUrl = uri;

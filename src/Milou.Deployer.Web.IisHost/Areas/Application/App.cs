@@ -113,8 +113,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 .Select(type => configurationInstanceHolder.Create(type).Cast<IStartupLoggerConfigurationHandler>())
                 .ToImmutableArray();
 
-            SetLoggingLevelSwitch(loggingLevelSwitch, startupConfiguration);
-
             var startupLogger =
                 SerilogApiInitialization.InitializeStartupLogging(
                     file => GetBaseDirectoryFile(paths.BasePath, file),
@@ -252,6 +250,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 startupLogger.Fatal(ex, "Startup error");
                 Thread.Sleep(TimeSpan.FromMilliseconds(2500));
                 throw;
+            }
+            finally
+            {
+                startupLogger.Information("Closing startup logger");
+                startupLogger.SafeDispose();
+                Thread.Sleep(TimeSpan.FromMilliseconds(2500));
             }
 
             return Task.FromResult(app);
