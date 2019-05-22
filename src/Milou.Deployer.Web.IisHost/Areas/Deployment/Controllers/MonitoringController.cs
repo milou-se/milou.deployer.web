@@ -34,8 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
-        [Route("~/")]
-        [Route("")]
+        [Route("~/status")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             var targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
@@ -50,7 +49,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
-        [Route("~/status")]
+        [Route("~/")]
+        [Route("")]
         public IActionResult Status()
         {
             return View();
