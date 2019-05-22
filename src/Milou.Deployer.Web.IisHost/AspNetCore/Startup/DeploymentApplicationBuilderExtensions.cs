@@ -23,6 +23,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                 forwardedHeadersOptions.KnownProxies.Add(proxyAddress);
             }
 
+            if (environmentConfiguration.ForwardLimit.HasValue)
+            {
+                forwardedHeadersOptions.ForwardLimit = environmentConfiguration.ForwardLimit.Value;
+            }
+
             return app.UseForwardedHeaders(forwardedHeadersOptions);
         }
 

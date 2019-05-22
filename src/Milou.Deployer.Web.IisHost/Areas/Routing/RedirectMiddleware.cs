@@ -46,10 +46,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
                     context.Response.Redirect("/");
                     return;
                 }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
 
             if (context.Response.StatusCode == 302)
