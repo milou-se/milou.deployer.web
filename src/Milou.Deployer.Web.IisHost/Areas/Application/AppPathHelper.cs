@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Milou.Deployer.Web.Core.IO;
 using Milou.Deployer.Web.Core.Logging;
 

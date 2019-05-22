@@ -111,11 +111,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                                 builder.Host = environmentConfiguration.PublicHostname;
                             }
 
-                            if (environmentConfiguration.PublicPortIsHttps == true
-                                && environmentConfiguration.HttpsPort.HasValue)
+                            if (environmentConfiguration.PublicPortIsHttps == true)
                             {
                                 builder.Scheme = "https";
-                                builder.Port = environmentConfiguration.HttpsPort.Value;
+                                if (environmentConfiguration.HttpsPort.HasValue)
+                                {
+                                    builder.Port = environmentConfiguration.HttpsPort.Value;
+                                }
                             }
 
                             context.ProtocolMessage.RedirectUri = builder.Uri.AbsoluteUri;

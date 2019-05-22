@@ -24,7 +24,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration
                 .AddReflectionSettings(assemblies)
                 .AddEnvironmentVariables(environmentVariables)
                 .AddCommandLineArgsSettings(args)
-                .DecorateWith(new ExpandKeyValueConfigurationDecorator()).Build();
+                .DecorateWith(new ExpandKeyValueConfigurationDecorator())
+                .Build();
 
             return multiSourceKeyValueConfiguration;
         }
