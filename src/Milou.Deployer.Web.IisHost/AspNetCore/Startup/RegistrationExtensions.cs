@@ -114,10 +114,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                             if (environmentConfiguration.PublicPortIsHttps == true)
                             {
                                 builder.Scheme = "https";
-                                if (environmentConfiguration.HttpsPort.HasValue)
-                                {
-                                    builder.Port = environmentConfiguration.HttpsPort.Value;
-                                }
+                                builder.Port = environmentConfiguration.HttpsPort ?? 443;
                             }
 
                             context.ProtocolMessage.RedirectUri = builder.Uri.AbsoluteUri;
