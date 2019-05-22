@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Milou.Deployer.Web.Core.Application;
 using Serilog;
@@ -36,6 +37,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
             {
                 _logger.Error(ex, "Could not make external request");
                 throw;
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("An error was encountered while handling the remote login.", StringComparison.OrdinalIgnoreCase))
+                {
+                    await context.SignOutAsync();
+                    context.Response.Redirect("/");
+                    return;
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             if (context.Response.StatusCode == 302)
