@@ -95,7 +95,9 @@ namespace Milou.Deployer.Web.Marten
                     excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
                     environmentType: deploymentTargetData.EnvironmentType,
                     enabled: deploymentTargetData.Enabled,
-                    packageListTimeout: deploymentTargetData.PackageListTimeout);
+                    packageListTimeout: deploymentTargetData.PackageListTimeout,
+                    publishType: deploymentTargetData.PublishType,
+                    ftpPath: deploymentTargetData.FtpPath);
             }
             catch (Exception ex)
             {
@@ -287,21 +289,36 @@ namespace Milou.Deployer.Web.Marten
         }
 
         public async Task<CreateOrganizationResult> Handle(
-            CreateOrganization request,
+            [NotNull] CreateOrganization request,
             CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var result = await CreateOrganizationAsync(request, cancellationToken);
 
             return result;
         }
 
-        public Task<CreateProjectResult> Handle(CreateProject request, CancellationToken cancellationToken)
+        public Task<CreateProjectResult> Handle([NotNull] CreateProject request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             return CreateProjectAsync(request, cancellationToken);
         }
 
-        public async Task<CreateTargetResult> Handle(CreateTarget createTarget, CancellationToken cancellationToken)
+        public async Task<CreateTargetResult> Handle([NotNull] CreateTarget createTarget, CancellationToken cancellationToken)
         {
+            if (createTarget == null)
+            {
+                throw new ArgumentNullException(nameof(createTarget));
+            }
+
             if (!createTarget.IsValid)
             {
                 return new CreateTargetResult(new ValidationError("Invalid"));
@@ -398,6 +415,8 @@ namespace Milou.Deployer.Web.Marten
                 data.TargetDirectory = request.TargetDirectory;
                 data.WebConfigTransform = request.WebConfigTransform;
                 data.ExcludedFilePatterns = request.ExcludedFilePatterns;
+                data.FtpPath = request.FtpPath;
+                data.PublishType = request.PublishType;
                 data.EnvironmentType = request.EnvironmentType.Name;
                 data.PackageListTimeout = request.PackageListTimeout;
                 session.Store(data);

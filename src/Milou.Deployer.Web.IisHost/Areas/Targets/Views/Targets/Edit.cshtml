@@ -1,4 +1,5 @@
-﻿@using Milou.Deployer.Web.Core
+﻿@using Milou.Deployer.Core.Deployment
+@using Milou.Deployer.Web.Core
 @using Milou.Deployer.Web.Core.Deployment
 @using Milou.Deployer.Web.Core.Html
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
@@ -92,12 +93,25 @@ else
                 <input id="target-packageListTimeout" type="text" name="packageListTimeout" value="@Model.DeploymentTarget.PackageListTimeout?.ToString()"/>
             </div>
         </fieldset>
-        <div class="input-field">
-            <label for="target-publishSettingsXml">Publish settings XML</label>
-            <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">
-            @Model.DeploymentTarget.PublishSettingsXml
-        </textarea>
-        </div>
+        <fieldset>
+            <div class="input-field">
+                <label for="target-publishSettingsXml">Publish settings XML</label>
+                <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">@Model.DeploymentTarget.PublishSettingsXml</textarea>
+            </div>
+
+            <div class="input-field">
+                <select name="publishType" id="publishType">
+                    @foreach (var item in PublishType.All)
+                    {
+                        <option value="@item.Name">@item.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="input-field">
+                <label for="ftpPath">FTP path</label>
+                <input name="ftpPath" id="ftpPath"/>
+            </div>
+        </fieldset>
         <div class="input-field">
 
             <label for="environmentType">Environment type</label>

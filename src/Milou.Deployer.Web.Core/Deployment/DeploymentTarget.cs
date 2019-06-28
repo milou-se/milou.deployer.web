@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
+using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 
@@ -41,7 +42,9 @@ namespace Milou.Deployer.Web.Core.Deployment
             string webConfigTransform = default,
             string excludedFilePatterns = default,
             bool enabled = false,
-            TimeSpan? packageListTimeout = default)
+            TimeSpan? packageListTimeout = default,
+            string publishType = default,
+            string ftpPath = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -52,6 +55,10 @@ namespace Milou.Deployer.Web.Core.Deployment
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
+
+            _ = PublishType.TryParseOrDefault(publishType, out PublishType type);
+
+            PublishType = type;
 
             Url = url;
             EnvironmentConfiguration = environmentConfiguration;
@@ -66,6 +73,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             ExcludedFilePatterns = excludedFilePatterns;
             Enabled = enabled;
             PackageListTimeout = packageListTimeout;
+            FtpPath = ftpPath;
             Organization = organization ?? string.Empty;
             ProjectInvariantName = project ?? string.Empty;
             Name = name;
@@ -134,6 +142,10 @@ namespace Milou.Deployer.Web.Core.Deployment
         public string NuGetPackageSource { get; }
 
         public TimeSpan? PackageListTimeout { get; }
+
+        public PublishType PublishType { get; }
+
+        public string FtpPath { get; }
 
         public override string ToString()
         {

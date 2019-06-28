@@ -288,7 +288,9 @@ namespace Milou.Deployer.Web.Core.Deployment
                         deploymentTarget.NuGetPackageSource,
                         semanticVersion = deploymentTask.SemanticVersion.ToNormalizedString(),
                         iisSiteName = deploymentTarget.IisSiteName,
-                        webConfigTransform = deploymentTarget.WebConfigTransform
+                        webConfigTransform = deploymentTarget.WebConfigTransform,
+                        publishType = deploymentTarget.PublishType.Name,
+                        ftpPath = deploymentTarget.FtpPath
                     }
                 }
             };

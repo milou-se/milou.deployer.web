@@ -36,6 +36,10 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 
         public string ExcludedFilePatterns { get; set; }
 
+        public string PublishType { get; set; }
+
+        public string FtpPath { get; set; }
+
         public bool Enabled { get; set; }
 
         public string EnvironmentType { get; set; }

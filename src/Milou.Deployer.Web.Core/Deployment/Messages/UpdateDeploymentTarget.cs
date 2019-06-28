@@ -20,13 +20,17 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string webConfigTransform = null,
             string excludedFilePatterns = null,
             string environmentType = null,
-            string packageListTimeout = null)
+            string packageListTimeout = null,
+            string publishType = null,
+            string ftpPath = null)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
             Url = url;
             PackageId = packageId;
             ExcludedFilePatterns = excludedFilePatterns;
+            PublishType = publishType;
+            FtpPath = ftpPath;
             IisSiteName = iisSiteName;
             NugetPackageSource = nugetPackageSource;
             NugetConfigFile = nugetConfigFile;
@@ -68,6 +72,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public string PackageId { get; }
 
         public string ExcludedFilePatterns { get; }
+        public string PublishType { get; }
+        public string FtpPath { get; }
 
         public override string ToString()
         {

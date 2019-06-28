@@ -30,8 +30,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.4.0" />
-    <PackageReference Include="Milou.Deployer.Core" Version="4.4.0" />
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.4.1" />
+    <PackageReference Include="Milou.Deployer.Core" Version="4.4.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="NuGet.Frameworks" Version="5.1.0" />
     <PackageReference Include="NuGet.Packaging" Version="5.1.0" />
