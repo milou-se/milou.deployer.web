@@ -7,6 +7,7 @@ using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
+using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
@@ -143,6 +144,10 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public TimeSpan? PackageListTimeout { get; }
 
+        [JsonProperty(nameof(PublishType))]
+        public string PublishTypeProperty => PublishType.Name;
+
+        [JsonIgnore]
         public PublishType PublishType { get; }
 
         public string FtpPath { get; }
