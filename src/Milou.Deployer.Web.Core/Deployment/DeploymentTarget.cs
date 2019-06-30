@@ -58,8 +58,10 @@ namespace Milou.Deployer.Web.Core.Deployment
             }
 
             _ = PublishType.TryParseOrDefault(publishType, out PublishType type);
-
             PublishType = type;
+
+            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
+            FtpPath = path;
 
             Url = url;
             EnvironmentConfiguration = environmentConfiguration;
@@ -74,7 +76,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             ExcludedFilePatterns = excludedFilePatterns;
             Enabled = enabled;
             PackageListTimeout = packageListTimeout;
-            FtpPath = ftpPath;
             Organization = organization ?? string.Empty;
             ProjectInvariantName = project ?? string.Empty;
             Name = name;
@@ -145,12 +146,16 @@ namespace Milou.Deployer.Web.Core.Deployment
         public TimeSpan? PackageListTimeout { get; }
 
         [JsonProperty(nameof(PublishType))]
-        public string PublishTypeProperty => PublishType.Name;
+        public string PublishTypeValue => PublishType.Name;
 
         [JsonIgnore]
         public PublishType PublishType { get; }
 
-        public string FtpPath { get; }
+        [JsonProperty(nameof(FtpPath))]
+        public string FtpPathValue => FtpPath?.Path;
+
+        [JsonIgnore]
+        public FtpPath FtpPath { get; }
 
         public override string ToString()
         {

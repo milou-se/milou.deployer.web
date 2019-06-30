@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment.Packages;
+using Milou.Deployer.Web.Core.IO;
 using NuGet.Versioning;
 
 namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
@@ -64,7 +65,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 
         public List<DirectoryInfo> TempDirectories { get; } = new List<DirectoryInfo>();
 
-        public List<FileInfo> TempFiles { get; } = new List<FileInfo>();
+        public List<TempFile> TempFiles { get; } = new List<TempFile>();
 
         public SemanticVersion SemanticVersion { get; }
 

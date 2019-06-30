@@ -1,5 +1,6 @@
 ﻿using System;
 using MediatR;
+using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
@@ -29,8 +30,10 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             Url = url;
             PackageId = packageId;
             ExcludedFilePatterns = excludedFilePatterns;
-            PublishType = publishType;
-            FtpPath = ftpPath;
+            _ = PublishType.TryParseOrDefault(publishType, out var foundPublishType);
+            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
+            PublishType = foundPublishType;
+            FtpPath = path;
             IisSiteName = iisSiteName;
             NugetPackageSource = nugetPackageSource;
             NugetConfigFile = nugetConfigFile;
@@ -72,8 +75,10 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public string PackageId { get; }
 
         public string ExcludedFilePatterns { get; }
-        public string PublishType { get; }
-        public string FtpPath { get; }
+
+        public PublishType PublishType { get; }
+
+        public FtpPath FtpPath { get; }
 
         public override string ToString()
         {
