@@ -248,10 +248,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             var ignoredOutputStatements = new List<string> { "Using credentials", "No packages found" };
 
-            var included =
-                builder.Where(line => !ignoredOutputStatements.Any(ignored =>
-                        line.IndexOf(ignored, StringComparison.InvariantCultureIgnoreCase) >= 0))
-                    .ToList();
+            var included = builder
+                .Where(line => line != null && !ignoredOutputStatements
+                                   .Any(ignored =>
+                                       line.IndexOf(ignored, StringComparison.InvariantCultureIgnoreCase) >= 0))
+                .ToList();
 
             var items = included.Select(
                     package =>

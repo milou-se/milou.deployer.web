@@ -30,17 +30,20 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly LoggingLevelSwitch _loggingLevelSwitch;
 
         public MilouDeployer(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] ICredentialReadService credentialReadService,
-            [NotNull] IHttpClientFactory clientFactory)
+            [NotNull] IHttpClientFactory clientFactory,
+            [NotNull] LoggingLevelSwitch loggingLevelSwitch)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _credentialReadService =
                 credentialReadService ?? throw new ArgumentNullException(nameof(credentialReadService));
             _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
+            _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
 
             //_clientFactory = clientFactory;
         }
@@ -304,7 +307,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             arguments.Add(tempManifestFile.File.FullName);
             arguments.Add(Bootstrapper.Common.Constants.AllowPreRelease);
             arguments.Add(LoggingConstants.PlainOutputFormatEnabled);
-            arguments.Add(ConfigurationKeys.LogLevelEnvironmentVariable);
+            arguments.Add($"{ConfigurationKeys.LogLevelEnvironmentVariable}={_loggingLevelSwitch.MinimumLevel}");
 
             var deployerArgs = arguments.ToArray();
 

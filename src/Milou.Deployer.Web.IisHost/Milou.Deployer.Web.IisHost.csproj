@@ -23,17 +23,17 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-        <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.18.0" />
-        <PackageReference Include="Arbor.Processing" Version="0.2.0" />
+        <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.18.1" />
+        <PackageReference Include="Arbor.Processing" Version="0.2.2" />
         <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.2" Condition="'$(NCrunch)' == '1'" />
         <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.7.0" />
-        <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.18.0" />
-        <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.18.0" />
-        <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.18.0" />
-        <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.18.0" />
-        <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.18.0" />
+        <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.18.1" />
+        <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.18.1" />
+        <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.18.1" />
+        <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.18.1" />
+        <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.18.1" />
         <PackageReference Include="Arbor.ModelBinding" Version="0.4.0" />
-        <PackageReference Include="Arbor.Tooler" Version="0.4.0" />
+        <PackageReference Include="Arbor.Tooler" Version="0.4.2" />
         <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
         <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
         <PackageReference Include="MediatR" Version="7.0.0" />
@@ -62,8 +62,8 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.4.15" />
-        <PackageReference Include="Milou.Deployer.Core" Version="4.4.15" />
+        <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.4.21" />
+        <PackageReference Include="Milou.Deployer.Core" Version="4.4.21" />
         <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
         <PackageReference Include="NuGet.Packaging" Version="5.1.0" />
         <PackageReference Include="NuGet.Versioning" Version="5.1.0" />
