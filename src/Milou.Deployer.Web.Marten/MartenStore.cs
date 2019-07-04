@@ -373,21 +373,25 @@ namespace Milou.Deployer.Web.Marten
             DeploymentLogRequest request,
             CancellationToken cancellationToken)
         {
-            TaskLog taskLog;
+            IReadOnlyCollection<LogItem> taskLog;
 
             var id = $"deploymentTaskLog/{request.DeploymentTaskId}";
 
+            var level = (int)request.Level;
+
             using (var session = _documentStore.LightweightSession())
             {
-                taskLog = await session.LoadAsync<TaskLog>(id, cancellationToken);
+                taskLog = await session.Query<LogItem>()
+                    .Where(log => log.TaskLogId == id && log.Level >= level)
+                    .ToListAsync(cancellationToken);
             }
 
             if (taskLog is null)
             {
-                return new DeploymentLogResponse(string.Empty);
+                return new DeploymentLogResponse(Array.Empty<LogItem>());
             }
 
-            return new DeploymentLogResponse(taskLog.Log);
+            return new DeploymentLogResponse(taskLog);
         }
 
         public async Task<UpdateDeploymentTargetResult> Handle(

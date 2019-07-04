@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -48,7 +49,7 @@ Finished at time (UTC): {notification.FinishedAtUtc:O}
 Package ID: {notification.DeploymentTask.PackageId}
 Deployment task ID: {notification.DeploymentTask.DeploymentTaskId}
 Version: {notification.DeploymentTask.SemanticVersion.ToNormalizedString()}
-Log: {notification.Log}
+Log: {string.Join(Environment.NewLine, notification.LogLines.Select(line => line.Message))}
 ";
 
             var message = new MimeMessage

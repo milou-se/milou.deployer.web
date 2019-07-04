@@ -1,6 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using MediatR;
+using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
@@ -9,15 +10,15 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
     {
         public DeploymentFinishedNotification(
             [NotNull] DeploymentTask deploymentTask,
-            string log,
+            LogItem[] logLines,
             DateTime finishedAtUtc)
         {
-            Log = log;
+            LogLines = logLines;
             FinishedAtUtc = finishedAtUtc;
             DeploymentTask = deploymentTask ?? throw new ArgumentNullException(nameof(deploymentTask));
         }
 
-        public string Log { get; }
+        public LogItem[] LogLines { get; }
 
         public DeploymentTask DeploymentTask { get; }
 

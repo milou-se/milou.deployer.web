@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -14,6 +15,7 @@ using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
+using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Time;
@@ -215,12 +217,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             ExitCode exitCode;
 
-            var logBuilder = new StringBuilder();
+            var logBuilder = new List<LogItem>();
 
             var loggerConfiguration = new LoggerConfiguration()
                 .WriteTo.File(contentFilePath)
-                .WriteTo.DelegateSink(deploymentTask.Log)
-                .WriteTo.DelegateSink(message => logBuilder.AppendLine(message))
+                .WriteTo.DelegateSink((message, level) => deploymentTask.Log(message))
+                .WriteTo.DelegateSink((message, level) =>
+                    logBuilder.Add(new LogItem { Message = message, Level = (int)level, TimeStamp = _customClock.UtcNow()}))
                 .WriteTo.Logger(logger);
 
             if (Debugger.IsAttached)
@@ -256,7 +259,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
 
             await _mediator.Publish(
-                new DeploymentFinishedNotification(deploymentTask, logBuilder.ToString(), finishedAtUtc),
+                new DeploymentFinishedNotification(deploymentTask, logBuilder.ToArray(), finishedAtUtc),
                 cancellationToken);
 
             return (exitCode, finishedAtUtc);

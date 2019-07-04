@@ -2,6 +2,7 @@
 using JetBrains.Annotations;
 using Serilog;
 using Serilog.Configuration;
+using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Logging
 {
@@ -9,7 +10,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Logging
     {
         public static LoggerConfiguration DelegateSink(
             [NotNull] this LoggerSinkConfiguration loggerConfiguration,
-            [NotNull] Action<string> action)
+            [NotNull] Action<string, LogEventLevel> action)
         {
             if (loggerConfiguration == null)
             {
