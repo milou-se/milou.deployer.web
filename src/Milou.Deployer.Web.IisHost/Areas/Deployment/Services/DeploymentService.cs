@@ -64,7 +64,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DateTime end,
             Stopwatch stopwatch,
             ExitCode exitCode,
-            DirectoryInfo deploymentJobsDirectory,
             DeploymentTarget deploymentTarget)
         {
             var metadata = new StringBuilder();
@@ -109,11 +108,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             metadata.Append("Exit code ").Append(exitCode).AppendLine();
 
             var metadataContent = metadata.ToString();
-
-            var metadataFilePath = Path.Combine(deploymentJobsDirectory.FullName,
-                $"{deploymentTask.DeploymentTaskId}.metadata.txt");
-
-            File.WriteAllText(metadataFilePath, metadataContent, Encoding.UTF8);
 
             return metadataContent;
         }
@@ -185,45 +179,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        private DirectoryInfo EnsureDeploymentJobsDirectoryExists()
-        {
-            var directoryPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                "App_Data");
-
-            var baseDir = _keyValueConfiguration["urn:milou:deployer:jobs-directory"]
-                .WithDefault(directoryPath);
-
-            var jobDirectoryPath = Path.Combine(baseDir, "DeploymentJobs");
-
-            var directoryInfo = new DirectoryInfo(jobDirectoryPath);
-
-            if (!directoryInfo.Exists)
-            {
-                directoryInfo.Create();
-            }
-
-            return directoryInfo;
-        }
-
         private async Task<(ExitCode, DateTime)> RunDeploymentToolAsync(
             DeploymentTask deploymentTask,
-            DirectoryInfo deploymentJobsDirectory,
             DeploymentTarget deploymentTarget,
             ILogger logger,
             CancellationToken cancellationToken = default)
         {
-            var contentFilePath = GetMainLogFilePath(deploymentTask,
-                deploymentJobsDirectory);
-
             ExitCode exitCode;
 
             var logBuilder = new List<LogItem>();
 
             var loggerConfiguration = new LoggerConfiguration()
-                .WriteTo.File(contentFilePath)
-                .WriteTo.DelegateSink((message, level) => deploymentTask.Log(message))
+                .WriteTo.DelegateSink((message, level) => deploymentTask.Log(message), _loggingLevelSwitch.MinimumLevel)
                 .WriteTo.DelegateSink((message, level) =>
-                    logBuilder.Add(new LogItem { Message = message, Level = (int)level, TimeStamp = _customClock.UtcNow()}))
+                        logBuilder.Add(new LogItem
+                        {
+                            Message = message, Level = (int)level, TimeStamp = _customClock.UtcNow()
+                        }),
+                    LogEventLevel.Verbose)
                 .WriteTo.Logger(logger);
 
             if (Debugger.IsAttached)
@@ -275,8 +248,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
             (ExitCode, DateTime) result;
 
-            var deploymentJobsDirectory = EnsureDeploymentJobsDirectoryExists();
-
             DeploymentTarget deploymentTarget = null;
 
             try
@@ -292,7 +263,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 VerifyAllowedPackageIsAllowed(deploymentTarget, deploymentTask.PackageId, logger);
 
                 result = await RunDeploymentToolAsync(deploymentTask,
-                    deploymentJobsDirectory,
                     deploymentTarget,
                     logger,
                     cancellationToken);
@@ -310,7 +280,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 result.Item2,
                 stopwatch,
                 result.Item1,
-                deploymentJobsDirectory,
                 deploymentTarget);
 
             var deploymentTaskResult = new DeploymentTaskResult(deploymentTask.DeploymentTaskId,

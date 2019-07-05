@@ -308,6 +308,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             arguments.Add(Bootstrapper.Common.Constants.AllowPreRelease);
             arguments.Add(LoggingConstants.PlainOutputFormatEnabled);
             arguments.Add($"{ConfigurationKeys.LogLevelEnvironmentVariable}={_loggingLevelSwitch.MinimumLevel}");
+            arguments.Add($"{LoggingConstants.LoggingCategoryFormatEnabled}");
 
             var deployerArgs = arguments.ToArray();
 

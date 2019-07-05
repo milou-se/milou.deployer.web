@@ -283,3 +283,7 @@ td, th { padding: 5px; }
     box-sizing: border-box;
   }
 }
+
+div#messages, div#logElements {
+    font-family: "Consolas", "Lucida Console", "Courier";
+}

@@ -18,7 +18,7 @@
         <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.2.0" />
         <PackageReference Include="Microsoft.NetCore.App" Version="2.2.0" Condition="'$(NCrunch)' == '1'" />
         <PackageReference Include="Microsoft.NetCore.App" Condition="'$(NCrunch)' != '1'" />
-        <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+        <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
         <PackageReference Include="Microsoft.Net.Compilers" Version="3.1.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
