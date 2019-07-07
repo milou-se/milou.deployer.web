@@ -6,31 +6,72 @@ namespace Milou.Deployer.Web.Core.IO
 {
     public sealed class TempFile : IDisposable
     {
-        private TempFile(FileInfo file) => File = file ?? throw new ArgumentNullException(nameof(file));
+        private readonly DirectoryInfo _customTempDir;
+
+        private TempFile(FileInfo file, DirectoryInfo customTempDir)
+        {
+            _customTempDir = customTempDir;
+            File = file ?? throw new ArgumentNullException(nameof(file));
+        }
 
         public FileInfo File { get; private set; }
 
         public static TempFile CreateTempFile(string name = null, string extension = null)
         {
-            string fileName = $"{name.WithDefault("MDW-tmp")}-{DateTime.UtcNow.Ticks}.{extension.WithDefault(".tmp")}";
+            string defaultName = $"MDW-tmp-{DateTime.UtcNow.Ticks}";
 
-            string fileFullPath = Path.Combine(Path.GetTempPath(), fileName);
+            string fileName = $"{name.WithDefault(defaultName)}.{extension?.TrimStart('.').WithDefault("tmp")}";
 
-            return new TempFile(new FileInfo(fileFullPath));
+            string tempDir = Path.GetTempPath();
+
+            DirectoryInfo customTempDir = default;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+                customTempDir = new DirectoryInfo(tempDir);
+
+                customTempDir.Create();
+            }
+
+            string fileFullPath = Path.Combine(tempDir, fileName);
+
+            using (System.IO.File.Create(fileFullPath))
+            {
+            }
+
+            var fileInfo = new FileInfo(fileFullPath);
+
+            return new TempFile(fileInfo, customTempDir);
         }
 
         public void Dispose()
         {
-            if (File == null)
+            try
             {
-                return;
+                if (File != null)
+                {
+                    File.Refresh();
+
+                    if (File.Exists)
+                    {
+                        File.Delete();
+                    }
+                }
+
+                if (_customTempDir != null)
+                {
+                    _customTempDir.Refresh();
+                    if (_customTempDir.Exists)
+                    {
+                        _customTempDir.Delete(true);
+                    }
+                }
             }
-
-            File.Refresh();
-
-            if (File.Exists)
+            catch (Exception)
             {
-                File.Delete();
+                // ignore
             }
 
             File = null;
