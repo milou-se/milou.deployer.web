@@ -35,13 +35,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly PackageService _packageService;
 
         private readonly TimeoutHelper _timeoutHelper;
+        private readonly NuGetListConfiguration _nuGetListConfiguration;
 
         public MonitoringService(
             [NotNull] ILogger logger,
             [NotNull] IHttpClientFactory httpClientFactory,
             [NotNull] PackageService packageService,
             [NotNull] MonitorConfiguration monitorConfiguration,
-            TimeoutHelper timeoutHelper)
+            TimeoutHelper timeoutHelper,
+            NuGetListConfiguration nuGetListConfiguration)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -49,6 +51,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _monitorConfiguration =
                 monitorConfiguration ?? throw new ArgumentNullException(nameof(monitorConfiguration));
             _timeoutHelper = timeoutHelper;
+            _nuGetListConfiguration = nuGetListConfiguration;
         }
 
         private static async Task<AppVersion> GetAppVersionAsync(
@@ -63,7 +66,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 return new AppVersion(target, "Response not JSON", filtered);
             }
 
-            var json = await response.Content.ReadAsStringAsync();
+            string json = await response.Content.ReadAsStringAsync();
 
             if (cancellationToken.IsCancellationRequested)
             {
@@ -92,11 +95,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTarget target,
             CancellationToken cancellationToken)
         {
-            CancellationTokenSource cancellationTokenSource = null;
+            CancellationTokenSource cancellationTokenSource;
+            CancellationTokenSource linkedCancellationTokenSource = null;
             if (target.PackageListTimeout.HasValue)
             {
                 cancellationTokenSource = new CancellationTokenSource(target.PackageListTimeout.Value);
                 cancellationToken = cancellationTokenSource.Token;
+            }
+            else
+            {
+                cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(_nuGetListConfiguration.ListTimeOutInSeconds));
+
+                linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, cancellationToken);
+                cancellationToken = linkedCancellationTokenSource.Token;
             }
 
             try
@@ -138,7 +149,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             finally
             {
-                cancellationTokenSource?.Dispose();
+                cancellationTokenSource.Dispose();
+                linkedCancellationTokenSource?.Dispose();
             }
         }
 
@@ -307,7 +319,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             AppVersion appVersion;
                             using (var response = result.Response)
                             {
-                                var message = result.Message;
+                                string message = result.Message;
 
                                 if (response.HasValue() && response.IsSuccessStatusCode)
                                 {

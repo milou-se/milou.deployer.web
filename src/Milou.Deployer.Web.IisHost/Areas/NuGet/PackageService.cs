@@ -29,7 +29,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         private const string AllPackagesCacheKey = PackagesCacheKeyBaseUrn + ":AnyConfig";
         private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
         private readonly NuGetListConfiguration _deploymentConfiguration;
-        private readonly TimeoutHelper _timeoutHelper;
 
         [NotNull]
         private readonly IKeyValueConfiguration _keyValueConfiguration;
@@ -44,8 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             [NotNull] ICustomMemoryCache memoryCache,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ILogger logger,
-            [NotNull] NuGetConfiguration nuGetConfiguration,
-            TimeoutHelper timeoutHelper)
+            [NotNull] NuGetConfiguration nuGetConfiguration)
         {
             _deploymentConfiguration = deploymentConfiguration ??
                                        throw new ArgumentNullException(nameof(deploymentConfiguration));
@@ -54,7 +52,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _nuGetConfiguration = nuGetConfiguration ?? throw new ArgumentNullException(nameof(nuGetConfiguration));
-            _timeoutHelper = timeoutHelper;
         }
 
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
@@ -164,35 +161,30 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             var builder = new List<string>();
             var errorBuild = new List<string>();
 
-            logger?.Debug("Running NuGet from package service to find packages with timeout {Seconds} seconds",
+            logger?.Debug("Running NuGet from package service to find package {PackageId} with timeout {Seconds} seconds",
+                packageId,
                 _deploymentConfiguration.ListTimeOutInSeconds);
 
             ExitCode exitCode;
 
             Stopwatch stopwatch = Stopwatch.StartNew();
-            using (var cancellationTokenSource =
-                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_deploymentConfiguration.ListTimeOutInSeconds)))
-            {
-                using (var linked =
-                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
+
+            exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
+                args,
+                (message, category) =>
                 {
-                    exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
-                        args,
-                        (message, category) =>
-                        {
-                            builder.Add(message);
-                            _logger.Debug("{Category} {Message}", category, message);
-                        },
-                        (message, category) =>
-                        {
-                            errorBuild.Add(message);
-                            _logger.Error("{Category} {Message}", category, message);
-                        },
-                        (message, category) => _logger.Debug("{Category} {ProcessToolMessage}", category, message),
-                        (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}", category, message),
-                        cancellationToken: linked.Token);
-                }
-            }
+                    builder.Add(message);
+                    _logger.Debug("{Category} {Message}", category, message);
+                },
+                (message, category) =>
+                {
+                    errorBuild.Add(message);
+                    _logger.Error("{Category} {Message}", category, message);
+                },
+                (message, category) => _logger.Debug("{Category} {ProcessToolMessage}", category, message),
+                (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}", category, message),
+                cancellationToken: cancellationToken);
+
 
             stopwatch.Stop();
 
