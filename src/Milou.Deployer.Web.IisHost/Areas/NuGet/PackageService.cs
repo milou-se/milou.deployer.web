@@ -123,7 +123,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             var packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 
-            var args = new List<string> { "list", packageId };
+            var args = new List<string> { "list", $"packageid:{packageId}" };
 
             if (includePreReleased)
             {
