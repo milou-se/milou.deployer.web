@@ -33,7 +33,12 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
             app.UseSignalRHubs();
 
-            app.UseMvc();
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Security;
@@ -144,7 +143,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         0,
                         new XWwwFormUrlEncodedFormatter(
                             new SerilogLoggerFactory(logger).CreateLogger<XWwwFormUrlEncodedFormatter>()));
-                }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(
+                }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0).AddNewtonsoftJson(
                 options =>
                 {
                     options.SerializerSettings.Converters.Add(new DateConverter());

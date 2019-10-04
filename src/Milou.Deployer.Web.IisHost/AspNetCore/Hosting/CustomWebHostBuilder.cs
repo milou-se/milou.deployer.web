@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
@@ -27,7 +28,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
             ServiceProviderHolder serviceProviderHolder,
             ILogger logger)
         {
-            var contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
+            string contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
 
             logger.Debug("Using content root {ContentRoot}", contentRoot);
 
@@ -58,6 +59,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
                         .AddServerFeatures()
                         .AddDeploymentMvc(logger);
 
+                    services.AddControllers();
+                    services.AddControllersWithViews();
                     services.AddMvc();
                 })
                 .ConfigureAppConfiguration((hostingContext, config) =>
