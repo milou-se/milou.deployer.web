@@ -20,6 +20,7 @@ using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
+using Serilog;
 using Serilog.Core;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
@@ -39,6 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
+        private readonly ILogger _logger;
 
         public DiagnosticsViewHandler(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -48,7 +50,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             [NotNull] EnvironmentConfiguration environmentConfiguration,
             IServiceProvider serviceProvider,
             ServiceDiagnostics serviceDiagnostics,
-            ConfigurationInstanceHolder configurationInstanceHolder)
+            ConfigurationInstanceHolder configurationInstanceHolder,
+            ILogger logger)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -60,6 +63,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             _serviceProvider = serviceProvider;
             _serviceDiagnostics = serviceDiagnostics;
             _configurationInstanceHolder = configurationInstanceHolder;
+            _logger = logger;
         }
 
         private async Task<IKeyValueConfiguration> GetApplicationMetadataAsync(CancellationToken cancellationToken)
@@ -161,13 +165,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     return new ServiceInstance(registrationType, "Generic type", serviceRegistrationInfo.Module);
                 }
 
-                return new ServiceInstance(registrationType,
-                    _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType),
-                    serviceRegistrationInfo.Module);
+                try
+                {
+                    var instance =
+                        _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType);
+
+                    return new ServiceInstance(registrationType, instance, serviceRegistrationInfo.Module);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex,
+                        "Could not get instance form registration type {Type}",
+                        serviceRegistrationInfo.ServiceDescriptorImplementationType.FullName);
+                    return default;
+                }
             }
 
             var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
-                .ToImmutableArray();
+                .SafeToImmutableArray();
 
             var settingsViewModel = new SettingsViewModel(
                 _deploymentTargetReadService.GetType().Name,
@@ -176,7 +191,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 serviceDiagnosticsRegistrations,
                 aspNetConfigurationValues,
                 serviceDiagnosticsRegistrations
-                    .Select(GetInstance).ToImmutableArray(),
+                    .Select(GetInstance)
+                    .Where(item => item is object).ToImmutableArray(),
                 _loggingLevelSwitch.MinimumLevel,
                 applicationVersionInfo,
                 applicationMetadata,
