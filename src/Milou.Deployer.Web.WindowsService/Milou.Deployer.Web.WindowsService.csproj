@@ -68,7 +68,7 @@
 
   <ItemGroup>
     <PackageReference Include="Arbor.Processing" Version="0.3.0" />
-    <PackageReference Include="Arbor.Tooler" Version="0.6.2" />
+    <PackageReference Include="Arbor.Tooler" Version="0.6.3" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.0.0" />
     <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.5.8" />
     <PackageReference Include="Milou.Deployer.Core" Version="4.5.8" />
