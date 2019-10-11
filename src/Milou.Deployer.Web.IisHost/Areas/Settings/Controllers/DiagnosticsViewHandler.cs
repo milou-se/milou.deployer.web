@@ -161,9 +161,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     return new ServiceInstance(registrationType, "Generic type", serviceRegistrationInfo.Module);
                 }
 
-                return new ServiceInstance(registrationType,
-                    _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType),
-                    serviceRegistrationInfo.Module);
+                try
+                {
+                    var instance =
+                        _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType);
+
+                    return new ServiceInstance(registrationType, instance, serviceRegistrationInfo.Module);
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    return null;
+                }
             }
 
             var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
@@ -176,7 +184,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 serviceDiagnosticsRegistrations,
                 aspNetConfigurationValues,
                 serviceDiagnosticsRegistrations
-                    .Select(GetInstance).ToImmutableArray(),
+                    .Select(GetInstance)
+                    .Where(item => item is { })
+                    .ToImmutableArray(),
                 _loggingLevelSwitch.MinimumLevel,
                 applicationVersionInfo,
                 applicationMetadata,

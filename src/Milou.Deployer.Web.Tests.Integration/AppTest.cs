@@ -18,7 +18,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private readonly ITestOutputHelper _output;
 
-        [Fact]
+        [Fact(Skip = "System test")]
         public async Task Do()
         {
             var envArgs = new Dictionary<string, string> { [ConfigurationConstants.RestartTimeInSeconds] = "20" }

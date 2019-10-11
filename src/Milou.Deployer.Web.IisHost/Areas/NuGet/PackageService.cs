@@ -181,14 +181,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                         (message, category) =>
                         {
                             builder.Add(message);
-                            _logger.Debug("{Category} {Message}", category, message);
+                            _logger.Verbose("{Category} {Message}", category, message);
                         },
                         (message, category) =>
                         {
                             errorBuild.Add(message);
                             _logger.Error("{Category} {Message}", category, message);
                         },
-                        (message, category) => _logger.Debug("{Category} {ProcessToolMessage}", category, message),
+                        (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}", category, message),
                         (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}", category, message),
                         cancellationToken: linked.Token);
                 }
@@ -266,7 +266,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
                             if (!SemanticVersion.TryParse(version, out var semanticVersion))
                             {
-                                _logger.Debug(
+                                _logger.Verbose(
                                     "Found package version {Version} for package {Package}, skipping because it could not be parsed as semantic version",
                                     version,
                                     currentPackageId);
@@ -275,7 +275,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
                             if (!packageId.Equals(currentPackageId, StringComparison.OrdinalIgnoreCase))
                             {
-                                _logger.Debug(
+                                _logger.Verbose(
                                     "Found package {Package}, skipping because it does match requested package {RequestedPackage}",
                                     currentPackageId,
                                     packageId);
@@ -291,7 +291,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                             return null;
                         }
                     })
-                .Where(packageVersion => packageVersion != null)
+                .Where(packageVersion =>
+                        packageVersion != null && (includePreReleased || !packageVersion.Version.IsPrerelease))
                 .OrderBy(packageVersion => packageVersion.PackageId)
                 .ThenByDescending(packageVersion => packageVersion.Version)
                 .ToList();
@@ -300,12 +301,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             foreach (var packageVersion in items)
             {
+                _logger.Debug("Found package {Package} {Version}", packageVersion.PackageId, packageVersion.Version.ToNormalizedString());
+
                 addedPackages.Add(packageVersion.ToString());
             }
 
             if (_logger.IsEnabled(LogEventLevel.Verbose))
             {
-                _logger.Verbose("Added {Count} packages to in-memory cache with cache key {CacheKey} {PackageVersions}",
+                _logger.Verbose(
+                    "Added {Count} packages to in-memory cache with cache key {CacheKey} {PackageVersions}",
                     addedPackages.Count,
                     cacheKey,
                     addedPackages);
@@ -320,7 +324,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             }
             else if (addedPackages.Any())
             {
-                _logger.Information("Added {Count} packages to in-memory cache with cache key {CacheKey}",
+                _logger.Information(
+                    "Added {Count} packages to in-memory cache with cache key {CacheKey}",
                     addedPackages.Count,
                     cacheKey);
             }

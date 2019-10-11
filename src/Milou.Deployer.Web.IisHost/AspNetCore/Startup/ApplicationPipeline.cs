@@ -13,7 +13,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
     {
         public void Configure(IApplicationBuilder app)
         {
-            var environmentConfiguration = app.ApplicationServices.GetService<EnvironmentConfiguration>();
+            var environmentConfiguration = app!.ApplicationServices.GetRequiredService<EnvironmentConfiguration>();
 
             app.AddForwardHeaders(environmentConfiguration);
 
@@ -25,15 +25,22 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
             app.UseMiddleware<RedirectMiddleware>();
 
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
             app.UseAuthentication();
 
-            app.UseStaticFiles();
+            app.UseAuthorization();
 
             app.UseMiddleware<ConfigurationErrorMiddleware>();
 
-            app.UseSignalRHubs();
-
-            app.UseMvc();
+            app.UseEndpoints(
+                options =>
+                {
+                    options.MapControllers();
+                    options.UseSignalRHubs();
+                });
         }
     }
 }

@@ -144,12 +144,14 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         0,
                         new XWwwFormUrlEncodedFormatter(
                             new SerilogLoggerFactory(logger).CreateLogger<XWwwFormUrlEncodedFormatter>()));
-                }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(
+                }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0).AddNewtonsoftJson(
                 options =>
                 {
                     options.SerializerSettings.Converters.Add(new DateConverter());
                     options.SerializerSettings.Formatting = Formatting.Indented;
                 });
+
+            services.AddControllersWithViews();
 
             return services;
         }

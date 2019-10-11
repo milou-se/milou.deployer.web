@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Routing;
+
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
@@ -31,9 +33,9 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return app.UseForwardedHeaders(forwardedHeadersOptions);
         }
 
-        public static IApplicationBuilder UseSignalRHubs(this IApplicationBuilder app)
+        public static void UseSignalRHubs(this IEndpointRouteBuilder routerBuilder)
         {
-            return app.UseSignalR(builder => builder.MapHub<DeploymentLoggingHub>(DeploymentLogConstants.HubRoute));
+            routerBuilder.MapHub<DeploymentLoggingHub>(DeploymentLogConstants.HubRoute);
         }
 
         public static IApplicationBuilder AddExceptionHandling(

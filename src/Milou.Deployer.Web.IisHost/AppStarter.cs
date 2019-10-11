@@ -128,7 +128,10 @@ namespace Milou.Deployer.Web.IisHost
 
                 if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string url))
                 {
-                    loggerConfiguration = loggerConfiguration.WriteTo.Seq(url);
+                    if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+                    {
+                        loggerConfiguration = loggerConfiguration.WriteTo.Seq(uri.AbsoluteUri);
+                    }
                 }
 
                 var logger = loggerConfiguration
