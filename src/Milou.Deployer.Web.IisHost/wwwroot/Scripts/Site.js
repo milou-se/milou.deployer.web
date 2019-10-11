@@ -13,26 +13,38 @@ function createSpanLogItemElementFromJson(jsonData) {
 
     const eventData = jsonData;
 
-    if (eventData.Message) {
-        logElement.innerHTML = eventData.Message;
-    } else {
-        logElement.innerHTML = `<span class="timestamp">${eventData.FormattedTimestamp}</span>
+    try {
+        if (eventData.Message) {
+            logElement.innerHTML = eventData.Message;
+        } else {
+            logElement.innerHTML = `<span class="timestamp">${eventData.FormattedTimestamp}</span>
 <span class="level-${eventData.Level}">[${eventData.Level}]</span>
 <span class="message">${eventData.RenderedTemplate}</span><br />`;
+        }
+    } catch (ex) {
+        console.debug(ex);
+        logElement.innerText = jsonData;
     }
 
     return logElement;
 }
 
 function parseLogLines(jsonLogs) {
-
     const lines = JSON.parse(jsonLogs);
+    showLogLines(lines.items);
+}
+
+function showLogLines(lines) {
+
+    if (!lines) {
+        console.debug("Lines are not defined");
+    }
 
     const logElements = document.createElement("div");
 
-    lines.items.forEach(function(element) {
+    lines.forEach(function(element) {
 
-        const spanElement = createSpanLogItemElementFromJson(element);
+        const spanElement = createSpanLogItemElementFromJson(JSON.parse(element));
 
         logElements.appendChild(spanElement);
     });

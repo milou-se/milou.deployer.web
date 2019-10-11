@@ -6,7 +6,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     {
         public const string Configuration = "urn:milou:deployer:web:deployment-worker:configuration";
 
-        [Metadata(defaultValue: "10")]
+        [Metadata(defaultValue: "60")]
         public const string MessageTimeOutInSeconds = Configuration + ":default:" + nameof(MessageTimeOutInSeconds);
     }
 }

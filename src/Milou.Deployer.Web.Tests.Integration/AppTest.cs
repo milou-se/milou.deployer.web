@@ -11,15 +11,12 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class AppTest
     {
-        public AppTest(ITestOutputHelper output)
-        {
-            _output = output;
-        }
+        public AppTest(ITestOutputHelper output) => _output = output;
 
         private readonly ITestOutputHelper _output;
 
-        [Fact(Skip = "System test")]
-        public async Task Do()
+        [Fact(Skip = "Full app test")]
+        public async Task RunApplicationWithExitCode0()
         {
             var envArgs = new Dictionary<string, string> { [ConfigurationConstants.RestartTimeInSeconds] = "20" }
                 .ToImmutableDictionary();

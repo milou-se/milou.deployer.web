@@ -9,9 +9,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Logging
 {
     public class DelegateSink : ILogEventSink
     {
-        private readonly Action<string> _action;
+        private readonly Action<string, LogEventLevel> _action;
 
-        public DelegateSink([NotNull] Action<string> action)
+        public DelegateSink([NotNull] Action<string, LogEventLevel> action)
         {
             _action = action ?? throw new ArgumentNullException(nameof(action));
         }
@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Logging
 
             var message = JsonConvert.SerializeObject(output);
 
-            _action(message);
+            _action(message, logEvent.Level);
         }
     }
 }

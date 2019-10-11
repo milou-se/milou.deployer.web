@@ -1,12 +1,12 @@
-﻿namespace Milou.Deployer.Web.Core.Deployment.Messages
+﻿using System.Collections.Generic;
+using Milou.Deployer.Web.Core.Deployment.Targets;
+
+namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
     public class DeploymentLogResponse
     {
-        public DeploymentLogResponse(string log)
-        {
-            Log = log;
-        }
+        public DeploymentLogResponse(IReadOnlyCollection<LogItem> logItems) => LogItems = logItems;
 
-        public string Log { get; }
+        public IReadOnlyCollection<LogItem> LogItems { get; }
     }
 }

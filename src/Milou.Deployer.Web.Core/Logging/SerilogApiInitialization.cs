@@ -120,7 +120,9 @@ namespace Milou.Deployer.Web.Core.Logging
                 logger.Debug("Rolling file log is disabled");
             }
 
-            loggerConfiguration = loggerConfiguration.WriteTo.Console();
+            const string ConsoleOutputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:j}{NewLine}{Exception}";
+
+            loggerConfiguration = loggerConfiguration.WriteTo.Console(standardErrorFromLevel: LogEventLevel.Error, outputTemplate: ConsoleOutputTemplate);
 
             var microsoftLevel =
                 multiSourceKeyValueConfiguration[LoggingConstants.MicrosoftLevel].ParseOrDefault(LogEventLevel.Warning);
@@ -196,7 +198,7 @@ namespace Milou.Deployer.Web.Core.Logging
 
             var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Is(startupLevel)
-                .WriteTo.Console(startupLevel);
+                .WriteTo.Console(startupLevel, standardErrorFromLevel: LogEventLevel.Error);
 
             if (logFile.HasValue())
             {

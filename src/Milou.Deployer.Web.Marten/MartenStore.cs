@@ -373,27 +373,36 @@ namespace Milou.Deployer.Web.Marten
             DeploymentLogRequest request,
             CancellationToken cancellationToken)
         {
-            TaskLog taskLog;
+            IReadOnlyCollection<LogItem> taskLog;
 
             var id = $"deploymentTaskLog/{request.DeploymentTaskId}";
 
+            var level = (int)request.Level;
+
             using (var session = _documentStore.LightweightSession())
             {
-                taskLog = await session.LoadAsync<TaskLog>(id, cancellationToken);
+                taskLog = await session.Query<LogItem>()
+                    .Where(log => log.TaskLogId == id && log.Level >= level)
+                    .ToListAsync(cancellationToken);
             }
 
             if (taskLog is null)
             {
-                return new DeploymentLogResponse(string.Empty);
+                return new DeploymentLogResponse(Array.Empty<LogItem>());
             }
 
-            return new DeploymentLogResponse(taskLog.Log);
+            return new DeploymentLogResponse(taskLog);
         }
 
         public async Task<UpdateDeploymentTargetResult> Handle(
-            UpdateDeploymentTarget request,
+            [NotNull] UpdateDeploymentTarget request,
             CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             using (var session = _documentStore.OpenSession())
             {
                 var data =
@@ -415,8 +424,8 @@ namespace Milou.Deployer.Web.Marten
                 data.TargetDirectory = request.TargetDirectory;
                 data.WebConfigTransform = request.WebConfigTransform;
                 data.ExcludedFilePatterns = request.ExcludedFilePatterns;
-                data.FtpPath = request.FtpPath;
-                data.PublishType = request.PublishType;
+                data.FtpPath = request.FtpPath?.Path;
+                data.PublishType = request.PublishType.Name;
                 data.EnvironmentType = request.EnvironmentType.Name;
                 data.PackageListTimeout = request.PackageListTimeout;
                 session.Store(data);
@@ -429,8 +438,13 @@ namespace Milou.Deployer.Web.Marten
             return new UpdateDeploymentTargetResult();
         }
 
-        public async Task<Unit> Handle(RemoveTarget request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle([NotNull] RemoveTarget request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             using (var session = _documentStore.OpenSession())
             {
                 session.Delete<DeploymentTargetData>(request.TargetId);
@@ -463,8 +477,13 @@ namespace Milou.Deployer.Web.Marten
             return Unit.Value;
         }
 
-        public async Task<Unit> Handle(DisableTarget request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle([NotNull] DisableTarget request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             using (var session = _documentStore.OpenSession())
             {
                 var deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);

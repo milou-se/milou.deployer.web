@@ -9,7 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
+using Arbor.Tooler;
 using JetBrains.Annotations;
+using Milou.Deployer.Core.NuGet;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Configuration;
@@ -29,7 +31,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         private const string AllPackagesCacheKey = PackagesCacheKeyBaseUrn + ":AnyConfig";
         private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
         private readonly NuGetListConfiguration _deploymentConfiguration;
-        private readonly TimeoutHelper _timeoutHelper;
 
         [NotNull]
         private readonly IKeyValueConfiguration _keyValueConfiguration;
@@ -38,6 +39,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         private readonly NuGetConfiguration _nuGetConfiguration;
 
         private readonly ILogger _logger;
+        private readonly Arbor.Tooler.NuGetPackageInstaller _packageInstaller;
 
         public PackageService(
             [NotNull] NuGetListConfiguration deploymentConfiguration,
@@ -45,7 +47,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ILogger logger,
             [NotNull] NuGetConfiguration nuGetConfiguration,
-            TimeoutHelper timeoutHelper)
+            [NotNull] NuGetPackageInstaller packageInstaller)
         {
             _deploymentConfiguration = deploymentConfiguration ??
                                        throw new ArgumentNullException(nameof(deploymentConfiguration));
@@ -54,7 +56,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _nuGetConfiguration = nuGetConfiguration ?? throw new ArgumentNullException(nameof(nuGetConfiguration));
-            _timeoutHelper = timeoutHelper;
+            _packageInstaller = packageInstaller ?? throw new ArgumentNullException(nameof(packageInstaller));
         }
 
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
@@ -126,7 +128,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             var packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 
-            var args = new List<string> { "list", packageId };
+            var args = new List<string> { "list", $"packageid:{packageId}" };
 
             if (includePreReleased)
             {
@@ -136,20 +138,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             if (!string.IsNullOrWhiteSpace(packageSource))
             {
                 logger?.Debug("Using package source '{PackageSource}' for package {Package}", packageSource, packageId);
-                args.Add("-source");
-                args.Add(packageSource);
             }
             else
             {
                 logger?.Debug(
-                    "There is no package source defined i app settings, key '{PackageSourceAppSettingsKey}', using all sources",
+                    "There is no package source defined in app settings, key '{PackageSourceAppSettingsKey}', using all sources",
                     packageSourceAppSettingsKey);
             }
-
-            args.Add("-AllVersions");
-            args.Add("-NonInteractive");
-            args.Add("-Verbosity");
-            args.Add("normal");
 
             var configFile =
                 nugetConfigFile.WithDefault(_keyValueConfiguration[ConfigurationConstants.NugetConfigFile]);
@@ -157,149 +152,27 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             if (configFile.HasValue() && File.Exists(configFile))
             {
                 _logger.Debug("Using NuGet config file {NuGetConfigFile} for package {Package}", configFile, packageId);
-                args.Add("-ConfigFile");
-                args.Add(configFile);
             }
 
-            var builder = new List<string>();
-            var errorBuild = new List<string>();
-
-            logger?.Debug("Running NuGet from package service to find packages with timeout {Seconds} seconds",
+            logger?.Debug("Running NuGet from package service to find package {PackageId} with timeout {Seconds} seconds",
+                packageId,
                 _deploymentConfiguration.ListTimeOutInSeconds);
 
-            ExitCode exitCode;
-
             Stopwatch stopwatch = Stopwatch.StartNew();
-            using (var cancellationTokenSource =
-                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_deploymentConfiguration.ListTimeOutInSeconds)))
-            {
-                using (var linked =
-                    CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cancellationTokenSource.Token))
-                {
-                    exitCode = await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
-                        args,
-                        (message, category) =>
-                        {
-                            builder.Add(message);
-                            _logger.Verbose("{Category} {Message}", category, message);
-                        },
-                        (message, category) =>
-                        {
-                            errorBuild.Add(message);
-                            _logger.Error("{Category} {Message}", category, message);
-                        },
-                        (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}", category, message),
-                        (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}", category, message),
-                        cancellationToken: linked.Token);
-                }
-            }
+
+            var allVersions = await _packageInstaller.GetAllVersionsAsync(new NuGetPackageId(packageId), nuGetSource: nugetPackageSource, nugetConfig: nugetConfigFile, allowPreRelease: includePreReleased, nugetExePath: _nuGetConfiguration.NugetExePath);
 
             stopwatch.Stop();
 
             _logger.Debug("Get package versions external process took {Elapsed} milliseconds", stopwatch.ElapsedMilliseconds);
 
-            var standardOut = string.Join(Environment.NewLine, builder);
-            var standardErrorOut = string.Join(Environment.NewLine, errorBuild);
-
-            if (!exitCode.IsSuccess)
-            {
-                var sources = new List<string>();
-                var sourcesError = new List<string>();
-
-                var sourcesArgs = new List<string> { "sources" };
-
-                if (configFile.HasValue() && File.Exists(configFile))
-                {
-                    sourcesArgs.Add("-ConfigFile");
-                    sourcesArgs.Add(configFile);
-                }
-
-                sourcesArgs.Add("-NonInteractive");
-
-                if (_logger.IsEnabled(LogEventLevel.Debug) || _logger.IsEnabled(LogEventLevel.Verbose))
-                {
-                    sourcesArgs.Add("-Verbosity");
-                    sourcesArgs.Add("detailed");
-                }
-
-                await ProcessRunner.ExecuteProcessAsync(_nuGetConfiguration.NugetExePath,
-                    sourcesArgs,
-                    (message, _) => sources.Add(message),
-                    (message, _) => sourcesError.Add(message),
-                    (message, category) => _logger.Information("{Category} {ProcessToolMessage}", category, message),
-                    (message, category) => _logger.Verbose("{Category} {ProcessToolMessage}", category, message),
-                    cancellationToken: cancellationToken);
-
-                var sourcesOut = string.Join(Environment.NewLine, sources);
-                var sourcesErrorOut = string.Join(Environment.NewLine, sourcesError);
-
-                _logger.Error(
-                    "Exit code {Code} when running NuGet list packages; standard out '{StandardOut}', standard error '{StandardErrorOut}', exe path '{NugetExe}', arguments '{Arguments}', nuget sources '{SourcesOut}', sources error '{SourcesErrorOut}'",
-                    exitCode.Code,
-                    standardOut,
-                    standardErrorOut,
-                    _nuGetConfiguration.NugetExePath,
-                    string.Join(" ", args),
-                    sourcesOut,
-                    sourcesErrorOut);
-
-                return Array.Empty<PackageVersion>();
-            }
-
-            var ignoredOutputStatements = new List<string> { "Using credentials", "No packages found" };
-
-            var included =
-                builder.Where(line => !ignoredOutputStatements.Any(ignored =>
-                        line.IndexOf(ignored, StringComparison.InvariantCultureIgnoreCase) >= 0))
-                    .ToList();
-
-            var items = included.Select(
-                    package =>
-                    {
-                        var parts = package.Split(' ');
-
-                        var currentPackageId = parts[0];
-
-                        try
-                        {
-                            var version = parts.Last();
-
-                            if (!SemanticVersion.TryParse(version, out var semanticVersion))
-                            {
-                                _logger.Verbose(
-                                    "Found package version {Version} for package {Package}, skipping because it could not be parsed as semantic version",
-                                    version,
-                                    currentPackageId);
-                                return null;
-                            }
-
-                            if (!packageId.Equals(currentPackageId, StringComparison.OrdinalIgnoreCase))
-                            {
-                                _logger.Verbose(
-                                    "Found package {Package}, skipping because it does match requested package {RequestedPackage}",
-                                    currentPackageId,
-                                    packageId);
-
-                                return null;
-                            }
-
-                            return new PackageVersion(packageId, semanticVersion);
-                        }
-                        catch (Exception ex) when (!ex.IsFatal())
-                        {
-                            _logger.Warning(ex, "Error parsing package '{Package}'", package);
-                            return null;
-                        }
-                    })
-                .Where(packageVersion =>
-                        packageVersion != null && (includePreReleased || !packageVersion.Version.IsPrerelease))
-                .OrderBy(packageVersion => packageVersion.PackageId)
-                .ThenByDescending(packageVersion => packageVersion.Version)
-                .ToList();
-
             var addedPackages = new List<string>();
 
-            foreach (var packageVersion in items)
+            IReadOnlyCollection<PackageVersion> packageVersions = allVersions
+                .Select(version => new PackageVersion(packageId, version))
+                .ToArray();
+
+            foreach (var packageVersion in packageVersions)
             {
                 _logger.Debug("Found package {Package} {Version}", packageVersion.PackageId, packageVersion.Version.ToNormalizedString());
 
@@ -332,14 +205,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (addedPackages.Any())
             {
-                _memoryCache.SetValue(cacheKey, items);
+                _memoryCache.SetValue(cacheKey, packageVersions);
             }
             else
             {
                 _logger.Debug("Added no packages to in-memory cache for cache key {CacheKey}", cacheKey);
             }
 
-            return items;
+            return packageVersions;
         }
     }
 }

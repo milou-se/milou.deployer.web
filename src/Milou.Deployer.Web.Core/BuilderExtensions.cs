@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Milou.Deployer.Web.Core
 {
     public static class BuilderExtensions
     {
@@ -30,9 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         public static IServiceCollection RegisterAssemblyTypesAsSingletons<T>(
             this IServiceCollection serviceCollection,
             IEnumerable<Assembly> assemblies,
-            IModule module = null) where T : class
-        {
-            return RegisterAssemblyTypes<T>(serviceCollection, assemblies, ServiceLifetime.Singleton, module);
-        }
+            IModule module = null) where T : class =>
+            RegisterAssemblyTypes<T>(serviceCollection, assemblies, ServiceLifetime.Singleton, module);
     }
 }

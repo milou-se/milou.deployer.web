@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Deployment.Sources;
+using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Json;
 
 namespace Milou.Deployer.Web.Marten
@@ -34,6 +35,9 @@ namespace Milou.Deployer.Web.Marten
             jsonNetSerializer.Customize(serializer => serializer.UseCustomConverters());
 
             options.Serializer(jsonNetSerializer);
+
+            options.Schema.For<LogItem>().Index(x => x.TaskLogId);
+            options.Schema.For<LogItem>().Index(x => x.Level);
         }
 
         public IServiceCollection Register(IServiceCollection builder)

@@ -1,26 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Milou.Deployer.Web.Core.Deployment.Targets;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 {
     public class DeploymentLogViewOutputModel
     {
-        public DeploymentLogViewOutputModel(string log)
+        public IReadOnlyCollection<LogItem> LogItems { get; }
+
+        public DeploymentLogViewOutputModel(IReadOnlyCollection<LogItem> logItems)
         {
-            var pattern = @"{""MessageTemplate"":";
-
-            var items = new
-            {
-                items =
-                    log
-                        .Split(new[] { pattern }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(d => JsonConvert.DeserializeObject(pattern + d)).ToArray()
-            };
-
-            Log = JsonConvert.SerializeObject(items);
+            LogItems = logItems;
         }
-
-        public string Log { get; }
     }
 }
