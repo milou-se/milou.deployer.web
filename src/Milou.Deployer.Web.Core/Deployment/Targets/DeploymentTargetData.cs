@@ -45,5 +45,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
         public string EnvironmentType { get; set; }
 
         public TimeSpan? PackageListTimeout { get; set; }
+
+        public NuGetData NuGetData { get; set; }
     }
 }

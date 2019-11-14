@@ -41,22 +41,36 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         {
             if (_dataSeeders.Length > 0)
             {
-                if (!int.TryParse(_configuration[ConfigurationConstants.SeedTimeoutInSeconds],
-                        out var seedTimeoutInSeconds) ||
-                    seedTimeoutInSeconds <= 0)
-                {
-                    seedTimeoutInSeconds = 10;
-                }
-
                 _logger.Debug("Running data seeders");
 
-                foreach (var dataSeeder in _dataSeeders)
+                await Task.Run(() => RunSeeders(startupCancellationToken), startupCancellationToken);
+
+            }
+            else
+            {
+                _logger.Debug("No data seeders were found");
+            }
+
+        }
+
+        private async Task RunSeeders(CancellationToken cancellationToken)
+        {
+            if (!int.TryParse(_configuration[ConfigurationConstants.SeedTimeoutInSeconds],
+                    out var seedTimeoutInSeconds) ||
+                seedTimeoutInSeconds <= 0)
+            {
+                seedTimeoutInSeconds = 10;
+            }
+
+            foreach (var dataSeeder in _dataSeeders)
+            {
+                try
                 {
                     using (var startupToken =
                         _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(seedTimeoutInSeconds)))
                     {
                         using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
-                            startupCancellationToken,
+                            cancellationToken,
                             startupToken.Token))
                         {
                             _logger.Debug("Running data seeder {Seeder}", dataSeeder.GetType().FullName);
@@ -64,15 +78,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                         }
                     }
                 }
-
-                _logger.Debug("Done running data seeders");
-            }
-            else
-            {
-                _logger.Debug("No data seeders were found");
+                catch (TaskCanceledException ex)
+                {
+                    _logger.Error(ex, "Could not run seeder {Seeder}", dataSeeder.GetType().Name);
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Failed to run seeder {Seeder}", dataSeeder.GetType().Name);
+                }
             }
 
             IsCompleted = true;
+
+            _logger.Debug("Done running data seeders");
         }
     }
 }

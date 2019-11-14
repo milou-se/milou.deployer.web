@@ -92,6 +92,10 @@ else
                 <label for="target-packageListTimeout">Timeout</label>
                 <input id="target-packageListTimeout" type="text" name="packageListTimeout" value="@Model.DeploymentTarget.PackageListTimeout?.ToString()"/>
             </div>
+            <div class="input-field">
+                <label for="target-packageCacheTime">Package cache time</label>
+                <input id="target-packageCacheTime" type="text" name="packageCacheTime" value="@Model.DeploymentTarget.NuGet?PackageCacheTime.ToString()"/>
+            </div>
         </fieldset>
         <fieldset>
             <legend>Publish options</legend>

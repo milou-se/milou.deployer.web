@@ -2,6 +2,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.0</TargetFramework>
         <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
         <Compile Remove="App_Data\**" />

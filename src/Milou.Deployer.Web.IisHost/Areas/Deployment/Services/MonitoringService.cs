@@ -97,9 +97,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             CancellationTokenSource cancellationTokenSource;
             CancellationTokenSource linkedCancellationTokenSource = null;
-            if (target.PackageListTimeout.HasValue)
+            if (target.NuGet.PackageListTimeout.HasValue)
             {
-                cancellationTokenSource = new CancellationTokenSource(target.PackageListTimeout.Value);
+                cancellationTokenSource = new CancellationTokenSource(target.NuGet.PackageListTimeout.Value);
                 cancellationToken = cancellationTokenSource.Token;
             }
             else
@@ -115,15 +115,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 var allPackageVersions =
                     await _packageService.GetPackageVersionsAsync(
                         target.PackageId,
-                        nugetConfigFile: target.NuGetConfigFile,
-                        nugetPackageSource: target.NuGetPackageSource,
+                        nugetConfigFile: target.NuGet.NuGetConfigFile,
+                        nugetPackageSource: target.NuGet.NuGetPackageSource,
                         logger: _logger,
                         includePreReleased: target.AllowExplicitExplicitPreRelease == true || target.AllowPreRelease,
                         cancellationToken: cancellationToken);
 
                 var allTargetPackageVersions = allPackageVersions.Where(
                         packageVersion =>
-                            target.PackageId.Equals(packageVersion.PackageId,
+                            target.PackageId.Equals(
+                                packageVersion.PackageId,
                                 StringComparison.OrdinalIgnoreCase))
                     .SafeToReadOnlyCollection();
 

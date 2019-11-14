@@ -8,18 +8,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
-using Arbor.Processing;
 using Arbor.Tooler;
 using JetBrains.Annotations;
-using Milou.Deployer.Core.NuGet;
+
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.NuGet;
-using Milou.Deployer.Web.Core.Time;
-using NuGet.Versioning;
+using Milou.Deployer.Web.Core.Settings;
+
 using Serilog;
 using Serilog.Events;
 
@@ -41,13 +40,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         private readonly ILogger _logger;
         private readonly Arbor.Tooler.NuGetPackageInstaller _packageInstaller;
 
+        private readonly IApplicationSettingsStore _applicationSettingsStore;
+
         public PackageService(
             [NotNull] NuGetListConfiguration deploymentConfiguration,
             [NotNull] ICustomMemoryCache memoryCache,
             [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ILogger logger,
             [NotNull] NuGetConfiguration nuGetConfiguration,
-            [NotNull] NuGetPackageInstaller packageInstaller)
+            [NotNull] NuGetPackageInstaller packageInstaller,
+            IApplicationSettingsStore applicationSettingsStore)
         {
             _deploymentConfiguration = deploymentConfiguration ??
                                        throw new ArgumentNullException(nameof(deploymentConfiguration));
@@ -57,6 +59,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _nuGetConfiguration = nuGetConfiguration ?? throw new ArgumentNullException(nameof(nuGetConfiguration));
             _packageInstaller = packageInstaller ?? throw new ArgumentNullException(nameof(packageInstaller));
+            _applicationSettingsStore = applicationSettingsStore;
         }
 
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
@@ -128,13 +131,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             var packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 
-            var args = new List<string> { "list", $"packageid:{packageId}" };
-
-            if (includePreReleased)
-            {
-                args.Add("-PreRelease");
-            }
-
             if (!string.IsNullOrWhiteSpace(packageSource))
             {
                 logger?.Debug("Using package source '{PackageSource}' for package {Package}", packageSource, packageId);
@@ -154,7 +150,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 _logger.Debug("Using NuGet config file {NuGetConfigFile} for package {Package}", configFile, packageId);
             }
 
-            logger?.Debug("Running NuGet from package service to find package {PackageId} with timeout {Seconds} seconds",
+            logger?.Debug(
+                "Running NuGet from package service to find package {PackageId} with timeout {Seconds} seconds",
                 packageId,
                 _deploymentConfiguration.ListTimeOutInSeconds);
 
@@ -205,7 +202,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (addedPackages.Any())
             {
-                _memoryCache.SetValue(cacheKey, packageVersions);
+                var settings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+                TimeSpan cacheTime = settings.CacheTime;
+                _memoryCache.SetValue(cacheKey, packageVersions, cacheTime);
+                _logger.Debug("Cached {Packages} packages with key {CacheKey} for {Duration} seconds", addedPackages.Count, cacheKey, cacheTime.TotalSeconds.ToString("F0"));
             }
             else
             {

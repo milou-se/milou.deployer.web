@@ -97,7 +97,8 @@ namespace Milou.Deployer.Web.Marten
                     enabled: deploymentTargetData.Enabled,
                     packageListTimeout: deploymentTargetData.PackageListTimeout,
                     publishType: deploymentTargetData.PublishType,
-                    ftpPath: deploymentTargetData.FtpPath);
+                    ftpPath: deploymentTargetData.FtpPath,
+                    nuget: MapNuGet(deploymentTargetData.NuGetData));
             }
             catch (Exception ex)
             {
@@ -106,6 +107,14 @@ namespace Milou.Deployer.Web.Marten
 
             return deploymentTargetAsync;
         }
+
+        private TargetNuGetSettings MapNuGet(NuGetData nugetData) =>
+            new TargetNuGetSettings
+            {
+                PackageListTimeout = nugetData?.PackageListTimeout,
+                NuGetPackageSource = nugetData?.NuGetPackageSource,
+                NuGetConfigFile = nugetData?.NuGetConfigFile
+            };
 
         private async Task<CreateOrganizationResult> CreateOrganizationAsync(
             CreateOrganization createOrganization,
@@ -375,9 +384,9 @@ namespace Milou.Deployer.Web.Marten
         {
             IReadOnlyCollection<LogItem> taskLog;
 
-            var id = $"deploymentTaskLog/{request.DeploymentTaskId}";
+            string id = $"deploymentTaskLog/{request.DeploymentTaskId}";
 
-            var level = (int)request.Level;
+            int level = (int)request.Level;
 
             using (var session = _documentStore.LightweightSession())
             {
@@ -428,6 +437,12 @@ namespace Milou.Deployer.Web.Marten
                 data.PublishType = request.PublishType.Name;
                 data.EnvironmentType = request.EnvironmentType.Name;
                 data.PackageListTimeout = request.PackageListTimeout;
+                data.NuGetData ??= new NuGetData
+                                   {
+                                       NuGetConfigFile = request.NugetConfigFile,
+                                       NuGetPackageSource = request.NugetPackageSource,
+                                       PackageListTimeout = request.PackageListTimeout
+                                   };
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);

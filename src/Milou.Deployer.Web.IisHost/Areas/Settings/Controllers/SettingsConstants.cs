@@ -13,5 +13,8 @@
         public const string LogSettingsPostRoute = "/settings/loglevel";
 
         public const string LogSettingsPostRouteName = nameof(LogSettingsPostRoute);
+
+        public const string SaveSettingsPostRoute = "/settings/application";
+        public const string SaveSettingsPostRouteName = nameof(SaveSettingsPostRoute);
     }
 }

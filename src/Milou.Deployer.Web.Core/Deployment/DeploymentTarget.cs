@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Extensions;
 using Newtonsoft.Json;
 
@@ -45,7 +46,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             bool enabled = false,
             TimeSpan? packageListTimeout = default,
             string publishType = default,
-            string ftpPath = default)
+            string ftpPath = default,
+            TargetNuGetSettings nuget = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -88,6 +90,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             EnvironmentType = EnvironmentType.Parse(environmentType);
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
             Parameters = parameters?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
+            NuGet = nuget;
         }
 
         public IReadOnlyCollection<string> EmailNotificationAddresses { get; }
@@ -139,10 +142,13 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public ImmutableDictionary<string, string[]> Parameters { get; }
 
+        [Obsolete]
         public string NuGetConfigFile { get; }
 
+        [Obsolete]
         public string NuGetPackageSource { get; }
 
+        [Obsolete]
         public TimeSpan? PackageListTimeout { get; }
 
         [JsonProperty(nameof(PublishType))]
@@ -156,6 +162,8 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         [JsonIgnore]
         public FtpPath FtpPath { get; }
+
+        public TargetNuGetSettings NuGet { get; }
 
         public override string ToString()
         {

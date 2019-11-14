@@ -44,8 +44,6 @@ namespace Milou.Deployer.Web.Core.Deployment
                 credentialReadService ?? throw new ArgumentNullException(nameof(credentialReadService));
             _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
             _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
-
-            //_clientFactory = clientFactory;
         }
 
         private async Task<DeploymentTarget> GetDeploymentTarget(

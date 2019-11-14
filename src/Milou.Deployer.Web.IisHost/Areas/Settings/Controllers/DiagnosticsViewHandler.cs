@@ -18,6 +18,7 @@ using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
 using Serilog;
@@ -42,6 +43,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly ILogger _logger;
 
+        private readonly IApplicationSettingsStore _settingsStore;
+
         public DiagnosticsViewHandler(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] MultiSourceKeyValueConfiguration configuration,
@@ -51,7 +54,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             IServiceProvider serviceProvider,
             ServiceDiagnostics serviceDiagnostics,
             ConfigurationInstanceHolder configurationInstanceHolder,
-            ILogger logger)
+            ILogger logger,
+            IApplicationSettingsStore settingsStore)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -64,6 +68,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             _serviceDiagnostics = serviceDiagnostics;
             _configurationInstanceHolder = configurationInstanceHolder;
             _logger = logger;
+            _settingsStore = settingsStore;
         }
 
         private async Task<IKeyValueConfiguration> GetApplicationMetadataAsync(CancellationToken cancellationToken)
@@ -184,6 +189,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
                 .SafeToImmutableArray();
 
+            var applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
+
             var settingsViewModel = new SettingsViewModel(
                 _deploymentTargetReadService.GetType().Name,
                 routesWithController,
@@ -197,7 +204,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 _loggingLevelSwitch.MinimumLevel,
                 applicationVersionInfo,
                 applicationMetadata,
-                deploymentTargetWorkers);
+                deploymentTargetWorkers,
+                applicationSettings);
 
             return settingsViewModel;
         }

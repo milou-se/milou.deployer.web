@@ -33,6 +33,18 @@ Current level <span class="highlighted">@Model.LogEventLevel</span>
 
 </form>
 
+<h2>Application settings</h2>
+
+Cache time <span class="highlighted">@Model.ApplicationSettings.CacheTime</span>
+
+<form method="post" action="@Url.RouteUrl(SettingsConstants.SaveSettingsPostRouteName)">
+
+    Cache time: <input type="text" name="cacheTime" />
+
+    <input type="submit" value="Save"/>
+
+</form>
+
 <h2>Client info</h2>
 
 <p>
