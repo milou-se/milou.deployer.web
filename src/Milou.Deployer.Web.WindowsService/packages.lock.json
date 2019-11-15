@@ -381,6 +381,30 @@
           "Newtonsoft.Json.Bson": "1.0.2"
         }
       },
+      "Microsoft.AspNetCore.Mvc.Razor.Extensions": {
+        "type": "Transitive",
+        "resolved": "3.0.0",
+        "contentHash": "TZH9CbgwDRBtue85/SeNofRyEg6qgF6X7FOl/9Bggyqsy5RPTW+0PXM4Jdk12DDMSGvGt/aCcKWFwfRT4HFVyQ==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Razor.Language": "3.0.0",
+          "Microsoft.CodeAnalysis.Razor": "3.0.0"
+        }
+      },
+      "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": {
+        "type": "Transitive",
+        "resolved": "3.0.0",
+        "contentHash": "Vu3LUiQ72Pn4BV7DKpL59Wx6+4gwOzm8td50jYOjovJv5umEGFwpU6mdn2U2Nq7PFZC0nSTbfnUFbsYDS2Ajjw==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Mvc.Razor.Extensions": "3.0.0",
+          "Microsoft.CodeAnalysis.Razor": "3.0.0",
+          "Microsoft.Extensions.DependencyModel": "3.0.0"
+        }
+      },
+      "Microsoft.AspNetCore.Razor.Language": {
+        "type": "Transitive",
+        "resolved": "3.0.0",
+        "contentHash": "qmd93zdlivR1yCrYDl3rirLGy6+2iRxLosVfxq6SWmSi/jg5Rm0r+Pbir43gAnyw461d7vD+32riT1QHQZzjVw=="
+      },
       "Microsoft.AspNetCore.Routing.Abstractions": {
         "type": "Transitive",
         "resolved": "2.2.0",
@@ -415,6 +439,16 @@
           "System.Runtime.CompilerServices.Unsafe": "4.5.2",
           "System.Text.Encoding.CodePages": "4.5.1",
           "System.Threading.Tasks.Extensions": "4.5.3"
+        }
+      },
+      "Microsoft.CodeAnalysis.Razor": {
+        "type": "Transitive",
+        "resolved": "3.0.0",
+        "contentHash": "bdozZpjuZ4/QBSY6FBqcgZce1bud2ww/aisOO17sMk1dzOnYl7UjEus8argEzBtz57D4BlpaS0eC+gkA3xJ9iQ==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Razor.Language": "3.0.0",
+          "Microsoft.CodeAnalysis.CSharp": "3.3.0",
+          "Microsoft.CodeAnalysis.Common": "3.3.0"
         }
       },
       "Microsoft.CodeAnalysis.VersionCheckAnalyzer": {
@@ -2061,6 +2095,7 @@
           "Microsoft.AspNetCore.Authentication.OpenIdConnect": "3.0.0",
           "Microsoft.AspNetCore.Hosting.WindowsServices": "3.0.0",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.0.0",
+          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "3.0.0",
           "Microsoft.CodeAnalysis.CSharp": "3.3.1",
           "Microsoft.Extensions.Diagnostics.HealthChecks": "3.0.0",
           "Microsoft.Extensions.Http": "3.0.0",

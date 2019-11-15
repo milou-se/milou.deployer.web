@@ -58,10 +58,6 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
                         .AddDeploymentSignalR()
                         .AddServerFeatures()
                         .AddDeploymentMvc(logger);
-
-                    services.AddControllers();
-                    services.AddControllersWithViews();
-                    services.AddMvc();
                 })
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {

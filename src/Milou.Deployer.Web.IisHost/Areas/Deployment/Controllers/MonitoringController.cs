@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
-        [Route("~/")]
+        [Route(MonitorConstants.MonitorRoute, Name = MonitorConstants.MonitorRouteName)]
         [Route("")]
         public IActionResult Status()
         {

@@ -32,9 +32,15 @@ body {
 
 /* Set width on the form input elements since they're 100% wide by default */
 
-input,
+input[type="text"],
 select,
-textarea { max-width: 280px; }
+textarea { min-width: 200px;  }
+
+textarea {
+    display: inline-block;
+    min-width: 600px;
+    min-height: 150px;
+}
 
 .wawsdeploy { color: blue; }
 
@@ -109,13 +115,22 @@ td, th { padding: 5px; }
     font-weight: bold;
 }
 
-.input-field { border-bottom: 1px solid #7d7d7d; }
+.input-field { /*border-bottom: 1px solid #7d7d7d;*/ }
 
 .input-field label {
     padding-bottom: 7px;
     padding-top: 7px;
-    text-align: right;
-    width: 200px;
+    text-align: left;
+    width: 250px;
+    display: block;
+    white-space: nowrap;
+    opacity: 0.8;
+}
+
+.input-field .input-value {
+    /*min-width: 250px;*/
+    display: inline-block;
+    text-align: left;
 }
 
 .timestamp { color: lightgray; }
@@ -286,4 +301,10 @@ td, th { padding: 5px; }
 
 div#messages, div#logElements {
     font-family: "Consolas", "Lucida Console", "Courier";
+}
+
+fieldset {
+    margin-bottom: 10px;
+    width: 600px;
+    border-width: 1px;
 }

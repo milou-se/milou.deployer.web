@@ -412,6 +412,8 @@ namespace Milou.Deployer.Web.Marten
                 throw new ArgumentNullException(nameof(request));
             }
 
+            string targetName;
+
             using (var session = _documentStore.OpenSession())
             {
                 var data =
@@ -419,8 +421,10 @@ namespace Milou.Deployer.Web.Marten
 
                 if (data is null)
                 {
-                    return new UpdateDeploymentTargetResult(new ValidationError("Not found"));
+                    return new UpdateDeploymentTargetResult("", new ValidationError("Not found"));
                 }
+
+                targetName = data.Name;
 
                 data.PackageId = request.PackageId;
                 data.Url = request.Url;
@@ -450,7 +454,7 @@ namespace Milou.Deployer.Web.Marten
 
             _logger.Information("Updated target with id {Id}", request.Id);
 
-            return new UpdateDeploymentTargetResult();
+            return new UpdateDeploymentTargetResult(targetName);
         }
 
         public async Task<Unit> Handle([NotNull] RemoveTarget request, CancellationToken cancellationToken)

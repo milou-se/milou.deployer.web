@@ -152,6 +152,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
             services.AddControllersWithViews();
 
+            services.AddControllers();
+            services.AddControllersWithViews();
+            services.AddRazorPages()
+                .AddRazorRuntimeCompilation();
+
             return services;
         }
 
