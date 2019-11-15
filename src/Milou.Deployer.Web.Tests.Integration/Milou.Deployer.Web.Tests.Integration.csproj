@@ -9,7 +9,7 @@
         <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
         <PackageReference Include="Arbor.Processing" Version="0.3.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
-        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.6">
+        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.7">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
@@ -19,11 +19,11 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.3.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
         <PackageReference Include="MysticMind.PostgresEmbed" Version="1.4.0" />
-        <PackageReference Include="NCrunch.Framework" Version="3.17.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-        <PackageReference Include="NuGet.Packaging" Version="5.3.0" />
+        <PackageReference Include="NCrunch.Framework" Version="4.0.0.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="NuGet.Packaging" Version="5.3.1" />
         <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
         <PackageReference Include="Serilog.Sinks.XUnit" Version="1.0.21" />
         <PackageReference Include="System.Collections.Immutable" Version="1.6.0" />
