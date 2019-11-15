@@ -8,5 +8,6 @@
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
         <Features>IOperation</Features>
         <Nullable>enable</Nullable>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>
 </Project>
