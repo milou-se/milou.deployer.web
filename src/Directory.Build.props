@@ -5,8 +5,6 @@
         <Deterministic>true</Deterministic>
         <LangVersion>latest</LangVersion>
         <CodeAnalysisRuleSet>..\Milou.ruleset</CodeAnalysisRuleSet>
-        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-        <Features>IOperation</Features>
         <Nullable>enable</Nullable>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     </PropertyGroup>

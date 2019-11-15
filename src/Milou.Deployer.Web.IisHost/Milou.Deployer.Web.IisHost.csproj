@@ -23,6 +23,10 @@
         <None Remove="logs\**" />
     </ItemGroup>
     <ItemGroup>
+      <Content Remove="wwwroot\applicationmetadata.json" />
+      <Content Remove="wwwroot\unpkg.json" />
+    </ItemGroup>
+    <ItemGroup>
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
         <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.19.2" />
         <PackageReference Include="Arbor.Processing" Version="0.3.0" />
@@ -67,6 +71,10 @@
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Areas\Security\Views\Login\" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="wwwroot\applicationmetadata.json" />
+      <None Include="wwwroot\unpkg.json" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />

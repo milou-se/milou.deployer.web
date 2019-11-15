@@ -1,6 +1,10 @@
-﻿using JetBrains.Annotations;
+﻿using System.IO;
+
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.ErrorHandling;
 using Milou.Deployer.Web.IisHost.Areas.Logging;
@@ -25,7 +29,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
             app.UseMiddleware<RedirectMiddleware>();
 
-            app.UseStaticFiles();
+            app.UseCustomStaticFiles(environmentConfiguration);
 
             app.UseRouting();
 
