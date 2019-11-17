@@ -43,7 +43,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
             var response = await mediator.Send(new DeploymentLogRequest(deploymentTaskId, usedLevel));
 
-            return response.LogItems.Select(line => line.Message).ToArray();
+            return response.LogItems
+                .OrderBy(line => line.TimeStamp)
+                .Select(line => line.Message).ToArray();
         }
     }
 }
