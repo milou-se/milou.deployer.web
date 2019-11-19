@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Mvc;
-using Milou.Deployer.Web.Core.Deployment.Packages;
-using Milou.Deployer.Web.Core.Extensions;
+
 using Milou.Deployer.Web.IisHost.Controllers;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks.Controllers
@@ -13,18 +12,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks.Controllers
     [Route("hook")]
     public class HookController : BaseApiController
     {
-        private readonly HookService _hookService;
+        private readonly PackageWebHookHandler _packageWebHookHandler;
 
-        public HookController(HookService hookService)
-        {
-            _hookService = hookService;
-        }
+        public HookController(PackageWebHookHandler packageWebHookHandler) =>
+            _packageWebHookHandler = packageWebHookHandler;
 
         [Route("")]
         [HttpPost]
-        public async Task<HttpResponseMessage> Hook(IEnumerable<PackageVersion> packageIdentifiers)
+        public async Task<HttpResponseMessage> Hook()
         {
-            await _hookService.AutoDeployAsync(packageIdentifiers.SafeToReadOnlyCollection());
+            await _packageWebHookHandler.HandleRequest(Request);
 
             return new HttpResponseMessage(HttpStatusCode.OK);
         }

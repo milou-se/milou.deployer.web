@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
+
 using JetBrains.Annotations;
 
 using Milou.Deployer.Web.Core;
@@ -22,25 +23,31 @@ using Milou.Deployer.Web.Core.Settings;
 using Serilog;
 using Serilog.Events;
 
+using Stopwatch = System.Diagnostics.Stopwatch;
+
 namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 {
     [UsedImplicitly]
     public class PackageService
     {
         private const string AllPackagesCacheKey = PackagesCacheKeyBaseUrn + ":AnyConfig";
+
         private const string PackagesCacheKeyBaseUrn = "urn:milou:deployer:web:packages:";
+
+        private readonly IApplicationSettingsStore _applicationSettingsStore;
+
         private readonly NuGetListConfiguration _deploymentConfiguration;
 
         [NotNull]
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
+        private readonly ILogger _logger;
+
         private readonly ICustomMemoryCache _memoryCache;
+
         private readonly NuGetConfiguration _nuGetConfiguration;
 
-        private readonly ILogger _logger;
-        private readonly Arbor.Tooler.NuGetPackageInstaller _packageInstaller;
-
-        private readonly IApplicationSettingsStore _applicationSettingsStore;
+        private readonly NuGetPackageInstaller _packageInstaller;
 
         public PackageService(
             [NotNull] NuGetListConfiguration deploymentConfiguration,
@@ -62,6 +69,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
             _applicationSettingsStore = applicationSettingsStore;
         }
 
+        public void ClearCache(string packageId, string notificationNugetConfig, string notificationNugetSource)
+        {
+            string cacheKey = GetCacheKey(notificationNugetConfig, notificationNugetSource, packageId);
+
+            _memoryCache.Invalidate(cacheKey);
+        }
+
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
             [NotNull] string packageId,
             bool useCache = true,
@@ -81,36 +95,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 return ImmutableArray<PackageVersion>.Empty;
             }
 
-            string NormalizeKey(string key)
-            {
-                return key.Replace(":", "_", StringComparison.OrdinalIgnoreCase)
-                    .Replace("/", "", StringComparison.OrdinalIgnoreCase)
-                    .Replace(".", "", StringComparison.OrdinalIgnoreCase)
-                    .Replace(Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture), "_", StringComparison.OrdinalIgnoreCase);
-            }
-
-            var cacheKey = AllPackagesCacheKey;
-
-            if (!string.IsNullOrWhiteSpace(nugetConfigFile))
-            {
-                var configCachePart = $"{PackagesCacheKeyBaseUrn}:{NormalizeKey(nugetConfigFile)}";
-
-                cacheKey = !string.IsNullOrWhiteSpace(nugetPackageSource)
-                    ? $"{configCachePart}:{NormalizeKey(nugetPackageSource)}"
-                    : configCachePart;
-            }
-            else if (!string.IsNullOrWhiteSpace(nugetPackageSource))
-            {
-                cacheKey = $"{PackagesCacheKeyBaseUrn}:{NormalizeKey(nugetPackageSource)}";
-            }
-
-            cacheKey += $":{packageId}";
+            string cacheKey = GetCacheKey(nugetConfigFile, nugetPackageSource, packageId);
 
             _logger.Verbose("Using package cache key {Key}", cacheKey);
 
-            if (useCache && _memoryCache.TryGetValue(cacheKey, out IReadOnlyCollection<PackageVersion> packages) && packages.Count > 0)
+            if (useCache && _memoryCache.TryGetValue(cacheKey, out IReadOnlyCollection<PackageVersion> packages)
+                         && packages.Count > 0)
             {
-                _logger.Debug("Returning packages from cache with key {Key} for package id {PackageId}",
+                _logger.Debug(
+                    "Returning packages from cache with key {Key} for package id {PackageId}",
                     cacheKey,
                     packageId);
                 return packages;
@@ -127,9 +120,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                     $"The nuget.exe path '{_nuGetConfiguration.NugetExePath}' does not exist");
             }
 
-            var packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
+            string packageSourceAppSettingsKey = ConfigurationConstants.NuGetPackageSourceName;
 
-            var packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
+            string packageSource = nugetPackageSource.WithDefault(_keyValueConfiguration[packageSourceAppSettingsKey]);
 
             if (!string.IsNullOrWhiteSpace(packageSource))
             {
@@ -142,7 +135,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                     packageSourceAppSettingsKey);
             }
 
-            var configFile =
+            string configFile =
                 nugetConfigFile.WithDefault(_keyValueConfiguration[ConfigurationConstants.NugetConfigFile]);
 
             if (configFile.HasValue() && File.Exists(configFile))
@@ -157,11 +150,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            var allVersions = await _packageInstaller.GetAllVersionsAsync(new NuGetPackageId(packageId), nuGetSource: nugetPackageSource, nugetConfig: nugetConfigFile, allowPreRelease: includePreReleased, nugetExePath: _nuGetConfiguration.NugetExePath);
+            var allVersions = await _packageInstaller.GetAllVersionsAsync(
+                                  new NuGetPackageId(packageId),
+                                  nuGetSource: nugetPackageSource,
+                                  nugetConfig: nugetConfigFile,
+                                  allowPreRelease: includePreReleased,
+                                  nugetExePath: _nuGetConfiguration.NugetExePath);
 
             stopwatch.Stop();
 
-            _logger.Debug("Get package versions external process took {Elapsed} milliseconds", stopwatch.ElapsedMilliseconds);
+            _logger.Debug(
+                "Get package versions external process took {Elapsed} milliseconds",
+                stopwatch.ElapsedMilliseconds);
 
             var addedPackages = new List<string>();
 
@@ -171,7 +171,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             foreach (var packageVersion in packageVersions)
             {
-                _logger.Debug("Found package {Package} {Version}", packageVersion.PackageId, packageVersion.Version.ToNormalizedString());
+                _logger.Debug(
+                    "Found package {Package} {Version}",
+                    packageVersion.PackageId,
+                    packageVersion.Version.ToNormalizedString());
 
                 addedPackages.Add(packageVersion.ToString());
             }
@@ -205,7 +208,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 var settings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
                 TimeSpan cacheTime = settings.CacheTime;
                 _memoryCache.SetValue(cacheKey, packageVersions, cacheTime);
-                _logger.Debug("Cached {Packages} packages with key {CacheKey} for {Duration} seconds", addedPackages.Count, cacheKey, cacheTime.TotalSeconds.ToString("F0"));
+                _logger.Debug(
+                    "Cached {Packages} packages with key {CacheKey} for {Duration} seconds",
+                    addedPackages.Count,
+                    cacheKey,
+                    cacheTime.TotalSeconds.ToString("F0"));
             }
             else
             {
@@ -214,5 +221,36 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             return packageVersions;
         }
+
+        private string GetCacheKey(string nugetConfigFile, string nugetPackageSource, string packageId)
+        {
+            string cacheKey = AllPackagesCacheKey;
+
+            if (!string.IsNullOrWhiteSpace(nugetConfigFile))
+            {
+                string configCachePart = $"{PackagesCacheKeyBaseUrn}:{NormalizeKey(nugetConfigFile)}";
+
+                cacheKey = !string.IsNullOrWhiteSpace(nugetPackageSource)
+                               ? $"{configCachePart}:{NormalizeKey(nugetPackageSource)}"
+                               : configCachePart;
+            }
+            else if (!string.IsNullOrWhiteSpace(nugetPackageSource))
+            {
+                cacheKey = $"{PackagesCacheKeyBaseUrn}:{NormalizeKey(nugetPackageSource)}";
+            }
+
+            cacheKey += $":{packageId}";
+
+            return cacheKey;
+        }
+
+        private string NormalizeKey(string key) =>
+            key.Replace(":", "_", StringComparison.OrdinalIgnoreCase)
+                .Replace("/", string.Empty, StringComparison.OrdinalIgnoreCase)
+                .Replace(".", string.Empty, StringComparison.OrdinalIgnoreCase)
+                .Replace(
+                    Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture),
+                    "_",
+                    StringComparison.OrdinalIgnoreCase);
     }
 }

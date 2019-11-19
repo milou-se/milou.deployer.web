@@ -30,15 +30,9 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
         [PublicAPI]
         public string Key { get; }
 
-        public static bool operator ==(PackageVersion left, PackageVersion right)
-        {
-            return Equals(left, right);
-        }
+        public static bool operator ==(PackageVersion left, PackageVersion right) => Equals(left, right);
 
-        public static bool operator !=(PackageVersion left, PackageVersion right)
-        {
-            return !Equals(left, right);
-        }
+        public static bool operator !=(PackageVersion left, PackageVersion right) => !Equals(left, right);
 
         public bool Equals(PackageVersion other)
         {
@@ -75,14 +69,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
             return Equals((PackageVersion)obj);
         }
 
-        public override int GetHashCode()
-        {
-            return Key?.GetHashCode(StringComparison.InvariantCulture) ?? 0;
-        }
+        public override int GetHashCode() => Key?.GetHashCode(StringComparison.InvariantCulture) ?? 0;
 
-        public override string ToString()
-        {
-            return Key;
-        }
+        public override string ToString() => Key;
     }
 }
