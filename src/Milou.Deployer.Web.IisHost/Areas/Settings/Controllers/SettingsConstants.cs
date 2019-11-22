@@ -15,6 +15,7 @@
         public const string LogSettingsPostRouteName = nameof(LogSettingsPostRoute);
 
         public const string SaveSettingsPostRoute = "/settings/application";
+
         public const string SaveSettingsPostRouteName = nameof(SaveSettingsPostRoute);
     }
 }

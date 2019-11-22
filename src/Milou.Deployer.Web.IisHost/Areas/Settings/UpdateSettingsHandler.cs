@@ -26,6 +26,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 applicationSettings.CacheTime = request.CacheTime.Value;
             }
 
+            if (request.NexusConfig is { })
+            {
+                applicationSettings.NexusConfig.HmacKey = request.NexusConfig.HmacKey;
+                applicationSettings.NexusConfig.HmacKey = request.NexusConfig.NuGetSource;
+                applicationSettings.NexusConfig.HmacKey = request.NexusConfig.NuGetConfig;
+            }
+
             await _settingsStore.Save(applicationSettings);
 
             return Unit.Value;
