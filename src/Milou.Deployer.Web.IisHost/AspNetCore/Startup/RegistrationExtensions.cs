@@ -134,15 +134,12 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return serviceCollection;
         }
 
-        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services, ILogger logger)
+        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services)
         {
             services.AddMvc(
                 options =>
                 {
-                    options.InputFormatters.Insert(
-                        0,
-                        new XWwwFormUrlEncodedFormatter(
-                            new SerilogLoggerFactory(logger).CreateLogger<XWwwFormUrlEncodedFormatter>()));
+                    options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
                 }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0).AddNewtonsoftJson(
                 options =>
                 {
