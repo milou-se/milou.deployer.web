@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     {
         private readonly ICustomClock _customClock;
         private readonly MilouDeployer _deployer;
-        private readonly IKeyValueConfiguration _keyValueConfiguration;
+
         private readonly ILogger _logger;
         private readonly LoggingLevelSwitch _loggingLevelSwitch;
         private readonly IMediator _mediator;
@@ -44,7 +44,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] IDeploymentTargetReadService targetSource,
             [NotNull] IMediator mediator,
             [NotNull] MilouDeployer deployer,
-            [NotNull] IKeyValueConfiguration keyValueConfiguration,
             [NotNull] ICustomClock customClock,
             [NotNull] LoggingLevelSwitch loggingLevelSwitch)
         {
@@ -52,8 +51,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _deployer = deployer ?? throw new ArgumentNullException(nameof(deployer));
-            _keyValueConfiguration =
-                keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
             _customClock = customClock ?? throw new ArgumentNullException(nameof(customClock));
             _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
         }
@@ -110,13 +107,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             var metadataContent = metadata.ToString();
 
             return metadataContent;
-        }
-
-        private static string GetMainLogFilePath(DeploymentTask deploymentTask, DirectoryInfo deploymentJobsDirectory)
-        {
-            var contentFilePath = Path.Combine(deploymentJobsDirectory.FullName,
-                $"{deploymentTask.DeploymentTaskId}.txt");
-            return contentFilePath;
         }
 
         private static void CheckPackageMatchingTarget(DeploymentTarget deploymentTarget, string packageId)

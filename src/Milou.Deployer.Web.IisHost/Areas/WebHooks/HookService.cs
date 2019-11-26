@@ -10,6 +10,7 @@ using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 
 using Serilog;
@@ -19,28 +20,38 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
     [UsedImplicitly]
     public class HookService : INotificationHandler<PackageWebHookNotification>
     {
-        private readonly DeploymentService _deploymentService;
+        private readonly DeploymentWorkerService _deploymentService;
 
         private readonly ILogger _logger;
 
         private readonly MonitoringService _monitoringService;
 
+        private readonly AutoDeployConfiguration _autoDeployConfiguration;
+
         private readonly IDeploymentTargetReadService _targetSource;
 
         public HookService(
             IDeploymentTargetReadService targetSource,
-            DeploymentService deploymentService,
+            DeploymentWorkerService deploymentService,
             ILogger logger,
-            MonitoringService monitoringService)
+            MonitoringService monitoringService,
+            AutoDeployConfiguration autoDeployConfiguration)
         {
             _targetSource = targetSource;
             _deploymentService = deploymentService;
             _logger = logger;
             _monitoringService = monitoringService;
+            _autoDeployConfiguration = autoDeployConfiguration;
         }
 
         public async Task Handle(PackageWebHookNotification notification, CancellationToken cancellationToken)
         {
+            if (!_autoDeployConfiguration.Enabled)
+            {
+                _logger.Information("Auto deploy is disabled, skipping package web hook notification");
+                return;
+            }
+
             var packageIdentifier = notification.PackageVersion;
 
             if (packageIdentifier == null)
@@ -100,27 +111,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                         packageIdentifier,
                                         deploymentTarget.Name);
 
-                                    var result =
-                                        await
-                                            _deploymentService.ExecuteDeploymentAsync(
+                                            _deploymentService.Enqueue(
                                                 new DeploymentTask(
-                                                    $"{packageIdentifier.PackageId}, {packageIdentifier.Version.ToNormalizedString()}",
+                                                    packageIdentifier,
                                                     deploymentTarget.Id,
                                                     Guid.NewGuid(),
-                                                    "Web hook"),
-                                                _logger,
-                                                cancellationToken);
+                                                    "Web hook"));
 
                                     _logger.Information(
-                                        "Deployed package {PackageIdentifier} to target {Name} from web hook with result {Result}",
+                                        "Successfully enqueued package {PackageIdentifier} to target {Name} from web hook",
                                         packageIdentifier,
-                                        deploymentTarget.Name,
-                                        result);
+                                        deploymentTarget.Name);
                                 }
                                 else
                                 {
                                     _logger.Information(
-                                        "Auto deployment skipped for {PackageIdentifier} since deployed version is higher {V}",
+                                        "Auto deployment skipped for {PackageIdentifier} since deployed version is higher {MetadataVersion}",
                                         packageIdentifier,
                                         metadata.SemanticVersion.ToNormalizedString());
                                 }

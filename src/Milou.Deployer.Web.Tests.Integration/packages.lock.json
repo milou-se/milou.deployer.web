@@ -297,8 +297,8 @@
       },
       "Arbor.ModelBinding": {
         "type": "Transitive",
-        "resolved": "0.7.0",
-        "contentHash": "q1snL4cXLmo4EogoGmOoWtozsPGa6btexvhleZ7TShhSSYKf/bzsj3QOhgqc5G/TmDLN1Th8NFoh6fjOLlN2rQ==",
+        "resolved": "0.7.1",
+        "contentHash": "Lbei+NojkETF3lPRci+m8CsrcEdbn0+IlhaTpvWgIGhKsS6E0c1fnOBF7AdBY1XF2vJYL1sM7MG4JhQvj3/7nQ==",
         "dependencies": {
           "Microsoft.Extensions.Primitives": "[3.0.0, 4.0.0)",
           "Newtonsoft.Json": "12.0.1"
@@ -2278,7 +2278,7 @@
           "Arbor.KVConfiguration.Core": "0.19.2",
           "Arbor.KVConfiguration.Urns": "0.19.2",
           "Arbor.KVConfiguration.UserConfiguration": "0.19.2",
-          "Arbor.ModelBinding": "0.7.0",
+          "Arbor.ModelBinding": "0.7.1",
           "Arbor.Processing": "0.3.0",
           "Arbor.Tooler": "0.6.5",
           "JetBrains.Annotations": "2019.1.3",
@@ -2317,7 +2317,7 @@
           "Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns": "0.19.2",
           "Arbor.KVConfiguration.Urns": "0.19.2",
           "Arbor.KVConfiguration.UserConfiguration": "0.19.2",
-          "Arbor.ModelBinding": "0.7.0",
+          "Arbor.ModelBinding": "0.7.1",
           "Arbor.Processing": "0.3.0",
           "Arbor.Tooler": "0.6.5",
           "JetBrains.Annotations": "2019.1.3",

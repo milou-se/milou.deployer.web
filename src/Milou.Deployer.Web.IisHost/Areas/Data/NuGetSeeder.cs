@@ -40,7 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                     var updateDeploymentTarget = new UpdateDeploymentTarget(
                         deploymentTarget.Id,
                         deploymentTarget.AllowExplicitExplicitPreRelease ?? false,
-                        deploymentTarget.Url,
+                        deploymentTarget.Url.ToString(),
                         deploymentTarget.PackageId,
                         deploymentTarget.IisSiteName,
                         deploymentTarget.NuGetPackageSource,

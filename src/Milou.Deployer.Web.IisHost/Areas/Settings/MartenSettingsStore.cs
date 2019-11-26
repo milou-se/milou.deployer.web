@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Marten;
 
+using Milou.Deployer.Web.Core.Integration.Nexus;
 using Milou.Deployer.Web.Core.Settings;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings
@@ -41,10 +42,39 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             }
         }
 
-        private ApplicationSettings Map(ApplicationSettingsData applicationSettingsData) =>
-            new ApplicationSettings { CacheTime = applicationSettingsData?.CacheTime ?? TimeSpan.FromSeconds(300) };
+        private ApplicationSettings Map(ApplicationSettingsData applicationSettingsData)
+        {
+            var applicationSettings = new ApplicationSettings
+                                      {
+                                          CacheTime = applicationSettingsData?.CacheTime ?? TimeSpan.FromSeconds(300),
+                                          NexusConfig = MapFromNexusData(applicationSettingsData?.NexusConfig)
+                                      };
+
+            return applicationSettings;
+        }
+
+        private NexusConfigData MapToNexusData(NexusConfig nexusConfig) =>
+            new NexusConfigData
+            {
+                HmacKey = nexusConfig?.HmacKey,
+                NuGetSource = nexusConfig?.NuGetSource,
+                NuGetConfig = nexusConfig?.NuGetConfig
+            };
+
+        private NexusConfig MapFromNexusData(NexusConfigData data) =>
+            new NexusConfig
+            {
+                HmacKey = data?.HmacKey,
+                NuGetSource = data?.NuGetSource,
+                NuGetConfig = data?.NuGetConfig
+            };
 
         private ApplicationSettingsData MapToData(ApplicationSettings applicationSettings) =>
-            new ApplicationSettingsData { CacheTime = applicationSettings.CacheTime, Id = AppSettings };
+            new ApplicationSettingsData
+            {
+                CacheTime = applicationSettings.CacheTime,
+                Id = AppSettings,
+                NexusConfig = MapToNexusData(applicationSettings.NexusConfig)
+            };
     }
 }

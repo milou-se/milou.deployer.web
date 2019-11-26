@@ -1,16 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
 using MediatR;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class UpdateDeploymentTarget : IRequest<UpdateDeploymentTargetResult>, IValidationObject
+    public class UpdateDeploymentTarget : IRequest<UpdateDeploymentTargetResult>, IValidationObject, IValidatableObject
     {
         public UpdateDeploymentTarget(
             string id,
             bool allowExplicitPreRelease,
-            Uri url,
+            string url,
             string packageId,
             string iisSiteName = null,
             string nugetPackageSource = null,
@@ -27,7 +30,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
-            Url = url;
+            _ = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
+            Url = uri;
             PackageId = packageId;
             ExcludedFilePatterns = excludedFilePatterns;
             _ = PublishType.TryParseOrDefault(publishType, out var foundPublishType);
@@ -50,11 +54,11 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             }
         }
 
-        public EnvironmentType EnvironmentType { get; }
+        public EnvironmentType? EnvironmentType { get; }
 
         public string Id { get; }
 
-        public Uri Url { get; }
+        public Uri? Url { get; }
 
         public bool AllowExplicitPreRelease { get; }
 
@@ -78,12 +82,20 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public PublishType PublishType { get; }
 
-        public FtpPath FtpPath { get; }
+        public FtpPath? FtpPath { get; }
 
         public override string ToString()
         {
             return
                 $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
+        }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Url is null)
+            {
+                yield return new ValidationResult("URL must be defined", new []{nameof(Url)});
+            }
         }
 
         public bool IsValid { get; }

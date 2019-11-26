@@ -67,7 +67,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                 {
                     using (var linked =
-                        CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
+                        CancellationTokenSource.CreateLinkedTokenSource(
+                            stoppingToken,
                             targetsTokenSource.Token))
                     {
                         deploymentTargets = (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linked.Token))
@@ -82,7 +83,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         "Found no deployment targets with auto deployment enabled, waiting {DelayInSeconds} seconds",
                         _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
 
-                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
+                    await Task.Delay(
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
                         stoppingToken);
 
                     continue;
@@ -96,7 +98,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         "Found no deployment targets with auto deployment enabled and URL defined, waiting {DelayInSeconds} seconds",
                         _autoDeployConfiguration.EmptyTargetsDelayInSeconds);
 
-                    await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
+                    await Task.Delay(
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.EmptyTargetsDelayInSeconds),
                         stoppingToken);
 
                     continue;
@@ -135,13 +138,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                             TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
                     {
                         using (var linked =
-                            CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
+                            CancellationTokenSource.CreateLinkedTokenSource(
+                                stoppingToken,
                                 packageVersionCancellationTokenSource.Token))
                         {
                             packageVersions =
-                                (await _packageService.GetPackageVersionsAsync(deploymentTarget.PackageId,
-                                    cancellationToken: linked.Token,
-                                    logger: _logger)).ToImmutableHashSet();
+                                (await _packageService.GetPackageVersionsAsync(
+                                     deploymentTarget.PackageId,
+                                     cancellationToken: linked.Token,
+                                     logger: _logger)).ToImmutableHashSet();
                         }
                     }
 
@@ -173,7 +178,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     {
                         var task = new DeploymentTask(packageToDeploy, deploymentTarget.Id, Guid.NewGuid(), nameof(AutoDeployBackgroundService));
 
-                        _logger.Information("Auto-deploying package {Package} to target {TargetId}",
+                        _logger.Information(
+                            "Auto-deploying package {Package} to target {TargetId}",
                             packageToDeploy,
                             deploymentTarget.Id);
 
@@ -181,7 +187,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(_autoDeployConfiguration.AfterDeployDelayInSeconds),
+                await Task.Delay(
+                    TimeSpan.FromSeconds(_autoDeployConfiguration.AfterDeployDelayInSeconds),
                     stoppingToken);
             }
         }

@@ -29,8 +29,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             if (request.NexusConfig is { })
             {
                 applicationSettings.NexusConfig.HmacKey = request.NexusConfig.HmacKey;
-                applicationSettings.NexusConfig.HmacKey = request.NexusConfig.NuGetSource;
-                applicationSettings.NexusConfig.HmacKey = request.NexusConfig.NuGetConfig;
+                applicationSettings.NexusConfig.NuGetSource = request.NexusConfig.NuGetSource;
+                applicationSettings.NexusConfig.NuGetConfig = request.NexusConfig.NuGetConfig;
             }
 
             await _settingsStore.Save(applicationSettings);

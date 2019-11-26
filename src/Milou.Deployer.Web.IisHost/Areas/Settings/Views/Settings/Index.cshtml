@@ -39,17 +39,17 @@ Cache time <span class="highlighted">@Model.ApplicationSettings.CacheTime</span>
 
 <form method="post" action="@Url.RouteUrl(SettingsConstants.SaveSettingsPostRouteName)">
 
-    Cache time: <input type="text" name="cacheTime" />
+    Cache time: <input type="text" name="cacheTime" value="@Model.ApplicationSettings.CacheTime" />
 
     <input type="submit" value="Save"/>
 
     <div>
-        Nexus HMAC key: <input type="text" name="nexusConfig.HmacKey" /></div>
+        Nexus HMAC key: <input type="text" name="nexusConfig.HmacKey" value="@Model.ApplicationSettings.NexusConfig.HmacKey" /></div>
     <div>
-        Nexus NuGet source: <input type="text" name="nexusConfig.NuGetSource"/>
+        Nexus NuGet source: <input type="text" name="nexusConfig.NuGetSource" value="@Model.ApplicationSettings.NexusConfig.NuGetSource"/>
     </div>
     <div>
-        Nexus NuGet config: <input type="text" name="nexusConfig.NuGetConfig"/>
+        Nexus NuGet config: <input type="text" name="nexusConfig.NuGetConfig" value="@Model.ApplicationSettings.NexusConfig.NuGetConfig"/>
     </div>
 
     <input type="submit" value="Save"/>

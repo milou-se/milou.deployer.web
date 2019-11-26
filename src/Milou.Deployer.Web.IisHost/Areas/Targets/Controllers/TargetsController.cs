@@ -121,6 +121,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
                 return BadRequest($"Model of type {typeof(UpdateDeploymentTarget)} is null");
             }
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (!updateDeploymentTarget.IsValid)
             {
                 return BadRequest($"Model of type {typeof(UpdateDeploymentTarget)} {updateDeploymentTarget} is null");

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks.Controllers
 {
+    [AllowAnonymous]
     [Area(WebHookConstants.AreaName)]
     [ApiController]
     public class HookController : Controller
@@ -15,7 +16,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks.Controllers
         public HookController(PackageWebHookHandler packageWebHookHandler) =>
             _packageWebHookHandler = packageWebHookHandler;
 
-        [AllowAnonymous]
         [Route("~/hook")]
         [HttpPost]
         public async Task<IActionResult> Hook()
