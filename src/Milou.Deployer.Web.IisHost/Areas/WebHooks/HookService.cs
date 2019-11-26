@@ -10,7 +10,7 @@ using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
+using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 
 using Serilog;
@@ -26,7 +26,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
         private readonly MonitoringService _monitoringService;
 
-        private readonly AutoDeployConfiguration _autoDeployConfiguration;
+        private readonly IApplicationSettingsStore _applicationSettingsStore;
 
         private readonly IDeploymentTargetReadService _targetSource;
 
@@ -35,18 +35,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             DeploymentWorkerService deploymentService,
             ILogger logger,
             MonitoringService monitoringService,
-            AutoDeployConfiguration autoDeployConfiguration)
+            IApplicationSettingsStore applicationSettingsStore)
         {
             _targetSource = targetSource;
             _deploymentService = deploymentService;
             _logger = logger;
             _monitoringService = monitoringService;
-            _autoDeployConfiguration = autoDeployConfiguration;
+            _applicationSettingsStore = applicationSettingsStore;
         }
 
         public async Task Handle(PackageWebHookNotification notification, CancellationToken cancellationToken)
         {
-            if (!_autoDeployConfiguration.Enabled)
+            if (!(await _applicationSettingsStore.GetApplicationSettings(cancellationToken)).AutoDeploy.Enabled)
             {
                 _logger.Information("Auto deploy is disabled, skipping package web hook notification");
                 return;

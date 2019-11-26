@@ -11,5 +11,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
         public string Id { get; set; }
 
         public NexusConfigData? NexusConfig { get; set; }
+
+        public AutoDeployData AutoDeploy { get; set; }
     }
 }

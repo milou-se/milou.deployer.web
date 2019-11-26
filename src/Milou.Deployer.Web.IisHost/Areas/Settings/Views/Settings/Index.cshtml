@@ -52,6 +52,10 @@ Cache time <span class="highlighted">@Model.ApplicationSettings.CacheTime</span>
         Nexus NuGet config: <input type="text" name="nexusConfig.NuGetConfig" value="@Model.ApplicationSettings.NexusConfig.NuGetConfig"/>
     </div>
 
+    <div>
+        <label for="autodeploy-enabled">Auto deploy enabled:</label> <input id="autodeploy-enabled" type="checkbox" name="autoDeploy.Enabled" @Model.ApplicationSettings.AutoDeploy.Enabled.Checked() />
+    </div>
+
     <input type="submit" value="Save"/>
 
 </form>

@@ -4,11 +4,11 @@
     ".NETCoreApp,Version=v3.0": {
       "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": {
         "type": "Direct",
-        "requested": "[0.10.1, )",
-        "resolved": "0.10.1",
-        "contentHash": "ieXKiSnECsF1A/Pbmk2wWx8uhnJcCvsxyFZVBVfpM3nEUcF6SsGlop81Cfna+G+CWG7C5K1QLMe+ZOFQzFs92A==",
+        "requested": "[0.10.2, )",
+        "resolved": "0.10.2",
+        "contentHash": "lRYXOXlCLP6vlxiTi73QZLP7gLOz6T10fUBFK9pRHRe4m4ALE7nrOTy5GWAVfsf6NklR2nWDXZePzFWQh4Vw7Q==",
         "dependencies": {
-          "Arbor.ModelBinding": "0.7.0",
+          "Arbor.ModelBinding": "0.7.1",
           "Microsoft.Extensions.Logging.Abstractions": "3.0.1",
           "Microsoft.Extensions.Primitives": "3.0.1",
           "Newtonsoft.Json": "12.0.3"
@@ -84,9 +84,9 @@
       },
       "Arbor.ModelBinding": {
         "type": "Direct",
-        "requested": "[0.7.1, )",
-        "resolved": "0.7.1",
-        "contentHash": "Lbei+NojkETF3lPRci+m8CsrcEdbn0+IlhaTpvWgIGhKsS6E0c1fnOBF7AdBY1XF2vJYL1sM7MG4JhQvj3/7nQ==",
+        "requested": "[0.7.2, )",
+        "resolved": "0.7.2",
+        "contentHash": "pQWlFTp2mU4sSYQhFvD/pHHSZr3mDkyYKOQR1KYB5ttSHWWzSI5uofj81TGJixa4z8YTr60VK321eGRgArcNbg==",
         "dependencies": {
           "Microsoft.Extensions.Primitives": "[3.0.0, 4.0.0)",
           "Newtonsoft.Json": "12.0.1"
@@ -2000,7 +2000,7 @@
           "Arbor.KVConfiguration.Core": "0.19.2",
           "Arbor.KVConfiguration.Urns": "0.19.2",
           "Arbor.KVConfiguration.UserConfiguration": "0.19.2",
-          "Arbor.ModelBinding": "0.7.1",
+          "Arbor.ModelBinding": "0.7.2",
           "Arbor.Processing": "0.3.0",
           "Arbor.Tooler": "0.6.5",
           "JetBrains.Annotations": "2019.1.3",

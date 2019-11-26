@@ -33,6 +33,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 applicationSettings.NexusConfig.NuGetConfig = request.NexusConfig.NuGetConfig;
             }
 
+            if (request.AutoDeploy?.Enabled != null)
+            {
+                applicationSettings.AutoDeploy.Enabled = request.AutoDeploy.Enabled;
+            }
+
             await _settingsStore.Save(applicationSettings);
 
             return Unit.Value;

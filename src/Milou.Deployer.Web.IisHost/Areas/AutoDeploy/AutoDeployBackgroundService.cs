@@ -11,6 +11,7 @@ using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.NuGet;
@@ -29,6 +30,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         private readonly PackageService _packageService;
         private readonly TimeoutHelper _timeoutHelper;
 
+        private readonly IApplicationSettingsStore _applicationSettingsStore;
+
         public AutoDeployBackgroundService(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] MonitoringService monitoringService,
@@ -36,7 +39,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             [NotNull] AutoDeployConfiguration autoDeployConfiguration,
             [NotNull] ILogger logger,
             [NotNull] PackageService packageService,
-            TimeoutHelper timeoutHelper)
+            TimeoutHelper timeoutHelper,
+            IApplicationSettingsStore applicationSettingsStore)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -48,11 +52,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _packageService = packageService ?? throw new ArgumentNullException(nameof(packageService));
             _timeoutHelper = timeoutHelper;
+            _applicationSettingsStore = applicationSettingsStore;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (!_autoDeployConfiguration.Enabled)
+            if (!(await _applicationSettingsStore.GetApplicationSettings(stoppingToken)).AutoDeploy.Enabled)
             {
                 return;
             }

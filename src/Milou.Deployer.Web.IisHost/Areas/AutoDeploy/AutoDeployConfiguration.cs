@@ -11,22 +11,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         public AutoDeployConfiguration(
             int startupDelayInSeconds,
             int metadataTimeoutInSeconds,
-            bool enabled,
             int defaultTimeoutInSeconds,
             int afterDeployDelayInSeconds,
             int emptyTargetsDelayInSeconds)
         {
             StartupDelayInSeconds = startupDelayInSeconds >= 0 ? metadataTimeoutInSeconds : 0;
             MetadataTimeoutInSeconds = metadataTimeoutInSeconds > 0 ? metadataTimeoutInSeconds : 5;
-            Enabled = enabled;
             AfterDeployDelayInSeconds = afterDeployDelayInSeconds <= 0 ? 10 : afterDeployDelayInSeconds;
             DefaultTimeoutInSeconds = defaultTimeoutInSeconds <= 0 ? 30 : defaultTimeoutInSeconds;
             EmptyTargetsDelayInSeconds = emptyTargetsDelayInSeconds <= 0 ? 5 : emptyTargetsDelayInSeconds;
         }
 
         public int EmptyTargetsDelayInSeconds { get; }
-
-        public bool Enabled { get; }
 
         public int StartupDelayInSeconds { get; }
 
@@ -39,7 +35,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
         public override string ToString()
         {
             return
-                $"{nameof(EmptyTargetsDelayInSeconds)}: {EmptyTargetsDelayInSeconds}, {nameof(Enabled)}: {Enabled}, {nameof(StartupDelayInSeconds)}: {StartupDelayInSeconds}, {nameof(MetadataTimeoutInSeconds)}: {MetadataTimeoutInSeconds}, {nameof(DefaultTimeoutInSeconds)}: {DefaultTimeoutInSeconds}, {nameof(AfterDeployDelayInSeconds)}: {AfterDeployDelayInSeconds}";
+                $"{nameof(EmptyTargetsDelayInSeconds)}: {EmptyTargetsDelayInSeconds}, {nameof(StartupDelayInSeconds)}: {StartupDelayInSeconds}, {nameof(MetadataTimeoutInSeconds)}: {MetadataTimeoutInSeconds}, {nameof(DefaultTimeoutInSeconds)}: {DefaultTimeoutInSeconds}, {nameof(AfterDeployDelayInSeconds)}: {AfterDeployDelayInSeconds}";
         }
     }
 }

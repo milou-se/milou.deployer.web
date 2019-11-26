@@ -170,6 +170,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     return new ServiceInstance(registrationType, "Generic type", serviceRegistrationInfo.Module);
                 }
 
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationType?.Namespace?.StartsWith(
+                        "Microsoft.AspNetCore.Mvc.ViewFeatures.RazorComponents") == true)
+                {
+                    return new ServiceInstance(registrationType, "Razor", serviceRegistrationInfo.Module);
+                }
+
                 try
                 {
                     var instance =

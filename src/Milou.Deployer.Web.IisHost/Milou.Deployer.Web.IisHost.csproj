@@ -31,13 +31,13 @@
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
         <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.19.2" />
         <PackageReference Include="Arbor.Processing" Version="0.3.0" />
-        <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.10.1" />
+        <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.10.2" />
         <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.19.2" />
         <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.19.2" />
         <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.19.2" />
         <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.19.2" />
         <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.19.2" />
-        <PackageReference Include="Arbor.ModelBinding" Version="0.7.1" />
+        <PackageReference Include="Arbor.ModelBinding" Version="0.7.2" />
         <PackageReference Include="Arbor.Tooler" Version="0.6.5" />
         <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
         <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
