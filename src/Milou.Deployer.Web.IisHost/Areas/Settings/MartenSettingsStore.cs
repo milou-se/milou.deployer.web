@@ -55,7 +55,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
         }
 
         private AutoDeploySettings MapAutoDeploy(AutoDeployData autoDeploy) =>
-            new AutoDeploySettings { Enabled = autoDeploy?.Enabled ?? false };
+            new AutoDeploySettings
+            {
+                Enabled = autoDeploy?.Enabled ?? false,
+                PollingEnabled = autoDeploy?.PollingEnabled ?? false
+            };
 
         private NexusConfig MapFromNexusData(NexusConfigData data) =>
             new NexusConfig
@@ -64,7 +68,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             };
 
         private AutoDeployData MapToAutoDeployData(AutoDeploySettings autoDeploySettings) =>
-            new AutoDeployData { Enabled = autoDeploySettings?.Enabled ?? false };
+            new AutoDeployData
+            {
+                Enabled = autoDeploySettings?.Enabled ?? false,
+                PollingEnabled = autoDeploySettings?.PollingEnabled ?? false,
+            };
 
         private ApplicationSettingsData MapToData(ApplicationSettings applicationSettings) =>
             new ApplicationSettingsData

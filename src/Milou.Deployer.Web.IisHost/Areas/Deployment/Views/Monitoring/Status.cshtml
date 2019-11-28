@@ -41,6 +41,7 @@
                 </td>
                 <td>
                     <span v-bind:title="target.statusTitle" v-bind:class="'deploy-status-' + target.statusKey">{{target.statusDisplayName}}</span>
+                    <span v-if="target.hasNewData" class="level-Warning">!</span>
                 </td>
                 <td>
                     <a v-bind:href="target.historyUrl">History</a>

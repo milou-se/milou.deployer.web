@@ -18,7 +18,7 @@ using Serilog;
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 {
     [UsedImplicitly]
-    public class HookService : INotificationHandler<PackageWebHookNotification>
+    public class PackageWebHookAutoDeployHandler : INotificationHandler<PackageWebHookNotification>
     {
         private readonly DeploymentWorkerService _deploymentService;
 
@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
         private readonly IDeploymentTargetReadService _targetSource;
 
-        public HookService(
+        public PackageWebHookAutoDeployHandler(
             IDeploymentTargetReadService targetSource,
             DeploymentWorkerService deploymentService,
             ILogger logger,
@@ -116,7 +116,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
                                                     packageIdentifier,
                                                     deploymentTarget.Id,
                                                     Guid.NewGuid(),
-                                                    "Web hook"));
+                                                    "Web hook auto deploy"));
 
                                     _logger.Information(
                                         "Successfully enqueued package {PackageIdentifier} to target {Name} from web hook",

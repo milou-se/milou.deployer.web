@@ -73,7 +73,9 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return app.UseStaticFiles(staticFileOptions);
         }
 
-        public static void UseSignalRHubs(this IEndpointRouteBuilder routerBuilder) =>
-            routerBuilder.MapHub<DeploymentLoggingHub>(DeploymentLogConstants.HubRoute);
+        public static void UseSignalRHubs(this IEndpointRouteBuilder routerBuilder)
+        {
+            routerBuilder.MapHub<TargetHub>(DeploymentLogConstants.HubRoute);
+        }
     }
 }

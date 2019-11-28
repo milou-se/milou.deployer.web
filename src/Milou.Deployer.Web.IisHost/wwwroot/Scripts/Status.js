@@ -1,4 +1,6 @@
-﻿class DeploymentTarget {
+﻿let app = {};
+
+class DeploymentTarget {
     constructor(
     targetId,
     name,
@@ -42,6 +44,15 @@
         this.deployEnabled = deployEnabled;
         this.packages = packages;
         this.selectedPackage = selectedPackage || -1;
+        this.hasNewData = false;
+    }
+
+    get hasNewData() {
+        return this._hasNewData;
+    }
+
+    set hasNewData(value) {
+        this._hasNewData = value;
     }
 
     get statusTitle() {
@@ -122,7 +133,26 @@ async function getTargets() {
     return targets;
 }
 
-let app = {};
+async function connect() {
+    let connection = new signalR.HubConnectionBuilder()
+        .withUrl(hubUrl)
+        .build();
+
+        connection.on('targetsWithUpdates',
+            (packageId, version, targets) => {
+
+                console.log("Update is available for package " + packageId + " version " + version + " for target " + targets.join(', '));
+
+                app.targets.forEach(target => {
+                    if (targets.includes(target.targetId)) {
+                        target.hasNewData = true;
+                    }
+                });
+            });
+
+    await connection.start();
+}
+
 let targets = [];
 
 async function buildApp() {
@@ -143,6 +173,9 @@ async function buildApp() {
 
 
             }
+        },
+        mounted() {
+            connect();
         },
         computed: {
 

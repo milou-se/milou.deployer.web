@@ -16,7 +16,7 @@
             .withUrl('@DeploymentLogConstants.HubRoute')
             .build();
 
-        connection.on('@DeploymentLoggingHub.MessageMethod',
+        connection.on('@TargetHub.MessageMethod',
             data => {
 
                 console.log(data);
@@ -26,6 +26,12 @@
                 messages.appendChild(para);
 
                 window.scrollTo(0, document.body.scrollHeight);
+            });
+
+        connection.on('@TargetHub.TargetsWithUpdates',
+            (packageId, version, targets) => {
+
+                console.log("Update is available for package " + packageId + " version " + version + " for target " + targets.join(', '));
             });
 
         function htmlEscape(str) {

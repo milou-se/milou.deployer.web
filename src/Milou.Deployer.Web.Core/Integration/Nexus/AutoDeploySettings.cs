@@ -3,5 +3,7 @@
     public class AutoDeploySettings
     {
         public bool Enabled { get; set; }
+
+        public bool PollingEnabled { get; set; }
     }
 }

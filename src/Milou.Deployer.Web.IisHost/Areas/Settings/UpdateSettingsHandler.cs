@@ -36,6 +36,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
             if (request.AutoDeploy?.Enabled != null)
             {
                 applicationSettings.AutoDeploy.Enabled = request.AutoDeploy.Enabled;
+                applicationSettings.AutoDeploy.PollingEnabled = request.AutoDeploy.PollingEnabled;
             }
 
             await _settingsStore.Save(applicationSettings);

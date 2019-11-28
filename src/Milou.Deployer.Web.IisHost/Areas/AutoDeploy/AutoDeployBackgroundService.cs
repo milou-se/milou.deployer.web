@@ -57,8 +57,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (!(await _applicationSettingsStore.GetApplicationSettings(stoppingToken)).AutoDeploy.Enabled)
+            var applicationSettings = await _applicationSettingsStore.GetApplicationSettings(stoppingToken);
+
+            if (!applicationSettings.AutoDeploy.Enabled)
             {
+                _logger.Debug("Auto deploy is disabled");
+                return;
+            }
+
+            if (!applicationSettings.AutoDeploy.PollingEnabled)
+            {
+                _logger.Debug("Auto deploy polling is disabled");
                 return;
             }
 

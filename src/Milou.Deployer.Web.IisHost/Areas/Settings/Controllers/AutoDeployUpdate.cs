@@ -2,8 +2,14 @@
 {
     public class AutoDeployUpdate
     {
-        public AutoDeployUpdate(bool enabled) => Enabled = enabled;
+        public AutoDeployUpdate(bool enabled, bool pollingEnabled)
+        {
+            Enabled = enabled;
+            PollingEnabled = pollingEnabled;
+        }
 
         public bool Enabled { get; }
+
+        public bool PollingEnabled { get; }
     }
 }
