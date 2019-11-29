@@ -205,7 +205,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             if (addedPackages.Any())
             {
-                var settings = await _applicationSettingsStore.GetApplicationSettings(cancellationToken);
+                var settings = await _applicationSettingsStore.GetApplicationSettings(CancellationToken.None);
                 TimeSpan cacheTime = settings.CacheTime;
                 _memoryCache.SetValue(cacheKey, packageVersions, cacheTime);
                 _logger.Debug(
