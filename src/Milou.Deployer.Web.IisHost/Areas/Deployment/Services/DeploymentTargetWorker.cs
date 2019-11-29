@@ -23,7 +23,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly BlockingCollection<DeploymentTask> _taskQueue = new BlockingCollection<DeploymentTask>();
         private readonly WorkerConfiguration _workerConfiguration;
         private readonly TimeoutHelper _timeoutHelper;
-        public bool IsExecuting { get; private set; }
+
+        private DeploymentTask _currentTask;
 
         public DeploymentTargetWorker(
             [NotNull] string targetId,
@@ -46,6 +47,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _timeoutHelper = timeoutHelper;
         }
 
+        public bool IsExecuting { get; private set; }
+
         public string TargetId { get; }
 
         private async Task StartTaskMessageHandler(CancellationToken stoppingToken)
@@ -56,23 +59,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
                 while (!deploymentTask.MessageQueue.IsCompleted)
                 {
-                    if (!deploymentTask.MessageQueue.TryTake(out (string Message, WorkTaskStatus Status) valueTuple,
-                        TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
+                    if (!deploymentTask.MessageQueue.TryTake(
+                            out (string Message, WorkTaskStatus Status) valueTuple,
+                            TimeSpan.FromSeconds(_workerConfiguration.MessageTimeOutInSeconds)))
                     {
                         deploymentTask.MessageQueue.CompleteAdding();
                     }
 
                     if (valueTuple.Message.HasValue())
                     {
-                        await _mediator.Publish(new DeploymentLogNotification(deploymentTask.DeploymentTargetId,
-                                valueTuple.Message),
+                        await _mediator.Publish(
+                            new DeploymentLogNotification(deploymentTask.DeploymentTargetId, valueTuple.Message),
                             stoppingToken);
                     }
                 }
             }
         }
-
-        private DeploymentTask _currentTask;
 
         private async Task StartProcessingAsync(CancellationToken stoppingToken)
         {
@@ -85,40 +87,51 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     return;
                 }
 
-                _currentTask = deploymentTask;
-
-                deploymentTask.Status = WorkTaskStatus.Started;
-                _taskQueue.Add(deploymentTask, stoppingToken);
-
-                _logger.Information("Deployment target worker has taken {DeploymentTask}", deploymentTask);
-
-                deploymentTask.Status = WorkTaskStatus.Started;
-
-                _logger.Information("Executing deployment task {DeploymentTask}", deploymentTask);
-
-                await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
-
-                var result =
-                    await _deploymentService.ExecuteDeploymentAsync(deploymentTask, _logger, stoppingToken);
-
-                if (result.ExitCode.IsSuccess)
+                try
                 {
-                    _logger.Information("Executed deployment task {DeploymentTask}", deploymentTask);
+                    _currentTask = deploymentTask;
 
-                    deploymentTask.Status = WorkTaskStatus.Done;
-                    deploymentTask.Log("{\"Message\": \"Work task completed\"}");
+                    deploymentTask.Status = WorkTaskStatus.Started;
+                    _taskQueue.Add(deploymentTask, stoppingToken);
+
+                    _logger.Information("Deployment target worker has taken {DeploymentTask}", deploymentTask);
+
+                    deploymentTask.Status = WorkTaskStatus.Started;
+
+                    _logger.Information("Executing deployment task {DeploymentTask}", deploymentTask);
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(500), stoppingToken);
+
+                    var result =
+                        await _deploymentService.ExecuteDeploymentAsync(deploymentTask, _logger, stoppingToken);
+
+                    if (result.ExitCode.IsSuccess)
+                    {
+                        _logger.Information("Executed deployment task {DeploymentTask}", deploymentTask);
+
+                        deploymentTask.Status = WorkTaskStatus.Done;
+                        deploymentTask.Log("{\"Message\": \"Work task completed\"}");
+                    }
+                    else
+                    {
+                        _logger.Error(
+                            "Failed to deploy task {DeploymentTask}, result {Result}",
+                            deploymentTask,
+                            result.Metadata);
+
+                        deploymentTask.Status = WorkTaskStatus.Failed;
+                        deploymentTask.Log("{\"Message\": \"Work task failed\"}");
+                    }
                 }
-                else
+                catch (Exception ex) when (!ex.IsFatal())
                 {
-                    _logger.Error("Failed to deploy task {DeploymentTask}, result {Result}",
-                        deploymentTask,
-                        result.Metadata);
-
-                    deploymentTask.Status = WorkTaskStatus.Failed;
-                    deploymentTask.Log("{\"Message\": \"Work task failed\"}");
+                    _logger.Error(ex, "Failed when executing deployment task {TaskId}", deploymentTask.DeploymentTaskId);
+                }
+                finally
+                {
+                    _currentTask = null;
                 }
 
-                _currentTask = null;
             }
 
             while (_queue.Count > 0)
@@ -127,7 +140,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     _queue.Take();
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (!ex.IsFatal())
                 {
                     _logger.Error(ex, "Could not clear queue");
                 }
@@ -152,12 +165,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     var tasksInQueue = _queue.ToArray();
 
-                    if (tasksInQueue.Length > 0 && tasksInQueue.Any(queued =>
-                            queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
-                            && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
+                    if (IsExecuting
+                        && _currentTask?.PackageId?.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
+                        == true
+                        && _currentTask?.SemanticVersion?.Equals(deploymentTask.SemanticVersion) == true)
+                    {
+                        _logger.Warning("A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}", _currentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
+                        return;
+                    }
+
+                    if (tasksInQueue.Length > 0
+                        && tasksInQueue.Any(
+                            queued =>
+                                queued.PackageId.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
+                                && queued.SemanticVersion.Equals(deploymentTask.SemanticVersion)))
                     {
                         _logger.Warning(
-                            "A deployment task with package id {PackageId} and version {Version} is already enqueued, skipping task, , current queue length {Length}",
+                            "A deployment task with package id {PackageId} and version {Version} is already enqueued, skipping task, current queue length {Length}",
                             deploymentTask.PackageId,
                             deploymentTask.SemanticVersion.ToNormalizedString(),
                             tasksInQueue.Length);
@@ -166,18 +190,22 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     }
 
                     if (deploymentTask.StartedBy != null
-                        && deploymentTask.StartedBy.Equals(nameof(AutoDeployBackgroundService),
+                        && deploymentTask.StartedBy.Equals(
+                            nameof(AutoDeployBackgroundService),
                             StringComparison.OrdinalIgnoreCase))
                     {
-                        if (tasksInQueue.Length > 0 && tasksInQueue.Any(queued => queued.StartedBy.Equals(
-                                nameof(AutoDeployBackgroundService),
-                                StringComparison.OrdinalIgnoreCase)))
+                        if (tasksInQueue.Length > 0
+                            && tasksInQueue.Any(
+                                queued => queued.StartedBy.Equals(
+                                    nameof(AutoDeployBackgroundService),
+                                    StringComparison.OrdinalIgnoreCase)))
                         {
                             return;
                         }
 
-                        if (_currentTask != null && _currentTask.SemanticVersion == deploymentTask.SemanticVersion &&
-                            _currentTask.PackageId == deploymentTask.PackageId)
+                        if (_currentTask != null
+                            && _currentTask.SemanticVersion == deploymentTask.SemanticVersion
+                            && _currentTask.PackageId == deploymentTask.PackageId)
                         {
                             return;
                         }
@@ -186,7 +214,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     deploymentTask.Status = WorkTaskStatus.Enqueued;
                     _queue.Add(deploymentTask, cts.Token);
 
-                    _logger.Information("Enqueued deployment task {DeploymentTask}, current queue length {Length}",
+                    _logger.Information(
+                        "Enqueued deployment task {DeploymentTask}, current queue length {Length}",
                         deploymentTask,
                         tasksInQueue);
                 }

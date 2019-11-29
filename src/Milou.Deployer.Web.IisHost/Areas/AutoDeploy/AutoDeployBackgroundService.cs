@@ -75,21 +75,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                ImmutableArray<DeploymentTarget> deploymentTargets;
-                using (var targetsTokenSource =
-                    _timeoutHelper.CreateCancellationTokenSource(
-                        TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
-                {
-                    using (var linked =
-                        CancellationTokenSource.CreateLinkedTokenSource(
-                            stoppingToken,
-                            targetsTokenSource.Token))
-                    {
-                        deploymentTargets = (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linked.Token))
-                            .Where(target => target.Enabled && target.AutoDeployEnabled)
-                            .ToImmutableArray();
-                    }
-                }
+                var deploymentTargets = await GetDeploymentTargetsWithAutoDeployEnabled(stoppingToken);
 
                 if (deploymentTargets.IsDefaultOrEmpty)
                 {
@@ -119,50 +105,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     continue;
                 }
 
-                AppVersion[] appVersions;
-                using (var cancellationTokenSource =
-                    _timeoutHelper.CreateCancellationTokenSource(
-                        TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds)))
-                {
-                    using (var linkedCancellationTokenSource =
-                        CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken))
-                    {
-                        var cancellationToken = linkedCancellationTokenSource.Token;
-
-                        var tasks = targetsWithUrl.Select(target =>
-                            _monitoringService.GetAppMetadataAsync(target, cancellationToken));
-
-                        appVersions = await Task.WhenAll(tasks);
-                    }
-                }
+                var appVersions = await GetAppVersions(stoppingToken, targetsWithUrl);
 
                 foreach (var deploymentTarget in targetsWithUrl)
                 {
-                    var appVersion = appVersions.SingleOrDefault(v =>
-                        v.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
+                    var appVersion = appVersions.SingleOrDefault(version =>
+                        version.Target.Id.Equals(deploymentTarget.Id, StringComparison.OrdinalIgnoreCase));
 
                     if (appVersion?.SemanticVersion is null || appVersion.PackageId.IsNullOrWhiteSpace())
                     {
                         continue;
                     }
 
-                    ImmutableHashSet<PackageVersion> packageVersions;
-                    using (var packageVersionCancellationTokenSource =
-                        _timeoutHelper.CreateCancellationTokenSource(
-                            TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
-                    {
-                        using (var linked =
-                            CancellationTokenSource.CreateLinkedTokenSource(
-                                stoppingToken,
-                                packageVersionCancellationTokenSource.Token))
-                        {
-                            packageVersions =
-                                (await _packageService.GetPackageVersionsAsync(
-                                     deploymentTarget.PackageId,
-                                     cancellationToken: linked.Token,
-                                     logger: _logger)).ToImmutableHashSet();
-                        }
-                    }
+                    var packageVersions = await GetPackageVersions(stoppingToken, deploymentTarget);
 
                     if (packageVersions.IsEmpty)
                     {
@@ -170,11 +125,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                     }
 
                     var filteredPackages = !deploymentTarget.AllowPreRelease
-                        ? packageVersions.Where(p => !p.Version.IsPrerelease).ToImmutableHashSet()
+                        ? packageVersions.Where(packageVersion => !packageVersion.Version.IsPrerelease).ToImmutableHashSet()
                         : packageVersions;
 
                     if (filteredPackages.IsEmpty)
                     {
+                        _logger.Debug("Found no auto deploy versions for target {TargetId} allowing pre-release {AllowPreRelease}", deploymentTarget.Id, deploymentTarget.AllowPreRelease);
                         continue;
                     }
 
@@ -193,17 +149,115 @@ namespace Milou.Deployer.Web.IisHost.Areas.AutoDeploy
                         var task = new DeploymentTask(packageToDeploy, deploymentTarget.Id, Guid.NewGuid(), nameof(AutoDeployBackgroundService));
 
                         _logger.Information(
-                            "Auto-deploying package {Package} to target {TargetId}",
+                            "Enqueuing auto deploy package {Package} to target {TargetId}",
                             packageToDeploy,
                             deploymentTarget.Id);
 
                         _deploymentWorkerService.Enqueue(task);
+                    }
+                    else
+                    {
+                        _logger.Debug("Found no newer auto deploy versions for target {TargetId} allowing pre-release {AllowPreRelease}", deploymentTarget.Id, deploymentTarget.AllowPreRelease);
                     }
                 }
 
                 await Task.Delay(
                     TimeSpan.FromSeconds(_autoDeployConfiguration.AfterDeployDelayInSeconds),
                     stoppingToken);
+            }
+        }
+
+        private async Task<ImmutableHashSet<PackageVersion>> GetPackageVersions(CancellationToken stoppingToken, DeploymentTarget deploymentTarget)
+        {
+            try
+            {
+                ImmutableHashSet<PackageVersion> packageVersions;
+                using (var packageVersionCancellationTokenSource =
+                    _timeoutHelper.CreateCancellationTokenSource(
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
+                {
+                    using (var linked =
+                        CancellationTokenSource.CreateLinkedTokenSource(
+                            stoppingToken,
+                            packageVersionCancellationTokenSource.Token))
+                    {
+                        packageVersions =
+                            (await _packageService.GetPackageVersionsAsync(
+                                 deploymentTarget.PackageId,
+                                 cancellationToken: linked.Token,
+                                 logger: _logger)).ToImmutableHashSet();
+                    }
+                }
+
+                return packageVersions;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex, "Could not get package versions for auto deploy of target {TargetId}", deploymentTarget.Id);
+                return ImmutableHashSet<PackageVersion>.Empty;
+            }
+        }
+
+        private async Task<AppVersion[]> GetAppVersions(CancellationToken stoppingToken, ImmutableArray<DeploymentTarget> targetsWithUrl)
+        {
+            try
+            {
+                AppVersion[] appVersions;
+                using (var cancellationTokenSource =
+                    _timeoutHelper.CreateCancellationTokenSource(
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.MetadataTimeoutInSeconds)))
+                {
+                    using (var linkedCancellationTokenSource =
+                        CancellationTokenSource.CreateLinkedTokenSource(cancellationTokenSource.Token, stoppingToken))
+                    {
+                        var cancellationToken = linkedCancellationTokenSource.Token;
+
+                        var tasks = targetsWithUrl.Select(
+                            target =>
+                                _monitoringService.GetAppMetadataAsync(target, cancellationToken));
+
+                        appVersions = await Task.WhenAll(tasks);
+                    }
+                }
+
+                return appVersions;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex, "Could not app versions for auto deploy");
+
+                return Array.Empty<AppVersion>();
+            }
+        }
+
+        private async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsWithAutoDeployEnabled(CancellationToken stoppingToken)
+        {
+            try
+            {
+                ImmutableArray<DeploymentTarget> deploymentTargets;
+                using (var targetsTokenSource =
+                    _timeoutHelper.CreateCancellationTokenSource(
+                        TimeSpan.FromSeconds(_autoDeployConfiguration.DefaultTimeoutInSeconds)))
+                {
+                    using (var linked =
+                        CancellationTokenSource.CreateLinkedTokenSource(
+                            stoppingToken,
+                            targetsTokenSource.Token))
+                    {
+                        deploymentTargets =
+                            (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linked.Token))
+                            .Where(target => target.Enabled && target.AutoDeployEnabled)
+                            .ToImmutableArray();
+                    }
+                }
+
+                return deploymentTargets;
+            }
+            catch (Exception ex) when (!ex.IsFatal())
+            {
+                _logger.Error(ex, "Could not get targets with auto deploy enabled");
+
+                return ImmutableArray<DeploymentTarget>.Empty;
             }
         }
     }
