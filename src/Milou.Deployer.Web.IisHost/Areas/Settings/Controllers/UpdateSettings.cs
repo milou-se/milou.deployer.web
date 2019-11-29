@@ -18,5 +18,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
         public NexusUpdate NexusConfig { get; }
 
         public AutoDeployUpdate AutoDeploy { get; }
+
+        public TimeSpan? ApplicationSettingsCacheTimeout { get; set; }
+
+        public TimeSpan? DefaultMetadataTimeout { get; set; }
+
+        public TimeSpan? MetadataCacheTimeout { get; set; }
     }
 }

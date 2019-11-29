@@ -22,7 +22,8 @@ class DeploymentTarget {
     latestNewerAvailable,
     deployEnabled,
     packages,
-    selectedPackage) {
+    selectedPackage,
+    packageId) {
         this.targetId = targetId;
         this.name = name;
         this.url = url;
@@ -45,6 +46,7 @@ class DeploymentTarget {
         this.packages = packages;
         this.selectedPackage = selectedPackage || -1;
         this.hasNewData = false;
+        this.packageId = packageId;
     }
 
     get hasNewData() {
@@ -86,7 +88,8 @@ class TargetStatus {
     latestNewerAvailable,
     deployEnabled,
     packages,
-    selectedPackageIndex) {
+    selectedPackageIndex,
+    packageId) {
         this.key = key;
         this.displayName = displayName;
         this.isPreReleaseVersion = isPreReleaseVersion;
@@ -100,6 +103,7 @@ class TargetStatus {
         this.deployEnabled = deployEnabled;
         this.packages = packages;
         this.selectedPackageIndex = selectedPackageIndex;
+        this.packageId = packageId;
     }
 
     static from(json) {
@@ -111,8 +115,6 @@ async function getTargetStatus(target) {
 
     const response = await fetch(target.statusUrl);
 
-    //console.dir(response);
-
     const json = await response.json();
 
     const targetStatus = TargetStatus.from(json);
@@ -123,8 +125,6 @@ async function getTargetStatus(target) {
 async function getTargets() {
 
     const response = await fetch("/api/targets");
-
-    //console.dir(response);
 
     const json = await response.json();
 
@@ -205,6 +205,7 @@ async function buildApp() {
             target.latestNewerAvailable = status.latestNewerAvailable;
             target.deployEnabled = status.deployEnabled;
             target.packages = status.packages;
+            target.packageId = status.packageId;
 
             if (target.packages && target.packages.length > 0) {
                 if (status.selectedPackageIndex >= 0) {

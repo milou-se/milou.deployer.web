@@ -36,10 +36,13 @@ namespace Milou.Deployer.Web.Marten
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
 
-        public MartenStore([NotNull] IDocumentStore documentStore, ILogger logger)
+        private readonly IMediator _mediator;
+
+        public MartenStore([NotNull] IDocumentStore documentStore, ILogger logger, IMediator mediator)
         {
             _documentStore = documentStore ?? throw new ArgumentNullException(nameof(documentStore));
             _logger = logger;
+            _mediator = mediator;
         }
 
         private async Task<CreateProjectResult> CreateProjectAsync(
@@ -415,6 +418,8 @@ namespace Milou.Deployer.Web.Marten
 
             string targetName;
 
+            string id;
+
             using (var session = _documentStore.OpenSession())
             {
                 var data =
@@ -422,9 +427,10 @@ namespace Milou.Deployer.Web.Marten
 
                 if (data is null)
                 {
-                    return new UpdateDeploymentTargetResult("", new ValidationError("Not found"));
+                    return new UpdateDeploymentTargetResult("", "", new ValidationError("Not found"));
                 }
 
+                id = data.Id;
                 targetName = data.Name;
 
                 data.PackageId = request.PackageId;
@@ -456,7 +462,11 @@ namespace Milou.Deployer.Web.Marten
 
             _logger.Information("Updated target with id {Id}", request.Id);
 
-            return new UpdateDeploymentTargetResult(targetName);
+            var updateDeploymentTargetResult = new UpdateDeploymentTargetResult(targetName, id);
+
+            await _mediator.Publish(updateDeploymentTargetResult, cancellationToken);
+
+            return updateDeploymentTargetResult;
         }
 
         public async Task<Unit> Handle([NotNull] RemoveTarget request, CancellationToken cancellationToken)

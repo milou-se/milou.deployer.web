@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 using MediatR;
 using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
