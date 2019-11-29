@@ -39,6 +39,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 applicationSettings.AutoDeploy.PollingEnabled = request.AutoDeploy.PollingEnabled;
             }
 
+            if (request.ApplicationSettingsCacheTimeout.HasValue && request.ApplicationSettingsCacheTimeout.Value.TotalSeconds >= 0.5D)
+            {
+                applicationSettings.ApplicationSettingsCacheTimeout = request.ApplicationSettingsCacheTimeout.Value;
+            }
+
+            if (request.DefaultMetadataTimeout.HasValue && request.DefaultMetadataTimeout.Value.TotalSeconds >= 0.5D)
+            {
+                applicationSettings.DefaultMetadataRequestTimeout = request.DefaultMetadataTimeout.Value;
+            }
+
+            if (request.MetadataCacheTimeout.HasValue && request.MetadataCacheTimeout.Value.TotalSeconds >= 0.5D)
+            {
+                applicationSettings.MetadataCacheTimeout = request.MetadataCacheTimeout.Value;
+            }
+
             await _settingsStore.Save(applicationSettings);
 
             return Unit.Value;

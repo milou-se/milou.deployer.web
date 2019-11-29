@@ -59,12 +59,12 @@
                     <span v-else>@Milou.Deployer.Web.Core.Constants.NotAvailable</span>
                 </td>
                 <td>
-                    <div v-if="target.deployEnabled && target.packages.length > 0">
+                    <div v-if="target.deployEnabled">
 
                         <form method="post" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)"> @*v-on:submit.prevent*@
                             <input type="hidden" name="targetId" v-bind:value="target.targetId" />
 
-                            <span class="package-select">
+                            <span class="package-select" v-if="target.packages.length > 0">
                                 <select class="packageVersionSelect" v-model="target.selectedPackage">
 
                                     <option v-for="(package, index) in target.packages" v-bind:value="index">{{package.packageId}} {{package.version}}</option>
@@ -81,7 +81,9 @@
                                 <div class="modal__inner">
                                     <label class="modal__close" v-bind:for="'modal_' + target.targetId"></label>
 
-                                    <template v-if="target.selectedPackage >= 0">
+                                    <input type="hidden" name="packageId" v-bind:value="target.packageId" />
+
+                                    <template v-if="target.packages.length > 0 && target.selectedPackage >= 0">
                                         <h3>{{target.packages[target.selectedPackage].packageId}}</h3>
 
                                         <h4>Version {{target.packages[target.selectedPackage].version}}</h4>
@@ -92,8 +94,10 @@
                                         <p v-else-if="target.packages[target.selectedPackage].isCurrent">Current version is already deployed</p>
                                         <p v-else>Warning! Package is older than the currently deployed version {{target.semanticVersion}}</p>
 
-                                        <input type="hidden" name="packageId" v-bind:value="target.packages[target.selectedPackage].packageId" />
                                         <input type="hidden" name="version" v-bind:value="target.packages[target.selectedPackage].version" />
+                                    </template>
+                                    <template v-else>
+                                        Version: <input type="text" name="version" id="explicit-version"/>
                                     </template>
 
                                     <button v-on:click="deployPackageVersion" type="submit" class="deploy-button-v">Deploy</button>

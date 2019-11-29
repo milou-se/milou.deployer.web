@@ -92,7 +92,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                         statusMessage = "",
                         latestNewerAvailabe = "",
                         deployEnabled = deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
-                        packages = Array.Empty<object>()
+                        packages = Array.Empty<object>(),
+                        packageId = deploymentTarget.PackageId
                     };
                 });
 
@@ -149,8 +150,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                 statusMessage = appVersion.Message,
                 latestNewerAvailable = appVersion.LatestNewerAvailable?.ToNormalizedString() ?? "",
                 deployEnabled =
-                    deploymentTarget.Enabled && !deploymentTarget.IsReadOnly &&
-                    appVersion.AvailablePackageVersions.Any(),
+                    deploymentTarget.Enabled && !deploymentTarget.IsReadOnly,
+                packageId = deploymentTarget.PackageId,
                 packages = appVersion.AvailablePackageVersions.Select(availableVersion => new
                 {
                     packageId = availableVersion.PackageId,

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Marten;
 
+using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Integration.Nexus;
 using Milou.Deployer.Web.Core.Settings;
 
@@ -15,11 +16,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
 
         private readonly IDocumentStore _documentStore;
 
-        public MartenSettingsStore(IDocumentStore documentStore) => _documentStore = documentStore;
+        private readonly ICustomMemoryCache _memoryCache;
+
+        public MartenSettingsStore(IDocumentStore documentStore, ICustomMemoryCache memoryCache)
+        {
+            _documentStore = documentStore;
+            _memoryCache = memoryCache;
+        }
 
         public async Task<ApplicationSettings> GetApplicationSettings(CancellationToken cancellationToken)
         {
-            ApplicationSettings applicationSettings;
+            if (_memoryCache.TryGetValue(AppSettings, out ApplicationSettings applicationSettings))
+            {
+                return applicationSettings;
+            }
+
             using (var querySession = _documentStore.QuerySession())
             {
                 var applicationSettingsData =
@@ -40,6 +51,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
 
                 await querySession.SaveChangesAsync();
             }
+
+            _memoryCache.SetValue(AppSettings, applicationSettings, applicationSettings.ApplicationSettingsCacheTimeout);
         }
 
         private ApplicationSettings Map(ApplicationSettingsData applicationSettingsData)
@@ -48,7 +61,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                                       {
                                           CacheTime = applicationSettingsData?.CacheTime ?? TimeSpan.FromSeconds(300),
                                           NexusConfig = MapFromNexusData(applicationSettingsData?.NexusConfig),
-                                          AutoDeploy = MapAutoDeploy(applicationSettingsData?.AutoDeploy)
+                                          AutoDeploy = MapAutoDeploy(applicationSettingsData?.AutoDeploy),
+                                          DefaultMetadataRequestTimeout = applicationSettingsData?.DefaultMetadataTimeout ?? TimeSpan.FromSeconds(30),
+                                          ApplicationSettingsCacheTimeout = applicationSettingsData?.ApplicationSettingsCacheTimeout ?? TimeSpan.FromMinutes(10),
+                                          MetadataCacheTimeout = applicationSettingsData?.MetadataCacheTimeout ?? TimeSpan.FromMinutes(5)
                                       };
 
             return applicationSettings;
@@ -80,7 +96,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings
                 CacheTime = applicationSettings.CacheTime,
                 Id = AppSettings,
                 NexusConfig = MapToNexusData(applicationSettings.NexusConfig),
-                AutoDeploy = MapToAutoDeployData(applicationSettings.AutoDeploy)
+                AutoDeploy = MapToAutoDeployData(applicationSettings.AutoDeploy),
+                ApplicationSettingsCacheTimeout = applicationSettings.ApplicationSettingsCacheTimeout,
+                DefaultMetadataTimeout = applicationSettings.DefaultMetadataRequestTimeout,
+                MetadataCacheTimeout = applicationSettings.MetadataCacheTimeout
             };
 
         private NexusConfigData MapToNexusData(NexusConfig nexusConfig) =>

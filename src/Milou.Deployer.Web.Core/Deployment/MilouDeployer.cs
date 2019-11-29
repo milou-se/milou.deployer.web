@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 using Milou.Deployer.Bootstrapper.Common;
 using Milou.Deployer.Core;
 using Milou.Deployer.Core.Configuration;
+using Milou.Deployer.Core.Logging;
 using Milou.Deployer.Web.Core.Credentials;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
