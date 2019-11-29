@@ -19,40 +19,65 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
                 return;
             }
 
-            var key = typeof(T).FullName;
+            string key = typeof(T).FullName;
 
-            tempData[key] = JsonConvert.SerializeObject(value);
-        }
-
-        public static T Get<T>([NotNull] this ITempDataDictionary tempData) where T : class
-        {
-            if (tempData is null)
+            if (string.IsNullOrWhiteSpace(key))
             {
-                throw new ArgumentNullException(nameof(tempData));
+                return;
             }
 
-            var key = typeof(T).FullName;
-
-            tempData.TryGetValue(key, out var o);
-
-            switch (o)
+            try
             {
-                case T item:
-                    return item;
-                case string json:
-                    try
-                    {
-                        var deserializeObject = JsonConvert.DeserializeObject<T>(json);
+                tempData[key] = JsonConvert.SerializeObject(value);
+            }
+            catch (Exception)
+            {
+                // ignore
+            }
+        }
 
-                        return deserializeObject;
-                    }
-                    catch (Exception)
-                    {
-                        return default;
-                    }
+        public static T Get<T>(this ITempDataDictionary? tempData) where T : class
+        {
+            try
+            {
 
-                default:
+                if (tempData is null)
+                {
                     return default;
+                }
+
+                string key = typeof(T).FullName;
+
+                if (string.IsNullOrWhiteSpace(key))
+                {
+                    return default;
+                }
+
+                tempData.TryGetValue(key, out var o);
+
+                switch (o)
+                {
+                    case T item:
+                        return item;
+                    case string json:
+                        try
+                        {
+                            var deserializeObject = JsonConvert.DeserializeObject<T>(json);
+
+                            return deserializeObject;
+                        }
+                        catch (Exception)
+                        {
+                            return default;
+                        }
+
+                    default:
+                        return default;
+                }
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
     }
