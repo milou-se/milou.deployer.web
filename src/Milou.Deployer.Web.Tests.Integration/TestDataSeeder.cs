@@ -23,7 +23,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public async Task SeedAsync(CancellationToken cancellationToken)
         {
-            var testTarget = new DeploymentTarget("TestTarget",
+            var testTarget = new DeploymentTarget(
+                "TestTarget",
                 "Test target",
                 "MilouDeployerWebTest",
                 allowExplicitPreRelease: false,

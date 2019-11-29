@@ -98,6 +98,7 @@ namespace Milou.Deployer.Web.Marten
                     packageListTimeout: deploymentTargetData.PackageListTimeout,
                     publishType: deploymentTargetData.PublishType,
                     ftpPath: deploymentTargetData.FtpPath,
+                    metadataTimeout: deploymentTargetData.MetadataTimeout,
                     nuget: MapNuGet(deploymentTargetData.NuGetData));
             }
             catch (Exception ex)
@@ -447,6 +448,7 @@ namespace Milou.Deployer.Web.Marten
                                        NuGetPackageSource = request.NugetPackageSource,
                                        PackageListTimeout = request.PackageListTimeout
                                    };
+                data.MetadataTimeout = request.MetadataTimeout;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);

@@ -263,7 +263,9 @@ else
     <thead>
     <tr>
         <th>Target id</th>
-
+        <th>Is active</th>
+        <th>Executing task</th>
+        <th>Queue</th>
     </tr>
     </thead>
     <tbody>
@@ -271,6 +273,17 @@ else
     {
         <tr>
             <td>@item.TargetId</td>
+            <td>@item.IsRunning</td>
+            <td>@if (item.CurrentTask != null)
+                {
+                    <span>@item.CurrentTask.SemanticVersion?.ToNormalizedString() id @item.CurrentTask.DeploymentTaskId</span>
+                }
+            </td>
+            <td>@foreach (TaskInfo task in item.QueueInfo())
+                {
+                    <div>@task.SemanticVersion.ToNormalizedString() @task.EnqueuedAtUtc.ToString("o")</div>
+                }
+            </td>
         </tr>
     }
     </tbody>

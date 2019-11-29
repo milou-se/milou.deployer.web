@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
+
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
@@ -24,7 +27,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly WorkerConfiguration _workerConfiguration;
         private readonly TimeoutHelper _timeoutHelper;
 
-        private DeploymentTask _currentTask;
+        private readonly ICustomClock _clock;
+
+        public DeploymentTask CurrentTask { get; private set; }
 
         public DeploymentTargetWorker(
             [NotNull] string targetId,
@@ -32,7 +37,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             [NotNull] ILogger logger,
             [NotNull] IMediator mediator,
             [NotNull] WorkerConfiguration workerConfiguration,
-            TimeoutHelper timeoutHelper)
+            TimeoutHelper timeoutHelper,
+            ICustomClock clock)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {
@@ -45,15 +51,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _workerConfiguration = workerConfiguration ?? throw new ArgumentNullException(nameof(workerConfiguration));
             _timeoutHelper = timeoutHelper;
+            _clock = clock;
         }
 
-        public bool IsExecuting { get; private set; }
+        public bool IsRunning { get; private set; }
 
         public string TargetId { get; }
 
         private async Task StartTaskMessageHandler(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested && IsExecuting)
+            while (!stoppingToken.IsCancellationRequested && IsRunning)
             {
                 var deploymentTask = _taskQueue.Take(stoppingToken);
 
@@ -78,18 +85,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private async Task StartProcessingAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested && IsExecuting)
+            while (!stoppingToken.IsCancellationRequested && IsRunning)
             {
                 var deploymentTask = _queue.Take(stoppingToken);
 
-                if (!IsExecuting)
+                if (!IsRunning)
                 {
                     return;
                 }
 
                 try
                 {
-                    _currentTask = deploymentTask;
+                    CurrentTask = deploymentTask;
 
                     deploymentTask.Status = WorkTaskStatus.Started;
                     _taskQueue.Add(deploymentTask, stoppingToken);
@@ -129,7 +136,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
                 finally
                 {
-                    _currentTask = null;
+                    CurrentTask = null;
                 }
 
             }
@@ -165,15 +172,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 {
                     var tasksInQueue = _queue.ToArray();
 
-                    if (IsExecuting
-                        && _currentTask?.PackageId?.Equals(deploymentTask.PackageId, StringComparison.OrdinalIgnoreCase)
-                        == true
-                        && _currentTask?.SemanticVersion?.Equals(deploymentTask.SemanticVersion) == true)
-                    {
-                        _logger.Warning("A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}", _currentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
-                        return;
-                    }
-
                     if (tasksInQueue.Length > 0
                         && tasksInQueue.Any(
                             queued =>
@@ -194,24 +192,29 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                             nameof(AutoDeployBackgroundService),
                             StringComparison.OrdinalIgnoreCase))
                     {
+                        if (CurrentTask != null
+                            && CurrentTask.SemanticVersion == deploymentTask.SemanticVersion
+                            && CurrentTask.PackageId == deploymentTask.PackageId)
+                        {
+                            _logger.Warning("A deployment task {TaskId} is already executing as the new task trying to be added to queue, skipping new task {NewTaskId}", CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
+
+                            return;
+                        }
+
                         if (tasksInQueue.Length > 0
                             && tasksInQueue.Any(
                                 queued => queued.StartedBy.Equals(
                                     nameof(AutoDeployBackgroundService),
                                     StringComparison.OrdinalIgnoreCase)))
                         {
-                            return;
-                        }
+                            _logger.Warning("A deployment task {TaskId} is already in queue as the new task trying to be added to queue, skipping new task {NewTaskId}", CurrentTask?.DeploymentTaskId, deploymentTask.DeploymentTaskId);
 
-                        if (_currentTask != null
-                            && _currentTask.SemanticVersion == deploymentTask.SemanticVersion
-                            && _currentTask.PackageId == deploymentTask.PackageId)
-                        {
                             return;
                         }
                     }
 
                     deploymentTask.Status = WorkTaskStatus.Enqueued;
+                    deploymentTask.EnqueuedAtUtc = _clock.UtcNow().UtcDateTime;
                     _queue.Add(deploymentTask, cts.Token);
 
                     _logger.Information(
@@ -226,20 +229,20 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        public Task StopAsync(CancellationToken stoppingToken)
+        internal Task StopAsync(CancellationToken stoppingToken)
         {
-            IsExecuting = false;
+            IsRunning = false;
             return Task.CompletedTask;
         }
 
-        public async Task ExecuteAsync(CancellationToken stoppingToken)
+        internal async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (IsExecuting)
+            if (IsRunning)
             {
                 return;
             }
 
-            IsExecuting = true;
+            IsRunning = true;
             var messageTask = Task.Run(() => StartTaskMessageHandler(stoppingToken), stoppingToken);
             await StartProcessingAsync(stoppingToken);
             await messageTask;
@@ -247,9 +250,37 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public void Dispose()
         {
-            IsExecuting = false;
+            IsRunning = false;
             _queue?.Dispose();
             _taskQueue?.Dispose();
+        }
+
+        public IEnumerable<TaskInfo> QueueInfo()
+        {
+            try
+            {
+                int queueCount = _queue.Count;
+
+                if (queueCount > 0)
+                {
+                    var deploymentTasks = new DeploymentTask[queueCount];
+                    _queue.CopyTo(deploymentTasks, 0);
+
+                    var info = deploymentTasks
+                        .Select(task => new TaskInfo(task.SemanticVersion, task.EnqueuedAtUtc))
+                        .ToImmutableArray();
+
+                    return info;
+                }
+
+                return ImmutableArray<TaskInfo>.Empty;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Could not get queue info for target {TargetId}", TargetId);
+
+                return ImmutableArray<TaskInfo>.Empty;
+            }
         }
     }
 }

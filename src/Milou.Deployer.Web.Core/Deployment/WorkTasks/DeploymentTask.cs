@@ -75,6 +75,8 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 
         public string DeploymentTaskId { get; }
 
+        public DateTime EnqueuedAtUtc { get; set; }
+
         [PublicAPI]
         public WorkTaskStatus Status { get; set; } = WorkTaskStatus.Created;
 

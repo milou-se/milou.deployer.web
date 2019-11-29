@@ -58,6 +58,13 @@ else
                 </div>
             </div>
 
+            <div class="input-field">
+                <label for="target-metadataTimeout">Metada timeout</label>
+                <div class="input-value">
+                    <input id="target-metadataTimeout" type="text" name="metadataTimeout" value="@Model.DeploymentTarget.MetadataTimeout?.ToString()" />
+                </div>
+            </div>
+
         </fieldset>
 
         <fieldset>
@@ -122,20 +129,20 @@ else
             <div class="input-field">
                 <label for="target-nugetConfigFile">NuGet config file</label>
                 <div class="input-value">
-                    <input id="target-nugetConfigFile" type="text" name="nugetConfigFile" value="@Model.DeploymentTarget.NuGetConfigFile" />
+                    <input id="target-nugetConfigFile" type="text" name="nugetConfigFile" value="@Model.DeploymentTarget.NuGet.NuGetConfigFile" />
                 </div>
             </div>
 
             <div class="input-field">
                 <label for="target-nugetPackageSource">NuGet package source</label>
                 <div class="input-value">
-                    <input id="target-nugetPackageSource" type="text" name="nugetPackageSource" value="@Model.DeploymentTarget.NuGetPackageSource" />
+                    <input id="target-nugetPackageSource" type="text" name="nugetPackageSource" value="@Model.DeploymentTarget.NuGet.NuGetPackageSource" />
                 </div>
             </div>
             <div class="input-field">
                 <label for="target-packageListTimeout">Timeout</label>
                 <div class="input-value">
-                    <input id="target-packageListTimeout" type="text" name="packageListTimeout" value="@Model.DeploymentTarget.PackageListTimeout?.ToString()" />
+                    <input id="target-packageListTimeout" type="text" name="packageListTimeout" value="@Model.DeploymentTarget.NuGet.PackageListTimeout?.ToString()" />
                 </div>
             </div>
         </fieldset>

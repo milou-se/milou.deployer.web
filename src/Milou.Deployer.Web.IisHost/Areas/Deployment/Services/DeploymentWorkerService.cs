@@ -108,7 +108,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             if (_tasks.ContainsKey(deploymentTargetWorker.TargetId))
             {
-                if (deploymentTargetWorker.IsExecuting)
+                if (deploymentTargetWorker.IsRunning)
                 {
                     return;
                 }

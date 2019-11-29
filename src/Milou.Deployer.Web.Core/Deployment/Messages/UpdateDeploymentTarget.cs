@@ -26,7 +26,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string environmentType = null,
             string packageListTimeout = null,
             string publishType = null,
-            string ftpPath = null)
+            string ftpPath = null,
+            string metadataTimeout = default)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
@@ -52,7 +53,14 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             {
                 PackageListTimeout = timeout;
             }
+
+            if (TimeSpan.TryParse(metadataTimeout, out TimeSpan parsedMetadataTimeout) && parsedMetadataTimeout.TotalSeconds > 0.5D)
+            {
+                MetadataTimeout = parsedMetadataTimeout;
+            }
         }
+
+        public TimeSpan? MetadataTimeout { get; }
 
         public EnvironmentType? EnvironmentType { get; }
 

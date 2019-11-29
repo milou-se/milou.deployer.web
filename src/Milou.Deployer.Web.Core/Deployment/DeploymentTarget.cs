@@ -47,7 +47,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             TimeSpan? packageListTimeout = default,
             string publishType = default,
             string ftpPath = default,
-            TargetNuGetSettings nuget = default)
+            TargetNuGetSettings nuget = default,
+            TimeSpan? metadataTimeout = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -91,6 +92,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
             Parameters = parameters?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
             NuGet = nuget;
+            MetadataTimeout = metadataTimeout;
         }
 
         public IReadOnlyCollection<string> EmailNotificationAddresses { get; }
@@ -164,6 +166,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         public FtpPath FtpPath { get; }
 
         public TargetNuGetSettings NuGet { get; }
+
+        public TimeSpan? MetadataTimeout { get; }
 
         public override string ToString()
         {

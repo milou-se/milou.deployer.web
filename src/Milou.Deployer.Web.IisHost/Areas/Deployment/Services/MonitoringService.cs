@@ -214,17 +214,21 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
 
             AppVersion appMetadata;
-            using (var cancellationTokenSource =
-                _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(_monitorConfiguration.DefaultTimeoutInSeconds)))
+
+            var targetMetadataTimeout = target.MetadataTimeout ?? TimeSpan.FromSeconds(_monitorConfiguration.DefaultTimeoutInSeconds);
+
+            using (var cancellationTokenSource = _timeoutHelper.CreateCancellationTokenSource(
+                targetMetadataTimeout))
             {
                 if (_logger.IsEnabled(LogEventLevel.Verbose))
                 {
                     cancellationTokenSource.Token.Register(() =>
                     {
-                        _logger.Verbose("{Method} for {Target}, cancellation token invoked out after {Seconds} seconds",
+                        _logger.Verbose(
+                            "{Method} for {Target}, cancellation token invoked out after {Seconds} seconds",
                             nameof(GetAppMetadataAsync),
                             target,
-                            _monitorConfiguration.DefaultTimeoutInSeconds);
+                            targetMetadataTimeout.TotalSeconds.ToString("F1"));
                     });
                 }
 
