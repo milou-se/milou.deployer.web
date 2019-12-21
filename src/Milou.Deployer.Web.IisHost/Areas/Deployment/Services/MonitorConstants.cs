@@ -4,6 +4,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     public static class MonitorConstants
     {
+        public const string MonitorRoute = "~/";
+
+        public const string MonitorRouteName = nameof(MonitorRoute);
+
         public const string MonitorConfiguration = "urn:milou:deployer:web:monitor-configuration";
 
         [Metadata(defaultValue: "10")]

@@ -1,0 +1,117 @@
+﻿@using Milou.Deployer.Core.Deployment
+@using Milou.Deployer.Web.Core.Time
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@using DeploymentConstants = Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentConstants
+@model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.MonitoringViewOutputModel
+@inject ICustomClock Time;
+<h2>Deployed monitored applications</h2>
+
+<p>
+    <span>
+        <a class="action-link" href="@Url.RouteUrl(TargetConstants.CreateTargetGetRouteName)">Create new target</a>
+    </span>
+</p>
+
+<div id="app">
+    <table>
+        <thead>
+            <tr>
+                <th>Edit</th>
+                <th>Target</th>
+                <th>Status</th>
+                <th>History</th>
+                <th>
+                    <span style="white-space: nowrap">Version</span>
+                </th>
+                <th>Deployed</th>
+                <th>
+                    <span style="white-space: nowrap">Environment</span>
+                </th>
+                <th>Metadata</th>
+                <th>Deploy</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="target in targets">
+                <td>
+                    <a v-bind:href="target.editUrl">Edit</a>
+                </td>
+                <td>
+                    <a v-bind:href="target.url" v-if="target.url">{{target.name}}</a>
+                </td>
+                <td>
+                    <span v-bind:title="target.statusTitle" v-bind:class="'deploy-status-' + target.statusKey">{{target.statusDisplayName}}</span>
+                    <span v-if="target.hasNewData" class="level-Warning">!</span>
+                </td>
+                <td>
+                    <a v-bind:href="target.historyUrl">History</a>
+                </td>
+                <td>
+                    <span v-bind:class="target.preReleaseClass">{{target.semanticVersion}}</span>
+                </td>
+                <td v-bind:class="'traffic-light ' + target.intervalAgoName">
+                    <span v-bind:title="target.deployedAtLocalTime">{{target.intervalAgo}}</span>
+                </td>
+                <td>
+                    {{target.environmentType}}
+                <td>
+                    <span v-if="target.metadataUrl"><a v-bind:href="target.metadataUrl">Metadata</a></span>
+                    <span v-else>@Milou.Deployer.Web.Core.Constants.NotAvailable</span>
+                </td>
+                <td>
+                    <div v-if="target.deployEnabled">
+
+                        <form method="post" action="@Url.RouteUrl(DeploymentConstants.DeployRouteName)"> @*v-on:submit.prevent*@
+                            <input type="hidden" name="targetId" v-bind:value="target.targetId" />
+
+                            <span class="package-select" v-if="target.packages.length > 0">
+                                <select class="packageVersionSelect" v-model="target.selectedPackage">
+
+                                    <option v-for="(package, index) in target.packages" v-bind:value="index">{{package.packageId}} {{package.version}}</option>
+
+                                </select>
+
+                            </span>
+
+                            <label class="modal-button-trigger" v-bind:for="'modal_' + target.targetId">Deploy...</label>
+
+                            <input class="modal-state" v-bind:id="'modal_' + target.targetId" type="checkbox" />
+                            <div class="modal">
+                                <label class="modal__bg" v-bind:for="'modal_' + target.targetId"></label>
+                                <div class="modal__inner">
+                                    <label class="modal__close" v-bind:for="'modal_' + target.targetId"></label>
+
+                                    <input type="hidden" name="packageId" v-bind:value="target.packageId" />
+
+                                    <template v-if="target.packages.length > 0 && target.selectedPackage >= 0">
+                                        <h3>{{target.packages[target.selectedPackage].packageId}}</h3>
+
+                                        <h4>Version {{target.packages[target.selectedPackage].version}}</h4>
+
+                                        <p v-if="target.packages[target.selectedPackage].preReleaseWarning">Warning</p>
+
+                                        <p v-if="target.packages[target.selectedPackage].isNewer">Package is newer than the currently deployed version {{target.semanticVersion}}</p>
+                                        <p v-else-if="target.packages[target.selectedPackage].isCurrent">Current version is already deployed</p>
+                                        <p v-else>Warning! Package is older than the currently deployed version {{target.semanticVersion}}</p>
+
+                                        <input type="hidden" name="version" v-bind:value="target.packages[target.selectedPackage].version" />
+                                    </template>
+                                    <template v-else>
+                                        Version: <input type="text" name="version" id="explicit-version"/>
+                                    </template>
+
+                                    <button v-on:click="deployPackageVersion" type="submit" class="deploy-button-v">Deploy</button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div v-else></div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<script src="/Scripts/Status.js"></script>

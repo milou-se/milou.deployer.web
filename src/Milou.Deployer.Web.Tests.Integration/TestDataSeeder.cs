@@ -3,26 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {
-    public class DataSeederTestModule : IModule
-    {
-        public IServiceCollection Register(IServiceCollection builder)
-        {
-            return builder.RegisterAssemblyTypesAsSingletons<IDataSeeder>(ApplicationAssemblies.FilteredAssemblies());
-        }
-    }
-
     [UsedImplicitly]
     public class TestDataSeeder : IDataSeeder
     {
@@ -35,7 +23,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public async Task SeedAsync(CancellationToken cancellationToken)
         {
-            var testTarget = new DeploymentTarget("TestTarget",
+            var testTarget = new DeploymentTarget(
+                "TestTarget",
                 "Test target",
                 "MilouDeployerWebTest",
                 allowExplicitPreRelease: false,
@@ -48,16 +37,19 @@ namespace Milou.Deployer.Web.Tests.Integration
             var createTarget = new CreateTarget(testTarget.Id, testTarget.Name);
             await _mediator.Send(createTarget, cancellationToken);
 
-            var updateDeploymentTarget = new UpdateDeploymentTarget(testTarget.Id,
+            var updateDeploymentTarget = new UpdateDeploymentTarget(
+                testTarget.Id,
                 testTarget.AllowPreRelease,
-                testTarget.Url,
+                testTarget.Url.ToString(),
                 testTarget.PackageId,
                 autoDeployEnabled: testTarget.AutoDeployEnabled,
-                targetDirectory: testTarget.TargetDirectory,
-                enabled: true);
+                targetDirectory: testTarget.TargetDirectory);
 
-            await _mediator.Send(updateDeploymentTarget,
-                cancellationToken);
+            await _mediator.Send(updateDeploymentTarget, cancellationToken);
+
+            var enableTarget = new EnableTarget(testTarget.Id);
+
+            await _mediator.Send(enableTarget, cancellationToken);
         }
     }
 }

@@ -12,8 +12,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 
         public string Id { get; set; }
 
-        public string Log { get; set; }
-
         public DateTime FinishedAtUtc { get; set; }
     }
 }

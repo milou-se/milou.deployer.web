@@ -11,6 +11,11 @@
 
         public static readonly DeployStatus Unavailable = new DeployStatus("unavailable", "Unavailable");
 
+        public static readonly DeployStatus Unknown = new DeployStatus("unknown", "unknown");
+
+        public static readonly DeployStatus NoLaterAvailable =
+            new DeployStatus("no-later-available", "No later version available");
+
         private DeployStatus(string key, string displayName)
         {
             Key = key;

@@ -27,13 +27,30 @@ namespace Milou.Deployer.Web.Core.Logging
                 throw new ArgumentNullException(nameof(multiSourceKeyValueConfiguration));
             }
 
-            var serilogConfiguration =
-                multiSourceKeyValueConfiguration.GetInstances<SerilogConfiguration>().FirstOrDefault();
+            logger.Verbose("Getting Serilog configuration");
+
+            var serilogConfigurations = multiSourceKeyValueConfiguration.GetInstances<SerilogConfiguration>();
+
+            if (serilogConfigurations.Length > 1)
+            {
+                logger.Warning("Found multiple serilog configurations {Configurations}", serilogConfigurations);
+            }
+
+            var serilogConfiguration = serilogConfigurations.FirstOrDefault();
 
             if (!serilogConfiguration.HasValue())
             {
-                logger.Error("Could not get any instance of type {Type}", typeof(SerilogConfiguration));
+                logger.Error("Could get Serilog configuration instance");
                 return logger;
+            }
+
+            if (!serilogConfiguration.IsValid)
+            {
+                logger.Warning("Serilog app configuration is invalid {Configuration}", serilogConfiguration);
+            }
+            else
+            {
+                logger.Debug("Using Serilog app configuration {Configuration}", serilogConfiguration);
             }
 
             if (serilogConfiguration.RollingLogFilePathEnabled && !serilogConfiguration.RollingLogFilePath.HasValue())
@@ -44,7 +61,6 @@ namespace Milou.Deployer.Web.Core.Logging
             }
 
             var loggerConfiguration = new LoggerConfiguration()
-                .MinimumLevel.ControlledBy(loggingLevelSwitch)
                 .Enrich.WithProperty("Application", ApplicationConstants.ApplicationName);
 
             if (serilogConfiguration.DebugConsoleEnabled)
@@ -69,6 +85,10 @@ namespace Milou.Deployer.Web.Core.Logging
             {
                 logger.Debug("Invalid Seq configuration for for app logging");
             }
+            else
+            {
+                logger.Debug("Seq is disabled");
+            }
 
             if (serilogConfiguration.RollingLogFilePathEnabled)
             {
@@ -88,11 +108,21 @@ namespace Milou.Deployer.Web.Core.Logging
                         rollingLoggingFile);
 
                     loggerConfiguration = loggerConfiguration
-                        .WriteTo.File(rollingLoggingFile);
+                        .WriteTo.File(rollingLoggingFile, rollingInterval: RollingInterval.Day);
+                }
+                else
+                {
+                    logger.Warning("Log file directory is null");
                 }
             }
+            else
+            {
+                logger.Debug("Rolling file log is disabled");
+            }
 
-            loggerConfiguration = loggerConfiguration.WriteTo.Console();
+            const string ConsoleOutputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:j}{NewLine}{Exception}";
+
+            loggerConfiguration = loggerConfiguration.WriteTo.Console(standardErrorFromLevel: LogEventLevel.Error, outputTemplate: ConsoleOutputTemplate);
 
             var microsoftLevel =
                 multiSourceKeyValueConfiguration[LoggingConstants.MicrosoftLevel].ParseOrDefault(LogEventLevel.Warning);
@@ -103,10 +133,14 @@ namespace Milou.Deployer.Web.Core.Logging
 
             foreach (var loggerConfigurationHandler in loggerConfigurationHandlers)
             {
+                logger.Debug("Running logger configuration handler {Handler}", loggerConfigurationHandler.GetType().FullName);
                 loggerConfiguration = loggerConfigurationHandler.Handle(loggerConfiguration);
             }
 
+            logger.Debug("App logging current switch level is set to {Level}", loggingLevelSwitch.MinimumLevel);
+
             var appLogger = finalConfiguration
+                .MinimumLevel.ControlledBy(loggingLevelSwitch)
                 .CreateLogger();
 
             appLogger.Debug("Initialized app logging");
@@ -164,7 +198,7 @@ namespace Milou.Deployer.Web.Core.Logging
 
             var loggerConfiguration = new LoggerConfiguration()
                 .MinimumLevel.Is(startupLevel)
-                .WriteTo.Console(startupLevel);
+                .WriteTo.Console(startupLevel, standardErrorFromLevel: LogEventLevel.Error);
 
             if (logFile.HasValue())
             {

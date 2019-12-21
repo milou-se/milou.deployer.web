@@ -11,10 +11,13 @@ using Arbor.Processing;
 using JetBrains.Annotations;
 using Milou.Deployer.Bootstrapper.Common;
 using Milou.Deployer.Core;
+using Milou.Deployer.Core.Configuration;
+using Milou.Deployer.Core.Logging;
 using Milou.Deployer.Web.Core.Credentials;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.IO;
 using Newtonsoft.Json;
 using Serilog;
 using Serilog.Core;
@@ -28,19 +31,20 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly IHttpClientFactory _clientFactory;
+        private readonly LoggingLevelSwitch _loggingLevelSwitch;
 
         public MilouDeployer(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
             [NotNull] ICredentialReadService credentialReadService,
-            [NotNull] IHttpClientFactory clientFactory)
+            [NotNull] IHttpClientFactory clientFactory,
+            [NotNull] LoggingLevelSwitch loggingLevelSwitch)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
             _credentialReadService =
                 credentialReadService ?? throw new ArgumentNullException(nameof(credentialReadService));
             _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
-
-            //_clientFactory = clientFactory;
+            _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
         }
 
         private async Task<DeploymentTarget> GetDeploymentTarget(
@@ -73,7 +77,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             return targetDirectoryPath;
         }
 
-        private static FileInfo CreateTempPublishFile(
+        private static TempFile CreateTempPublishFile(
             DeploymentTarget deploymentTarget,
             string username,
             string password,
@@ -103,14 +107,14 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             doc.Add(root);
 
-            var tempFileName = Path.GetTempFileName();
+            var tempFile = TempFile.CreateTempFile();
 
-            using (var fileStream = new FileStream(tempFileName, FileMode.Open, FileAccess.Write))
+            using (var fileStream = new FileStream(tempFile.File.FullName, FileMode.Open, FileAccess.Write))
             {
                 doc.Save(fileStream);
             }
 
-            return new FileInfo(tempFileName);
+            return tempFile;
         }
 
         private static void ClearTemporaryDirectoriesAndFiles(DeploymentTask deploymentTask)
@@ -122,17 +126,13 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             foreach (var temporaryFile in deploymentTask.TempFiles)
             {
-                temporaryFile.Refresh();
-
-                if (temporaryFile.Exists)
-                {
-                    temporaryFile.Delete();
-                }
+                temporaryFile.SafeDispose();
             }
 
             foreach (var deploymentTaskTempDirectory in deploymentTask.TempDirectories)
             {
                 deploymentTaskTempDirectory.Refresh();
+
 
                 if (deploymentTaskTempDirectory.Exists)
                 {
@@ -185,7 +185,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             var deploymentTargetParametersFile = deploymentTarget.ParameterFile;
 
-            var tempManifestFile = new FileInfo(Path.Combine(Path.GetTempPath(), $"{jobId}.manifest"));
+            var tempManifestFile = TempFile.CreateTempFile(jobId, ".manifest");
 
             deploymentTask.TempFiles.Add(tempManifestFile);
 
@@ -225,18 +225,18 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             if (deploymentTarget.PublishSettingsXml.HasValue())
             {
-                var tempFileName = Path.GetTempFileName();
+                var tempFileName = TempFile.CreateTempFile();
 
                 var expandedXml = Environment.ExpandEnvironmentVariables(deploymentTarget.PublishSettingsXml);
 
-                await File.WriteAllTextAsync(tempFileName,
+                await File.WriteAllTextAsync(tempFileName.File.FullName,
                     expandedXml,
                     Encoding.UTF8,
                     cancellationToken);
 
-                deploymentTask.TempFiles.Add(new FileInfo(tempFileName));
+                deploymentTask.TempFiles.Add(tempFileName);
 
-                publishSettingsFile = tempFileName;
+                publishSettingsFile = tempFileName.File.FullName;
             }
 
             if (!File.Exists(publishSettingsFile))
@@ -257,14 +257,14 @@ namespace Milou.Deployer.Web.Core.Deployment
 
                 if (StringUtils.AllHaveValues(username, password, publishUrl, msdeploySite))
                 {
-                    var fileInfo = CreateTempPublishFile(deploymentTarget,
+                    var tempPublishFile = CreateTempPublishFile(deploymentTarget,
                         username,
                         password,
                         publishUrl);
 
-                    deploymentTask.TempFiles.Add(fileInfo);
+                    deploymentTask.TempFiles.Add(tempPublishFile);
 
-                    publishSettingsFile = fileInfo.FullName;
+                    publishSettingsFile = tempPublishFile.File.FullName;
                 }
                 else
                 {
@@ -288,7 +288,9 @@ namespace Milou.Deployer.Web.Core.Deployment
                         deploymentTarget.NuGetPackageSource,
                         semanticVersion = deploymentTask.SemanticVersion.ToNormalizedString(),
                         iisSiteName = deploymentTarget.IisSiteName,
-                        webConfigTransform = deploymentTarget.WebConfigTransform
+                        webConfigTransform = deploymentTarget.WebConfigTransform,
+                        publishType = deploymentTarget.PublishType.Name,
+                        ftpPath = deploymentTarget.FtpPath?.Path
                     }
                 }
             };
@@ -297,14 +299,15 @@ namespace Milou.Deployer.Web.Core.Deployment
 
             jobLogger.Information("Using definitions JSON: {Json}", json);
 
-            jobLogger.Information("Using temp manifest file '{ManifestFile}'", tempManifestFile.FullName);
+            jobLogger.Information("Using temp manifest file '{ManifestFile}'", tempManifestFile.File.FullName);
 
-            await File.WriteAllTextAsync(tempManifestFile.FullName, json, Encoding.UTF8, cancellationToken);
+            await File.WriteAllTextAsync(tempManifestFile.File.FullName, json, Encoding.UTF8, cancellationToken);
 
-            arguments.Add(tempManifestFile.FullName);
-
+            arguments.Add(tempManifestFile.File.FullName);
             arguments.Add(Bootstrapper.Common.Constants.AllowPreRelease);
             arguments.Add(LoggingConstants.PlainOutputFormatEnabled);
+            arguments.Add($"{ConfigurationKeys.LogLevelEnvironmentVariable}={_loggingLevelSwitch.MinimumLevel}");
+            arguments.Add($"{LoggingConstants.LoggingCategoryFormatEnabled}");
 
             var deployerArgs = arguments.ToArray();
 

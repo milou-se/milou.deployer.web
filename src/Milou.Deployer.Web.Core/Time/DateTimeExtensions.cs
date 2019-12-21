@@ -77,31 +77,38 @@ namespace Milou.Deployer.Web.Core.Time
         [PublicAPI]
         public static string Since(this DateTime to, DateTime from)
         {
+            string PluralSuffix(int count) => count > 1 ? "s" : "";
+
             var diff = to - from;
+
+            var diffTotalDays = (int)diff.TotalDays;
 
             if (diff.TotalDays > 365)
             {
-                return (int)diff.TotalDays + " days ago";
+                return $"{diffTotalDays} day{PluralSuffix(diffTotalDays)} ago";
             }
 
             if (diff.TotalDays > 30)
             {
-                return (int)diff.TotalDays / 30 + " months ago";
+                var totalMonths = diffTotalDays / 30;
+                return $"{totalMonths} month{PluralSuffix(totalMonths)} ago";
             }
 
             if (diff.TotalDays > 1)
             {
-                return (int)diff.TotalDays + " days ago";
+                return $"{diffTotalDays} day{PluralSuffix(diffTotalDays)} ago";
             }
 
             if (diff.TotalHours > 1)
             {
-                return (int)diff.TotalHours + " hours ago";
+                var diffTotalHours = (int)diff.TotalHours;
+                return $"{diffTotalHours} hour{PluralSuffix(diffTotalHours)} ago";
             }
 
             if (diff.TotalMinutes > 1)
             {
-                return (int)diff.TotalMinutes + " minutes ago";
+                var diffTotalMinutes = (int)diff.TotalMinutes;
+                return $"{diffTotalMinutes} minute{PluralSuffix(diffTotalMinutes)} ago";
             }
 
             if (diff.TotalSeconds < 0)
@@ -109,7 +116,9 @@ namespace Milou.Deployer.Web.Core.Time
                 return Constants.NotAvailable;
             }
 
-            return (int)diff.TotalSeconds + " seconds ago";
+            var diffTotalSeconds = (int)diff.TotalSeconds;
+
+            return $"{diffTotalSeconds} second{PluralSuffix(diffTotalSeconds)} ago";
         }
     }
 }

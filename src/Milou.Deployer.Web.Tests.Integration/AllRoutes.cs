@@ -29,7 +29,11 @@ namespace Milou.Deployer.Web.Tests.Integration
         public void ShouldStartWithSlash(string name, string value)
         {
             _testOutputHelper.WriteLine($"Asserting route {name} with value '{value}'");
-            Assert.StartsWith("/", value, StringComparison.OrdinalIgnoreCase);
+
+            bool slashOrTildeSlash = value.StartsWith("~/", StringComparison.OrdinalIgnoreCase)
+                                     || value.StartsWith("/", StringComparison.OrdinalIgnoreCase);
+
+            Assert.True(slashOrTildeSlash);
         }
     }
 }

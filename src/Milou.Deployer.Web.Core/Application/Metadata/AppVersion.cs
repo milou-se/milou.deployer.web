@@ -105,6 +105,8 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
 
         public DeployStatus Status { get; }
 
+        public SemanticVersion LatestNewerAvailable { get; private set; }
+
         private DeployStatus GetStatus()
         {
             if (SemanticVersion is null)
@@ -117,9 +119,20 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
                 return DeployStatus.NoPackagesAvailable;
             }
 
-            return SemanticVersion == AvailablePackageVersions.Latest()
-                ? DeployStatus.Latest
-                : DeployStatus.UpdateAvailable;
+            var latestAvailable = AvailablePackageVersions.Latest();
+
+            if (SemanticVersion == latestAvailable)
+            {
+                return DeployStatus.Latest;
+            }
+
+            if (latestAvailable > SemanticVersion)
+            {
+                LatestNewerAvailable = latestAvailable;
+                return DeployStatus.UpdateAvailable;
+            }
+
+            return DeployStatus.NoLaterAvailable;
         }
     }
 }

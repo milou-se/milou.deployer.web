@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Security;
@@ -48,14 +47,27 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
         public static IServiceCollection AddDeploymentAuthentication(
             this IServiceCollection serviceCollection,
-            CustomOpenIdConnectConfiguration openIdConnectConfiguration)
+            CustomOpenIdConnectConfiguration openIdConnectConfiguration,
+            MilouAuthenticationConfiguration milouAuthenticationConfiguration,
+            ILogger logger,
+            EnvironmentConfiguration environmentConfiguration)
         {
-            var authenticationBuilder = serviceCollection.AddAuthentication(
-                option =>
-                {
-                    option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
-                }).AddCookie();
+            var authenticationBuilder = serviceCollection
+                .AddAuthentication(
+                    option =>
+                    {
+                        option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
+                        if (openIdConnectConfiguration?.Enabled == true)
+                        {
+                            option.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
+                        }
+                        else
+                        {
+                            option.DefaultAuthenticateScheme = MilouAuthenticationConstants.MilouAuthenticationScheme;
+                        }
+                    })
+                .AddCookie();
 
             if (openIdConnectConfiguration?.Enabled == true)
             {
@@ -79,42 +91,68 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
                             throw new InvalidOperationException("Invalid issuer");
                         };
+
+                        openIdConnectOptions.Events.OnRemoteFailure = context =>
+                        {
+                            logger.Error(context.Failure, "Remote call to OpenIDConnect {Uri} failed", context.Options.Backchannel.BaseAddress);
+
+                            return Task.CompletedTask;
+                        };
+
                         openIdConnectOptions.Events.OnRedirectToIdentityProvider = context =>
                         {
-                            if (openIdConnectConfiguration.RedirectUri.HasValue())
+                            var redirectUrl = new Uri("http://localhost/signin-oidc");
+
+                            UriBuilder builder = new UriBuilder(redirectUrl);
+
+                            if (!string.IsNullOrWhiteSpace(environmentConfiguration.PublicHostname))
                             {
-                                context.ProtocolMessage.RedirectUri =
-                                    openIdConnectConfiguration.RedirectUri.AbsoluteUri;
+                                builder.Host = environmentConfiguration.PublicHostname;
                             }
+
+                            if (environmentConfiguration.PublicPortIsHttps == true)
+                            {
+                                builder.Scheme = "https";
+                                builder.Port = environmentConfiguration.HttpsPort ?? 443;
+                            }
+
+                            context.ProtocolMessage.RedirectUri = builder.Uri.AbsoluteUri;
 
                             return Task.CompletedTask;
                         };
                     });
             }
 
-            authenticationBuilder.AddMilouAuthentication(
-                MilouAuthenticationConstants.MilouAuthenticationScheme,
-                "Milou",
-                options => { });
+            if (milouAuthenticationConfiguration?.Enabled == true)
+            {
+                authenticationBuilder.AddMilouAuthentication(
+                    MilouAuthenticationConstants.MilouAuthenticationScheme,
+                    "Milou",
+                    options => { });
+            }
 
             return serviceCollection;
         }
 
-        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services, ILogger logger)
+        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services)
         {
             services.AddMvc(
                 options =>
                 {
-                    options.InputFormatters.Insert(
-                        0,
-                        new XWwwFormUrlEncodedFormatter(
-                            new SerilogLoggerFactory(logger).CreateLogger<XWwwFormUrlEncodedFormatter>()));
-                }).SetCompatibilityVersion(CompatibilityVersion.Version_2_1).AddJsonOptions(
+                    options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
+                }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0).AddNewtonsoftJson(
                 options =>
                 {
                     options.SerializerSettings.Converters.Add(new DateConverter());
                     options.SerializerSettings.Formatting = Formatting.Indented;
                 });
+
+            services.AddControllersWithViews();
+
+            services.AddControllers();
+            services.AddControllersWithViews();
+            services.AddRazorPages()
+                .AddRazorRuntimeCompilation();
 
             return services;
         }

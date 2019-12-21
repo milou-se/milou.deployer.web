@@ -29,9 +29,66 @@ Current level <span class="highlighted">@Model.LogEventLevel</span>
         }
     </select>
 
-    <input type="submit" value="Change level"/>
+    <input type="submit" value="Change level" />
 
 </form>
+
+<h2>Application settings</h2>
+
+Cache time <span class="highlighted">@Model.ApplicationSettings.CacheTime</span>
+
+<form method="post" action="@Url.RouteUrl(SettingsConstants.SaveSettingsPostRouteName)">
+
+    <div>
+        Cache time: <input type="text" name="cacheTime" value="@Model.ApplicationSettings.CacheTime" />
+    </div>
+
+    <div>
+        Application settings cache timeout: <input type="text" name="applicationSettingsCacheTimeout" value="@Model.ApplicationSettings.ApplicationSettingsCacheTimeout" />
+    </div>
+
+    <div>
+        Default metadata timeout: <input type="text" name="defaultMetadataTimeout" value="@Model.ApplicationSettings.DefaultMetadataRequestTimeout" />
+    </div>
+
+    <div>
+        Metadata cache timeout: <input type="text" name="metadataCacheTimeout" value="@Model.ApplicationSettings.MetadataCacheTimeout" />
+    </div>
+
+    <div>
+        Nexus HMAC key: <input type="text" name="nexusConfig.HmacKey" value="@Model.ApplicationSettings.NexusConfig.HmacKey" />
+    </div>
+
+    <div>
+        Nexus NuGet source: <input type="text" name="nexusConfig.NuGetSource" value="@Model.ApplicationSettings.NexusConfig.NuGetSource" />
+    </div>
+
+    <div>
+        Nexus NuGet config: <input type="text" name="nexusConfig.NuGetConfig" value="@Model.ApplicationSettings.NexusConfig.NuGetConfig" />
+    </div>
+
+    <div>
+        <label for="autodeploy-enabled">Auto deploy enabled:</label> <input id="autodeploy-enabled" type="checkbox" name="autoDeploy.Enabled" @Model.ApplicationSettings.AutoDeploy.Enabled.Checked() />
+        <label for="autodeploy-polling-enabled">Auto deploy polling enabled:</label> <input id="autodeploy-polling-enabled" type="checkbox" name="autoDeploy.PollingEnabled" @Model.ApplicationSettings.AutoDeploy.PollingEnabled.Checked() />
+    </div>
+
+    <input type="submit" value="Save" />
+
+</form>
+
+<h2>Client info</h2>
+
+<p>
+    Remote address: @Context.Connection.RemoteIpAddress<br />
+    Remote port: @Context.Connection.RemotePort<br />
+</p>
+
+<h2>Server info</h2>
+
+<p>
+    Local IP address: @Context.Connection.LocalIpAddress<br />
+    Local port: @Context.Connection.LocalPort<br />
+</p>
 
 <h2>
     Application version
@@ -54,19 +111,19 @@ else
 {
     <table>
         <thead>
-        <tr>
-            <th>Type</th>
-            <th>Values</th>
-        </tr>
+            <tr>
+                <th>Type</th>
+                <th>Values</th>
+            </tr>
         </thead>
         <tbody>
-        @foreach (string item in Model.Applicationmetadata.AllKeys)
-        {
-            <tr>
-                <td>@item</td>
-                <td>@Model.Applicationmetadata[item]</td>
-            </tr>
-        }
+            @foreach (string item in Model.Applicationmetadata.AllKeys)
+            {
+                <tr>
+                    <td>@item</td>
+                    <td>@Model.Applicationmetadata[item]</td>
+                </tr>
+            }
         </tbody>
     </table>
 }
@@ -75,32 +132,32 @@ else
 
 <table>
     <thead>
-    <tr>
-        <th>Route</th>
-        <th>Name</th>
-        <th>Defined in type</th>
-        <th>Used in controller</th>
-    </tr>
+        <tr>
+            <th>Route</th>
+            <th>Name</th>
+            <th>Defined in type</th>
+            <th>Used in controller</th>
+        </tr>
     </thead>
     <tbody>
-    @foreach (ControllerRouteInfo item in Model.Routes)
-    {
-        <tr>
-            <td>
-                @if (item.Route.IsLinkable() && !string.IsNullOrWhiteSpace(Url.RouteUrl(item.Route.Name)))
-                {
-                    <a href="@Url.RouteUrl(item.Route.Name)">@item.Route.Value</a>
-                }
-                else
-                {
-                    @Url.RouteUrl(item.Route.Name)
-                }
-            </td>
-            <td>@item.Route.Name</td>
-            <td>@item.Route.Type</td>
-            <td>@item.ControllerType</td>
-        </tr>
-    }
+        @foreach (ControllerRouteInfo item in Model.Routes)
+        {
+            <tr>
+                <td>
+                    @if (item.Route.IsLinkable() && !string.IsNullOrWhiteSpace(Url.RouteUrl(item.Route.Name)))
+                    {
+                        <a href="@Url.RouteUrl(item.Route.Name)">@item.Route.Value</a>
+                    }
+                    else
+                    {
+                        @Url.RouteUrl(item.Route.Name)
+                    }
+                </td>
+                <td>@item.Route.Name</td>
+                <td>@item.Route.Type</td>
+                <td>@item.ControllerType</td>
+            </tr>
+        }
     </tbody>
 </table>
 
@@ -108,19 +165,19 @@ else
 
 <table>
     <thead>
-    <tr>
-        <th>Type</th>
-        <th>Values</th>
-    </tr>
+        <tr>
+            <th>Type</th>
+            <th>Values</th>
+        </tr>
     </thead>
     <tbody>
-    @foreach ((object, string) item in Model.ConfigurationValues)
-    {
-        <tr>
-            <td>@item.Item1.GetType().FullName</td>
-            <td>@item.Item2</td>
-        </tr>
-    }
+        @foreach ((object, string) item in Model.ConfigurationValues)
+        {
+            <tr>
+                <td>@item.Item1.GetType().FullName</td>
+                <td>@item.Item2</td>
+            </tr>
+        }
     </tbody>
 </table>
 
@@ -132,21 +189,21 @@ else
 
 <table>
     <thead>
-    <tr>
-        <th>Key</th>
-        <th>Value</th>
-        <th>Source</th>
-    </tr>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
+            <th>Source</th>
+        </tr>
     </thead>
     <tbody>
-    @foreach (ConfigurationKeyInfo item in Model.ConfigurationInfo.Keys)
-    {
-        <tr>
-            <td>@item.Key</td>
-            <td>@item.Value</td>
-            <td>@item.Source</td>
-        </tr>
-    }
+        @foreach (ConfigurationKeyInfo item in Model.ConfigurationInfo.Keys)
+        {
+            <tr>
+                <td>@item.Key</td>
+                <td>@item.Value</td>
+                <td>@item.Source</td>
+            </tr>
+        }
     </tbody>
 </table>
 
@@ -154,20 +211,20 @@ else
 
 <table>
     <thead>
-    <tr>
-        <th>Key</th>
-        <th>Value</th>
+        <tr>
+            <th>Key</th>
+            <th>Value</th>
 
-    </tr>
+        </tr>
     </thead>
     <tbody>
-    @foreach (KeyValuePair<string, string> item in Model.AspNetConfigurationValues)
-    {
-        <tr>
-            <td>@item.Key</td>
-            <td>@item.Value</td>
-        </tr>
-    }
+        @foreach (KeyValuePair<string, string> item in Model.AspNetConfigurationValues)
+        {
+            <tr>
+                <td>@item.Key</td>
+                <td>@item.Value</td>
+            </tr>
+        }
     </tbody>
 </table>
 
@@ -175,20 +232,20 @@ else
 
 <table>
     <thead>
-    <tr>
-        <th>Service</th>
-        <th>Scope</th>
+        <tr>
+            <th>Service</th>
+            <th>Scope</th>
 
-    </tr>
+        </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model.ServiceRegistrations)
-    {
-        <tr>
-            <td>@item.ServiceDescriptorServiceType.FullName</td>
-            <td>@item.ServiceDescriptorLifetime</td>
-        </tr>
-    }
+        @foreach (var item in Model.ServiceRegistrations)
+        {
+            <tr>
+                <td>@item.ServiceDescriptorServiceType.FullName</td>
+                <td>@item.ServiceDescriptorLifetime</td>
+            </tr>
+        }
     </tbody>
 </table>
 
@@ -196,22 +253,22 @@ else
 
 <table>
     <thead>
-    <tr>
-        <th>Service</th>
-        <th>Instance</th>
-        <th>Module</th>
+        <tr>
+            <th>Service</th>
+            <th>Instance</th>
+            <th>Module</th>
 
-    </tr>
+        </tr>
     </thead>
     <tbody>
-    @foreach (var item in Model.RegistrationInstances)
-    {
-        <tr>
-            <td>@item.RegistrationType.FullName</td>
-            <td>@item.Instance</td>
-            <td>@item.Module</td>
-        </tr>
-    }
+        @foreach (var item in Model.RegistrationInstances)
+        {
+            <tr>
+                <td>@item.RegistrationType.FullName</td>
+                <td>@item.Instance</td>
+                <td>@item.Module</td>
+            </tr>
+        }
     </tbody>
 </table>
 
@@ -219,17 +276,32 @@ else
 
 <table>
     <thead>
-    <tr>
-        <th>Target id</th>
-
-    </tr>
+        <tr>
+            <th>Target id</th>
+            <th>Is active</th>
+            <th>Executing task</th>
+            <th>Queue</th>
+        </tr>
     </thead>
     <tbody>
-    @foreach (DeploymentTargetWorker item in Model.DeploymentTargetWorkers)
-    {
-        <tr>
-            <td>@item.TargetId</td>
-        </tr>
-    }
+        @foreach (DeploymentTargetWorker item in Model.DeploymentTargetWorkers)
+        {
+            <tr>
+                <td>@item.TargetId</td>
+                <td>@item.IsRunning</td>
+                <td>
+                    @if (item.CurrentTask != null)
+                    {
+                        <span>@item.CurrentTask.SemanticVersion?.ToNormalizedString() id @item.CurrentTask.DeploymentTaskId</span>
+                    }
+                </td>
+                <td>
+                    @foreach (TaskInfo task in item.QueueInfo())
+                    {
+                        <div>@task.SemanticVersion.ToNormalizedString() @task.EnqueuedAtUtc.ToString("o")</div>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

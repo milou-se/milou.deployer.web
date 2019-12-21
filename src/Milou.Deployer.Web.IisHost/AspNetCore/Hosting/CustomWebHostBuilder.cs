@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Logging;
@@ -28,7 +28,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
             ServiceProviderHolder serviceProviderHolder,
             ILogger logger)
         {
-            var contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
+            string contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
 
             logger.Debug("Using content root {ContentRoot}", contentRoot);
 
@@ -43,23 +43,21 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
                         services.Add(serviceDescriptor);
                     }
 
-                    //services.AddSingleton(logger);
                     services.AddSingleton(environmentConfiguration);
-                    //services.AddSingleton(configuration);
                     services.AddHttpClient();
 
                     var openIdConnectConfiguration = serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
 
                     var httpLoggingConfiguration = serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
 
-                    services.AddDeploymentAuthentication(openIdConnectConfiguration)
+                    var milouAuthenticationConfiguration = serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
+
+                    services.AddDeploymentAuthentication(openIdConnectConfiguration, milouAuthenticationConfiguration, logger, environmentConfiguration)
                         .AddDeploymentAuthorization(environmentConfiguration)
                         .AddDeploymentHttpClients(httpLoggingConfiguration)
                         .AddDeploymentSignalR()
                         .AddServerFeatures()
-                        .AddDeploymentMvc(logger);
-
-                    services.AddMvc();
+                        .AddDeploymentMvc();
                 })
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
@@ -128,47 +126,5 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
 
             return webHostBuilderWrapper;
         }
-    }
-
-    public class ConfigurationWrapper : IConfigurationRoot
-    {
-        public ServiceProviderHolder ServiceProviderHolder { get; }
-        private readonly IConfigurationRoot _hostingContextConfiguration;
-
-        public ConfigurationWrapper(
-            IConfigurationRoot hostingContextConfiguration,
-            ServiceProviderHolder serviceProviderHolder)
-        {
-            ServiceProviderHolder = serviceProviderHolder;
-            _hostingContextConfiguration = hostingContextConfiguration;
-        }
-
-        public IConfigurationSection GetSection(string key)
-        {
-            return _hostingContextConfiguration.GetSection(key);
-        }
-
-        public IEnumerable<IConfigurationSection> GetChildren()
-        {
-            return _hostingContextConfiguration.GetChildren();
-        }
-
-        public IChangeToken GetReloadToken()
-        {
-            return _hostingContextConfiguration.GetReloadToken();
-        }
-
-        public string this[string key]
-        {
-            get => _hostingContextConfiguration[key];
-            set => _hostingContextConfiguration[key] = value;
-        }
-
-        public void Reload()
-        {
-            _hostingContextConfiguration.Reload();
-        }
-
-        public IEnumerable<IConfigurationProvider> Providers => _hostingContextConfiguration.Providers;
     }
 }

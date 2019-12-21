@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -15,6 +16,7 @@ using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace Milou.Deployer.Web.Marten
@@ -27,15 +29,20 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<UpdateDeploymentTarget, UpdateDeploymentTargetResult>,
         IRequestHandler<DeploymentHistoryRequest, DeploymentHistoryResponse>,
         IRequestHandler<DeploymentLogRequest, DeploymentLogResponse>,
-        IRequestHandler<RemoveTarget, Unit>
+        IRequestHandler<RemoveTarget, Unit>,
+        IRequestHandler<EnableTarget, Unit>,
+        IRequestHandler<DisableTarget, Unit>
     {
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
 
-        public MartenStore([NotNull] IDocumentStore documentStore, ILogger logger)
+        private readonly IMediator _mediator;
+
+        public MartenStore([NotNull] IDocumentStore documentStore, ILogger logger, IMediator mediator)
         {
             _documentStore = documentStore ?? throw new ArgumentNullException(nameof(documentStore));
             _logger = logger;
+            _mediator = mediator;
         }
 
         private async Task<CreateProjectResult> CreateProjectAsync(
@@ -65,31 +72,53 @@ namespace Milou.Deployer.Web.Marten
             return new CreateProjectResult(createProject.Id);
         }
 
-        private static DeploymentTarget MapDataToTarget(DeploymentTargetData deploymentTargetData)
+        private DeploymentTarget MapDataToTarget(DeploymentTargetData deploymentTargetData)
         {
             if (deploymentTargetData is null)
             {
                 return null;
             }
 
-            var deploymentTargetAsync = new DeploymentTarget(
-                deploymentTargetData.Id,
-                deploymentTargetData.Name,
-                deploymentTargetData.PackageId ?? Constants.NotAvailable,
-                deploymentTargetData.PublishSettingsXml,
-                deploymentTargetData.AllowExplicitPreRelease,
-                url: deploymentTargetData.Url,
-                nuGetConfigFile: deploymentTargetData.NuGetConfigFile,
-                nuGetPackageSource: deploymentTargetData.NuGetPackageSource,
-                iisSiteName: deploymentTargetData.IisSiteName,
-                autoDeployEnabled: deploymentTargetData.AutoDeployEnabled,
-                targetDirectory: deploymentTargetData.TargetDirectory,
-                webConfigTransform: deploymentTargetData.WebConfigTransform,
-                excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
-                enabled: deploymentTargetData.Enabled);
+            DeploymentTarget deploymentTargetAsync = null;
+            try
+            {
+                deploymentTargetAsync = new DeploymentTarget(
+                    deploymentTargetData.Id,
+                    deploymentTargetData.Name,
+                    deploymentTargetData.PackageId.WithDefault(Constants.NotAvailable),
+                    deploymentTargetData.PublishSettingsXml,
+                    deploymentTargetData.AllowExplicitPreRelease,
+                    url: deploymentTargetData.Url,
+                    nuGetConfigFile: deploymentTargetData.NuGetConfigFile,
+                    nuGetPackageSource: deploymentTargetData.NuGetPackageSource,
+                    iisSiteName: deploymentTargetData.IisSiteName,
+                    autoDeployEnabled: deploymentTargetData.AutoDeployEnabled,
+                    targetDirectory: deploymentTargetData.TargetDirectory,
+                    webConfigTransform: deploymentTargetData.WebConfigTransform,
+                    excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
+                    environmentType: deploymentTargetData.EnvironmentType,
+                    enabled: deploymentTargetData.Enabled,
+                    packageListTimeout: deploymentTargetData.PackageListTimeout,
+                    publishType: deploymentTargetData.PublishType,
+                    ftpPath: deploymentTargetData.FtpPath,
+                    metadataTimeout: deploymentTargetData.MetadataTimeout,
+                    nuget: MapNuGet(deploymentTargetData.NuGetData));
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Could not get deployment target from data {Data}", JsonConvert.SerializeObject(deploymentTargetData));
+            }
 
             return deploymentTargetAsync;
         }
+
+        private TargetNuGetSettings MapNuGet(NuGetData nugetData) =>
+            new TargetNuGetSettings
+            {
+                PackageListTimeout = nugetData?.PackageListTimeout,
+                NuGetPackageSource = nugetData?.NuGetPackageSource,
+                NuGetConfigFile = nugetData?.NuGetConfigFile
+            };
 
         private async Task<CreateOrganizationResult> CreateOrganizationAsync(
             CreateOrganization createOrganization,
@@ -132,7 +161,8 @@ namespace Milou.Deployer.Web.Marten
                                     .Where(target =>
                                         target.ProjectId != null
                                         && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase))
-                                    .Select(MapDataToTarget)))
+                                    .Select(MapDataToTarget)
+                                    .Where(t => t != null)))
                         .ToImmutableArray()))
                 .Concat(new[]
                 {
@@ -144,7 +174,8 @@ namespace Milou.Deployer.Web.Marten
                                 "NA",
                                 targets
                                     .Where(target => target.ProjectId is null)
-                                    .Select(MapDataToTarget))
+                                    .Select(MapDataToTarget)
+                                    .Where(t => t != null))
                         })
                 })
                 .ToImmutableArray();
@@ -175,7 +206,7 @@ namespace Milou.Deployer.Web.Marten
 
                     var deploymentTarget = MapDataToTarget(deploymentTargetData);
 
-                    return deploymentTarget;
+                    return deploymentTarget ?? DeploymentTarget.None;
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
@@ -194,7 +225,8 @@ namespace Milou.Deployer.Web.Marten
                 {
                     var targets =
                         await session.Query<DeploymentTargetData>()
-                            .ToListAsync<DeploymentTargetData>(cancellationToken);
+                            .Where(target => target.Enabled)
+                            .ToListAsync(cancellationToken);
 
                     var projects =
                         await session.Query<ProjectData>()
@@ -218,17 +250,29 @@ namespace Milou.Deployer.Web.Marten
             }
         }
 
-        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken)
+        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions options = default, CancellationToken stoppingToken = default)
         {
             using (var session = _documentStore.QuerySession())
             {
+                bool Filter(DeploymentTarget target)
+                {
+                    if (options is null || options.OnlyEnabled)
+                    {
+                        return target.Enabled;
+                    }
+
+                    return true;
+                }
+
                 try
                 {
                     var targets = await session.Query<DeploymentTargetData>()
                         .ToListAsync<DeploymentTargetData>(stoppingToken);
 
-                    var deploymentTargets =
-                        targets.Select(MapDataToTarget).ToImmutableArray();
+                    var deploymentTargets = targets
+                        .Select(MapDataToTarget)
+                        .Where(Filter)
+                        .ToImmutableArray();
 
                     return deploymentTargets;
                 }
@@ -258,21 +302,36 @@ namespace Milou.Deployer.Web.Marten
         }
 
         public async Task<CreateOrganizationResult> Handle(
-            CreateOrganization request,
+            [NotNull] CreateOrganization request,
             CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var result = await CreateOrganizationAsync(request, cancellationToken);
 
             return result;
         }
 
-        public Task<CreateProjectResult> Handle(CreateProject request, CancellationToken cancellationToken)
+        public Task<CreateProjectResult> Handle([NotNull] CreateProject request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             return CreateProjectAsync(request, cancellationToken);
         }
 
-        public async Task<CreateTargetResult> Handle(CreateTarget createTarget, CancellationToken cancellationToken)
+        public async Task<CreateTargetResult> Handle([NotNull] CreateTarget createTarget, CancellationToken cancellationToken)
         {
+            if (createTarget == null)
+            {
+                throw new ArgumentNullException(nameof(createTarget));
+            }
+
             if (!createTarget.IsValid)
             {
                 return new CreateTargetResult(new ValidationError("Invalid"));
@@ -327,27 +386,40 @@ namespace Milou.Deployer.Web.Marten
             DeploymentLogRequest request,
             CancellationToken cancellationToken)
         {
-            TaskLog taskLog;
+            IReadOnlyCollection<LogItem> taskLog;
 
-            var id = $"deploymentTaskLog/{request.DeploymentTaskId}";
+            string id = $"deploymentTaskLog/{request.DeploymentTaskId}";
+
+            int level = (int)request.Level;
 
             using (var session = _documentStore.LightweightSession())
             {
-                taskLog = await session.LoadAsync<TaskLog>(id, cancellationToken);
+                taskLog = await session.Query<LogItem>()
+                    .Where(log => log.TaskLogId == id && log.Level >= level)
+                    .ToListAsync(cancellationToken);
             }
 
             if (taskLog is null)
             {
-                return new DeploymentLogResponse(string.Empty);
+                return new DeploymentLogResponse(Array.Empty<LogItem>());
             }
 
-            return new DeploymentLogResponse(taskLog.Log);
+            return new DeploymentLogResponse(taskLog);
         }
 
         public async Task<UpdateDeploymentTargetResult> Handle(
-            UpdateDeploymentTarget request,
+            [NotNull] UpdateDeploymentTarget request,
             CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            string targetName;
+
+            string id;
+
             using (var session = _documentStore.OpenSession())
             {
                 var data =
@@ -355,8 +427,11 @@ namespace Milou.Deployer.Web.Marten
 
                 if (data is null)
                 {
-                    return new UpdateDeploymentTargetResult(new ValidationError("Not found"));
+                    return new UpdateDeploymentTargetResult("", "", new ValidationError("Not found"));
                 }
+
+                id = data.Id;
+                targetName = data.Name;
 
                 data.PackageId = request.PackageId;
                 data.Url = request.Url;
@@ -369,7 +444,17 @@ namespace Milou.Deployer.Web.Marten
                 data.TargetDirectory = request.TargetDirectory;
                 data.WebConfigTransform = request.WebConfigTransform;
                 data.ExcludedFilePatterns = request.ExcludedFilePatterns;
-                data.Enabled = request.Enabled;
+                data.FtpPath = request.FtpPath?.Path;
+                data.PublishType = request.PublishType.Name;
+                data.EnvironmentType = request.EnvironmentType.Name;
+                data.PackageListTimeout = request.PackageListTimeout;
+                data.NuGetData ??= new NuGetData
+                                   {
+                                       NuGetConfigFile = request.NugetConfigFile,
+                                       NuGetPackageSource = request.NugetPackageSource,
+                                       PackageListTimeout = request.PackageListTimeout
+                                   };
+                data.MetadataTimeout = request.MetadataTimeout;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);
@@ -377,15 +462,71 @@ namespace Milou.Deployer.Web.Marten
 
             _logger.Information("Updated target with id {Id}", request.Id);
 
-            return new UpdateDeploymentTargetResult();
+            var updateDeploymentTargetResult = new UpdateDeploymentTargetResult(targetName, id);
+
+            await _mediator.Publish(updateDeploymentTargetResult, cancellationToken);
+
+            return updateDeploymentTargetResult;
         }
 
-        public async Task<Unit> Handle(RemoveTarget request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle([NotNull] RemoveTarget request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             using (var session = _documentStore.OpenSession())
             {
                 session.Delete<DeploymentTargetData>(request.TargetId);
                 session.DeleteWhere<TaskMetadata>(m => m.DeploymentTargetId.Equals(request.TargetId, StringComparison.OrdinalIgnoreCase));
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            return Unit.Value;
+        }
+
+        public async Task<Unit> Handle(EnableTarget request, CancellationToken cancellationToken)
+        {
+            using (var session = _documentStore.OpenSession())
+            {
+                var deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+
+                if (deploymentTargetData is null)
+                {
+                    return Unit.Value;
+                }
+
+                deploymentTargetData.Enabled = true;
+
+                session.Store(deploymentTargetData);
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            return Unit.Value;
+        }
+
+        public async Task<Unit> Handle([NotNull] DisableTarget request, CancellationToken cancellationToken)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
+            using (var session = _documentStore.OpenSession())
+            {
+                var deploymentTargetData = await session.LoadAsync<DeploymentTargetData>(request.TargetId, cancellationToken);
+
+                if (deploymentTargetData is null)
+                {
+                    return Unit.Value;
+                }
+
+                deploymentTargetData.Enabled = false;
+
+                session.Store(deploymentTargetData);
 
                 await session.SaveChangesAsync(cancellationToken);
             }

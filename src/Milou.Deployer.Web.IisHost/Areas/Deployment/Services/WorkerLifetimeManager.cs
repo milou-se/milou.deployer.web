@@ -20,13 +20,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         private readonly WorkerConfiguration _workerConfiguration;
         private readonly TimeoutHelper _timeoutHelper;
 
+        private readonly ICustomClock _clock;
+
         public WorkerLifetimeManager(
             ConfigurationInstanceHolder configurationInstanceHolder,
             DeploymentService deploymentService,
             WorkerConfiguration workerConfiguration,
             IMediator mediator,
             ILogger logger,
-            TimeoutHelper timeoutHelper)
+            TimeoutHelper timeoutHelper,
+            ICustomClock clock)
         {
             _configurationInstanceHolder = configurationInstanceHolder;
             _deploymentService = deploymentService;
@@ -34,6 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             _mediator = mediator;
             _logger = logger;
             _timeoutHelper = timeoutHelper;
+            _clock = clock;
         }
 
         public async Task Handle(TargetCreated notification, CancellationToken cancellationToken)
@@ -43,7 +47,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 _logger,
                 _mediator,
                 _workerConfiguration,
-                _timeoutHelper);
+                _timeoutHelper,
+                _clock);
 
             // TODO remove old worker
 

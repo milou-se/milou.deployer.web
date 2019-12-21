@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.2</TargetFramework>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
         <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
     <ItemGroup>
         <Compile Remove="App_Data\**" />
@@ -22,87 +23,63 @@
         <None Remove="logs\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-        <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.18.0" />
-        <PackageReference Include="Arbor.Processing" Version="0.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.2.2" Condition="'$(NCrunch)' == '1'" />
-        <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.7.0" />
-        <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.18.0" />
-        <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.18.0" />
-        <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.18.0" />
-        <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.18.0" />
-        <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.18.0" />
-        <PackageReference Include="Arbor.ModelBinding" Version="0.4.0" />
-        <PackageReference Include="Arbor.Tooler" Version="0.4.0" />
-        <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" />
+      <Content Remove="wwwroot\applicationmetadata.json" />
+      <Content Remove="wwwroot\unpkg.json" />
+    </ItemGroup>
+    <ItemGroup>
+
+      <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+        <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.19.2" />
+        <PackageReference Include="Arbor.Processing" Version="0.3.0" />
+        <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.10.2" />
+        <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.19.2" />
+        <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.19.2" />
+        <PackageReference Include="Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns" Version="0.19.2" />
+        <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.19.2" />
+        <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.19.2" />
+        <PackageReference Include="Arbor.ModelBinding" Version="0.7.2" />
+        <PackageReference Include="Arbor.Tooler" Version="0.6.5" />
+        <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
         <PackageReference Include="Marten.Analyzers" Version="1.5.0" />
         <PackageReference Include="MediatR" Version="7.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.HttpOverrides" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.2.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
-        <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
-        <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.2.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.0.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.2">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Extensions.Primitives" Version="2.2.0" />
-        <PackageReference Include="Microsoft.Net.Compilers" Version="3.0.0">
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="3.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="3.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.0.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.3.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.WindowsServices" Version="3.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="3.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.0.1" />
+        <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.3.1" />
-        <PackageReference Include="Milou.Deployer.Core" Version="4.3.1" />
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
-        <PackageReference Include="NuGet.Packaging" Version="5.0.0" />
-        <PackageReference Include="NuGet.Versioning" Version="5.0.0" />
-        <PackageReference Include="Serilog" Version="2.8.0" />
-        <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
+        <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.6.1" />
+        <PackageReference Include="Milou.Deployer.Core" Version="4.6.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+        <PackageReference Include="NuGet.Packaging" Version="5.3.1" />
+        <PackageReference Include="NuGet.Versioning" Version="5.3.1" />
+        <PackageReference Include="Serilog" Version="2.9.0" />
+        <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
-        <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
         <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
         <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
         <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
-        <PackageReference Include="System.Diagnostics.EventLog" Version="4.5.0" />
+        <PackageReference Include="System.Diagnostics.EventLog" Version="4.6.0" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Areas\Security\Views\Login\" />
     </ItemGroup>
     <ItemGroup>
-        <None Include="config.user" Condition="Exists('config.user')">
-            <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-        </None>
+      <None Include="wwwroot\applicationmetadata.json" />
+      <None Include="wwwroot\unpkg.json" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
         <ProjectReference Include="..\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <Content Update="Areas\Organizations\Views\_ViewStart.cshtml">
-            <Pack>$(IncludeRazorContentInPack)</Pack>
-        </Content>
-        <Content Update="Areas\Projects\Views\Projects\Index.cshtml">
-            <Pack>$(IncludeRazorContentInPack)</Pack>
-        </Content>
-        <Content Update="Areas\Projects\Views\_ViewStart.cshtml">
-            <Pack>$(IncludeRazorContentInPack)</Pack>
-        </Content>
-        <Content Update="Areas\Security\Views\_ViewStart.cshtml">
-          <Pack>$(IncludeRazorContentInPack)</Pack>
-        </Content>
-        <Content Update="Areas\Settings\Views\_ViewStart.cshtml">
-            <Pack>$(IncludeRazorContentInPack)</Pack>
-        </Content>
     </ItemGroup>
 </Project>

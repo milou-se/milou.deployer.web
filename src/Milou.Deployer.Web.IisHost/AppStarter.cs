@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using Microsoft.AspNetCore.Hosting;
 using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Cli;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Application;
@@ -115,16 +117,40 @@ namespace Milou.Deployer.Web.IisHost
             {
                 await Task.Delay(TimeSpan.FromMilliseconds(2000));
 
-                var logger = new LoggerConfiguration()
-                    .WriteTo.Console()
-                    .WriteTo.File(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exception.log"))
+                var exceptionLogDirectory = args?.ParseParameter("exceptionDir");
+
+                var logDirectory = exceptionLogDirectory ?? AppDomain.CurrentDomain.BaseDirectory;
+
+                var fatalLogFile = Path.Combine(logDirectory, "Fatal.log");
+
+                var loggerConfiguration = new LoggerConfiguration()
+                    .WriteTo.File(fatalLogFile, flushToDiskInterval: TimeSpan.FromMilliseconds(50));
+
+                if (environmentVariables.TryGetValue(LoggingConstants.SeqStartupUrl, out string url))
+                {
+                    if (Uri.TryCreate(url, UriKind.Absolute, out Uri uri))
+                    {
+                        loggerConfiguration = loggerConfiguration.WriteTo.Seq(uri.AbsoluteUri);
+                    }
+                }
+
+                var logger = loggerConfiguration
+                    .MinimumLevel.Verbose()
                     .CreateLogger();
 
                 using (logger)
                 {
                     logger.Fatal(ex, "Could not start application");
                     TempLogger.FlushWith(logger);
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(1000));
                 }
+
+                var exceptionLogFile = Path.Combine(logDirectory, "Exception.log");
+
+                await File.WriteAllTextAsync(exceptionLogFile, ex.ToString(), Encoding.UTF8);
+
+                await Task.Delay(TimeSpan.FromMilliseconds(3000));
 
                 return 1;
             }

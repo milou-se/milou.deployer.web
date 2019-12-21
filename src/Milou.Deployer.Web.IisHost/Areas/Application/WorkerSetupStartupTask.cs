@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Startup;
 using Milou.Deployer.Web.Core.Time;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Serilog;
@@ -29,6 +30,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private readonly WorkerConfiguration _workerConfiguration;
         private readonly TimeoutHelper _timeoutHelper;
 
+        private readonly ICustomClock _clock;
+
         public WorkerSetupStartupTask(
             IKeyValueConfiguration configuration,
             ILogger logger,
@@ -37,7 +40,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             DeploymentService deploymentService,
             IMediator mediator,
             WorkerConfiguration workerConfiguration,
-            TimeoutHelper timeoutHelper)
+            TimeoutHelper timeoutHelper,
+            ICustomClock clock)
         {
             _configuration = configuration;
             _logger = logger;
@@ -47,6 +51,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             _mediator = mediator;
             _workerConfiguration = workerConfiguration;
             _timeoutHelper = timeoutHelper;
+            _clock = clock;
         }
 
         public bool IsCompleted { get; private set; }
@@ -57,8 +62,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             try
             {
-                if (!int.TryParse(_configuration[ConfigurationConstants.StartupTargetsTimeoutInSeconds],
-                        out var startupTimeoutInSeconds) ||
+                if (!int.TryParse(
+                        _configuration[ConfigurationConstants.StartupTargetsTimeoutInSeconds],
+                        out int startupTimeoutInSeconds) ||
                     startupTimeoutInSeconds <= 0)
                 {
                     startupTimeoutInSeconds = 10;
@@ -66,11 +72,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 using (var startupToken = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))
                 {
-                    using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken,
+                    using (var linkedToken = CancellationTokenSource.CreateLinkedTokenSource(
+                        stoppingToken,
                         startupToken.Token))
                     {
                         targetIds =
-                            (await _deploymentTargetReadService.GetDeploymentTargetsAsync(linkedToken.Token))
+                            (await _deploymentTargetReadService.GetDeploymentTargetsAsync(stoppingToken: linkedToken.Token))
                             .Select(deploymentTarget => deploymentTarget.Id)
                             .ToArray();
 
@@ -85,9 +92,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 return;
             }
 
-            foreach (var targetId in targetIds)
+            foreach (string targetId in targetIds)
             {
-                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _deploymentService, _logger, _mediator, _workerConfiguration, _timeoutHelper);
+                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _deploymentService, _logger, _mediator, _workerConfiguration, _timeoutHelper, _clock);
 
                 _holder.Add(new NamedInstance<DeploymentTargetWorker>(
                     deploymentTargetWorker,

@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+
 using MediatR;
+using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class UpdateDeploymentTarget : IRequest<UpdateDeploymentTargetResult>, IValidationObject
+    public class UpdateDeploymentTarget : IRequest<UpdateDeploymentTargetResult>, IValidationObject, IValidatableObject
     {
         public UpdateDeploymentTarget(
             string id,
             bool allowExplicitPreRelease,
-            Uri url,
+            string url,
             string packageId,
             string iisSiteName = null,
             string nugetPackageSource = null,
@@ -19,14 +24,22 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string targetDirectory = null,
             string webConfigTransform = null,
             string excludedFilePatterns = null,
-            bool enabled = false)
+            string environmentType = null,
+            string packageListTimeout = null,
+            string publishType = null,
+            string ftpPath = null,
+            string metadataTimeout = default)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
-            Url = url;
+            _ = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
+            Url = uri;
             PackageId = packageId;
             ExcludedFilePatterns = excludedFilePatterns;
-            Enabled = enabled;
+            _ = PublishType.TryParseOrDefault(publishType, out var foundPublishType);
+            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
+            PublishType = foundPublishType;
+            FtpPath = path;
             IisSiteName = iisSiteName;
             NugetPackageSource = nugetPackageSource;
             NugetConfigFile = nugetConfigFile;
@@ -35,11 +48,26 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             TargetDirectory = targetDirectory;
             WebConfigTransform = webConfigTransform;
             IsValid = !string.IsNullOrWhiteSpace(Id);
+            EnvironmentType = EnvironmentType.Parse(environmentType);
+
+            if (TimeSpan.TryParse(packageListTimeout, out TimeSpan timeout) && timeout.TotalSeconds > 0.5D)
+            {
+                PackageListTimeout = timeout;
+            }
+
+            if (TimeSpan.TryParse(metadataTimeout, out TimeSpan parsedMetadataTimeout) && parsedMetadataTimeout.TotalSeconds > 0.5D)
+            {
+                MetadataTimeout = parsedMetadataTimeout;
+            }
         }
+
+        public TimeSpan? MetadataTimeout { get; }
+
+        public EnvironmentType? EnvironmentType { get; }
 
         public string Id { get; }
 
-        public Uri Url { get; }
+        public Uri? Url { get; }
 
         public bool AllowExplicitPreRelease { get; }
 
@@ -60,7 +88,10 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public string PackageId { get; }
 
         public string ExcludedFilePatterns { get; }
-        public bool Enabled { get; }
+
+        public PublishType PublishType { get; }
+
+        public FtpPath? FtpPath { get; }
 
         public override string ToString()
         {
@@ -68,6 +99,16 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
                 $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
         }
 
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Url is null)
+            {
+                yield return new ValidationResult("URL must be defined", new []{nameof(Url)});
+            }
+        }
+
         public bool IsValid { get; }
+
+        public TimeSpan? PackageListTimeout { get; }
     }
 }

@@ -32,12 +32,28 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 
         public const string CreateTargetGetRouteName = nameof(CreateTargetGetRoute);
 
-        public const string EditTargetRoute = "/target/{targetId}/edit";
+        public const string EditTargetRoute = "/target/{deploymentTargetId}/edit";
 
         public const string EditTargetRouteName = nameof(EditTargetRoute);
 
         public const string InvalidateCacheRoute = "/invalidatecache";
 
         public const string InvalidateCacheRouteName = nameof(InvalidateCacheRoute);
+
+        public const string EnableTargetPostRoute = "/target/enable";
+
+        public const string EnableTargetPostRouteName = nameof(EnableTargetPostRoute);
+
+        public const string DisableTargetPostRoute = "/target/disable";
+
+        public const string DisableTargetPostRouteName = nameof(DisableTargetPostRoute);
+
+        public const string DisabledTargetsRoute = "/targets/enabled";
+
+        public const string DisabledTargetsRouteName = nameof(DisabledTargetsRoute);
+
+        public const string TargetStatusApiRoute = "/api/target/{deploymentTargetId}/status";
+
+        public const string TargetStatusApiRouteName = nameof(TargetStatusApiRoute);
     }
 }

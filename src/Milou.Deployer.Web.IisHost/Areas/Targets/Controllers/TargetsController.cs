@@ -1,14 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
+using Milou.Deployer.Web.IisHost.Areas.Organizations;
+using Milou.Deployer.Web.IisHost.Areas.Targets.ViewModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Views;
+using Milou.Deployer.Web.IisHost.AspNetCore.TempData;
 using Milou.Deployer.Web.IisHost.Controllers;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
@@ -66,19 +74,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
                 return BadRequest($"Model of type {typeof(CreateTarget)} {createTarget} is invalid");
             }
 
-            var createTargetResult = await mediator.Send(createTarget);
+            CreateTargetResult createTargetResult = await mediator.Send(createTarget);
 
             if (redirect)
             {
-                //TempData.Put(createTargetResult);
+                TempData.Put(createTargetResult);
 
-                //if (createTargetResult.TargetName.IsNullOrWhiteSpace())
-                //{
-                //    return new RedirectToRouteResult(OrganizationConstants.OrganizationBaseRouteName);
-                //}
-
-                //return RedirectToRoute(ProjectConstants.ProjectsBaseRouteName,
-                //    new { organizationId = createTargetResult.OrganizationId });
+                return RedirectToRoute(MonitorConstants.MonitorRouteName);
             }
 
             return createTargetResult;
@@ -94,10 +96,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [Route(TargetConstants.EditTargetRoute, Name = TargetConstants.EditTargetRouteName)]
         [HttpGet]
         public async Task<IActionResult> Edit(
-            [FromRoute] string targetId,
+            [FromRoute] string deploymentTargetId,
             [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
         {
-            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(targetId);
+            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
             if (deploymentTarget is null)
             {
@@ -111,11 +113,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [HttpPost]
         public async Task<ActionResult<UpdateDeploymentTargetResult>> Edit(
             [FromBody] UpdateDeploymentTarget updateDeploymentTarget,
-            [FromServices] IMediator mediator)
+            [FromServices] IMediator mediator,
+            [FromQuery] bool redirect = true)
         {
             if (updateDeploymentTarget is null)
             {
                 return BadRequest($"Model of type {typeof(UpdateDeploymentTarget)} is null");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
             }
 
             if (!updateDeploymentTarget.IsValid)
@@ -123,9 +131,49 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
                 return BadRequest($"Model of type {typeof(UpdateDeploymentTarget)} {updateDeploymentTarget} is null");
             }
 
-            var updateDeploymentTargetResult = await mediator.Send(updateDeploymentTarget);
+            UpdateDeploymentTargetResult updateDeploymentTargetResult = await mediator.Send(updateDeploymentTarget);
+
+            if (redirect)
+            {
+                TempData.Put<ITargetResult>(updateDeploymentTargetResult);
+
+                return RedirectToRoute(MonitorConstants.MonitorRouteName);
+            }
 
             return updateDeploymentTargetResult;
+        }
+
+        [Route(TargetConstants.EnableTargetPostRoute, Name = TargetConstants.EnableTargetPostRouteName)]
+        [HttpPost]
+        public async Task<IActionResult> Enable(
+            [FromBody] EnableTarget enableTarget,
+            [FromServices] IMediator mediator)
+        {
+            await mediator.Send(enableTarget);
+
+            return Redirect("/");
+        }
+
+        [Route(TargetConstants.DisableTargetPostRoute, Name = TargetConstants.DisableTargetPostRouteName)]
+        [HttpPost]
+        public async Task<IActionResult> Disable(
+            [FromBody] DisableTarget disableTarget,
+            [FromServices] IMediator mediator)
+        {
+            await mediator.Send(disableTarget);
+
+            return Redirect("/");
+        }
+
+        [Route(TargetConstants.DisabledTargetsRoute, Name = TargetConstants.DisabledTargetsRouteName)]
+        [HttpGet]
+        public async Task<IActionResult> Disabled(
+            [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
+        {
+            var targets =
+                await deploymentTargetReadService.GetDeploymentTargetsAsync(new TargetOptions { OnlyEnabled = false });
+
+            return View(new TargetListViewModel(targets.OrderBy(target => target.Enabled).ToImmutableArray()));
         }
     }
 }

@@ -4,8 +4,12 @@ using System.Collections.Immutable;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
+using Milou.Deployer.Core.Deployment;
+using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Extensions;
+using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
@@ -19,7 +23,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         public DeploymentTarget(
             [NotNull] string id,
             [NotNull] string name,
-            [NotNull] string packageId,
+            string packageId,
             string publishSettingsXml = null,
             bool allowExplicitPreRelease = false,
             string nuGetConfigFile = null,
@@ -40,7 +44,12 @@ namespace Milou.Deployer.Web.Core.Deployment
             string iisSiteName = default,
             string webConfigTransform = default,
             string excludedFilePatterns = default,
-            bool enabled = false)
+            bool enabled = false,
+            TimeSpan? packageListTimeout = default,
+            string publishType = default,
+            string ftpPath = default,
+            TargetNuGetSettings nuget = default,
+            TimeSpan? metadataTimeout = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -52,10 +61,11 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            if (string.IsNullOrWhiteSpace(packageId))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageId));
-            }
+            _ = PublishType.TryParseOrDefault(publishType, out PublishType type);
+            PublishType = type;
+
+            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
+            FtpPath = path;
 
             Url = url;
             EnvironmentConfiguration = environmentConfiguration;
@@ -69,6 +79,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             WebConfigTransform = webConfigTransform;
             ExcludedFilePatterns = excludedFilePatterns;
             Enabled = enabled;
+            PackageListTimeout = packageListTimeout;
             Organization = organization ?? string.Empty;
             ProjectInvariantName = project ?? string.Empty;
             Name = name;
@@ -76,11 +87,13 @@ namespace Milou.Deployer.Web.Core.Deployment
             AllowExplicitExplicitPreRelease = allowExplicitPreRelease;
             NuGetConfigFile = nuGetConfigFile;
             NuGetPackageSource = nuGetPackageSource;
-            PackageId = packageId;
+            PackageId = packageId.WithDefault(Constants.NotAvailable);
             PublishSettingsXml = publishSettingsXml;
             EnvironmentType = EnvironmentType.Parse(environmentType);
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
             Parameters = parameters?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
+            NuGet = nuget;
+            MetadataTimeout = metadataTimeout;
         }
 
         public IReadOnlyCollection<string> EmailNotificationAddresses { get; }
@@ -132,9 +145,30 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public ImmutableDictionary<string, string[]> Parameters { get; }
 
+        [Obsolete]
         public string NuGetConfigFile { get; }
 
+        [Obsolete]
         public string NuGetPackageSource { get; }
+
+        [Obsolete]
+        public TimeSpan? PackageListTimeout { get; }
+
+        [JsonProperty(nameof(PublishType))]
+        public string PublishTypeValue => PublishType.Name;
+
+        [JsonIgnore]
+        public PublishType PublishType { get; }
+
+        [JsonProperty(nameof(FtpPath))]
+        public string FtpPathValue => FtpPath?.Path;
+
+        [JsonIgnore]
+        public FtpPath FtpPath { get; }
+
+        public TargetNuGetSettings NuGet { get; }
+
+        public TimeSpan? MetadataTimeout { get; }
 
         public override string ToString()
         {

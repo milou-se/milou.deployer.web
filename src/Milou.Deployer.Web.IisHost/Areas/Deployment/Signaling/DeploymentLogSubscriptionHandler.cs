@@ -45,7 +45,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
             }
             else
             {
-                TargetMapping.TryAdd(request.DeploymentTargetId,
+                TargetMapping.TryAdd(
+                    request.DeploymentTargetId,
                     new HashSet<string>(StringComparer.OrdinalIgnoreCase) { request.ConnectionId });
             }
 

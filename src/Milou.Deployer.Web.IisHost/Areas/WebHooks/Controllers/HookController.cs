@@ -1,32 +1,39 @@
-﻿using System.Collections.Generic;
-using System.Net;
-using System.Net.Http;
+﻿using System.IO;
 using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Milou.Deployer.Web.Core.Deployment.Packages;
-using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Controllers;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks.Controllers
 {
+    [AllowAnonymous]
     [Area(WebHookConstants.AreaName)]
-    [Route("hook")]
-    public class HookController : BaseApiController
+    [ApiController]
+    public class HookController : Controller
     {
-        private readonly HookService _hookService;
+        private readonly PackageWebHookHandler _packageWebHookHandler;
 
-        public HookController(HookService hookService)
-        {
-            _hookService = hookService;
-        }
+        public HookController(PackageWebHookHandler packageWebHookHandler) =>
+            _packageWebHookHandler = packageWebHookHandler;
 
-        [Route("")]
+        [Route("~/hook")]
         [HttpPost]
-        public async Task<HttpResponseMessage> Hook(IEnumerable<PackageVersion> packageIdentifiers)
+        public async Task<IActionResult> Hook()
         {
-            await _hookService.AutoDeployAsync(packageIdentifiers.SafeToReadOnlyCollection());
+            string content;
+            using (var streamReader = new StreamReader(Request.Body))
+            {
+                content = await streamReader.ReadToEndAsync();
+            }
 
-            return new HttpResponseMessage(HttpStatusCode.OK);
+            var result = await _packageWebHookHandler.HandleRequest(Request, content);
+
+            if (!result.Handled)
+            {
+                return BadRequest(new { Error = "Invalid web hook" });
+            }
+
+            return Ok();
         }
     }
 }

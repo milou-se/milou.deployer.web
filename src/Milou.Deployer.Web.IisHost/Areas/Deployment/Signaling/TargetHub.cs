@@ -8,15 +8,13 @@ using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 {
     [UsedImplicitly]
-    public class DeploymentLoggingHub : Hub
+    public class TargetHub : Hub
     {
         public const string MessageMethod = "message";
+        public const string TargetsWithUpdates = "targetsWithUpdates";
         private readonly IMediator _mediator;
 
-        public DeploymentLoggingHub([NotNull] IMediator mediator)
-        {
-            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-        }
+        public TargetHub([NotNull] IMediator mediator) => _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {

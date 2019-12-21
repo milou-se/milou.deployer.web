@@ -12,9 +12,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
     [UsedImplicitly]
     public class DeploymentHubLogHandler : INotificationHandler<DeploymentLogNotification>
     {
-        private readonly IHubContext<DeploymentLoggingHub> _hubContext;
+        private readonly IHubContext<TargetHub> _hubContext;
 
-        public DeploymentHubLogHandler([NotNull] IHubContext<DeploymentLoggingHub> hubContext)
+        public DeploymentHubLogHandler([NotNull] IHubContext<TargetHub> hubContext)
         {
             _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
         }
@@ -32,7 +32,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
             var clients = tryGetTargetSubscribers.ToArray();
             var clientProxy = _hubContext.Clients.Clients(clients);
 
-            await clientProxy.SendAsync(DeploymentLoggingHub.MessageMethod, notification.Message, cancellationToken);
+            await clientProxy.SendAsync(TargetHub.MessageMethod, notification.Message, cancellationToken);
         }
     }
 }

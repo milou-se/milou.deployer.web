@@ -47,6 +47,8 @@ namespace Milou.Deployer.Web.Core
         public IServiceCollection Register(IServiceCollection builder)
         {
             RegisterTypes(typeof(IPipelineBehavior<,>), builder, ServiceLifetime.Singleton);
+            RegisterTypes(typeof(IRequestPostProcessor<,>), builder, ServiceLifetime.Singleton);
+            RegisterTypes(typeof(IRequestPreProcessor<>), builder, ServiceLifetime.Singleton);
             RegisterTypes(typeof(INotificationHandler<>), builder, ServiceLifetime.Singleton);
             RegisterTypes(typeof(IRequestHandler<>), builder, ServiceLifetime.Singleton);
             RegisterTypes(typeof(IRequestHandler<,>), builder, ServiceLifetime.Singleton);
@@ -59,6 +61,7 @@ namespace Milou.Deployer.Web.Core
                 this);
 
             builder.AddSingleton(typeof(IPipelineBehavior<,>), typeof(RequestPostProcessorBehavior<,>), this);
+
 
             return builder;
         }

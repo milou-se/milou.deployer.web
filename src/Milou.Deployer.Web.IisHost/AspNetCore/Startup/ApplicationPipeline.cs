@@ -1,6 +1,10 @@
-﻿using JetBrains.Annotations;
+﻿using System.IO;
+
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
+
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.ErrorHandling;
 using Milou.Deployer.Web.IisHost.Areas.Logging;
@@ -13,7 +17,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
     {
         public void Configure(IApplicationBuilder app)
         {
-            var environmentConfiguration = app.ApplicationServices.GetService<EnvironmentConfiguration>();
+            var environmentConfiguration = app!.ApplicationServices.GetRequiredService<EnvironmentConfiguration>();
 
             app.AddForwardHeaders(environmentConfiguration);
 
@@ -25,15 +29,22 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
             app.UseMiddleware<RedirectMiddleware>();
 
+            app.UseCustomStaticFiles(environmentConfiguration);
+
+            app.UseRouting();
+
             app.UseAuthentication();
 
-            app.UseStaticFiles();
+            app.UseAuthorization();
 
             app.UseMiddleware<ConfigurationErrorMiddleware>();
 
-            app.UseSignalRHubs();
-
-            app.UseMvc();
+            app.UseEndpoints(
+                options =>
+                {
+                    options.MapControllers();
+                    options.UseSignalRHubs();
+                });
         }
     }
 }

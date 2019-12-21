@@ -9,7 +9,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public abstract class TestBase<T> : IDisposable, IClassFixture<T> where T : class, IAppHost
     {
-        protected T WebFixture;
+        protected T WebFixture { get; private set; }
 
         protected TestBase([NotNull] T webFixture, [NotNull] ITestOutputHelper output)
         {

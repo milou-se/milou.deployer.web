@@ -18,8 +18,10 @@ using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
+using Serilog;
 using Serilog.Core;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
@@ -39,6 +41,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
+        private readonly ILogger _logger;
+
+        private readonly IApplicationSettingsStore _settingsStore;
 
         public DiagnosticsViewHandler(
             [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
@@ -48,7 +53,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             [NotNull] EnvironmentConfiguration environmentConfiguration,
             IServiceProvider serviceProvider,
             ServiceDiagnostics serviceDiagnostics,
-            ConfigurationInstanceHolder configurationInstanceHolder)
+            ConfigurationInstanceHolder configurationInstanceHolder,
+            ILogger logger,
+            IApplicationSettingsStore settingsStore)
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
@@ -60,6 +67,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
             _serviceProvider = serviceProvider;
             _serviceDiagnostics = serviceDiagnostics;
             _configurationInstanceHolder = configurationInstanceHolder;
+            _logger = logger;
+            _settingsStore = settingsStore;
         }
 
         private async Task<IKeyValueConfiguration> GetApplicationMetadataAsync(CancellationToken cancellationToken)
@@ -161,13 +170,32 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     return new ServiceInstance(registrationType, "Generic type", serviceRegistrationInfo.Module);
                 }
 
-                return new ServiceInstance(registrationType,
-                    _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType),
-                    serviceRegistrationInfo.Module);
+                if (serviceRegistrationInfo.ServiceDescriptorImplementationType?.Namespace?.StartsWith(
+                        "Microsoft.AspNetCore.Mvc.ViewFeatures.RazorComponents") == true)
+                {
+                    return new ServiceInstance(registrationType, "Razor", serviceRegistrationInfo.Module);
+                }
+
+                try
+                {
+                    var instance =
+                        _serviceProvider.GetService(serviceRegistrationInfo.ServiceDescriptorImplementationType);
+
+                    return new ServiceInstance(registrationType, instance, serviceRegistrationInfo.Module);
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    _logger.Error(ex,
+                        "Could not get instance form registration type {Type}",
+                        serviceRegistrationInfo.ServiceDescriptorImplementationType.FullName);
+                    return default;
+                }
             }
 
             var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
-                .ToImmutableArray();
+                .SafeToImmutableArray();
+
+            var applicationSettings = await _settingsStore.GetApplicationSettings(cancellationToken);
 
             var settingsViewModel = new SettingsViewModel(
                 _deploymentTargetReadService.GetType().Name,
@@ -176,27 +204,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 serviceDiagnosticsRegistrations,
                 aspNetConfigurationValues,
                 serviceDiagnosticsRegistrations
-                    .Select(GetInstance).ToImmutableArray(),
+                    .Select(GetInstance)
+                    .Where(item => item is object)
+                    .ToImmutableArray(),
                 _loggingLevelSwitch.MinimumLevel,
                 applicationVersionInfo,
                 applicationMetadata,
-                deploymentTargetWorkers);
+                deploymentTargetWorkers,
+                applicationSettings);
 
             return settingsViewModel;
         }
-    }
-
-    public class ServiceInstance
-    {
-        public ServiceInstance(Type registrationType, object instance, Type module)
-        {
-            RegistrationType = registrationType;
-            Instance = instance;
-            Module = module;
-        }
-
-        public Type RegistrationType { get; }
-        public object Instance { get; }
-        public Type Module { get; }
     }
 }

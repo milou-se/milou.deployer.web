@@ -1,7 +1,18 @@
-﻿@using Milou.Deployer.Web.Core
+﻿@using Milou.Deployer.Core.Deployment
+@using Milou.Deployer.Web.Core
+@using Milou.Deployer.Web.Core.Deployment
 @using Milou.Deployer.Web.Core.Html
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@using Milou.Deployer.Web.IisHost.AspNetCore.TempData
 @model Milou.Deployer.Web.IisHost.Areas.Targets.Views.EditTargetViewOutputModel
+@{
+    var result = TempData.Get<ITargetResult>();
+}
+
+@if (result is {TargetName: {}})
+{
+    <h2>Saved @result.TargetName</h2>
+}
 
 <h1>Edit target @Model.DeploymentTarget.Name</h1>
 
@@ -11,30 +22,47 @@
 }
 else
 {
+    <form action="@Url.RouteUrl(TargetConstants.RemoveTargetPostRouteName)" method="post">
+
+        <fieldset>
+            <legend>Actions</legend>
+
+            <input type="hidden" name="deploymentTargetId" value="@Model.DeploymentTarget.Id" />
+
+            <div class="input-field">
+                <input type="submit" value="Remove" />
+            </div>
+        </fieldset>
+
+    </form>
+
     <form method="post" action="@Url.RouteUrl(TargetConstants.EditTargetPostRouteName)">
 
         <fieldset>
             <legend>General settings</legend>
             <div class="input-field">
-                <label for="target-id">ID</label>
-                <input id="target-id" type="text" name="id" readonly="readonly" required="required" value="@Model.DeploymentTarget.Id"/>
+                <label for="target-id">ID</label><div class="input-value">
+                    <input id="target-id" type="text" name="id" readonly="readonly" required="required" value="@Model.DeploymentTarget.Id" />
+                </div>
             </div>
 
             <div class="input-field">
-                <label for="target-name">Name</label>
-                <input id="target-name" type="text" name="name" readonly="readonly" value="@Model.DeploymentTarget.Name"/>
+                <label for="target-name">Name</label><div class="input-value">
+                    <input id="target-name" type="text" name="name" readonly="readonly" value="@Model.DeploymentTarget.Name" />
+                </div>
             </div>
 
-
             <div class="input-field">
-                <label for="target-enabled">Enabled</label>
-                <input id="target-enabled" type="checkbox" name="enabled" @(Model.DeploymentTarget.Enabled ? "checked=\"checked\"" : "") value="true"/>
+                <label for="target-url">URL</label><div class="input-value">
+                    <input id="target-url" type="text" name="url" value="@Model.DeploymentTarget.Url" />
+                </div>
             </div>
 
-
             <div class="input-field">
-                <label for="target-url">URL</label>
-                <input id="target-url" type="text" name="url" value="@Model.DeploymentTarget.Url"/>
+                <label for="target-metadataTimeout">Metadata timeout</label>
+                <div class="input-value">
+                    <input id="target-metadataTimeout" type="text" name="metadataTimeout" value="@Model.DeploymentTarget.MetadataTimeout?.ToString()" />
+                </div>
             </div>
 
         </fieldset>
@@ -42,32 +70,44 @@ else
         <fieldset>
             <legend>Deployment settings</legend>
             <div class="input-field">
-                <label for="target-allowExplicitPreRelease">Allow pre-releases</label>
-                <input id="target-allowExplicitPreRelease" type="checkbox" name="allowExplicitPreRelease" @Model.DeploymentTarget.AllowExplicitExplicitPreRelease.Checked()/>
+                <label for="target-allowExplicitPreRelease">Force allow pre-releases</label>
+                <div class="input-value">
+                    <input id="target-allowExplicitPreRelease" type="checkbox" name="allowExplicitPreRelease" @Model.DeploymentTarget.AllowExplicitExplicitPreRelease.Checked() />
+                </div>
             </div>
             <div class="input-field">
                 <label for="target-autoDeployEnabled">Auto-deploy enabled</label>
-                <input id="target-autoDeployEnabled" type="checkbox" name="autoDeployEnabled" @Model.DeploymentTarget.AutoDeployEnabled.Checked()/>
+                <div class="input-value">
+                    <input id="target-autoDeployEnabled" type="checkbox" name="autoDeployEnabled" @Model.DeploymentTarget.AutoDeployEnabled.Checked() />
+                </div>
             </div>
             <div class="input-field">
                 <label for="target-packageId">Allowed package name</label>
-                <input id="target-packageId" type="text" name="packageId" value="@Model.DeploymentTarget.PackageId"/>
+                <div class="input-value">
+                    <input id="target-packageId" type="text" name="packageId" value="@Model.DeploymentTarget.PackageId" />
+                </div>
             </div>
 
 
             <div class="input-field">
                 <label for="target-targetDirectory">Local target directory</label>
-                <input id="target-targetDirectory" type="text" name="targetDirectory" value="@Model.DeploymentTarget.TargetDirectory"/>
+                <div class="input-value">
+                    <input id="target-targetDirectory" type="text" name="targetDirectory" value="@Model.DeploymentTarget.TargetDirectory" />
+                </div>
             </div>
 
             <div class="input-field">
                 <label for="target-webConfigTransform">Web.config transformation file</label>
-                <input id="target-webConfigTransform" type="text" name="webConfigTransform" value="@Model.DeploymentTarget.WebConfigTransform"/>
+                <div class="input-value">
+                    <input id="target-webConfigTransform" type="text" name="webConfigTransform" value="@Model.DeploymentTarget.WebConfigTransform" />
+                </div>
             </div>
 
             <div class="input-field">
                 <label for="target-excludedFilePatterns">Excluded file patterns</label>
-                <input id="target-excludedFilePatterns" type="text" name="excludedFilePatterns" value="@Model.DeploymentTarget.ExcludedFilePatterns"/>
+                <div class="input-value">
+                    <input id="target-excludedFilePatterns" type="text" name="excludedFilePatterns" value="@Model.DeploymentTarget.ExcludedFilePatterns" />
+                </div>
             </div>
 
         </fieldset>
@@ -78,7 +118,9 @@ else
 
             <div class="input-field">
                 <label for="target-iisSiteName">IIS site name</label>
-                <input id="target-iisSiteName" type="text" name="iisSiteName" value="@Model.DeploymentTarget.IisSiteName"/>
+                <div class="input-value">
+                    <input id="target-iisSiteName" type="text" name="iisSiteName" value="@Model.DeploymentTarget.IisSiteName" />
+                </div>
             </div>
         </fieldset>
 
@@ -86,34 +128,80 @@ else
             <legend>NuGet settings</legend>
             <div class="input-field">
                 <label for="target-nugetConfigFile">NuGet config file</label>
-                <input id="target-nugetConfigFile" type="text" name="nugetConfigFile" value="@Model.DeploymentTarget.NuGetConfigFile"/>
+                <div class="input-value">
+                    <input id="target-nugetConfigFile" type="text" name="nugetConfigFile" value="@Model.DeploymentTarget.NuGet.NuGetConfigFile" />
+                </div>
             </div>
 
             <div class="input-field">
                 <label for="target-nugetPackageSource">NuGet package source</label>
-                <input id="target-nugetPackageSource" type="text" name="nugetPackageSource" value="@Model.DeploymentTarget.NuGetPackageSource"/>
+                <div class="input-value">
+                    <input id="target-nugetPackageSource" type="text" name="nugetPackageSource" value="@Model.DeploymentTarget.NuGet.NuGetPackageSource" />
+                </div>
+            </div>
+            <div class="input-field">
+                <label for="target-packageListTimeout">Timeout</label>
+                <div class="input-value">
+                    <input id="target-packageListTimeout" type="text" name="packageListTimeout" value="@Model.DeploymentTarget.NuGet.PackageListTimeout?.ToString()" />
+                </div>
             </div>
         </fieldset>
-        <div class="input-field">
-            <label for="target-publishSettingsXml">Publish settings XML</label>
-            <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">
-            @Model.DeploymentTarget.PublishSettingsXml
-        </textarea>
-        </div>
+        <fieldset>
+            <legend>Publish options</legend>
+            <div class="input-field">
+                <label for="target-publishSettingsXml">Publish settings XML</label>
+                <div class="input-value">
+                    <textarea id="target-publishSettingsXml" type="text" name="publishSettingsXml">@Model.DeploymentTarget.PublishSettingsXml</textarea>
+                </div>
+            </div>
 
-        <div class="input-field">
-            <input type="submit" value="Edit project"/>
-        </div>
+            <div class="input-field">
+                <label for="publishType">Publish type</label>
+                <div class="input-value">
+                    <select name="publishType" id="publishType">
+                        @foreach (var item in PublishType.All)
+                        {
+                            <option value="@item.Name" @((Model.DeploymentTarget.PublishType == item).Selected())>@item.Name</option>
+                        }
+                    </select>
+                </div>
+            </div>
 
-    </form>
+            <div class="input-field">
+                <label for="ftpPath">FTP path</label>
+                <div class="input-value">
+                    <input name="ftpPath" id="ftpPath" value="@Model.DeploymentTarget.FtpPathValue" />
+                </div>
+            </div>
 
-    <form action="@Url.RouteUrl(TargetConstants.RemoveTargetPostRouteName)" method="post">
+        </fieldset>
 
-        <input type="hidden" name="targetId" value="@Model.DeploymentTarget.Id"/>
+        <fieldset>
+            <legend>Environment</legend>
 
-        <div class="input-field">
-            <input type="submit" value="Remove"/>
-        </div>
+            <div class="input-field">
+
+                <label for="environmentType">Environment type</label>
+                <div class="input-value">
+                    <select name="environmentType" id="environmentType">
+
+                        @foreach (var type in EnvironmentType.All.Except(new [] {EnvironmentType.Invalid, }).OrderBy(environment => environment.Name))
+                        {
+                            <option name="@type.Name" @Model.DeploymentTarget.EnvironmentType.Equals(type).Selected()>@type.Name</option>
+                        }
+
+                    </select>
+                </div>
+
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Submit</legend>
+            <div class="input-field">
+                <input type="submit" value="Save" />
+            </div>
+        </fieldset>
 
     </form>
 }

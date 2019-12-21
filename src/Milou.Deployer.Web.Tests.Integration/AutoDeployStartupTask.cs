@@ -13,7 +13,7 @@ using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.IisHost.Areas.Application;
+using Milou.Deployer.Web.Core.Startup;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 using Serilog;
@@ -53,7 +53,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 return;
             }
 
-            var targets = await _readService.GetDeploymentTargetsAsync(startupCancellationToken);
+            var targets = await _readService.GetDeploymentTargetsAsync(stoppingToken: startupCancellationToken);
 
             if (targets.Length != 1)
             {
@@ -82,7 +82,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 .UseKestrel(options =>
                 {
                     options.Listen(IPAddress.Loopback,
-                        _testSiteHttpPort.Port.Port+1);
+                        _testSiteHttpPort.Port.Port + 1);
                 })
                 .UseContentRoot(_testConfiguration.SiteAppRoot.FullName)
                 .UseStartup<TestStartup>().Build();
@@ -90,19 +90,20 @@ namespace Milou.Deployer.Web.Tests.Integration
             await _webHost.StartAsync(startupCancellationToken);
 
             startupCancellationToken.Register(() => _webHost.StopAsync(startupCancellationToken));
-            HttpResponseMessage response;
+            HttpResponseMessage response = default;
 
             using (var httpClient = new HttpClient())
             {
                 try
                 {
-                    response = await httpClient.GetAsync(
-                        $"http://localhost:{_testSiteHttpPort.Port.Port + 1}/applicationmetadata.json",
-                        startupCancellationToken);
+                    var uri = new Uri($"http://localhost:{_testSiteHttpPort.Port.Port + 1}/applicationmetadata.json");
+                    response = await httpClient.GetAsync(uri, startupCancellationToken);
+
+                    _logger.Information("Successfully made get request to test site {Status}", response.StatusCode);
                 }
                 catch (Exception ex)
                 {
-
+                    _logger.Error(ex, "Could not get successful http get response in integration test, {Status}", response?.StatusCode);
                 }
             }
 

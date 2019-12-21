@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
-using Arbor.Tooler;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +21,7 @@ using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
+using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -68,7 +67,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public IWebHost WebHost { get; private set; }
 
-        private static async Task<App> BuildAppAsync(
+        private static Task<App> BuildAppAsync(
             CancellationTokenSource cancellationTokenSource,
             string[] commandLineArgs,
             IReadOnlyDictionary<string, string> environmentVariables,
@@ -114,8 +113,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 .Select(type => configurationInstanceHolder.Create(type).Cast<IStartupLoggerConfigurationHandler>())
                 .ToImmutableArray();
 
-            SetLoggingLevelSwitch(loggingLevelSwitch, startupConfiguration);
-
             var startupLogger =
                 SerilogApiInitialization.InitializeStartupLogging(
                     file => GetBaseDirectoryFile(paths.BasePath, file),
@@ -140,6 +137,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 throw;
             }
 
+            if (bool.TryParse(configuration[ConfigurationConstants.AllowPreReleaseEnabled], out bool preReleaseFlag) &&
+                preReleaseFlag)
+            {
+                Environment.SetEnvironmentVariable(ConfigurationConstants.AllowPreReleaseEnabled, "true");
+            }
+
             startupLogger.Information("Configuration done using chain {Chain}",
                 configuration.SourceChain);
 
@@ -147,119 +150,115 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 configuration.AllValues.Select(pair =>
                     $"\"{pair.Key}\": \"{pair.Value.MakeAnonymous(pair.Key, $"{ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray()}\"")}"));
 
-            TempPathHelper.SetTempPath(configuration, startupLogger);
-
-            SetLoggingLevelSwitch(loggingLevelSwitch, configuration);
-
-            var loggerConfigurationHandlers = ApplicationAssemblies.FilteredAssemblies()
-                .GetLoadablePublicConcreteTypesImplementing<ILoggerConfigurationHandler>()
-                .Select(type => configurationInstanceHolder.Create(type).Cast<ILoggerConfigurationHandler>());
-
-            ILogger appLogger;
+            App app;
             try
             {
-                appLogger =
-                    SerilogApiInitialization.InitializeAppLogging(
+                startupLogger.Verbose("Trying to create application");
+
+                TempPathHelper.SetTempPath(configuration, startupLogger);
+
+                SetLoggingLevelSwitch(loggingLevelSwitch, configuration);
+
+                startupLogger.Verbose("Log level: {Level}", loggingLevelSwitch.MinimumLevel);
+
+                var loggerConfigurationHandlers = ApplicationAssemblies.FilteredAssemblies()
+                    .GetLoadablePublicConcreteTypesImplementing<ILoggerConfigurationHandler>()
+                    .Select(type => configurationInstanceHolder.Create(type).Cast<ILoggerConfigurationHandler>());
+
+                ILogger appLogger;
+                try
+                {
+                    startupLogger.Verbose("Creating application logger");
+                    appLogger =
+                        SerilogApiInitialization.InitializeAppLogging(
+                            configuration,
+                            startupLogger,
+                            loggerConfigurationHandlers,
+                            loggingLevelSwitch);
+
+                    configurationInstanceHolder.AddInstance(appLogger);
+
+                    startupLogger.Verbose("Application logger created");
+                    appLogger.Verbose("Application logger is created");
+                }
+                catch (Exception ex)
+                {
+                    appLogger = startupLogger;
+                    startupLogger.Error(ex, "Could not create app logger");
+                }
+
+                LogCommandLineArgs(commandLineArgs, appLogger);
+
+                var environmentConfiguration = new EnvironmentConfiguration
+                {
+                    ApplicationBasePath = paths.BasePath,
+                    ContentBasePath = paths.ContentBasePath,
+                    CommandLineArgs = commandLineArgs.ToImmutableArray(),
+                    EnvironmentName = environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
+                };
+
+                ServiceCollection serviceCollection = new ServiceCollection();
+
+                try
+                {
+                    configurationInstanceHolder.AddInstance(environmentConfiguration);
+
+                    IReadOnlyList<IModule> modules =
+                        GetConfigurationModules(configurationInstanceHolder, scanAssemblies);
+
+                    ModuleRegistration.RegisterModules(modules, serviceCollection, appLogger);
+                }
+                catch (Exception ex)
+                {
+                    appLogger.Fatal(ex, "Could not initialize container registrations");
+
+                    Thread.Sleep(TimeSpan.FromMilliseconds(2500));
+                    throw;
+                }
+
+                configurationInstanceHolder.AddInstance(new ApplicationEnvironmentConfigurator(configuration));
+
+                EnvironmentConfigurator.ConfigureEnvironment(configurationInstanceHolder);
+
+                foreach (Type registeredType in configurationInstanceHolder.RegisteredTypes)
+                {
+                    var interfaces = registeredType.GetInterfaces();
+
+                    var instance = configurationInstanceHolder.GetInstances(registeredType).Single().Value;
+
+                    foreach (var @interface in interfaces)
+                    {
+                        serviceCollection.AddSingleton(@interface, context => instance);
+                    }
+
+                    var serviceType = instance.GetType();
+                    serviceCollection.AddSingleton(serviceType, instance);
+                }
+
+                app = new App(
+                    CustomWebHostBuilder.GetWebHostBuilder(environmentConfiguration,
                         configuration,
-                        startupLogger,
-                        loggerConfigurationHandlers,
-                        loggingLevelSwitch);
-
-                configurationInstanceHolder.AddInstance(appLogger);
+                        new ServiceProviderHolder(serviceCollection.BuildServiceProvider(), serviceCollection),
+                        appLogger),
+                    cancellationTokenSource,
+                    appLogger,
+                    configuration,
+                    configurationInstanceHolder);
             }
             catch (Exception ex)
             {
-                appLogger = startupLogger;
-                startupLogger.Error(ex, "Could not create app logger");
-            }
-
-            LogCommandLineArgs(commandLineArgs, appLogger);
-
-            var environmentConfiguration = new EnvironmentConfiguration
-            {
-                ApplicationBasePath = paths.BasePath,
-                ContentBasePath = paths.ContentBasePath,
-                CommandLineArgs = commandLineArgs.ToImmutableArray(),
-                EnvironmentName = environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
-            };
-
-            configurationInstanceHolder.AddInstance(environmentConfiguration);
-
-            IReadOnlyList<IModule> modules = GetConfigurationModules(configurationInstanceHolder, scanAssemblies);
-
-            ServiceCollection serviceCollection = new ServiceCollection();
-
-            try
-            {
-                ModuleRegistration.RegisterModules(modules, serviceCollection, appLogger);
-            }
-            catch (Exception ex)
-            {
-                appLogger.Fatal(ex, "Could not initialize container registrations");
+                startupLogger.Fatal(ex, "Startup error");
+                Thread.Sleep(TimeSpan.FromMilliseconds(2500));
                 throw;
             }
-
-            var nugetExePath = "";
-
-            appLogger.Debug("Ensuring nuget.exe exists");
-
-            if (!int.TryParse(configuration[ConfigurationConstants.NuGetDownloadTimeoutInSeconds],
-                    out var initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
+            finally
             {
-                initialNuGetDownloadTimeoutInSeconds = 100;
+                startupLogger.Information("Closing startup logger");
+                startupLogger.SafeDispose();
+                Thread.Sleep(TimeSpan.FromMilliseconds(2500));
             }
 
-            try
-            {
-                using (var cts =
-                    new CancellationTokenSource(TimeSpan.FromSeconds(initialNuGetDownloadTimeoutInSeconds)))
-                {
-                    var downloadDirectory = configuration[ConfigurationConstants.NuGetExeDirectory].WithDefault(null);
-
-                    using (var httpClient = new HttpClient())
-                    {
-                        var nuGetDownloadResult = await new NuGetDownloadClient().DownloadNuGetAsync(
-                            new NuGetDownloadSettings(downloadDirectory: downloadDirectory),
-                            appLogger,
-                            httpClient,
-                            cts.Token);
-
-                        if (nuGetDownloadResult.Succeeded)
-                        {
-                            nugetExePath = nuGetDownloadResult.NuGetExePath;
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                appLogger.Warning(ex, "Could not download nuget.exe");
-            }
-
-            var nugetConfiguration = configurationInstanceHolder.Get<NuGetConfiguration>();
-
-            nugetConfiguration.NugetExePath = nugetExePath;
-
-            EnvironmentConfigurator.ConfigureEnvironment(configurationInstanceHolder);
-
-            foreach (Type registeredType in configurationInstanceHolder.RegisteredTypes)
-            {
-                var interfaces = registeredType.GetInterfaces();
-
-                var instance = configurationInstanceHolder.GetInstances(registeredType).Single().Value;
-
-                foreach (var @interface in interfaces)
-                {
-                    serviceCollection.AddSingleton(@interface, context => instance);
-                }
-
-                var serviceType = instance.GetType();
-                serviceCollection.AddSingleton(serviceType, instance);
-            }
-
-            var app = new App(CustomWebHostBuilder.GetWebHostBuilder(environmentConfiguration, configuration, new ServiceProviderHolder(serviceCollection.BuildServiceProvider(), serviceCollection), appLogger), cancellationTokenSource, appLogger, configuration, configurationInstanceHolder);
-
-            return app;
+            return Task.FromResult(app);
         }
 
         private static void LogCommandLineArgs(string[] commandLineArgs, ILogger appLogger)
@@ -280,7 +279,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private static void SetLoggingLevelSwitch(LoggingLevelSwitch loggingLevelSwitch, MultiSourceKeyValueConfiguration configuration)
         {
             var defaultLevel = configuration[ConfigurationConstants.LogLevel]
-                .ParseOrDefault(LogEventLevel.Information);
+                .ParseOrDefault(loggingLevelSwitch.MinimumLevel);
 
             loggingLevelSwitch.MinimumLevel = defaultLevel;
         }
@@ -462,18 +461,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             HostBuilder = null;
             _disposed = true;
             _disposing = false;
-        }
-    }
-
-    public class ServiceProviderHolder
-    {
-        public IServiceProvider ServiceProvider { get; }
-        public IServiceCollection ServiceCollection { get; }
-
-        public ServiceProviderHolder(IServiceProvider serviceProvider, IServiceCollection serviceCollection)
-        {
-            ServiceProvider = serviceProvider;
-            ServiceCollection = serviceCollection;
         }
     }
 }

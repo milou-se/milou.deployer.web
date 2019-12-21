@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class CreateTargetResult
+    public class CreateTargetResult : ITargetResult
     {
         public CreateTargetResult(string targetId, string targetName)
         {

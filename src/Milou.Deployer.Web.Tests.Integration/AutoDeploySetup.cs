@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             TestSiteHttpPort = new TestHttpPort(TcpHelper.GetAvailablePort(portPoolRange));
 
             Environment.SetEnvironmentVariable("TestDeploymentTargetPath", TestConfiguration.SiteAppRoot.FullName);
-            Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port.Port+1}");
+            Environment.SetEnvironmentVariable("TestDeploymentUri", $"http://localhost:{TestSiteHttpPort.Port.Port + 1}");
 
             var deployerDir = Path.Combine(VcsTestPathHelper.GetRootDirectory(), "tools", "milou.deployer");
 

@@ -85,13 +85,25 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
             return organizations.ToImmutableArray();
         }
 
-        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(CancellationToken stoppingToken)
+        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions options = default, CancellationToken stoppingToken = default)
         {
             var organizations = await GetOrganizationsAsync(stoppingToken);
 
+            bool Filter(DeploymentTarget target)
+            {
+                if (options is null || options.OnlyEnabled)
+                {
+                    return target.Enabled;
+                }
+
+                return true;
+            }
+
             return organizations
                 .SelectMany(organizationInfo => organizationInfo.Projects)
-                .SelectMany(projectInfo => projectInfo.DeploymentTargets).ToImmutableArray();
+                .SelectMany(projectInfo => projectInfo.DeploymentTargets)
+                .Where(Filter)
+                .ToImmutableArray();
         }
 
         public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(

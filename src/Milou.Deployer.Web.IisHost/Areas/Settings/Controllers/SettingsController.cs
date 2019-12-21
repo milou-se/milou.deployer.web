@@ -39,5 +39,16 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        [HttpPost]
+        [Route(SettingsConstants.SaveSettingsPostRoute, Name = SettingsConstants.SaveSettingsPostRouteName)]
+        public async Task<IActionResult> ApplicationSettings(
+            [FromBody] UpdateSettings updateSettings,
+            [FromServices] IMediator mediator)
+        {
+            await mediator.Send(updateSettings);
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }

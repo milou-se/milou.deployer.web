@@ -34,5 +34,9 @@ namespace Milou.Deployer.Web.Core.Application
 
         [Metadata(defaultValue: "0")]
         public const string ProxyForwardLimit = "urn:milou:deployer:web:proxy-forward-limit";
+
+        public const string PfxFile = "urn:milou:deployer:web:pfx-file";
+
+        public const string PfxPassword = "urn:milou:deployer:web:pfx-password";
     }
 }

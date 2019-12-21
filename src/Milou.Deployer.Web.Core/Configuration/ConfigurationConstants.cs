@@ -75,7 +75,7 @@ namespace Milou.Deployer.Web.Core.Configuration
         public const string AllowedIpNetworks = "urn:milou:deployer:authorization:allowed-ip-networks";
 
         [Metadata]
-        public const string JsonSettingsFile = "urn:milou:deployer:settings:json-file";
+        public const string JsonSettingsFile = "urn:milou:deployer:web:settings:json-file";
 
         [Metadata]
         public const string NuGetDownloadTimeoutInSeconds = "urn:milou:deployer:web:nuget:download-timeout-in-seconds";

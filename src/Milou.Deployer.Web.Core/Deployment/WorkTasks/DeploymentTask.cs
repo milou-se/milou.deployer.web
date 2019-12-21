@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment.Packages;
+using Milou.Deployer.Web.Core.IO;
 using NuGet.Versioning;
 
 namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
@@ -15,7 +16,8 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
         public DeploymentTask(
             [NotNull] string packageVersion,
             [NotNull] string deploymentTargetId,
-            Guid deploymentTaskId, string startedBy)
+            Guid deploymentTaskId,
+            string startedBy)
         {
             if (string.IsNullOrWhiteSpace(packageVersion))
             {
@@ -63,7 +65,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 
         public List<DirectoryInfo> TempDirectories { get; } = new List<DirectoryInfo>();
 
-        public List<FileInfo> TempFiles { get; } = new List<FileInfo>();
+        public List<TempFile> TempFiles { get; } = new List<TempFile>();
 
         public SemanticVersion SemanticVersion { get; }
 
@@ -72,6 +74,8 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
         public string PackageId { get; }
 
         public string DeploymentTaskId { get; }
+
+        public DateTime EnqueuedAtUtc { get; set; }
 
         [PublicAPI]
         public WorkTaskStatus Status { get; set; } = WorkTaskStatus.Created;

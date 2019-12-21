@@ -1,0 +1,54 @@
+﻿@using Milou.Deployer.Web.Core.Deployment
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@model Milou.Deployer.Web.IisHost.Areas.Targets.ViewModels.TargetListViewModel
+
+<h1>Targets</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>
+            Target id
+        </th>
+        <th>
+            Name
+        </th>
+        <th>
+            Enable
+        </th>
+    </tr>
+    </thead>
+    <tbody>
+
+    @foreach (DeploymentTarget target in Model.Targets)
+    {
+        <tr>
+            <td>@target.Id</td>
+            <td>@target.Name</td>
+            <td>
+                @if (target.Enabled)
+                {
+                    <form method="post" action="@Url.RouteUrl(TargetConstants.DisableTargetPostRouteName)">
+
+                        <input type="hidden" name="targetId" value="@target.Id"/>
+
+                        <input type="submit" value="Disable"/>
+
+                    </form>
+                }
+                else
+                {
+                    <form method="post" action="@Url.RouteUrl(TargetConstants.EnableTargetPostRouteName)">
+
+                        <input type="hidden" name="targetId" value="@target.Id"/>
+
+                        <input type="submit" value="Enable"/>
+
+                    </form>
+                }
+            </td>
+        </tr>
+    }
+
+    </tbody>
+</table>

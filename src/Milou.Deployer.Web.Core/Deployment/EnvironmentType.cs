@@ -27,6 +27,14 @@ namespace Milou.Deployer.Web.Core.Deployment
         public static readonly EnvironmentType Development =
             new EnvironmentType(nameof(Development), PreReleaseBehavior.Allow);
 
+        [PublicAPI]
+        public static readonly EnvironmentType Test =
+            new EnvironmentType(nameof(Test), PreReleaseBehavior.Allow);
+
+        [PublicAPI]
+        public static readonly EnvironmentType Stage =
+            new EnvironmentType(nameof(Stage), PreReleaseBehavior.AllowWithForceFlag);
+
         private EnvironmentType(string name, PreReleaseBehavior preReleaseBehavior)
         {
             Name = name;
@@ -44,7 +52,9 @@ namespace Milou.Deployer.Web.Core.Deployment
             QualityAssurance,
             Production,
             Integration,
-            Development
+            Development,
+            Test,
+            Stage
         };
 
         public override bool Equals(object obj)

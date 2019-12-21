@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Logging
@@ -21,6 +22,8 @@ namespace Milou.Deployer.Web.Core.Logging
             {
                 logger.Information("{Message}", message);
             }
+
+            Thread.Sleep(TimeSpan.FromMilliseconds(100));
         }
     }
 }
