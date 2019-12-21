@@ -4,7 +4,7 @@ using Serilog;
 using Serilog.Configuration;
 using Serilog.Events;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Logging
+namespace Milou.Deployer.Web.Core.Logging
 {
     public static class DelegateSinkExtensions
     {

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "dependencies": {
-    ".NETCoreApp,Version=v3.0": {
+    ".NETCoreApp,Version=v3.1": {
       "Arbor.Processing": {
         "type": "Direct",
         "requested": "[0.3.0, )",
@@ -1994,6 +1994,12 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
+      "milou.deployer.web.agent": {
+        "type": "Project",
+        "dependencies": {
+          "Milou.Deployer.Web.Core": "1.0.0"
+        }
+      },
       "milou.deployer.web.core": {
         "type": "Project",
         "dependencies": {
@@ -2057,6 +2063,7 @@
           "Microsoft.Extensions.Primitives": "3.0.1",
           "Milou.Deployer.Bootstrapper.Common": "4.6.1",
           "Milou.Deployer.Core": "4.6.1",
+          "Milou.Deployer.Web.Agent": "1.0.0",
           "Milou.Deployer.Web.Core": "1.0.0",
           "Milou.Deployer.Web.Marten": "1.0.0",
           "Newtonsoft.Json": "12.0.3",

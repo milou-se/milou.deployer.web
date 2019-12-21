@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.KVConfiguration.Core;
 using Arbor.Processing;
 using JetBrains.Annotations;
 using MediatR;
@@ -18,14 +16,14 @@ using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Time;
-using Milou.Deployer.Web.IisHost.Areas.Logging;
 using NuGet.Versioning;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
+namespace Milou.Deployer.Web.Agent
 {
     [UsedImplicitly]
     public class DeploymentService
@@ -171,7 +169,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private async Task<(ExitCode, DateTime)> RunDeploymentToolAsync(
             DeploymentTask deploymentTask,
-            DeploymentTarget deploymentTarget,
             ILogger logger,
             CancellationToken cancellationToken = default)
         {
@@ -203,7 +200,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                     logger.Debug(
                         "Running tool '{Deployer}' for deployment target '{DeploymentTarget}', package '{PackageId}' version {Version}",
                         _deployer,
-                        deploymentTarget,
+                        deploymentTask.DeploymentTargetId,
                         deploymentTask.PackageId,
                         deploymentTask.SemanticVersion.ToNormalizedString());
                 }
@@ -253,7 +250,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 VerifyAllowedPackageIsAllowed(deploymentTarget, deploymentTask.PackageId, logger);
 
                 result = await RunDeploymentToolAsync(deploymentTask,
-                    deploymentTarget,
                     logger,
                     cancellationToken);
             }

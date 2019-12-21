@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Logging
+namespace Milou.Deployer.Web.Core.Logging
 {
     public class DelegateSink : ILogEventSink
     {
