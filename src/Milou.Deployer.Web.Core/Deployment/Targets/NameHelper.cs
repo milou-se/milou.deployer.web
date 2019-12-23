@@ -89,7 +89,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
                 '-'
             };
 
-            var isNameValid = name.ToCharArray().All(c => allowedCharacters.Contains(c) || c.IsIntegerValue());
+            var isNameValid = name.ToCharArray().All(c => allowedCharacters.Contains(c) || char.IsDigit(c));
 
             return isNameValid;
         }

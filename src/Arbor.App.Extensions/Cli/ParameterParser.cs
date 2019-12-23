@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Core.Cli
 
             if (matchingArgs.Length > 1)
             {
-                throw new DeployerAppException($"Found more than 1 parameter named '{parameterName}'");
+                throw new InvalidOperationException($"Found more than 1 parameter named '{parameterName}'");
             }
 
             var value = matchingArgs[0].Substring(prefix.Length).Trim();

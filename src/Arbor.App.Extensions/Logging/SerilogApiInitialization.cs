@@ -57,7 +57,7 @@ namespace Milou.Deployer.Web.Core.Logging
             {
                 const string message = "Serilog rolling file log path is not set";
                 logger.Error(message);
-                throw new DeployerAppException(message);
+                throw new InvalidOperationException(message);
             }
 
             var loggerConfiguration = new LoggerConfiguration()
@@ -174,7 +174,7 @@ namespace Milou.Deployer.Web.Core.Logging
 
                 if (string.IsNullOrWhiteSpace(logFilePath))
                 {
-                    throw new DeployerAppException("The log path for startup logging is not defined");
+                    throw new InvalidOperationException("The log path for startup logging is not defined");
                 }
 
                 var pathFormat = Environment.ExpandEnvironmentVariables(
@@ -185,7 +185,7 @@ namespace Milou.Deployer.Web.Core.Logging
 
                 if (fileInfo.Directory is null)
                 {
-                    throw new DeployerAppException("Invalid file directory");
+                    throw new InvalidOperationException("Invalid file directory");
                 }
 
                 if (!fileInfo.Directory.Exists)

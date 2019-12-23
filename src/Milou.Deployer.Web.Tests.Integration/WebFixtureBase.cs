@@ -16,6 +16,7 @@ using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.IO;
 using Milou.Deployer.Web.IisHost.Areas.Application;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
+using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Milou.Deployer.Web.Marten;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 using MysticMind.PostgresEmbed;
@@ -67,7 +68,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         public Exception Exception { get; private set; }
 
-        public App App { get; private set; }
+        public App<ApplicationPipeline> App { get; private set; }
 
         [PublicAPI]
         public int? HttpPort => GetHttpPort();
@@ -137,7 +138,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
 
-            App = await App.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.GetEnvironmentVariables().Variables, TestConfiguration, TestSiteHttpPort);
+            App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.GetEnvironmentVariables().Variables, TestConfiguration, TestSiteHttpPort);
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);

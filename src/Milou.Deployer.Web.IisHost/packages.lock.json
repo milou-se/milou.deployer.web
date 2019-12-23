@@ -1994,6 +1994,58 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
+      "arbor.app.extensions": {
+        "type": "Project",
+        "dependencies": {
+          "Arbor.KVConfiguration.Urns": "0.19.2",
+          "JetBrains.Annotations": "2019.1.3",
+          "MediatR": "7.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.0.1",
+          "Microsoft.Extensions.DependencyModel": "3.0.1",
+          "Serilog": "2.9.0",
+          "Serilog.Sinks.Console": "3.1.1",
+          "Serilog.Sinks.Debug": "1.0.1",
+          "Serilog.Sinks.File": "4.1.0",
+          "Serilog.Sinks.Seq": "4.0.0"
+        }
+      },
+      "arbor.aspnetcore.host": {
+        "type": "Project",
+        "dependencies": {
+          "Arbor.App.Extensions": "1.0.0",
+          "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
+          "Arbor.KVConfiguration.Core": "0.19.2",
+          "Arbor.KVConfiguration.DependencyInjection": "0.19.2",
+          "Arbor.KVConfiguration.JsonConfiguration": "0.19.2",
+          "Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns": "0.19.2",
+          "Arbor.KVConfiguration.Urns": "0.19.2",
+          "Arbor.KVConfiguration.UserConfiguration": "0.19.2",
+          "Arbor.ModelBinding": "0.7.2",
+          "Arbor.Processing": "0.3.0",
+          "Arbor.Tooler": "0.6.5",
+          "JetBrains.Annotations": "2019.1.3",
+          "Marten.Analyzers": "1.5.0",
+          "MediatR": "7.0.0",
+          "MediatR.Extensions.Microsoft.DependencyInjection": "7.0.0",
+          "Microsoft.AspNetCore.Authentication.OpenIdConnect": "3.0.0",
+          "Microsoft.AspNetCore.Hosting.WindowsServices": "3.0.0",
+          "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.0.0",
+          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "3.0.0",
+          "Microsoft.CodeAnalysis.CSharp": "3.3.1",
+          "Microsoft.Extensions.Diagnostics.HealthChecks": "3.0.1",
+          "Microsoft.Extensions.Http": "3.0.1",
+          "Microsoft.Extensions.Logging.Abstractions": "3.0.1",
+          "Microsoft.Extensions.Primitives": "3.0.1",
+          "Serilog": "2.9.0",
+          "Serilog.AspNetCore": "3.2.0",
+          "Serilog.Sinks.Console": "3.1.1",
+          "Serilog.Sinks.File": "4.1.0",
+          "Serilog.Sinks.Seq": "4.0.0",
+          "Serilog.Sinks.TextWriter": "2.1.0",
+          "System.Collections.Concurrent": "4.3.0",
+          "System.Diagnostics.EventLog": "4.6.0"
+        }
+      },
       "milou.deployer.web.agent": {
         "type": "Project",
         "dependencies": {
@@ -2003,6 +2055,7 @@
       "milou.deployer.web.core": {
         "type": "Project",
         "dependencies": {
+          "Arbor.App.Extensions": "1.0.0",
           "Arbor.KVConfiguration.Core": "0.19.2",
           "Arbor.KVConfiguration.Urns": "0.19.2",
           "Arbor.KVConfiguration.UserConfiguration": "0.19.2",

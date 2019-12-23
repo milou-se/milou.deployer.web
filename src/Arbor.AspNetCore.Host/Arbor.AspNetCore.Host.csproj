@@ -1,32 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-    <PropertyGroup>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
-        <ArborBuild_PublishDotNetExecutableEnabled>false</ArborBuild_PublishDotNetExecutableEnabled>
-        <LangVersion>latest</LangVersion>
-    </PropertyGroup>
-    <ItemGroup>
-        <Compile Remove="App_Data\**" />
-        <Compile Remove="Areas\NuGet\Controllers\**" />
-        <Compile Remove="Areas\Protocols\**" />
-        <Compile Remove="logs\**" />
-        <Content Remove="App_Data\**" />
-        <Content Remove="Areas\NuGet\Controllers\**" />
-        <Content Remove="Areas\Protocols\**" />
-        <Content Remove="logs\**" />
-        <EmbeddedResource Remove="App_Data\**" />
-        <EmbeddedResource Remove="Areas\NuGet\Controllers\**" />
-        <EmbeddedResource Remove="Areas\Protocols\**" />
-        <EmbeddedResource Remove="logs\**" />
-        <None Remove="App_Data\**" />
-        <None Remove="Areas\NuGet\Controllers\**" />
-        <None Remove="Areas\Protocols\**" />
-        <None Remove="logs\**" />
-    </ItemGroup>
-    <ItemGroup>
-      <Content Remove="wwwroot\applicationmetadata.json" />
-      <Content Remove="wwwroot\unpkg.json" />
-    </ItemGroup>
-    <ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
 
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
         <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.19.2" />
@@ -53,15 +31,6 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="3.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.1" />
         <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.0.1" />
-        <PackageReference Include="Microsoft.Net.Compilers" Version="3.3.1">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.6.1" />
-        <PackageReference Include="Milou.Deployer.Core" Version="4.6.1" />
-        <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-        <PackageReference Include="NuGet.Packaging" Version="5.3.1" />
-        <PackageReference Include="NuGet.Versioning" Version="5.3.1" />
         <PackageReference Include="Serilog" Version="2.9.0" />
         <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="3.1.1" />
@@ -70,19 +39,14 @@
         <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
         <PackageReference Include="System.Collections.Concurrent" Version="4.3.0" />
         <PackageReference Include="System.Diagnostics.EventLog" Version="4.6.0" />
-    </ItemGroup>
-    <ItemGroup>
-        <Folder Include="Areas\Security\Views\Login\" />
-        <Folder Include="AspNetCore\Hosting\" />
-    </ItemGroup>
-    <ItemGroup>
-      <None Include="wwwroot\applicationmetadata.json" />
-      <None Include="wwwroot\unpkg.json" />
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\Arbor.AspNetCore.Host\Arbor.AspNetCore.Host.csproj" />
-        <ProjectReference Include="..\Milou.Deployer.Web.Agent\Milou.Deployer.Web.Agent.csproj" />
-        <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
-        <ProjectReference Include="..\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
-    </ItemGroup>
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Arbor.App.Extensions\Arbor.App.Extensions.csproj" />
+  </ItemGroup>
+
 </Project>

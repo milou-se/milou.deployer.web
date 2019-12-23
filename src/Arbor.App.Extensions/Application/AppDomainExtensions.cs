@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyModel;
-using Milou.Deployer.Core.Extensions;
+using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Time;
 using Serilog;

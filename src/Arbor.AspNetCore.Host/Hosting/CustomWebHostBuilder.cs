@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using Arbor.KVConfiguration.Core;
@@ -13,20 +14,20 @@ using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Application;
-using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog.Extensions.Logging;
 using ILogger = Serilog.ILogger;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
 {
-    public static class CustomWebHostBuilder
+    public static class CustomWebHostBuilder<T> where T : class
     {
         public static IWebHostBuilder GetWebHostBuilder(
             EnvironmentConfiguration environmentConfiguration,
             IKeyValueConfiguration configuration,
             ServiceProviderHolder serviceProviderHolder,
-            ILogger logger)
+            ILogger logger,
+            Action<IServiceCollection> onRegistration = null)
         {
             string contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
 
@@ -46,18 +47,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
                     services.AddSingleton(environmentConfiguration);
                     services.AddHttpClient();
 
-                    var openIdConnectConfiguration = serviceProviderHolder.ServiceProvider.GetService<CustomOpenIdConnectConfiguration>();
-
-                    var httpLoggingConfiguration = serviceProviderHolder.ServiceProvider.GetService<HttpLoggingConfiguration>();
-
-                    var milouAuthenticationConfiguration = serviceProviderHolder.ServiceProvider.GetService<MilouAuthenticationConfiguration>();
-
-                    services.AddDeploymentAuthentication(openIdConnectConfiguration, milouAuthenticationConfiguration, logger, environmentConfiguration)
-                        .AddDeploymentAuthorization(environmentConfiguration)
-                        .AddDeploymentHttpClients(httpLoggingConfiguration)
-                        .AddDeploymentSignalR()
-                        .AddServerFeatures()
-                        .AddDeploymentMvc();
+                    onRegistration?.Invoke(services);
                 })
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
@@ -112,7 +102,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
                 {
                     options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
                 })
-                .UseStartup<ApplicationPipeline>();
+                .UseStartup<T>();
 
             if (environmentConfiguration != null)
             {

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Net;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
-using Milou.Deployer.Core.Extensions;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
+using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 {

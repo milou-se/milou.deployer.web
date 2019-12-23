@@ -11,25 +11,24 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.IO;
 using Milou.Deployer.Web.Core.Logging;
-using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
 using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using System.Linq;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Application
 {
     [UsedImplicitly]
-    public sealed class App : IDisposable
+    public sealed class App<T> : IDisposable where T : class
     {
         private readonly Guid _instanceId;
         private bool _disposed;
@@ -67,7 +66,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         public IWebHost WebHost { get; private set; }
 
-        private static Task<App> BuildAppAsync(
+        private static Task<App<T>> BuildAppAsync(
             CancellationTokenSource cancellationTokenSource,
             string[] commandLineArgs,
             IReadOnlyDictionary<string, string> environmentVariables,
@@ -102,7 +101,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             var loggingLevelSwitch = new LoggingLevelSwitch();
             configurationInstanceHolder.AddInstance(loggingLevelSwitch);
             configurationInstanceHolder.AddInstance(cancellationTokenSource);
-            configurationInstanceHolder.AddInstance(new NuGetConfiguration());
 
             ApplicationPaths paths = configurationInstanceHolder.GetInstances<ApplicationPaths>().SingleOrDefault().Value ?? new ApplicationPaths();
 
@@ -110,7 +108,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             var startupLoggerConfigurationHandlers = ApplicationAssemblies.FilteredAssemblies()
                 .GetLoadablePublicConcreteTypesImplementing<IStartupLoggerConfigurationHandler>()
-                .Select(type => configurationInstanceHolder.Create(type).Cast<IStartupLoggerConfigurationHandler>())
+                .Select(type => configurationInstanceHolder.Create(type) as IStartupLoggerConfigurationHandler)
+                .Where(item => item != null)
                 .ToImmutableArray();
 
             var startupLogger =
@@ -150,7 +149,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 configuration.AllValues.Select(pair =>
                     $"\"{pair.Key}\": \"{pair.Value.MakeAnonymous(pair.Key, $"{ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray()}\"")}"));
 
-            App app;
+            App<T> app;
             try
             {
                 startupLogger.Verbose("Trying to create application");
@@ -163,7 +162,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
                 var loggerConfigurationHandlers = ApplicationAssemblies.FilteredAssemblies()
                     .GetLoadablePublicConcreteTypesImplementing<ILoggerConfigurationHandler>()
-                    .Select(type => configurationInstanceHolder.Create(type).Cast<ILoggerConfigurationHandler>());
+                    .Select(type => configurationInstanceHolder.Create(type) as ILoggerConfigurationHandler)
+                    .Where(item => item != null);
 
                 ILogger appLogger;
                 try
@@ -235,10 +235,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                     serviceCollection.AddSingleton(serviceType, instance);
                 }
 
-                app = new App(
-                    CustomWebHostBuilder.GetWebHostBuilder(environmentConfiguration,
+                app = new App<T>(
+                    CustomWebHostBuilder<T>.GetWebHostBuilder(environmentConfiguration,
                         configuration,
-                        new ServiceProviderHolder(serviceCollection.BuildServiceProvider(), serviceCollection),
+                        new ServiceProviderHolder(serviceCollection.BuildServiceProvider(),
+                            serviceCollection),
                         appLogger),
                     cancellationTokenSource,
                     appLogger,
@@ -313,7 +314,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             return Path.Combine(basePath, fileName);
         }
 
-        public static async Task<App> CreateAsync(
+        public static async Task<App<T>> CreateAsync(
             CancellationTokenSource cancellationTokenSource,
             string[] args,
             IReadOnlyDictionary<string, string> environmentVariables,
@@ -370,7 +371,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             catch (Exception ex) when (!ex.IsFatal())
             {
                 Logger.Fatal(ex, "Could not build web host {Application}", AppInstance);
-                throw new DeployerAppException($"Could not build web host in {AppInstance}", ex);
+                throw new InvalidOperationException($"Could not build web host in {AppInstance}", ex);
             }
 
             if (args.Any(arg => arg.Equals(ApplicationConstants.RunAsService, StringComparison.OrdinalIgnoreCase)))
@@ -384,7 +385,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 catch (Exception ex) when (!ex.IsFatal())
                 {
                     Logger.Fatal(ex, "Could not start web host as a Windows service, {AppInstance}", AppInstance);
-                    throw new DeployerAppException(
+                    throw new InvalidOperationException(
                         $"Could not start web host as a Windows service, configuration, {Configuration?.SourceChain} {AppInstance} ",
                         ex);
                 }
@@ -400,7 +401,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 catch (Exception ex) when (!ex.IsFatal())
                 {
                     Logger.Fatal(ex, "Could not start web host, {AppInstance}", AppInstance);
-                    throw new DeployerAppException(
+                    throw new InvalidOperationException(
                         $"Could not start web host, configuration {Configuration?.SourceChain} {AppInstance}",
                         ex);
                 }

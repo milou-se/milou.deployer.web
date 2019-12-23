@@ -4,7 +4,10 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="Cli\" />
+    <Folder Include="Configuration\" />
     <Folder Include="Properties\" />
+    <Folder Include="Validation\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
@@ -46,5 +49,8 @@
     <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
     <PackageReference Include="System.Collections.Immutable" Version="1.6.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Arbor.App.Extensions\Arbor.App.Extensions.csproj" />
   </ItemGroup>
 </Project>

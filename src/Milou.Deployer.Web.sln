@@ -31,9 +31,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Marten",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.WindowsService", "Milou.Deployer.Web.WindowsService\Milou.Deployer.Web.WindowsService.csproj", "{BE0915C6-65EB-4D1F-861C-BDE7344036B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Web.Agent", "Milou.Deployer.Web.Agent\Milou.Deployer.Web.Agent.csproj", "{09DAB9E2-E698-4F04-98E1-4A11609C8BF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Agent", "Milou.Deployer.Web.Agent\Milou.Deployer.Web.Agent.csproj", "{09DAB9E2-E698-4F04-98E1-4A11609C8BF4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Milou.Deployer.Web.Agent.Host", "Milou.Deployer.Web.Agent.Host\Milou.Deployer.Web.Agent.Host.csproj", "{C0BD323B-6C74-4EBD-95D5-D985CD56DFAC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Agent.Host", "Milou.Deployer.Web.Agent.Host\Milou.Deployer.Web.Agent.Host.csproj", "{C0BD323B-6C74-4EBD-95D5-D985CD56DFAC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbor.AspNetCore.Host", "Arbor.AspNetCore.Host\Arbor.AspNetCore.Host.csproj", "{57D8429A-E201-451C-BD75-10688FC7082D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbor.App.Extensions", "Arbor.App.Extensions\Arbor.App.Extensions.csproj", "{A8E4B02C-900D-4752-BE9E-BB426C234C14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +77,14 @@ Global
 		{C0BD323B-6C74-4EBD-95D5-D985CD56DFAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0BD323B-6C74-4EBD-95D5-D985CD56DFAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0BD323B-6C74-4EBD-95D5-D985CD56DFAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57D8429A-E201-451C-BD75-10688FC7082D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57D8429A-E201-451C-BD75-10688FC7082D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57D8429A-E201-451C-BD75-10688FC7082D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57D8429A-E201-451C-BD75-10688FC7082D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8E4B02C-900D-4752-BE9E-BB426C234C14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8E4B02C-900D-4752-BE9E-BB426C234C14}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8E4B02C-900D-4752-BE9E-BB426C234C14}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8E4B02C-900D-4752-BE9E-BB426C234C14}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

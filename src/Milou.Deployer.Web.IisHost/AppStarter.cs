@@ -13,6 +13,7 @@ using Milou.Deployer.Web.Core.Cli;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Application;
+using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog;
 using Serilog.Events;
 
@@ -59,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost
                     cancellationTokenSource.Token.Register(
                         () => TempLogger.WriteLine("App cancellation token triggered"));
 
-                    using (var app = await App.CreateAsync(cancellationTokenSource, args, environmentVariables, instances))
+                    using (var app = await App<ApplicationPipeline>.CreateAsync(cancellationTokenSource, args, environmentVariables, instances))
                     {
                         var runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
                                            && !Debugger.IsAttached;
