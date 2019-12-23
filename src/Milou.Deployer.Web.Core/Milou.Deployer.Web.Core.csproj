@@ -5,7 +5,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Cli\" />
-    <Folder Include="Configuration\" />
     <Folder Include="Properties\" />
     <Folder Include="Validation\" />
   </ItemGroup>

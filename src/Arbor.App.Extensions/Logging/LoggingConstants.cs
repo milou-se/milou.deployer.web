@@ -5,9 +5,9 @@ namespace Arbor.App.Extensions.Logging
 {
     public static class LoggingConstants
     {
-        internal const string SerilogBaseUrn = "urn:milou:deployer:web:logging:serilog";
+        internal const string SerilogBaseUrn = "urn:arbor:app:web:logging:serilog";
 
-        internal const string StartupSerilogBaseUrn = "urn:milou:deployer:web:logging:startup:serilog";
+        internal const string StartupSerilogBaseUrn = "urn:arbor:app:web:logging:startup:serilog";
 
         [PublicAPI]
         [Metadata(defaultValue: "false")]
@@ -23,7 +23,7 @@ namespace Arbor.App.Extensions.Logging
         public const string SeqStartupUrl = StartupSerilogBaseUrn + ":startup-seq-url";
 
         [Metadata]
-        public const string MicrosoftLevel = "urn:milou:deployer:web:logging:microsoft:level";
+        public const string MicrosoftLevel = "urn:arbor:app:web:logging:microsoft:level";
 
         [Metadata]
         public const string SerilogStartupLogEnabled = StartupSerilogBaseUrn + ":startup-log-file:enabled";

@@ -59,8 +59,13 @@ namespace Arbor.App.Extensions.Logging
                 throw new InvalidOperationException(message);
             }
 
-            var loggerConfiguration = new LoggerConfiguration()
-                .Enrich.WithProperty("Application", ApplicationConstants.ApplicationName);
+            string applicationName = multiSourceKeyValueConfiguration[ApplicationConstants.ApplicationNameKey];
+
+            var loggerConfiguration = new LoggerConfiguration();
+            if (!string.IsNullOrWhiteSpace(applicationName))
+            {
+                loggerConfiguration = loggerConfiguration.Enrich.WithProperty("Application", applicationName);
+            }
 
             if (serilogConfiguration.DebugConsoleEnabled)
             {

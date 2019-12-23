@@ -10,6 +10,7 @@ using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 using Xunit.Abstractions;
 
@@ -97,19 +98,19 @@ namespace Milou.Deployer.Web.Tests.Integration
                 milouDeployerWebTestsIntegration);
 
             Environment.SetEnvironmentVariable(
-                $"{ConfigurationConstants.AutoDeployConfiguration}:default:StartupDelayInSeconds",
+                $"{DeployerAppConstants.AutoDeployConfiguration}:default:StartupDelayInSeconds",
                 "0");
 
             Environment.SetEnvironmentVariable(
-                $"{ConfigurationConstants.AutoDeployConfiguration}:default:afterDeployDelayInSeconds",
+                $"{DeployerAppConstants.AutoDeployConfiguration}:default:afterDeployDelayInSeconds",
                 "1");
 
             Environment.SetEnvironmentVariable(
-                $"{ConfigurationConstants.AutoDeployConfiguration}:default:MetadataTimeoutInSeconds",
+                $"{DeployerAppConstants.AutoDeployConfiguration}:default:MetadataTimeoutInSeconds",
                 "10");
 
             Environment.SetEnvironmentVariable(
-                $"{ConfigurationConstants.AutoDeployConfiguration}:default:enabled",
+                $"{DeployerAppConstants.AutoDeployConfiguration}:default:enabled",
                 "true");
 
             DirectoriesToClean.Add(TestConfiguration.BaseDirectory);

@@ -47,8 +47,11 @@ namespace Arbor.AspNetCore.Host
             ConfigurationInstanceHolder = configurationInstanceHolder;
             HostBuilder = webHost ?? throw new ArgumentNullException(nameof(webHost));
             _instanceId = Guid.NewGuid();
-            AppInstance = ApplicationConstants.ApplicationName + " " + _instanceId;
+            ApplicationName = configuration.GetApplicationName();
+            AppInstance = ApplicationName + " " + _instanceId;
         }
+
+        public string ApplicationName { get; }
 
         public string AppInstance { get; }
 
@@ -79,35 +82,35 @@ namespace Arbor.AspNetCore.Host
             }
 
             Logger?.Debug("Disposing application {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
+                ApplicationName,
                 _instanceId);
             Logger?.Verbose("Disposing web host {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
+                ApplicationName,
                 _instanceId);
             WebHost?.SafeDispose();
             Logger?.Verbose("Disposing Application root scope {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
+                ApplicationName,
                 _instanceId);
             Logger?.Verbose("Disposing configuration {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
+                ApplicationName,
                 _instanceId);
             Configuration?.SafeDispose();
 
             Logger?.Debug("Application disposal complete, disposing logging {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
+                ApplicationName,
                 _instanceId);
 
             if (Logger is IDisposable disposable)
             {
                 Logger?.Verbose("Disposing Logger {Application} {Instance}",
-                    ApplicationConstants.ApplicationName,
+                    ApplicationName,
                     _instanceId);
                 disposable.SafeDispose();
             }
             else
             {
                 Logger?.Debug("Logger is not disposable {Application} {Instance}",
-                    ApplicationConstants.ApplicationName,
+                    ApplicationName,
                     _instanceId);
             }
 
@@ -193,12 +196,6 @@ namespace Arbor.AspNetCore.Host
             {
                 startupLogger.Fatal(ex, "Could not initialize configuration");
                 throw;
-            }
-
-            if (bool.TryParse(configuration[ConfigurationConstants.AllowPreReleaseEnabled], out bool preReleaseFlag) &&
-                preReleaseFlag)
-            {
-                Environment.SetEnvironmentVariable(ConfigurationConstants.AllowPreReleaseEnabled, "true");
             }
 
             startupLogger.Information("Configuration done using chain {Chain}",
@@ -325,14 +322,12 @@ namespace Arbor.AspNetCore.Host
         {
             if (commandLineArgs.Length > 0)
             {
-                appLogger.Debug("Application started with command line args, {Args}, {AppName}",
-                    commandLineArgs,
-                    ApplicationConstants.ApplicationName);
+                appLogger.Debug("Application started with command line args, {Args}",
+                    commandLineArgs);
             }
             else if (appLogger.IsEnabled(LogEventLevel.Verbose))
             {
-                appLogger.Verbose("Application started with no command line args, {AppName}",
-                    ApplicationConstants.ApplicationName);
+                appLogger.Verbose("Application started with no command line args");
             }
         }
 

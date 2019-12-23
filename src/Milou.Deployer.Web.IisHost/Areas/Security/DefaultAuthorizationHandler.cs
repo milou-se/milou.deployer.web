@@ -11,6 +11,7 @@ using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.HttpOverrides;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Network;
 using Milou.Deployer.Web.Core.Security;
@@ -39,12 +40,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
             _allowedEmailDomains = allowedEmailDomains.SafeToImmutableArray();
             _allowedEmails = allowedEmails.SafeToImmutableArray();
 
-            var ipAddressesFromConfig = keyValueConfiguration[ConfigurationConstants.AllowedIPs]
+            var ipAddressesFromConfig = keyValueConfiguration[DeployerAppConstants.AllowedIPs]
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(IPAddress.Parse)
                 .ToArray();
 
-            var ipNetworksFromConfig = keyValueConfiguration[ConfigurationConstants.AllowedIpNetworks]
+            var ipNetworksFromConfig = keyValueConfiguration[DeployerAppConstants.AllowedIpNetworks]
                 .Split(',', StringSplitOptions.RemoveEmptyEntries)
                 .Select(network => (HasValue: IpNetworkParser.TryParse(network, out var ipNetwork), ipNetwork))
                 .Where(network => network.HasValue)

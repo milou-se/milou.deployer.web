@@ -6,7 +6,7 @@ namespace Arbor.App.Extensions.IO
     [Optional]
     public class ApplicationPaths
     {
-        public const string Urn = "urn:milou:deployer:web:paths";
+        public const string Urn = "urn:arbor:app:web:paths";
 
         public string BasePath { get; set; }
 

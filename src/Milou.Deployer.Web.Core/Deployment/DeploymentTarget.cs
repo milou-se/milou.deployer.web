@@ -2,20 +2,18 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Arbor.App.Extensions;
-using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
-using Milou.Deployer.Web.Core.Deployment.Targets;
-using Milou.Deployer.Web.Core.Extensions;
+using Milou.Deployer.Web.Core.Configuration;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
     [Optional]
-    [Urn(ConfigurationConstants.DeployerTarget)]
+    [Urn(DeployerAppConstants.DeployerTarget)]
     public class DeploymentTarget
     {
         public static readonly DeploymentTarget None =
@@ -117,7 +115,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public bool AllowPreRelease
             =>
-                AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value
+                (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value)
                 || EnvironmentType.PreReleaseBehavior == PreReleaseBehavior.Allow;
 
         public EnvironmentType EnvironmentType { get; }

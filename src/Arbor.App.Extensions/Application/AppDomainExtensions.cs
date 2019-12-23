@@ -46,7 +46,7 @@ namespace Arbor.App.Extensions.Application
 
             ForceLoadReferenceAssemblies();
 
-            string[] allowedAssemblies = {assemblyNameStartsWith ?? "Milou.Deployer.Web"};
+            string[] allowedAssemblies = {assemblyNameStartsWith ?? ""};
 
             try
             {
@@ -56,7 +56,7 @@ namespace Arbor.App.Extensions.Application
 
                 var includedLibraries = defaultRuntimeLibraries
                     .Where(item =>
-                        allowedAssemblies.Any(
+                       allowedAssemblies.Any(
                             listed => item.Name.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
                     .ToArray();
 

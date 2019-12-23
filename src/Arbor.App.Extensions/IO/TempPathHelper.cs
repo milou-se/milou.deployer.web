@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Arbor.App.Extensions.Application;
 using Arbor.KVConfiguration.Core;
 using Serilog;
@@ -20,13 +21,13 @@ namespace Arbor.App.Extensions.IO
 
                     startupLogger.Debug("Using specified temp directory {TempDirectory} {AppName}",
                         tempDirectory,
-                        ApplicationConstants.ApplicationName);
+                        Assembly.GetExecutingAssembly().GetName().Name);
                 }
                 else
                 {
                     startupLogger.Warning("Could not use specified temp directory {TempDirectory}, {AppName}",
                         tempDirectory,
-                        ApplicationConstants.ApplicationName);
+                        Assembly.GetExecutingAssembly().GetName().Name);
                 }
             }
         }

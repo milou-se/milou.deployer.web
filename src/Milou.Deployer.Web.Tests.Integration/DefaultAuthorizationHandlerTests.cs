@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Core;
 using Microsoft.AspNetCore.Authorization;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Security;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Serilog.Core;
@@ -21,7 +22,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
-                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/24"
+                [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
             };
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
@@ -49,8 +50,8 @@ namespace Milou.Deployer.Web.Tests.Integration
             var logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
-                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/24",
-                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/16"
+                [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24",
+                [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/16"
             };
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
@@ -78,7 +79,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
-                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/24"
+                [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
             };
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 
@@ -106,7 +107,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             var logger = Logger.None;
             var nameValueCollection = new NameValueCollection
             {
-                [ConfigurationConstants.AllowedIpNetworks] = "192.168.0.0/24"
+                [DeployerAppConstants.AllowedIpNetworks] = "192.168.0.0/24"
             };
             var configuration = new InMemoryKeyValueConfiguration(nameValueCollection);
 

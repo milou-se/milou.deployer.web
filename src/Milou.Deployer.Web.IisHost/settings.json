@@ -1,21 +1,6 @@
 {
     "version": "1.0",
     "keys": [
-        {
-            "key": "urn:milou:deployer:web:target-source:json:default:source-file",
-            "value": ""
-        },
-        {
-            "key": "urn:milou:deployer:authorization:allowed-ips",
-            "value": ""
-        },
-        {
-            "key": "urn:milou:deployer:web:email:configuration:default:emailEnabled",
-            "value": false
-        },
-        {
-            "key": "urn:milou:deployer:web:configuration:treat-warnings-as-errors",
-            "value": true
-        }
+
     ]
 }

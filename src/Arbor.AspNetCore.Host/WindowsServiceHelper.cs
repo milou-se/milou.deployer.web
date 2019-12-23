@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 
 namespace Arbor.AspNetCore.Host
@@ -19,24 +19,25 @@ namespace Arbor.AspNetCore.Host
                 return true;
             }
 
-            FileInfo processFileInfo;
-            using (var currentProcess = Process.GetCurrentProcess())
+            try
             {
-                if (currentProcess.MainModule is null)
+                using (var currentProcess = Process.GetCurrentProcess())
                 {
-                    throw new InvalidOperationException("The main module for the current process could not be found");
+                    if (currentProcess.MainModule is null)
+                    {
+                        throw new InvalidOperationException(
+                            "The main module for the current process could not be found");
+                    }
+
+                    return currentProcess.StartInfo.ArgumentList.Contains(ApplicationConstants.RunAsService,
+                        StringComparer.OrdinalIgnoreCase);
                 }
-
-                processFileInfo = new FileInfo(currentProcess.MainModule.FileName);
             }
-
-            if (processFileInfo.Name.Equals("Milou.Deployer.Web.WindowsService.exe",
-                StringComparison.OrdinalIgnoreCase))
+            catch (Exception ex) when (!ex.IsFatal())
             {
-                return true;
             }
 
-            return false;
+            return !Environment.UserInteractive;
         }
     }
 }

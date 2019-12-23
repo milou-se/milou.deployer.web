@@ -9,6 +9,7 @@ using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.Core.Startup;
@@ -47,7 +48,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
             _logger.Debug("Ensuring nuget.exe exists");
 
-            if (!int.TryParse(_configuration[ConfigurationConstants.NuGetDownloadTimeoutInSeconds],
+            if (!int.TryParse(_configuration[DeployerAppConstants.NuGetDownloadTimeoutInSeconds],
                     out var initialNuGetDownloadTimeoutInSeconds) || initialNuGetDownloadTimeoutInSeconds <= 0)
             {
                 initialNuGetDownloadTimeoutInSeconds = 100;
@@ -59,7 +60,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
                 using (var cts = _timeoutHelper.CreateCancellationTokenSource(fromSeconds))
                 {
-                    var downloadDirectory = _configuration[ConfigurationConstants.NuGetExeDirectory].WithDefault(null);
+                    var downloadDirectory = _configuration[DeployerAppConstants.NuGetExeDirectory].WithDefault(null);
 
                     var httpClient = _httpClientFactory.CreateClient();
 
