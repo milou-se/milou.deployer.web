@@ -3,9 +3,8 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Arbor.KVConfiguration.Urns;
-using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.Core.Configuration
+namespace Arbor.App.Extensions.Configuration
 {
     public static class UrnTypes
     {

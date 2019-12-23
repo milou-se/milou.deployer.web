@@ -1,4 +1,4 @@
-namespace Milou.Deployer.Web.IisHost.Areas.Logging
+namespace Milou.Deployer.Web.Core.Json
 {
     public static class LoggingConstants
     {

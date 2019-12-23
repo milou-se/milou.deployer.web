@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Arbor.App.Extensions;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
+namespace Arbor.AspNetCore.Host.Hosting
 {
     public class ServiceDiagnostics
     {

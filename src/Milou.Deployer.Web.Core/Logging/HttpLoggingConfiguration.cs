@@ -1,7 +1,7 @@
+using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Core.Metadata;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Core.Logging
 {

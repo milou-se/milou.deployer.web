@@ -1,6 +1,6 @@
-﻿using Milou.Deployer.Web.Core.Application;
+﻿using Arbor.App.Extensions.Application;
 
-namespace Milou.Deployer.Web.Core.Configuration
+namespace Arbor.App.Extensions.Configuration
 {
     public interface IConfigureEnvironment
     {

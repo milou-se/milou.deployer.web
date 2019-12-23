@@ -7,22 +7,22 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.IO;
 using Arbor.Processing;
 using JetBrains.Annotations;
 using Milou.Deployer.Bootstrapper.Common;
-using Milou.Deployer.Core;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Core.Logging;
 using Milou.Deployer.Web.Core.Credentials;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
-using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.IO;
 using Newtonsoft.Json;
 using Serilog;
 using Serilog.Core;
 
-namespace Milou.Deployer.Web.Core.Deployment
+namespace Milou.Deployer.Web.Agent
 {
     [UsedImplicitly]
     public class MilouDeployer

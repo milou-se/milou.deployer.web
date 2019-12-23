@@ -1,5 +1,5 @@
 ﻿using System;
-using Milou.Deployer.Web.Core.Time;
+using Arbor.App.Extensions.Time;
 using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.Core.Json

@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Arbor.AspNetCore.Host.Hosting
 {
     public class ServiceProviderHolder
     {

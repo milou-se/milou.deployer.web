@@ -1,9 +1,8 @@
 ﻿using System;
 using System.IO;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.Core.IO
+namespace Arbor.App.Extensions.IO
 {
     public static class DirectoryExtensions
     {

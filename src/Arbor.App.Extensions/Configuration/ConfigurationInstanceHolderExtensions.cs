@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Arbor.KVConfiguration.Urns;
 
-namespace Milou.Deployer.Web.Core.Configuration
+namespace Arbor.App.Extensions.Configuration
 {
     public static class ConfigurationInstanceHolderExtensions
     {

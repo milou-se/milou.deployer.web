@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Milou.Deployer.Web.Core.DependencyInjection
+namespace Arbor.App.Extensions.DependencyInjection
 {
     public static class CustomServiceCollectionExtensions
     {

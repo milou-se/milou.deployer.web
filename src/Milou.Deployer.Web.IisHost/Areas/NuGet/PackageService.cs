@@ -6,7 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 
@@ -14,7 +15,6 @@ using JetBrains.Annotations;
 
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Caching;
-using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.NuGet;

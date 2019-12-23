@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Reflection;
 
-namespace Milou.Deployer.Web.Core.Application
+namespace Arbor.App.Extensions.Application
 {
     public static class ApplicationAssemblies
     {

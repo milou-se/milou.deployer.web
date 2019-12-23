@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Logging;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core.Deployment.Messages;

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.Application;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns;
 using Microsoft.AspNetCore.Hosting;
@@ -10,15 +12,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Logging;
-using Milou.Deployer.Web.IisHost.Areas.Application;
-using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog.Extensions.Logging;
 using ILogger = Serilog.ILogger;
 
-namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
+namespace Arbor.AspNetCore.Host.Hosting
 {
     public static class CustomWebHostBuilder<T> where T : class
     {

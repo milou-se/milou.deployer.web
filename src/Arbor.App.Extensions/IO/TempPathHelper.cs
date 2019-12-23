@@ -1,10 +1,9 @@
 ﻿using System;
+using Arbor.App.Extensions.Application;
 using Arbor.KVConfiguration.Core;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.IO;
 using Serilog;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Arbor.App.Extensions.IO
 {
     public static class TempPathHelper
     {

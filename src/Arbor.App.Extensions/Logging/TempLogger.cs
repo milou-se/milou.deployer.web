@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using Serilog;
 
-namespace Milou.Deployer.Web.Core.Logging
+namespace Arbor.App.Extensions.Logging
 {
     public static class TempLogger
     {

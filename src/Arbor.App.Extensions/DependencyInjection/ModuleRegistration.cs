@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Events;
 
-namespace Milou.Deployer.Web.Core.DependencyInjection
+namespace Arbor.App.Extensions.DependencyInjection
 {
     public static class ModuleRegistration
     {

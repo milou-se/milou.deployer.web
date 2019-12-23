@@ -1,7 +1,7 @@
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Core.Configuration
+namespace Arbor.App.Extensions.Configuration
 {
     [Optional]
     [Urn(RegistrationConstants.ExcludedType)]

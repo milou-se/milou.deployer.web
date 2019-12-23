@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.WindowsServices;
 
-namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
+namespace Arbor.AspNetCore.Host.Hosting
 {
     public class CustomWebHostService : WebHostService
     {

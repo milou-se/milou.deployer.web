@@ -1,6 +1,7 @@
 ﻿using System;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.Configuration;
 using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {

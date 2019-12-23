@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Milou.Deployer.Web.Core.Configuration
+namespace Arbor.App.Extensions.Configuration
 {
     [AttributeUsage(AttributeTargets.Class)]
     public sealed class RegistrationOrderAttribute : Attribute

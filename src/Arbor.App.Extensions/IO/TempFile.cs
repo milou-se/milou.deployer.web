@@ -1,8 +1,7 @@
 ﻿using System;
 using System.IO;
-using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.Core.IO
+namespace Arbor.App.Extensions.IO
 {
     public sealed class TempFile : IDisposable
     {

@@ -2,9 +2,8 @@ using System;
 using System.Linq;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.Core.Time
+namespace Arbor.App.Extensions.Time
 {
     [UsedImplicitly]
     public class CustomSystemClock : ICustomClock

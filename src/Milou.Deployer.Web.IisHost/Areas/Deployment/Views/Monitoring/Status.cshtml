@@ -1,5 +1,6 @@
-﻿@using Milou.Deployer.Core.Deployment
-@using Milou.Deployer.Web.Core.Time
+﻿@using Arbor.App.Extensions
+@using Arbor.App.Extensions.Time
+@using Milou.Deployer.Core.Deployment
 @using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 @using DeploymentConstants = Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers.DeploymentConstants
 @model Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels.MonitoringViewOutputModel
@@ -56,7 +57,7 @@
                     {{target.environmentType}}
                 <td>
                     <span v-if="target.metadataUrl"><a v-bind:href="target.metadataUrl">Metadata</a></span>
-                    <span v-else>@Milou.Deployer.Web.Core.Constants.NotAvailable</span>
+                    <span v-else>@Constants.NotAvailable</span>
                 </td>
                 <td>
                     <div v-if="target.deployEnabled">

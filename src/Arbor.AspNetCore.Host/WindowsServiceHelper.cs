@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Milou.Deployer.Web.Core.Application;
+using Arbor.App.Extensions.Application;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Arbor.AspNetCore.Host
 {
     public static class WindowsServiceHelper
     {

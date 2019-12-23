@@ -1,4 +1,4 @@
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Arbor.App.Extensions.Application
 {
     internal static class TempConstants
     {

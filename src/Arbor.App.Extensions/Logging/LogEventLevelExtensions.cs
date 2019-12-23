@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
-using Milou.Deployer.Web.Core.Extensions;
-using Serilog.Events;
+﻿using Serilog.Events;
 
-namespace Milou.Deployer.Web.Core.Logging
+namespace Arbor.App.Extensions.Logging
 {
     public static class LogEventLevelExtensions
     {

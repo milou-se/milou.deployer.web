@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Arbor.App.Extensions.Configuration;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Configuration;
 
-namespace Milou.Deployer.Web.Core.Extensions
+namespace Arbor.App.Extensions
 {
     [PublicAPI]
     public static class TypeExtensions

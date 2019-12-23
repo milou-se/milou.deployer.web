@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http.Features;
 
-namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
+namespace Arbor.AspNetCore.Host.Hosting
 {
     public sealed class WebHostWrapper : IWebHost
     {

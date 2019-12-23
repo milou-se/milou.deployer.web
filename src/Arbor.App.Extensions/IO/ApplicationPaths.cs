@@ -1,6 +1,6 @@
 ﻿using Arbor.KVConfiguration.Urns;
 
-namespace Milou.Deployer.Web.Core.IO
+namespace Arbor.App.Extensions.IO
 {
     [Urn(Urn)]
     [Optional]

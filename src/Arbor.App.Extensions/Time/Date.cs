@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 
-namespace Milou.Deployer.Web.Core.Time
+namespace Arbor.App.Extensions.Time
 {
     public readonly struct Date : IEquatable<Date>, IComparable<Date>
     {

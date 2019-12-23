@@ -1,6 +1,6 @@
 using Arbor.KVConfiguration.Core;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Configuration
+namespace Arbor.AspNetCore.Host.Configuration
 {
     public static class AppSettingsBuilderExtensions
     {

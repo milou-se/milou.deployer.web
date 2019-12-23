@@ -1,4 +1,4 @@
-﻿namespace NexusWebHook
+﻿namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 {
     public class Attributes
     {

@@ -2,7 +2,7 @@
 using System.Globalization;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Core.Time
+namespace Arbor.App.Extensions.Time
 {
     public static class DateTimeExtensions
     {

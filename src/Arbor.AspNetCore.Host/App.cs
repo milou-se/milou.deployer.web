@@ -6,26 +6,25 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.DependencyInjection;
+using Arbor.App.Extensions.IO;
+using Arbor.App.Extensions.Logging;
+using Arbor.AspNetCore.Host.Application;
+using Arbor.AspNetCore.Host.Configuration;
+using Arbor.AspNetCore.Host.Hosting;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.DependencyInjection;
-using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.IO;
-using Milou.Deployer.Web.Core.Logging;
-using Milou.Deployer.Web.IisHost.Areas.Configuration;
-using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
-using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
-using System.Linq;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Arbor.AspNetCore.Host
 {
     [UsedImplicitly]
     public sealed class App<T> : IDisposable where T : class

@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace Milou.Deployer.Web.Core.Extensions
+namespace Arbor.App.Extensions
 {
     public static class ExceptionExtensions
     {

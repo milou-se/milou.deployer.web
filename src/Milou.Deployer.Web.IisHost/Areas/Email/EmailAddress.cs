@@ -1,6 +1,6 @@
 ﻿using System;
+using Arbor.App.Extensions.Validation;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Validation;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Email
 {

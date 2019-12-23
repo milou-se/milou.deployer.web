@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core;

@@ -1,7 +1,7 @@
 ﻿using System.ServiceProcess;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
+namespace Arbor.AspNetCore.Host.Hosting
 {
     public static class CustomWebHostExtensions
     {

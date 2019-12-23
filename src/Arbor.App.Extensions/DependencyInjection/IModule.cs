@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Milou.Deployer.Web.Core.DependencyInjection
+namespace Arbor.App.Extensions.DependencyInjection
 {
     public interface IModule
     {

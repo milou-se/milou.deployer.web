@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Arbor.App.Extensions;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
 using Xunit;

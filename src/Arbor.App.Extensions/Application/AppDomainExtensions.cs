@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Arbor.App.Extensions.Logging;
+using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyModel;
-using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Logging;
-using Milou.Deployer.Web.Core.Time;
 using Serilog;
 using Serilog.Core;
 
-namespace Milou.Deployer.Web.Core.Application
+namespace Arbor.App.Extensions.Application
 {
     public static class AppDomainExtensions
     {

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Extensions;
-using Milou.Deployer.Web.Core.Time;
 using Serilog;
-using EnumerableExtensions = Milou.Deployer.Web.Core.Extensions.EnumerableExtensions;
+using EnumerableExtensions = Arbor.App.Extensions.EnumerableExtensions;
 
 namespace Milou.Deployer.Web.Core.Health
 {

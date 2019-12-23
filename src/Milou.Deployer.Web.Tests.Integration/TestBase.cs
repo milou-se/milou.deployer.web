@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
+using Arbor.App.Extensions.Configuration;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Configuration;
 using Xunit;
 using Xunit.Abstractions;
 

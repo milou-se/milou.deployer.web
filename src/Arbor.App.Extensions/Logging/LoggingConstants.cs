@@ -1,7 +1,7 @@
 ﻿using Arbor.KVConfiguration.Core.Metadata;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Core.Logging
+namespace Arbor.App.Extensions.Logging
 {
     public static class LoggingConstants
     {

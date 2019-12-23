@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Application;
 using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Cookies;

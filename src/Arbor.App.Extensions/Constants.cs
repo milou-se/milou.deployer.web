@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Web.Core
+﻿namespace Arbor.App.Extensions
 {
     public static class Constants
     {

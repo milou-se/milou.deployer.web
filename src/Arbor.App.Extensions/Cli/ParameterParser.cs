@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Core.Cli
+namespace Arbor.App.Extensions.Cli
 {
     public static class ParameterParser
     {

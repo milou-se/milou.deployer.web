@@ -1,11 +1,8 @@
 ﻿using System.Collections.Generic;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 
-using Milou.Deployer.Web.IisHost.Areas.Application;
-
-namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
+namespace Arbor.AspNetCore.Host.Hosting
 {
     public class ConfigurationWrapper : IConfigurationRoot
     {

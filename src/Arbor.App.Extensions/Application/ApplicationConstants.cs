@@ -1,6 +1,6 @@
 ﻿using Arbor.KVConfiguration.Core.Metadata;
 
-namespace Milou.Deployer.Web.Core.Application
+namespace Arbor.App.Extensions.Application
 {
     public static class ApplicationConstants
     {

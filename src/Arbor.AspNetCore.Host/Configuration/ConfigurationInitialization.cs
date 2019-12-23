@@ -4,16 +4,16 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.Cli;
+using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Decorators;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.UserConfiguration;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Cli;
-using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Configuration
+namespace Arbor.AspNetCore.Host.Configuration
 {
     public static class ConfigurationInitialization
     {

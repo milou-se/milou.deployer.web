@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Arbor.App.Extensions;
 using Milou.Deployer.Web.Core;
 using Xunit;
 using Xunit.Abstractions;

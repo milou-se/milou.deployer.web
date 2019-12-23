@@ -1,10 +1,10 @@
 ﻿using System;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Configuration;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Arbor.AspNetCore.Host.Application
 {
     public static class EnvironmentConfigurator
     {

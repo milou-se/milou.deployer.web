@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core

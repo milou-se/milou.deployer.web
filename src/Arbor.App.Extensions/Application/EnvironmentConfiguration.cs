@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Net;
+using Arbor.App.Extensions.Configuration;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.Core.Application
+namespace Arbor.App.Extensions.Application
 {
     public class EnvironmentConfiguration : IConfigurationValues
     {

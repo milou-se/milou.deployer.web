@@ -1,8 +1,9 @@
 using System;
 using System.Threading;
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Configuration;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Credentials

@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.IO;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.IO;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 
-namespace Milou.Deployer.Web.Core.Logging
+namespace Arbor.App.Extensions.Logging
 {
     public static class SerilogApiInitialization
     {

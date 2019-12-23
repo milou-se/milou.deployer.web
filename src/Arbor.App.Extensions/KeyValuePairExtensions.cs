@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Milou.Deployer.Web.Core.Extensions
+namespace Arbor.App.Extensions
 {
     public static class KeyValuePairExtensions
     {

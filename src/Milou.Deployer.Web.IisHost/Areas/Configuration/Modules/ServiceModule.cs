@@ -1,11 +1,11 @@
-﻿using Arbor.KVConfiguration.Core;
+﻿using Arbor.App.Extensions.DependencyInjection;
+using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Core.NuGet;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Credentials;
-using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;

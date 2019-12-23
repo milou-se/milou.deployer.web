@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.DependencyInjection;
 using Baseline;
 using JetBrains.Annotations;
 using MediatR;
 using MediatR.Pipeline;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core

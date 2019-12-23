@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
-using Milou.Deployer.Web.Core.Configuration;
+using Arbor.App.Extensions.Configuration;
 using Milou.Deployer.Web.IisHost;
 using Xunit;
 using Xunit.Abstractions;

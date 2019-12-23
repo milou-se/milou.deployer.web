@@ -5,7 +5,7 @@ using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Core.Extensions
+namespace Arbor.App.Extensions
 {
     [PublicAPI]
     public static class ApplicationStringExtensions

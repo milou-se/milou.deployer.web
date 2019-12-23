@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Arbor.AspNetCore.Host.Hosting;
 using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers;
-using Milou.Deployer.Web.IisHost.AspNetCore.Hosting;
 using Serilog.Events;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings

@@ -5,11 +5,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Configuration;
 using Milou.Deployer.Web.Core;
-using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Tests.Integration.TestData;
 using Xunit.Abstractions;
 

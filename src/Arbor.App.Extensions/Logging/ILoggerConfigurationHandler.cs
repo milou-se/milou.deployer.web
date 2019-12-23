@@ -1,6 +1,6 @@
 ﻿using Serilog;
 
-namespace Milou.Deployer.Web.Core.Logging
+namespace Arbor.App.Extensions.Logging
 {
     public interface ILoggerConfigurationHandler
     {

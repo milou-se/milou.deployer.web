@@ -1,8 +1,8 @@
-﻿using JetBrains.Annotations;
+﻿using Arbor.App.Extensions.DependencyInjection;
+using Arbor.App.Extensions.Time;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Deployment.Sources;
-using Milou.Deployer.Web.Core.Time;
 using Serilog;
 
 namespace Milou.Deployer.Web.Tests.Integration

@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Arbor.App.Extensions;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Marten;

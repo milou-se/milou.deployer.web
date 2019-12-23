@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Web.Core.Validation
+﻿namespace Arbor.App.Extensions.Validation
 {
     public interface IValidationObject
     {

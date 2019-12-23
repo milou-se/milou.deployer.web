@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Web.Core.Time
+﻿namespace Arbor.App.Extensions.Time
 {
     public class TimeoutConfiguration
     {

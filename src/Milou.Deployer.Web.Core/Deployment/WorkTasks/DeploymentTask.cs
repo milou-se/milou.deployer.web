@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Arbor.App.Extensions.IO;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment.Packages;
-using Milou.Deployer.Web.Core.IO;
 using NuGet.Versioning;
 
 namespace Milou.Deployer.Web.Core.Deployment.WorkTasks

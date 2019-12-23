@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Milou.Deployer.Web.Core.IO;
-using Milou.Deployer.Web.Core.Logging;
+using Arbor.App.Extensions.IO;
+using Arbor.App.Extensions.Logging;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Application
+namespace Arbor.AspNetCore.Host.Application
 {
     public static class AppPathHelper
     {

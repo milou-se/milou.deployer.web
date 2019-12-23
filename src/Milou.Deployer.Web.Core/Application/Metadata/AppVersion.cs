@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using NuGet.Versioning;

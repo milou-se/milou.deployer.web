@@ -1,7 +1,7 @@
 ﻿using System;
+using Arbor.App.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.DependencyInjection;
 using Serilog;
 
 namespace Milou.Deployer.Web.Core.Logging

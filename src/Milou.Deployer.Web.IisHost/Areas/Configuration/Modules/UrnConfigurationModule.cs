@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.DependencyInjection;
+using Arbor.App.Extensions.Validation;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.DependencyInjection;
 using Milou.Deployer.Web.Core.Extensions;
-using Milou.Deployer.Web.Core.Validation;
 using Serilog;
-using UrnTypes = Milou.Deployer.Web.Core.Configuration.UrnTypes;
+using UrnTypes = Arbor.App.Extensions.Configuration.UrnTypes;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 {

@@ -1,6 +1,4 @@
-﻿using NexusWebHook;
-
-namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
+﻿namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 {
     public class Audit
     {

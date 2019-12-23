@@ -3,13 +3,13 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Net;
+using Arbor.App.Extensions;
+using Arbor.App.Extensions.Application;
+using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Extensions;
 
-namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
+namespace Arbor.AspNetCore.Host.Application
 {
     [UsedImplicitly]
     public class ApplicationEnvironmentConfigurator : IConfigureEnvironment

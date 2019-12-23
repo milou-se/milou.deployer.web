@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Core.Extensions
+namespace Arbor.App.Extensions
 {
     public static class UrlExtensions
     {

@@ -1,8 +1,8 @@
 ﻿using System;
+using Arbor.App.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.DependencyInjection;
 
-namespace Milou.Deployer.Web.IisHost.AspNetCore.Hosting
+namespace Arbor.AspNetCore.Host.Hosting
 {
     public class ServiceRegistrationInfo
     {

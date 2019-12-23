@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Milou.Deployer.Web.Core.Extensions
+namespace Arbor.App.Extensions
 {
     public static class HexStringExtensions
     {

@@ -1,4 +1,4 @@
-namespace Milou.Deployer.Web.Core.Extensions
+namespace Arbor.App.Extensions
 {
     internal static class CharExtensions
     {

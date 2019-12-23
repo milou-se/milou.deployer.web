@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text;
 using System.Threading.Tasks;
+using Arbor.App.Extensions.Configuration;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Milou.Deployer.Web.Core;
-using Milou.Deployer.Web.Core.Configuration;
 
 namespace Milou.Deployer.Web.IisHost.Areas.ErrorHandling
 {
