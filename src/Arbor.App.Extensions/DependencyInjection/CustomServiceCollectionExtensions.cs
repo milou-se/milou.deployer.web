@@ -9,10 +9,8 @@ namespace Arbor.App.Extensions.DependencyInjection
         public static IServiceCollection AddSingleton(
             this IServiceCollection serviceCollection,
             Type implementationType,
-            IModule module)
-        {
-            return serviceCollection.AddSingleton(implementationType, implementationType, module);
-        }
+            IModule module) =>
+            serviceCollection.AddSingleton(implementationType, implementationType, module);
 
         public static IServiceCollection AddSingleton(
             this IServiceCollection serviceCollection,
@@ -33,7 +31,8 @@ namespace Arbor.App.Extensions.DependencyInjection
             TRegistrationType implementation,
             IModule module)
         {
-            serviceCollection.Add(new ExtendedServiceDescriptor(typeof(TRegistrationType), implementation, module.GetType()));
+            serviceCollection.Add(new ExtendedServiceDescriptor(typeof(TRegistrationType), implementation,
+                module.GetType()));
 
             return serviceCollection;
         }
@@ -43,9 +42,13 @@ namespace Arbor.App.Extensions.DependencyInjection
             Func<IServiceProvider, TRegistrationType> resolver,
             IModule module)
         {
-            object ObjectResolver(IServiceProvider provider) => resolver.Invoke(provider);
+            object ObjectResolver(IServiceProvider provider)
+            {
+                return resolver.Invoke(provider);
+            }
 
-            serviceCollection.Add(new ExtendedServiceDescriptor(typeof(TRegistrationType), ObjectResolver, ServiceLifetime.Singleton, module.GetType()));
+            serviceCollection.Add(new ExtendedServiceDescriptor(typeof(TRegistrationType), ObjectResolver,
+                ServiceLifetime.Singleton, module.GetType()));
 
             return serviceCollection;
         }
@@ -76,19 +79,15 @@ namespace Arbor.App.Extensions.DependencyInjection
 
         public static IServiceCollection AddSingleton<T>(
             this IServiceCollection serviceCollection,
-            IModule module)
-        {
-            return serviceCollection.AddSingleton<T, T>(module);
-        }
+            IModule module) =>
+            serviceCollection.AddSingleton<T, T>(module);
 
         public static IServiceCollection Add(
             this IServiceCollection serviceCollection,
             Type implementationType,
             ServiceLifetime serviceLifetime,
-            IModule module)
-        {
-            return serviceCollection.Add(implementationType, implementationType, serviceLifetime, module);
-        }
+            IModule module) =>
+            serviceCollection.Add(implementationType, implementationType, serviceLifetime, module);
 
         public static IServiceCollection Add(
             this IServiceCollection serviceCollection,
@@ -137,10 +136,8 @@ namespace Arbor.App.Extensions.DependencyInjection
             this IServiceCollection serviceCollection,
             Type registrationType,
             Func<IServiceProvider, object> resolver,
-            IModule module)
-        {
-            return serviceCollection.Add(registrationType, resolver, ServiceLifetime.Singleton, module);
-        }
+            IModule module) =>
+            serviceCollection.Add(registrationType, resolver, ServiceLifetime.Singleton, module);
 
         public static IServiceCollection AddSingleton<TRegistrationType>(
             this IServiceCollection serviceCollection,
@@ -185,9 +182,7 @@ namespace Arbor.App.Extensions.DependencyInjection
         public static IServiceCollection Add<T>(
             this IServiceCollection serviceCollection,
             ServiceLifetime serviceLifetime,
-            IModule module)
-        {
-            return serviceCollection.Add<T, T>(serviceLifetime, module);
-        }
+            IModule module) =>
+            serviceCollection.Add<T, T>(serviceLifetime, module);
     }
 }

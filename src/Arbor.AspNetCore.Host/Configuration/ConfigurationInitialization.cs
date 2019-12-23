@@ -17,7 +17,8 @@ namespace Arbor.AspNetCore.Host.Configuration
 {
     public static class ConfigurationInitialization
     {
-        public static MultiSourceKeyValueConfiguration InitializeStartupConfiguration(IReadOnlyList<string> args, IReadOnlyDictionary<string, string> environmentVariables, IReadOnlyCollection<Assembly> assemblies)
+        public static MultiSourceKeyValueConfiguration InitializeStartupConfiguration(IReadOnlyList<string> args,
+            IReadOnlyDictionary<string, string> environmentVariables, IReadOnlyCollection<Assembly> assemblies)
         {
             var multiSourceKeyValueConfiguration = KeyValueConfigurationManager
                 .Add(NoConfiguration.Empty)
@@ -44,9 +45,9 @@ namespace Arbor.AspNetCore.Host.Configuration
         {
             var loggingSettings = new NameValueCollection
             {
-                { "Logging:LogLevel:Default", "Warning" },
-                { "Logging:LogLevel:System.Net.Http.HttpClient", "Warning" },
-                { "LogLevel:System.Net.Http.HttpClient", "Warning" }
+                {"Logging:LogLevel:Default", "Warning"},
+                {"Logging:LogLevel:System.Net.Http.HttpClient", "Warning"},
+                {"LogLevel:System.Net.Http.HttpClient", "Warning"}
             };
 
             var memoryKeyValueConfiguration = new InMemoryKeyValueConfiguration(loggingSettings);
@@ -77,8 +78,8 @@ namespace Arbor.AspNetCore.Host.Configuration
             IReadOnlyList<string> args,
             IReadOnlyDictionary<string, string> environmentVariables)
         {
-            var settingsPath = args?.ParseParameter(ConfigurationConstants.JsonSettingsFile)
-                               ?? environmentVariables.ValueOrDefault(ConfigurationConstants.JsonSettingsFile);
+            string settingsPath = args?.ParseParameter(ConfigurationConstants.JsonSettingsFile)
+                                  ?? environmentVariables.ValueOrDefault(ConfigurationConstants.JsonSettingsFile);
 
             if (settingsPath.HasValue() && File.Exists(settingsPath))
             {
@@ -142,7 +143,7 @@ namespace Arbor.AspNetCore.Host.Configuration
 
             const char variableAssignmentCharacter = '=';
 
-            foreach (var arg in args.Where(a =>
+            foreach (string arg in args.Where(a =>
                 a.Count(c => c == variableAssignmentCharacter) == 1 && a.Length >= 3))
             {
                 var parts = arg.Split(variableAssignmentCharacter, StringSplitOptions.RemoveEmptyEntries);
@@ -152,8 +153,8 @@ namespace Arbor.AspNetCore.Host.Configuration
                     continue;
                 }
 
-                var key = parts[0];
-                var value = parts[1];
+                string key = parts[0];
+                string value = parts[1];
 
                 nameValueCollection.Add(key, value);
             }
@@ -175,9 +176,9 @@ namespace Arbor.AspNetCore.Host.Configuration
                 return appSettingsBuilder;
             }
 
-            var environmentName = args?.ParseParameter(ApplicationConstants.AspNetEnvironment)
-                                  ?? environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
-                                  ?? ApplicationConstants.EnvironmentProduction;
+            string environmentName = args?.ParseParameter(ApplicationConstants.AspNetEnvironment)
+                                     ?? environmentVariables.ValueOrDefault(ApplicationConstants.AspNetEnvironment)
+                                     ?? ApplicationConstants.EnvironmentProduction;
 
             return appSettingsBuilder.Add(new JsonKeyValueConfiguration(basePath("settings.json"), false))
                 .Add(new JsonKeyValueConfiguration(basePath($"settings.{environmentName}.json"), false));
@@ -222,7 +223,7 @@ namespace Arbor.AspNetCore.Host.Configuration
                 return machineSpecificConfig?.FullName;
             }
 
-            var machineSpecificFile = MachineSpecificFile();
+            string machineSpecificFile = MachineSpecificFile();
 
             if (!string.IsNullOrWhiteSpace(machineSpecificFile))
             {

@@ -65,6 +65,60 @@ namespace Arbor.AspNetCore.Host
 
         public IWebHost WebHost { get; private set; }
 
+        public void Dispose()
+        {
+            if (_disposed || _disposing)
+            {
+                return;
+            }
+
+            if (!_disposing)
+            {
+                Stop();
+                _disposing = true;
+            }
+
+            Logger?.Debug("Disposing application {Application} {Instance}",
+                ApplicationConstants.ApplicationName,
+                _instanceId);
+            Logger?.Verbose("Disposing web host {Application} {Instance}",
+                ApplicationConstants.ApplicationName,
+                _instanceId);
+            WebHost?.SafeDispose();
+            Logger?.Verbose("Disposing Application root scope {Application} {Instance}",
+                ApplicationConstants.ApplicationName,
+                _instanceId);
+            Logger?.Verbose("Disposing configuration {Application} {Instance}",
+                ApplicationConstants.ApplicationName,
+                _instanceId);
+            Configuration?.SafeDispose();
+
+            Logger?.Debug("Application disposal complete, disposing logging {Application} {Instance}",
+                ApplicationConstants.ApplicationName,
+                _instanceId);
+
+            if (Logger is IDisposable disposable)
+            {
+                Logger?.Verbose("Disposing Logger {Application} {Instance}",
+                    ApplicationConstants.ApplicationName,
+                    _instanceId);
+                disposable.SafeDispose();
+            }
+            else
+            {
+                Logger?.Debug("Logger is not disposable {Application} {Instance}",
+                    ApplicationConstants.ApplicationName,
+                    _instanceId);
+            }
+
+            Configuration = null;
+            Logger = null;
+            WebHost = null;
+            HostBuilder = null;
+            _disposed = true;
+            _disposing = false;
+        }
+
         private static Task<App<T>> BuildAppAsync(
             CancellationTokenSource cancellationTokenSource,
             string[] commandLineArgs,
@@ -73,7 +127,9 @@ namespace Arbor.AspNetCore.Host
         {
             var scanAssemblies = ApplicationAssemblies.FilteredAssemblies().ToArray();
 
-            MultiSourceKeyValueConfiguration startupConfiguration = ConfigurationInitialization.InitializeStartupConfiguration(commandLineArgs, environmentVariables, scanAssemblies);
+            MultiSourceKeyValueConfiguration startupConfiguration =
+                ConfigurationInitialization.InitializeStartupConfiguration(commandLineArgs, environmentVariables,
+                    scanAssemblies);
 
             ConfigurationRegistrations startupRegistrations = startupConfiguration.ScanRegistrations(scanAssemblies);
 
@@ -85,14 +141,15 @@ namespace Arbor.AspNetCore.Host
                     .SelectMany(registrationErrors => registrationErrors.ConfigurationRegistrationErrors)
                     .Select(registrationError => registrationError.ErrorMessage);
 
-                throw new InvalidOperationException($"Error {string.Join(Environment.NewLine, errors)}"); // review exception
+                throw new InvalidOperationException(
+                    $"Error {string.Join(Environment.NewLine, errors)}"); // review exception
             }
 
             ConfigurationInstanceHolder configurationInstanceHolder = startupRegistrations.CreateHolder();
 
             configurationInstanceHolder.AddInstance(configurationInstanceHolder);
 
-            foreach (object instance in instances.Where(i => i is object))
+            foreach (object instance in instances.Where(i => i is {}))
             {
                 configurationInstanceHolder.AddInstance(instance);
             }
@@ -101,7 +158,9 @@ namespace Arbor.AspNetCore.Host
             configurationInstanceHolder.AddInstance(loggingLevelSwitch);
             configurationInstanceHolder.AddInstance(cancellationTokenSource);
 
-            ApplicationPaths paths = configurationInstanceHolder.GetInstances<ApplicationPaths>().SingleOrDefault().Value ?? new ApplicationPaths();
+            ApplicationPaths paths =
+                configurationInstanceHolder.GetInstances<ApplicationPaths>().SingleOrDefault().Value ??
+                new ApplicationPaths();
 
             AppPathHelper.SetApplicationPaths(paths, commandLineArgs);
 
@@ -121,7 +180,8 @@ namespace Arbor.AspNetCore.Host
             try
             {
                 configuration =
-                    ConfigurationInitialization.InitializeConfiguration(file => GetBaseDirectoryFile(paths.BasePath, file),
+                    ConfigurationInitialization.InitializeConfiguration(
+                        file => GetBaseDirectoryFile(paths.BasePath, file),
                         paths.ContentBasePath,
                         scanAssemblies,
                         commandLineArgs,
@@ -276,7 +336,8 @@ namespace Arbor.AspNetCore.Host
             }
         }
 
-        private static void SetLoggingLevelSwitch(LoggingLevelSwitch loggingLevelSwitch, MultiSourceKeyValueConfiguration configuration)
+        private static void SetLoggingLevelSwitch(LoggingLevelSwitch loggingLevelSwitch,
+            MultiSourceKeyValueConfiguration configuration)
         {
             var defaultLevel = configuration[ConfigurationConstants.LogLevel]
                 .ParseOrDefault(loggingLevelSwitch.MinimumLevel);
@@ -297,7 +358,7 @@ namespace Arbor.AspNetCore.Host
             var modules = moduleTypes
                 .Select(moduleType =>
                     holder.Create(moduleType) as IModule)
-                .Where(instance => instance is object)
+                .Where(instance => instance is {})
                 .ToImmutableArray();
 
             return modules;
@@ -407,60 +468,6 @@ namespace Arbor.AspNetCore.Host
             }
 
             return 0;
-        }
-
-        public void Dispose()
-        {
-            if (_disposed || _disposing)
-            {
-                return;
-            }
-
-            if (!_disposing)
-            {
-                Stop();
-                _disposing = true;
-            }
-
-            Logger?.Debug("Disposing application {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
-                _instanceId);
-            Logger?.Verbose("Disposing web host {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
-                _instanceId);
-            WebHost?.SafeDispose();
-            Logger?.Verbose("Disposing Application root scope {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
-                _instanceId);
-            Logger?.Verbose("Disposing configuration {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
-                _instanceId);
-            Configuration?.SafeDispose();
-
-            Logger?.Debug("Application disposal complete, disposing logging {Application} {Instance}",
-                ApplicationConstants.ApplicationName,
-                _instanceId);
-
-            if (Logger is IDisposable disposable)
-            {
-                Logger?.Verbose("Disposing Logger {Application} {Instance}",
-                    ApplicationConstants.ApplicationName,
-                    _instanceId);
-                disposable.SafeDispose();
-            }
-            else
-            {
-                Logger?.Debug("Logger is not disposable {Application} {Instance}",
-                    ApplicationConstants.ApplicationName,
-                    _instanceId);
-            }
-
-            Configuration = null;
-            Logger = null;
-            WebHost = null;
-            HostBuilder = null;
-            _disposed = true;
-            _disposing = false;
         }
     }
 }

@@ -6,14 +6,13 @@ namespace Arbor.AspNetCore.Host.Hosting
 {
     public class ServiceRegistrationInfo
     {
-        public Type ServiceDescriptorServiceType { get; }
-        public Type ServiceDescriptorImplementationType { get; }
-        public object ServiceDescriptorImplementationInstance { get; }
-        public ServiceLifetime ServiceDescriptorLifetime { get; }
-        public Func<IServiceProvider, object> Factory { get; }
-        public Type Module { get; }
-
-        private ServiceRegistrationInfo(Type serviceDescriptorServiceType, Type serviceDescriptorImplementationType, object serviceDescriptorImplementationInstance, ServiceLifetime serviceDescriptorLifetime, Func<IServiceProvider, object> factory, Type module)
+        private ServiceRegistrationInfo(
+            Type serviceDescriptorServiceType,
+            Type serviceDescriptorImplementationType,
+            object serviceDescriptorImplementationInstance,
+            ServiceLifetime serviceDescriptorLifetime,
+            Func<IServiceProvider, object> factory,
+            Type module)
         {
             ServiceDescriptorServiceType = serviceDescriptorServiceType;
             ServiceDescriptorImplementationType = serviceDescriptorImplementationType;
@@ -22,6 +21,13 @@ namespace Arbor.AspNetCore.Host.Hosting
             Factory = factory;
             Module = module;
         }
+
+        public Type ServiceDescriptorServiceType { get; }
+        public Type ServiceDescriptorImplementationType { get; }
+        public object ServiceDescriptorImplementationInstance { get; }
+        public ServiceLifetime ServiceDescriptorLifetime { get; }
+        public Func<IServiceProvider, object> Factory { get; }
+        public Type Module { get; }
 
         public static ServiceRegistrationInfo Create(ServiceDescriptor serviceDescriptor)
         {
@@ -32,7 +38,9 @@ namespace Arbor.AspNetCore.Host.Hosting
                 module = extendedServiceDescriptor.ModuleType;
             }
 
-            return new ServiceRegistrationInfo(serviceDescriptor.ServiceType, serviceDescriptor.ImplementationType, serviceDescriptor.ImplementationInstance, serviceDescriptor.Lifetime, serviceDescriptor.ImplementationFactory, module);
+            return new ServiceRegistrationInfo(serviceDescriptor.ServiceType, serviceDescriptor.ImplementationType,
+                serviceDescriptor.ImplementationInstance, serviceDescriptor.Lifetime,
+                serviceDescriptor.ImplementationFactory, module);
         }
     }
 }

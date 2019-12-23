@@ -9,7 +9,7 @@ namespace Arbor.App.Extensions.IO
     {
         public static void SetTempPath(MultiSourceKeyValueConfiguration configuration, ILogger startupLogger)
         {
-            var tempDirectory = configuration[ApplicationConstants.ApplicationTempDirectory];
+            string tempDirectory = configuration[ApplicationConstants.ApplicationTempDirectory];
 
             if (!string.IsNullOrWhiteSpace(tempDirectory))
             {

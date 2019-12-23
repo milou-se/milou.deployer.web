@@ -2,10 +2,7 @@
 {
     public class ConfigurationError
     {
-        public ConfigurationError(string error)
-        {
-            Error = error;
-        }
+        public ConfigurationError(string error) => Error = error;
 
         public string Error { get; }
     }

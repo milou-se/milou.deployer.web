@@ -8,10 +8,7 @@ namespace Arbor.App.Extensions.Configuration
     [UsedImplicitly]
     public class ExcludedAutoRegistrationType
     {
-        public ExcludedAutoRegistrationType(string fullName)
-        {
-            FullName = fullName;
-        }
+        public ExcludedAutoRegistrationType(string fullName) => FullName = fullName;
 
         public string FullName { get; }
     }

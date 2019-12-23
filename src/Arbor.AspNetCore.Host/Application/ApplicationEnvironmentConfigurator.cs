@@ -16,11 +16,9 @@ namespace Arbor.AspNetCore.Host.Application
     {
         private readonly IKeyValueConfiguration _keyValueConfiguration;
 
-        public ApplicationEnvironmentConfigurator([NotNull] IKeyValueConfiguration keyValueConfiguration)
-        {
+        public ApplicationEnvironmentConfigurator([NotNull] IKeyValueConfiguration keyValueConfiguration) =>
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
-        }
 
         public void Configure([NotNull] EnvironmentConfiguration environmentConfiguration)
         {
@@ -29,7 +27,7 @@ namespace Arbor.AspNetCore.Host.Application
                 throw new ArgumentNullException(nameof(environmentConfiguration));
             }
 
-            var proxiesValue = _keyValueConfiguration[ApplicationConstants.ProxyAddresses].WithDefault("");
+            string proxiesValue = _keyValueConfiguration[ApplicationConstants.ProxyAddresses].WithDefault("");
 
             var proxies = proxiesValue.Split(",", StringSplitOptions.RemoveEmptyEntries)
                 .Select(ipString =>
@@ -42,40 +40,40 @@ namespace Arbor.AspNetCore.Host.Application
 
             environmentConfiguration.PublicHostname = _keyValueConfiguration[ApplicationConstants.PublicHostName];
 
-            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.PublicPort], out var port))
+            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.PublicPort], out int port))
             {
                 environmentConfiguration.PublicPort = port;
             }
 
-            if (bool.TryParse(_keyValueConfiguration[ApplicationConstants.PublicPortIsHttps], out var isHttps))
+            if (bool.TryParse(_keyValueConfiguration[ApplicationConstants.PublicPortIsHttps], out bool isHttps))
             {
                 environmentConfiguration.PublicPortIsHttps = isHttps;
             }
 
-            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.HttpPort], out var httpPort) && port >= 0)
+            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.HttpPort], out int httpPort) && port >= 0)
             {
                 environmentConfiguration.HttpPort = httpPort;
             }
             else if (bool.TryParse(_keyValueConfiguration[ApplicationConstants.UseExplicitPorts],
-                out var useExplicitPorts))
+                out bool useExplicitPorts))
             {
                 environmentConfiguration.UseExplicitPorts = useExplicitPorts;
             }
 
-            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.HttpsPort], out var httpsPort) &&
+            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.HttpsPort], out int httpsPort) &&
                 httpsPort >= 0)
             {
                 environmentConfiguration.HttpsPort = httpsPort;
             }
 
-            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.ProxyForwardLimit], out var proxyLimit) &&
+            if (int.TryParse(_keyValueConfiguration[ApplicationConstants.ProxyForwardLimit], out int proxyLimit) &&
                 proxyLimit >= 0)
             {
                 environmentConfiguration.ForwardLimit = proxyLimit;
             }
 
-            var pfxFile = _keyValueConfiguration[ApplicationConstants.PfxFile];
-            var pfxPassword = _keyValueConfiguration[ApplicationConstants.PfxPassword];
+            string pfxFile = _keyValueConfiguration[ApplicationConstants.PfxFile];
+            string pfxPassword = _keyValueConfiguration[ApplicationConstants.PfxPassword];
 
             if (!string.IsNullOrWhiteSpace(pfxFile) && File.Exists(pfxFile))
             {

@@ -15,36 +15,6 @@ namespace Arbor.App.Extensions.IO
 
         public FileInfo File { get; private set; }
 
-        public static TempFile CreateTempFile(string name = null, string extension = null)
-        {
-            string defaultName = $"MDW-tmp-{DateTime.UtcNow.Ticks}";
-
-            string fileName = $"{name.WithDefault(defaultName)}.{extension?.TrimStart('.').WithDefault("tmp")}";
-
-            string tempDir = Path.GetTempPath();
-
-            DirectoryInfo customTempDir = default;
-
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-
-                customTempDir = new DirectoryInfo(tempDir);
-
-                customTempDir.Create();
-            }
-
-            string fileFullPath = Path.Combine(tempDir, fileName);
-
-            using (System.IO.File.Create(fileFullPath))
-            {
-            }
-
-            var fileInfo = new FileInfo(fileFullPath);
-
-            return new TempFile(fileInfo, customTempDir);
-        }
-
         public void Dispose()
         {
             try
@@ -74,6 +44,36 @@ namespace Arbor.App.Extensions.IO
             }
 
             File = null;
+        }
+
+        public static TempFile CreateTempFile(string name = null, string extension = null)
+        {
+            string defaultName = $"MDW-tmp-{DateTime.UtcNow.Ticks}";
+
+            string fileName = $"{name.WithDefault(defaultName)}.{extension?.TrimStart('.').WithDefault("tmp")}";
+
+            string tempDir = Path.GetTempPath();
+
+            DirectoryInfo customTempDir = default;
+
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+
+                customTempDir = new DirectoryInfo(tempDir);
+
+                customTempDir.Create();
+            }
+
+            string fileFullPath = Path.Combine(tempDir, fileName);
+
+            using (System.IO.File.Create(fileFullPath))
+            {
+            }
+
+            var fileInfo = new FileInfo(fileFullPath);
+
+            return new TempFile(fileInfo, customTempDir);
         }
     }
 }

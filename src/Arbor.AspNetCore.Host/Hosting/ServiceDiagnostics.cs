@@ -8,12 +8,10 @@ namespace Arbor.AspNetCore.Host.Hosting
 {
     public class ServiceDiagnostics
     {
-        public ImmutableArray<ServiceRegistrationInfo> Registrations { get; }
-
-        private ServiceDiagnostics(IEnumerable<ServiceRegistrationInfo> registrations)
-        {
+        private ServiceDiagnostics(IEnumerable<ServiceRegistrationInfo> registrations) =>
             Registrations = registrations.SafeToImmutableArray();
-        }
+
+        public ImmutableArray<ServiceRegistrationInfo> Registrations { get; }
 
         public static ServiceDiagnostics Create(IServiceCollection services)
         {

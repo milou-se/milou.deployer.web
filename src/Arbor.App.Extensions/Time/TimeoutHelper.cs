@@ -7,10 +7,8 @@ namespace Arbor.App.Extensions.Time
     {
         private readonly TimeoutConfiguration _timeoutConfiguration;
 
-        public TimeoutHelper(TimeoutConfiguration timeoutConfiguration = null)
-        {
+        public TimeoutHelper(TimeoutConfiguration timeoutConfiguration = null) =>
             _timeoutConfiguration = timeoutConfiguration;
-        }
 
         public CancellationTokenSource CreateCancellationTokenSource(TimeSpan timeSpan)
         {

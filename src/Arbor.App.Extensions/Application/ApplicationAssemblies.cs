@@ -8,9 +8,7 @@ namespace Arbor.App.Extensions.Application
     {
         public static ImmutableArray<Assembly> FilteredAssemblies(
             string assemblyNameStartsWith = null,
-            bool useCache = true)
-        {
-            return AppDomain.CurrentDomain.FilteredAssemblies(assemblyNameStartsWith, useCache);
-        }
+            bool useCache = true) =>
+            AppDomain.CurrentDomain.FilteredAssemblies(assemblyNameStartsWith, useCache);
     }
 }

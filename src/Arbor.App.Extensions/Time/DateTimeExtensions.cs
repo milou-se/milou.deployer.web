@@ -77,11 +77,14 @@ namespace Arbor.App.Extensions.Time
         [PublicAPI]
         public static string Since(this DateTime to, DateTime from)
         {
-            string PluralSuffix(int count) => count > 1 ? "s" : "";
+            string PluralSuffix(int count)
+            {
+                return count > 1 ? "s" : "";
+            }
 
             var diff = to - from;
 
-            var diffTotalDays = (int)diff.TotalDays;
+            int diffTotalDays = (int)diff.TotalDays;
 
             if (diff.TotalDays > 365)
             {
@@ -90,7 +93,7 @@ namespace Arbor.App.Extensions.Time
 
             if (diff.TotalDays > 30)
             {
-                var totalMonths = diffTotalDays / 30;
+                int totalMonths = diffTotalDays / 30;
                 return $"{totalMonths} month{PluralSuffix(totalMonths)} ago";
             }
 
@@ -101,13 +104,13 @@ namespace Arbor.App.Extensions.Time
 
             if (diff.TotalHours > 1)
             {
-                var diffTotalHours = (int)diff.TotalHours;
+                int diffTotalHours = (int)diff.TotalHours;
                 return $"{diffTotalHours} hour{PluralSuffix(diffTotalHours)} ago";
             }
 
             if (diff.TotalMinutes > 1)
             {
-                var diffTotalMinutes = (int)diff.TotalMinutes;
+                int diffTotalMinutes = (int)diff.TotalMinutes;
                 return $"{diffTotalMinutes} minute{PluralSuffix(diffTotalMinutes)} ago";
             }
 
@@ -116,7 +119,7 @@ namespace Arbor.App.Extensions.Time
                 return Constants.NotAvailable;
             }
 
-            var diffTotalSeconds = (int)diff.TotalSeconds;
+            int diffTotalSeconds = (int)diff.TotalSeconds;
 
             return $"{diffTotalSeconds} second{PluralSuffix(diffTotalSeconds)} ago";
         }

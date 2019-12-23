@@ -7,11 +7,9 @@ namespace Arbor.App.Extensions.Time
     [UsedImplicitly]
     public class TimeModule : IModule
     {
-        public IServiceCollection Register(IServiceCollection builder)
-        {
-            return builder
+        public IServiceCollection Register(IServiceCollection builder) =>
+            builder
                 .AddSingleton<ICustomClock, CustomSystemClock>(this)
                 .AddSingleton<TimeoutHelper>(this);
-        }
     }
 }

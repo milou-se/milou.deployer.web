@@ -91,7 +91,7 @@ namespace Arbor.App.Extensions.Logging
 
             if (serilogConfiguration.RollingLogFilePathEnabled)
             {
-                var logFilePath = Path.IsPathRooted(serilogConfiguration.RollingLogFilePath)
+                string logFilePath = Path.IsPathRooted(serilogConfiguration.RollingLogFilePath)
                     ? serilogConfiguration.RollingLogFilePath
                     : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, serilogConfiguration.RollingLogFilePath);
 
@@ -100,7 +100,7 @@ namespace Arbor.App.Extensions.Logging
                 if (fileInfo.Directory != null)
                 {
                     fileInfo.Directory.EnsureExists();
-                    var rollingLoggingFile = Path.Combine(fileInfo.Directory.FullName,
+                    string rollingLoggingFile = Path.Combine(fileInfo.Directory.FullName,
                         $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}{Path.GetExtension(fileInfo.Name)}");
 
                     logger.Debug("Serilog configured to use rolling file with file path {LogFilePath}",
@@ -121,7 +121,8 @@ namespace Arbor.App.Extensions.Logging
 
             const string ConsoleOutputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:j}{NewLine}{Exception}";
 
-            loggerConfiguration = loggerConfiguration.WriteTo.Console(standardErrorFromLevel: LogEventLevel.Error, outputTemplate: ConsoleOutputTemplate);
+            loggerConfiguration = loggerConfiguration.WriteTo.Console(standardErrorFromLevel: LogEventLevel.Error,
+                outputTemplate: ConsoleOutputTemplate);
 
             var microsoftLevel =
                 multiSourceKeyValueConfiguration[LoggingConstants.MicrosoftLevel].ParseOrDefault(LogEventLevel.Warning);
@@ -132,7 +133,8 @@ namespace Arbor.App.Extensions.Logging
 
             foreach (var loggerConfigurationHandler in loggerConfigurationHandlers)
             {
-                logger.Debug("Running logger configuration handler {Handler}", loggerConfigurationHandler.GetType().FullName);
+                logger.Debug("Running logger configuration handler {Handler}",
+                    loggerConfigurationHandler.GetType().FullName);
                 loggerConfiguration = loggerConfigurationHandler.Handle(loggerConfiguration);
             }
 
@@ -159,15 +161,16 @@ namespace Arbor.App.Extensions.Logging
                 throw new ArgumentNullException(nameof(basePath));
             }
 
-            var fileLoggingEnabled = bool.TryParse(
-                                         environmentVariables.ValueOrDefault(LoggingConstants.SerilogStartupLogEnabled),
-                                         out var enabled) && enabled;
+            bool fileLoggingEnabled = bool.TryParse(
+                                          environmentVariables.ValueOrDefault(LoggingConstants
+                                              .SerilogStartupLogEnabled),
+                                          out bool enabled) && enabled;
 
             string logFile = null;
 
             if (fileLoggingEnabled)
             {
-                var logFilePath = basePath("startup.log");
+                string logFilePath = basePath("startup.log");
 
                 TempLogger.WriteLine($"Startup logging is configured to use log file {logFilePath}");
 
@@ -176,7 +179,7 @@ namespace Arbor.App.Extensions.Logging
                     throw new InvalidOperationException("The log path for startup logging is not defined");
                 }
 
-                var pathFormat = Environment.ExpandEnvironmentVariables(
+                string pathFormat = Environment.ExpandEnvironmentVariables(
                     environmentVariables.ValueOrDefault(LoggingConstants.SerilogStartupLogFilePath) ??
                     logFilePath);
 
@@ -205,12 +208,12 @@ namespace Arbor.App.Extensions.Logging
                     .WriteTo.File(logFile, startupLevel, rollingInterval: RollingInterval.Day);
             }
 
-            var seq = environmentVariables.ValueOrDefault(LoggingConstants.SeqStartupUrl);
+            string seq = environmentVariables.ValueOrDefault(LoggingConstants.SeqStartupUrl);
 
             Uri usedSeqUri = null;
             if (!string.IsNullOrWhiteSpace(seq))
             {
-                var seqUrl = Environment.ExpandEnvironmentVariables(seq);
+                string seqUrl = Environment.ExpandEnvironmentVariables(seq);
 
                 if (Uri.TryCreate(seqUrl, UriKind.Absolute, out var uri))
                 {

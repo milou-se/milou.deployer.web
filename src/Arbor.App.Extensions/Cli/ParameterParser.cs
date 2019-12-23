@@ -21,8 +21,8 @@ namespace Arbor.App.Extensions.Cli
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(parameterName));
             }
 
-            var trimmedName = parameterName.Trim();
-            var prefix = trimmedName + "=";
+            string trimmedName = parameterName.Trim();
+            string prefix = $"{trimmedName}=";
             var matchingArgs = parameters
                 .Where(param => param != null)
                 .Select(param => param.Trim())
@@ -39,7 +39,7 @@ namespace Arbor.App.Extensions.Cli
                 throw new InvalidOperationException($"Found more than 1 parameter named '{parameterName}'");
             }
 
-            var value = matchingArgs[0].Substring(prefix.Length).Trim();
+            string value = matchingArgs[0].Substring(prefix.Length).Trim();
 
             return value;
         }

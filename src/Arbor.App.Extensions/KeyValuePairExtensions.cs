@@ -4,10 +4,8 @@ namespace Arbor.App.Extensions
 {
     public static class KeyValuePairExtensions
     {
-        public static KeyValuePair<string, string> MakeAnonymousValue(this KeyValuePair<string, string> pair)
-        {
-            return new KeyValuePair<string, string>(pair.Key, new string('*', 5));
-        }
+        public static KeyValuePair<string, string> MakeAnonymousValue(this KeyValuePair<string, string> pair) =>
+            new KeyValuePair<string, string>(pair.Key, new string('*', 5));
 
         public static string ValueOrDefault(this IReadOnlyDictionary<string, string> dictionary, string key)
         {
@@ -16,7 +14,7 @@ namespace Arbor.App.Extensions
                 return default;
             }
 
-            var found = dictionary.TryGetValue(key, out var value);
+            bool found = dictionary.TryGetValue(key, out string value);
 
             if (!found)
             {

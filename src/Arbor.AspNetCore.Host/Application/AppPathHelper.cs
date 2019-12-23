@@ -10,7 +10,7 @@ namespace Arbor.AspNetCore.Host.Application
     {
         public static void SetApplicationPaths(ApplicationPaths paths, IReadOnlyCollection<string> commandLineArgs)
         {
-            var currentDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            string? currentDomainBaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
             if (WindowsServiceHelper.IsRunningAsService(commandLineArgs))
             {
@@ -19,8 +19,8 @@ namespace Arbor.AspNetCore.Host.Application
                 Directory.SetCurrentDirectory(currentDomainBaseDirectory);
             }
 
-            paths.BasePath = paths.BasePath ?? currentDomainBaseDirectory;
-            paths.ContentBasePath = paths.ContentBasePath ?? Directory.GetCurrentDirectory();
+            paths.BasePath ??= currentDomainBaseDirectory;
+            paths.ContentBasePath ??= Directory.GetCurrentDirectory();
         }
     }
 }

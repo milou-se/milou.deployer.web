@@ -67,7 +67,7 @@ namespace Arbor.App.Extensions
                 throw new ArgumentNullException(nameof(type));
             }
 
-            var isCorrectType = IsConcreteTypeImplementing<T>(type);
+            bool isCorrectType = IsConcreteTypeImplementing<T>(type);
 
             if (!isCorrectType)
             {
@@ -124,7 +124,7 @@ namespace Arbor.App.Extensions
                 return false;
             }
 
-            var isInstantiatable = type.GetConstructor(Type.EmptyTypes) != null;
+            bool isInstantiatable = type.GetConstructor(Type.EmptyTypes) != null;
 
             return isInstantiatable;
         }
@@ -146,19 +146,16 @@ namespace Arbor.App.Extensions
             }
         }
 
-        public static ImmutableArray<Type> GetLoadablePublicConcreteTypeImplementing<T>(this Assembly assembly)
-        {
-            return assembly
+        public static ImmutableArray<Type> GetLoadablePublicConcreteTypeImplementing<T>(this Assembly assembly) =>
+            assembly
                 .GetLoadableTypes()
                 .Where(t => t.IsPublicConcreteTypeImplementing<T>())
                 .ToImmutableArray();
-        }
 
-        public static ImmutableArray<Type> GetLoadablePublicConcreteTypesImplementing<T>(this IEnumerable<Assembly> assemblies)
-        {
-            return assemblies
+        public static ImmutableArray<Type> GetLoadablePublicConcreteTypesImplementing<T>(
+            this IEnumerable<Assembly> assemblies) =>
+            assemblies
                 .SelectMany(assembly => assembly.GetLoadablePublicConcreteTypeImplementing<T>())
                 .ToImmutableArray();
-        }
     }
 }

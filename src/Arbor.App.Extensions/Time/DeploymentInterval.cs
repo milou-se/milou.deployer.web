@@ -8,15 +8,12 @@ namespace Arbor.App.Extensions.Time
     [PublicAPI]
     public struct DeploymentInterval : IEquatable<DeploymentInterval>
     {
-        public bool Equals(DeploymentInterval other)
-        {
-            return string.Equals(Name, other.Name, StringComparison.Ordinal) && FromExclusive == other.FromExclusive && ToInclusive == other.ToInclusive;
-        }
+        public bool Equals(DeploymentInterval other) =>
+            string.Equals(Name, other.Name, StringComparison.Ordinal)
+            && FromExclusive == other.FromExclusive
+            && ToInclusive == other.ToInclusive;
 
-        public override bool Equals(object obj)
-        {
-            return obj is DeploymentInterval other && Equals(other);
-        }
+        public override bool Equals(object? obj) => obj is DeploymentInterval other && Equals(other);
 
         public override int GetHashCode()
         {
@@ -29,15 +26,9 @@ namespace Arbor.App.Extensions.Time
             }
         }
 
-        public static bool operator ==(DeploymentInterval left, DeploymentInterval right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(DeploymentInterval left, DeploymentInterval right) => left.Equals(right);
 
-        public static bool operator !=(DeploymentInterval left, DeploymentInterval right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(DeploymentInterval left, DeploymentInterval right) => !left.Equals(right);
 
         public static readonly DeploymentInterval Invalid = new DeploymentInterval(nameof(Invalid), int.MinValue, -1);
 
@@ -69,19 +60,12 @@ namespace Arbor.App.Extensions.Time
 
         public static IReadOnlyCollection<DeploymentInterval> All => new[]
         {
-            Invalid,
-            ThisWeek,
-            ThisMonth,
-            ThisQuarter,
-            ThisYear,
-            MoreThanAYear
+            Invalid, ThisWeek, ThisMonth, ThisQuarter, ThisYear, MoreThanAYear
         };
 
-        public static DeploymentInterval Parse(TimeSpan timeSpan)
-        {
-            return All.Single(
+        public static DeploymentInterval Parse(TimeSpan timeSpan) =>
+            All.Single(
                 interval => timeSpan.TotalDays > interval.FromExclusive && timeSpan.TotalDays <= interval.ToInclusive);
-        }
 
         public override string ToString()
         {

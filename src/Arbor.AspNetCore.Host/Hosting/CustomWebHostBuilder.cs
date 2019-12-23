@@ -50,7 +50,9 @@ namespace Arbor.AspNetCore.Host.Hosting
                 {
                     config.AddKeyValueConfigurationSource(configuration);
 
-                    hostingContext.Configuration = new ConfigurationWrapper((IConfigurationRoot)hostingContext.Configuration, serviceProviderHolder);
+                    hostingContext.Configuration =
+                        new ConfigurationWrapper((IConfigurationRoot)hostingContext.Configuration,
+                            serviceProviderHolder);
                 })
                 .UseKestrel(options =>
                 {

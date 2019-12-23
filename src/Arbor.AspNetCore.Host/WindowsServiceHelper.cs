@@ -11,7 +11,7 @@ namespace Arbor.AspNetCore.Host
     {
         public static bool IsRunningAsService(IReadOnlyCollection<string> commandLineArgs)
         {
-            var hasRunAsServiceArgument = commandLineArgs.Any(arg =>
+            bool hasRunAsServiceArgument = commandLineArgs.Any(arg =>
                 arg.Equals(ApplicationConstants.RunAsService, StringComparison.OrdinalIgnoreCase));
 
             if (hasRunAsServiceArgument)

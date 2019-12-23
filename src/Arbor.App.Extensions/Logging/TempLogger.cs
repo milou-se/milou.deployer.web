@@ -11,14 +11,15 @@ namespace Arbor.App.Extensions.Logging
 
         public static void WriteLine(string message)
         {
-            LogMessages.Enqueue(message);
-
-            Console.WriteLine(message);
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                LogMessages.Enqueue(message);
+            }
         }
 
         public static void FlushWith(ILogger logger)
         {
-            while (LogMessages.TryDequeue(out var message))
+            while (LogMessages.TryDequeue(out string message))
             {
                 logger.Information("{Message}", message);
             }

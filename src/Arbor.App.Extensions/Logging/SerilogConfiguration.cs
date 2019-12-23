@@ -54,12 +54,9 @@ namespace Arbor.App.Extensions.Logging
 
         public string RollingLogFilePath { get; }
 
-        public override string ToString()
-        {
-            return
-                $"{nameof(SeqEnabled)}: {SeqEnabled}, {nameof(RollingLogFilePathEnabled)}: {RollingLogFilePathEnabled}, {nameof(ConsoleEnabled)}: {ConsoleEnabled}, {nameof(DebugConsoleEnabled)}: {DebugConsoleEnabled}, {nameof(SeqUrl)}: {SeqUrl}, {nameof(RollingLogFilePath)}: {RollingLogFilePath}, {nameof(IsValid)}: {IsValid}";
-        }
-
         public bool IsValid { get; }
+
+        public override string ToString() =>
+            $"{nameof(SeqEnabled)}: {SeqEnabled}, {nameof(RollingLogFilePathEnabled)}: {RollingLogFilePathEnabled}, {nameof(ConsoleEnabled)}: {ConsoleEnabled}, {nameof(DebugConsoleEnabled)}: {DebugConsoleEnabled}, {nameof(SeqUrl)}: {SeqUrl}, {nameof(RollingLogFilePath)}: {RollingLogFilePath}, {nameof(IsValid)}: {IsValid}";
     }
 }

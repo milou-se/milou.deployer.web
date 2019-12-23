@@ -10,10 +10,8 @@ namespace Arbor.AspNetCore.Host.Hosting
     {
         private readonly IWebHostBuilder _webHostBuilderImplementation;
 
-        public WebHostBuilderWrapper([NotNull] IWebHostBuilder webHostBuilder)
-        {
-            _webHostBuilderImplementation = webHostBuilder ?? throw new ArgumentNullException(nameof(webHostBuilder));
-        }
+        public WebHostBuilderWrapper([NotNull] IWebHostBuilder webHostBuilder) => _webHostBuilderImplementation =
+            webHostBuilder ?? throw new ArgumentNullException(nameof(webHostBuilder));
 
         public IWebHost Build()
         {
@@ -23,29 +21,18 @@ namespace Arbor.AspNetCore.Host.Hosting
         }
 
         public IWebHostBuilder ConfigureAppConfiguration(
-            Action<WebHostBuilderContext, IConfigurationBuilder> configureDelegate)
-        {
-            return _webHostBuilderImplementation.ConfigureAppConfiguration(configureDelegate);
-        }
+            Action<WebHostBuilderContext, IConfigurationBuilder> configureDelegate) =>
+            _webHostBuilderImplementation.ConfigureAppConfiguration(configureDelegate);
 
-        public IWebHostBuilder ConfigureServices(Action<IServiceCollection> configureServices)
-        {
-            return _webHostBuilderImplementation.ConfigureServices(configureServices);
-        }
+        public IWebHostBuilder ConfigureServices(Action<IServiceCollection> configureServices) =>
+            _webHostBuilderImplementation.ConfigureServices(configureServices);
 
-        public IWebHostBuilder ConfigureServices(Action<WebHostBuilderContext, IServiceCollection> configureServices)
-        {
-            return _webHostBuilderImplementation.ConfigureServices(configureServices);
-        }
+        public IWebHostBuilder ConfigureServices(Action<WebHostBuilderContext, IServiceCollection> configureServices) =>
+            _webHostBuilderImplementation.ConfigureServices(configureServices);
 
-        public string GetSetting(string key)
-        {
-            return _webHostBuilderImplementation.GetSetting(key);
-        }
+        public string GetSetting(string key) => _webHostBuilderImplementation.GetSetting(key);
 
-        public IWebHostBuilder UseSetting(string key, string value)
-        {
-            return _webHostBuilderImplementation.UseSetting(key, value);
-        }
+        public IWebHostBuilder UseSetting(string key, string value) =>
+            _webHostBuilderImplementation.UseSetting(key, value);
     }
 }

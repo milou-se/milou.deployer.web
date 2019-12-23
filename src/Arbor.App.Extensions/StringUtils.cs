@@ -3,11 +3,8 @@
 namespace Arbor.App.Extensions
 {
     public static class StringUtils
-
     {
-        public static bool AllHaveValues(params string[] values)
-        {
-            return values != null && values.All(paramValue => !string.IsNullOrWhiteSpace(paramValue));
-        }
+        public static bool AllHaveValues(params string[] values) =>
+            values != null && values.All(paramValue => !string.IsNullOrWhiteSpace(paramValue));
     }
 }

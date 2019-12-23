@@ -16,9 +16,9 @@ namespace Arbor.AspNetCore.Host.Hosting
             _hostingContextConfiguration = hostingContextConfiguration;
         }
 
-        public IEnumerable<IConfigurationProvider> Providers => _hostingContextConfiguration.Providers;
-
         public ServiceProviderHolder ServiceProviderHolder { get; }
+
+        public IEnumerable<IConfigurationProvider> Providers => _hostingContextConfiguration.Providers;
 
         public string this[string key]
         {
@@ -26,24 +26,12 @@ namespace Arbor.AspNetCore.Host.Hosting
             set => _hostingContextConfiguration[key] = value;
         }
 
-        public IEnumerable<IConfigurationSection> GetChildren()
-        {
-            return _hostingContextConfiguration.GetChildren();
-        }
+        public IEnumerable<IConfigurationSection> GetChildren() => _hostingContextConfiguration.GetChildren();
 
-        public IChangeToken GetReloadToken()
-        {
-            return _hostingContextConfiguration.GetReloadToken();
-        }
+        public IChangeToken GetReloadToken() => _hostingContextConfiguration.GetReloadToken();
 
-        public IConfigurationSection GetSection(string key)
-        {
-            return _hostingContextConfiguration.GetSection(key);
-        }
+        public IConfigurationSection GetSection(string key) => _hostingContextConfiguration.GetSection(key);
 
-        public void Reload()
-        {
-            _hostingContextConfiguration.Reload();
-        }
+        public void Reload() => _hostingContextConfiguration.Reload();
     }
 }

@@ -24,9 +24,7 @@ namespace Arbor.App.Extensions.Configuration
 
         public string Source { get; }
 
-        public override string ToString()
-        {
-            return $"{nameof(Key)}: {Key}, {nameof(Value)}: '{Value}', {nameof(Source)}: {Source}";
-        }
+        public override string ToString() =>
+            $"{nameof(Key)}: {Key}, {nameof(Value)}: '{Value}', {nameof(Source)}: {Source}";
     }
 }

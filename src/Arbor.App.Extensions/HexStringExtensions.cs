@@ -11,6 +11,7 @@ namespace Arbor.App.Extensions
                 .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
                 .ToArray();
 
-        public static string FromByteArrayToHexString(this byte[] bytes) => string.Concat(bytes.Select(b => b.ToString("X2")));
+        public static string FromByteArrayToHexString(this byte[] bytes) =>
+            string.Concat(bytes.Select(b => b.ToString("X2")));
     }
 }

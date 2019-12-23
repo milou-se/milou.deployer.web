@@ -18,10 +18,7 @@ namespace Arbor.App.Extensions.Application
 
         private static void ForceLoadReferenceAssemblies()
         {
-            Type[] types =
-            {
-                typeof(ICustomClock)
-            };
+            Type[] types = {typeof(ICustomClock)};
 
             foreach (var type in types)
             {
@@ -35,7 +32,7 @@ namespace Arbor.App.Extensions.Application
             bool useCache = true,
             ILogger logger = null)
         {
-            logger = logger ?? Logger.None;
+            logger ??= Logger.None;
 
             if (appDomain == null)
             {
@@ -49,7 +46,7 @@ namespace Arbor.App.Extensions.Application
 
             ForceLoadReferenceAssemblies();
 
-            string[] allowedAssemblies = { assemblyNameStartsWith ?? "Milou.Deployer.Web" };
+            string[] allowedAssemblies = {assemblyNameStartsWith ?? "Milou.Deployer.Web"};
 
             try
             {
@@ -97,15 +94,11 @@ namespace Arbor.App.Extensions.Application
                 logger.Warning(ex, "Could not load runtime assemblies");
             }
 
-            var orders = new List<(string, int)>
-            {
-                ("test", 1000),
-                ("debug", 2000)
-            };
+            var orders = new List<(string, int)> {("test", 1000), ("debug", 2000)};
 
             int GetAssemblyLoadOrder(Assembly assembly)
             {
-                var assemblyName = assembly.GetName().Name;
+                string? assemblyName = assembly.GetName().Name;
 
                 foreach ((string Name, int Order) valueTuple in orders)
                 {
@@ -115,7 +108,7 @@ namespace Arbor.App.Extensions.Application
                     }
                 }
 
-                var defaultOrder = 0;
+                int defaultOrder = 0;
 
                 return defaultOrder;
             }

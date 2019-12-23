@@ -15,11 +15,9 @@ namespace Arbor.App.Extensions
 
         public static ImmutableArray<string> DefaultAnonymousKeyWords => LazyDefaultAnonymousKeyWords.Value;
 
-        private static ImmutableArray<string> Initialize()
-        {
-            return new[] { "password", "username", "user id", "connection-string", "connectionstring" }
+        private static ImmutableArray<string> Initialize() =>
+            new[] {"password", "username", "user id", "connection-string", "connectionstring"}
                 .ToImmutableArray();
-        }
 
         public static string MakeAnonymous(this string value, string key, params string[] keyWords)
         {
@@ -63,7 +61,7 @@ namespace Arbor.App.Extensions
                 return pair;
             });
 
-            var final = string.Join("; ", pairs.Select(pair => $"{pair.Key}={pair.Value}"));
+            string final = string.Join("; ", pairs.Select(pair => $"{pair.Key}={pair.Value}"));
 
             return final;
         }
@@ -108,10 +106,7 @@ namespace Arbor.App.Extensions
             return keyValuePairs;
         }
 
-        public static string Wrap(this string wrappedText, string wrapText)
-        {
-            return $"{wrapText}{wrappedText}{wrapText}";
-        }
+        public static string Wrap(this string wrappedText, string wrapText) => $"{wrapText}{wrappedText}{wrapText}";
 
         public static string MakeKeyValuePairAnonymous(this string value, char separator, char replacementChar)
         {
@@ -132,10 +127,10 @@ namespace Arbor.App.Extensions
                 return new string(replacementChar, strings.Length);
             }
 
-            var result = strings[0] + separator + string.Join(separator.ToString(CultureInfo.InvariantCulture),
-                             strings.Skip(1)
-                                 .Where(text => text.HasValue())
-                                 .Select(text => new string(replacementChar, text.Length)));
+            string result = strings[0] + separator + string.Join(separator.ToString(CultureInfo.InvariantCulture),
+                                strings.Skip(1)
+                                    .Where(text => text.HasValue())
+                                    .Select(text => new string(replacementChar, text.Length)));
             return result;
         }
 
@@ -149,19 +144,11 @@ namespace Arbor.App.Extensions
             return value;
         }
 
-        public static bool AllHaveValue(params string[] values)
-        {
-            return values != null && values.All(value => !string.IsNullOrWhiteSpace(value));
-        }
+        public static bool AllHaveValue(params string[] values) =>
+            values != null && values.All(value => !string.IsNullOrWhiteSpace(value));
 
-        public static bool HasValue(this string text)
-        {
-            return !string.IsNullOrWhiteSpace(text);
-        }
+        public static bool HasValue(this string text) => !string.IsNullOrWhiteSpace(text);
 
-        public static bool IsNullOrWhiteSpace(this string text)
-        {
-            return string.IsNullOrWhiteSpace(text);
-        }
+        public static bool IsNullOrWhiteSpace(this string text) => string.IsNullOrWhiteSpace(text);
     }
 }

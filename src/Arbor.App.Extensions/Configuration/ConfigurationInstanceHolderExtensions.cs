@@ -7,20 +7,14 @@ namespace Arbor.App.Extensions.Configuration
 {
     public static class ConfigurationInstanceHolderExtensions
     {
-        public static void AddInstance<T>(this ConfigurationInstanceHolder holder, T instance) where T : class
-        {
+        public static void AddInstance<T>(this ConfigurationInstanceHolder holder, T instance) where T : class =>
             holder.Add(new NamedInstance<T>(instance, instance.GetType().FullName));
-        }
 
-        public static T Get<T>(this ConfigurationInstanceHolder holder) where T : class
-        {
-            return holder.GetInstances<T>().SingleOrDefault().Value;
-        }
+        public static T Get<T>(this ConfigurationInstanceHolder holder) where T : class =>
+            holder.GetInstances<T>().SingleOrDefault().Value;
 
-        public static T Create<T>(this ConfigurationInstanceHolder holder) where T : class
-        {
-            return (T)Create(holder, typeof(T));
-        }
+        public static T Create<T>(this ConfigurationInstanceHolder holder) where T : class =>
+            (T)Create(holder, typeof(T));
 
         public static IEnumerable<T> CreateInstances<T>(this ConfigurationInstanceHolder holder) where T : class
         {

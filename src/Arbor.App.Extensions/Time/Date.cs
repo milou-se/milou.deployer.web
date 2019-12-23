@@ -19,21 +19,12 @@ namespace Arbor.App.Extensions.Time
             _datePart = date.Date;
         }
 
-        public override string ToString()
-        {
-            return _datePart.ToString("yyyy-MM-dd");
-        }
+        public override string ToString() => _datePart.ToString("yyyy-MM-dd");
 
-        public static implicit operator Date(DateTime dateTime)
-        {
-            return new Date(dateTime);
-        }
+        public static implicit operator Date(DateTime dateTime) => new Date(dateTime);
 
         [SuppressMessage("ReSharper", "ImpureMethodCallOnReadonlyValueField")]
-        public bool Equals(Date other)
-        {
-            return _datePart.Equals(other._datePart);
-        }
+        public bool Equals(Date other) => _datePart.Equals(other._datePart);
 
         public override bool Equals(object obj)
         {
@@ -45,45 +36,21 @@ namespace Arbor.App.Extensions.Time
             return obj is Date date && Equals(date);
         }
 
-        public override int GetHashCode()
-        {
-            return _datePart.GetHashCode();
-        }
+        public override int GetHashCode() => _datePart.GetHashCode();
 
-        public static bool operator ==(Date left, Date right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(Date left, Date right) => left.Equals(right);
 
-        public static bool operator !=(Date left, Date right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(Date left, Date right) => !left.Equals(right);
 
         [SuppressMessage("ReSharper", "ImpureMethodCallOnReadonlyValueField")]
-        public int CompareTo(Date other)
-        {
-            return _datePart.CompareTo(other._datePart);
-        }
+        public int CompareTo(Date other) => _datePart.CompareTo(other._datePart);
 
-        public static bool operator <(Date date1, Date date2)
-        {
-            return date1._datePart < date2._datePart;
-        }
+        public static bool operator <(Date date1, Date date2) => date1._datePart < date2._datePart;
 
-        public static bool operator >(Date date1, Date date2)
-        {
-            return date1._datePart > date2._datePart;
-        }
+        public static bool operator >(Date date1, Date date2) => date1._datePart > date2._datePart;
 
-        public static bool operator >=(Date date1, Date date2)
-        {
-            return date1._datePart >= date2._datePart;
-        }
+        public static bool operator >=(Date date1, Date date2) => date1._datePart >= date2._datePart;
 
-        public static bool operator <=(Date date1, Date date2)
-        {
-            return date1._datePart <= date2._datePart;
-        }
+        public static bool operator <=(Date date1, Date date2) => date1._datePart <= date2._datePart;
     }
 }

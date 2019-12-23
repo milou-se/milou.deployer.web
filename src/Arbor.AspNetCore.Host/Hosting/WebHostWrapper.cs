@@ -11,30 +11,18 @@ namespace Arbor.AspNetCore.Host.Hosting
     {
         private readonly IWebHost _webHostImplementation;
 
-        public WebHostWrapper([NotNull] IWebHost webHost)
-        {
+        public WebHostWrapper([NotNull] IWebHost webHost) =>
             _webHostImplementation = webHost ?? throw new ArgumentNullException(nameof(webHost));
-        }
 
-        public void Dispose()
-        {
-            _webHostImplementation.Dispose();
-        }
+        public void Dispose() => _webHostImplementation.Dispose();
 
-        public void Start()
-        {
-            _webHostImplementation.Start();
-        }
+        public void Start() => _webHostImplementation.Start();
 
-        public Task StartAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            return _webHostImplementation.StartAsync(cancellationToken);
-        }
+        public Task StartAsync(CancellationToken cancellationToken = new CancellationToken()) =>
+            _webHostImplementation.StartAsync(cancellationToken);
 
-        public Task StopAsync(CancellationToken cancellationToken = new CancellationToken())
-        {
-            return _webHostImplementation.StopAsync(cancellationToken);
-        }
+        public Task StopAsync(CancellationToken cancellationToken = new CancellationToken()) =>
+            _webHostImplementation.StopAsync(cancellationToken);
 
         public IFeatureCollection ServerFeatures => _webHostImplementation.ServerFeatures;
 

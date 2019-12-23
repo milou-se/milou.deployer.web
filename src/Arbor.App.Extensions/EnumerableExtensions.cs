@@ -58,12 +58,12 @@ namespace Arbor.App.Extensions
         {
             if (items is null)
             {
-                return new List<T> { default };
+                return new List<T> {default};
             }
 
             if (items.Count == 0)
             {
-                return new List<T> { default };
+                return new List<T> {default};
             }
 
             return items;
