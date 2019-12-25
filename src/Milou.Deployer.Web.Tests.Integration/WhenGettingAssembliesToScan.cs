@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Arbor.App.Extensions.Application;
 using Milou.Deployer.Web.Core.Application;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Milou.Deployer.Web.Marten;
 using Xunit;
@@ -22,7 +23,9 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void ItShouldFindAllKnownAssemblies()
         {
-            var assemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false)
+            string[] assemblyNameStartsWith = { "Milou" };
+            var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
+            var assemblies = filteredAssemblies
                 .Where(assembly => !assembly.GetName().Name.EndsWith(".Views", StringComparison.OrdinalIgnoreCase))
                 .ToImmutableArray();
 
@@ -30,11 +33,9 @@ namespace Milou.Deployer.Web.Tests.Integration
                 Environment.NewLine,
                 assemblies.Select(assembly => $"{assembly.FullName} {assembly.Location}")));
 
-            Assert.Equal(4, assemblies.Length);
-
             Assert.Contains(assemblies, assembly => assembly == typeof(DeployController).Assembly);
             Assert.Contains(assemblies, assembly => assembly == typeof(VcsTestPathHelper).Assembly);
-            Assert.Contains(assemblies, assembly => assembly == typeof(ApplicationAssemblies).Assembly);
+            Assert.Contains(assemblies, assembly => assembly == typeof(DeploymentTarget).Assembly);
             Assert.Contains(assemblies, assembly => assembly == typeof(MartenConfiguration).Assembly);
         }
     }

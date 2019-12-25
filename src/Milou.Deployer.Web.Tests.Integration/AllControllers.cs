@@ -18,24 +18,29 @@ namespace Milou.Deployer.Web.Tests.Integration
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public AllControllers(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public AllControllers(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         [PublicAPI]
-        public static IEnumerable<object[]> Data =>
-            ApplicationAssemblies.FilteredAssemblies(useCache: false)
-                .SelectMany(assembly => assembly.GetLoadableTypes())
-                .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
-                .Select(type => new object[] { type.FullName, type.Assembly.GetName().Name })
-                .ToArray();
+        public static IEnumerable<object[]> Data
+        {
+            get
+            {
+                string[] assemblyNameStartsWith = new[] {"Milou"};
+                var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
+
+                return filteredAssemblies
+                    .SelectMany(assembly => assembly.GetLoadableTypes())
+                    .Where(type => !type.IsAbstract && typeof(Controller).IsAssignableFrom(type))
+                    .Select(type => new object[] {type.AssemblyQualifiedName})
+                    .ToArray();
+            }
+        }
 
         [MemberData(nameof(Data))]
         [Theory]
-        public void ShouldHaveAnonymousOrAuthorize(string controller, string assembly)
+        public void ShouldHaveAnonymousOrAuthorize(string qualifiedName)
         {
-            var controllerType = Type.GetType($"{controller}, {assembly}");
+            var controllerType = Type.GetType(qualifiedName);
 
             Type[] httpMethodAttributes =
             {
@@ -48,7 +53,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 .ToArray();
 
             _testOutputHelper.WriteLine(
-                $"Controller '{controller}' anonymous or authorization attributes: {attributes.Length}, expected is 1");
+                $"Controller '{controllerType.Name}' anonymous or authorization attributes: {attributes.Length}, expected is 1");
 
             Assert.NotEmpty(attributes);
             Assert.Single(attributes);

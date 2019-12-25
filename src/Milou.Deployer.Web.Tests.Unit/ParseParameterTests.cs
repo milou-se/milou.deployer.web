@@ -9,7 +9,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void ShouldParseValue()
         {
-            string[] args = { @"urn:milou:deployer:web:application-base-path=C:\Tools\Deployer\" };
+            string[] args = { @"urn:arbor:app:web:application-base-path=C:\Tools\Deployer\" };
 
             var result = args.ParseParameter(ConfigurationConstants.ApplicationBasePath);
 

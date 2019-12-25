@@ -20,10 +20,17 @@ namespace Milou.Deployer.Web.Tests.Integration
         }
 
         [PublicAPI]
-        public static IEnumerable<object[]> Data =>
-            RouteList.GetConstantRoutes(ApplicationAssemblies.FilteredAssemblies(useCache: false))
-                .Select(item => new object[] { item.Name, item.Value })
-                .ToArray();
+        public static IEnumerable<object[]> Data
+        {
+            get
+            {
+                string[] assemblyNameStartsWith = { "Milou" };
+                var filteredAssemblies = ApplicationAssemblies.FilteredAssemblies(useCache: false, assemblyNameStartsWith: assemblyNameStartsWith);
+                return RouteList.GetConstantRoutes(filteredAssemblies)
+                    .Select(item => new object[] {item.Name, item.Value})
+                    .ToArray();
+            }
+        }
 
         [MemberData(nameof(Data))]
         [Theory]
