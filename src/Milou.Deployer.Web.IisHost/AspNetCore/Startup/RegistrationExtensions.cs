@@ -137,7 +137,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
         public static IServiceCollection AddDeploymentMvc(this IServiceCollection services)
         {
-            services.AddMvc(
+            var mvcBuilder = services.AddMvc(
                 options =>
                 {
                     options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
@@ -148,12 +148,13 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                     options.SerializerSettings.Formatting = Formatting.Indented;
                 });
 
-            services.AddControllersWithViews();
+            foreach (var filteredAssembly in ApplicationAssemblies.FilteredAssemblies())
+            {
+                mvcBuilder.AddApplicationPart(filteredAssembly);
+            }
 
             services.AddControllers();
-            services.AddControllersWithViews();
-            services.AddRazorPages()
-                .AddRazorRuntimeCompilation();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
 
             return services;
         }

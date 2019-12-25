@@ -18,7 +18,6 @@ using Arbor.AspNetCore.Host.Hosting;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;

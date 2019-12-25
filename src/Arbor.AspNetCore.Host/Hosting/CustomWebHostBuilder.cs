@@ -55,10 +55,10 @@ namespace Arbor.AspNetCore.Host.Hosting
                     hostingContext.Configuration =
                         new ConfigurationWrapper((IConfigurationRoot)hostingContext.Configuration,
                             serviceProviderHolder);
-                }).ConfigureWebHostDefaults(webBuilder =>
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<T>()
-
+                    webBuilder
                         .UseKestrel(options =>
                         {
                             if (kestrelServerOptions.Contains(options))

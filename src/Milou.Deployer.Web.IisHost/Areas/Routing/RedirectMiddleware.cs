@@ -55,6 +55,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Routing
             {
                 if (context.Response.Headers.TryGetValue(LocationHeader, out var values))
                 {
+                    if (values.Count == 1 && values[0].StartsWith("/"))
+                    {
+                        return;
+                    }
+
                     if (string.IsNullOrWhiteSpace(_environmentConfiguration.PublicHostname))
                     {
                         return;
