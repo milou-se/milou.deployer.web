@@ -12,12 +12,10 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
 using UrnTypes = Arbor.App.Extensions.Configuration.UrnTypes;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
+namespace Arbor.AspNetCore.Host.Configuration
 {
     [UsedImplicitly]
     public class UrnConfigurationModule : IModule
@@ -75,7 +73,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
 
                 if (treatWarningsAsErrors)
                 {
-                    var invalidInstances = string.Join(Environment.NewLine,
+                    string invalidInstances = string.Join(Environment.NewLine,
                         validationObjects
                             .Where(validatedObject => !validatedObject.Value.IsValid)
                             .Select(namedInstance => $"[{namedInstance.Value}] {namedInstance.Value}"));
@@ -95,7 +93,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
             {
                 var validationObject = validInstances.Single();
 
-                var instance = $"[{validationObject.Name}] {validationObject.Value}";
+                string instance = $"[{validationObject.Name}] {validationObject.Value}";
 
                 _logger.Debug("Registering URN-bound instance {Instance}, {Type}",
                     instance,
@@ -167,7 +165,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
             var urnMappedTypes = UrnTypes.GetUrnTypesInAssemblies(ApplicationAssemblies.FilteredAssemblies());
 
             if (!bool.TryParse(_keyValueConfiguration[UrnConfigurationConstants.TreatWarningsAsErrors],
-                out var treatWarningsAsErrors))
+                out bool treatWarningsAsErrors))
             {
                 treatWarningsAsErrors = false;
             }

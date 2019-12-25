@@ -4,17 +4,14 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
+namespace Arbor.AspNetCore.Host.Configuration
 {
     [UsedImplicitly]
     public class ConfigurationBackgroundService : BackgroundService
     {
         private readonly UserConfigUpdater _updater;
 
-        public ConfigurationBackgroundService(UserConfigUpdater updater)
-        {
-            _updater = updater;
-        }
+        public ConfigurationBackgroundService(UserConfigUpdater updater) => _updater = updater;
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

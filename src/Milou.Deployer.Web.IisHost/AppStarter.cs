@@ -13,6 +13,7 @@ using Arbor.App.Extensions.Logging;
 using Arbor.AspNetCore.Host;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Application;
@@ -49,7 +50,7 @@ namespace Milou.Deployer.Web.IisHost
 
                 if (int.TryParse(
                         environmentVariables.GetValueOrDefault(ConfigurationConstants.RestartTimeInSeconds),
-                        out var intervalInSeconds) && intervalInSeconds > 0)
+                        out int intervalInSeconds) && intervalInSeconds > 0)
                 {
                     cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(intervalInSeconds));
                 }
@@ -65,8 +66,8 @@ namespace Milou.Deployer.Web.IisHost
 
                     using (var app = await App<ApplicationPipeline>.CreateAsync(cancellationTokenSource, args, environmentVariables, instances))
                     {
-                        var runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
-                                           && !Debugger.IsAttached;
+                        bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
+                                            && !Debugger.IsAttached;
 
                         app.Logger.Information("Starting application {Application}", app.AppInstance);
 
@@ -101,7 +102,7 @@ namespace Milou.Deployer.Web.IisHost
                         {
                             app.Logger.Debug("Started {App}, waiting for web host shutdown", app.AppInstance);
 
-                            await app.WebHost.WaitForShutdownAsync(cancellationTokenSource.Token);
+                            await app.Host.WaitForShutdownAsync(cancellationTokenSource.Token);
                         }
 
                         app.Logger.Information(

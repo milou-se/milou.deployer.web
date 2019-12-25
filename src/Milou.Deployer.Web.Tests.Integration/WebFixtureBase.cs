@@ -80,7 +80,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         private int? GetHttpPort()
         {
-            var environmentConfiguration = App.WebHost.Services.GetService<EnvironmentConfiguration>();
+            var environmentConfiguration = App.Host.Services.GetService<EnvironmentConfiguration>();
 
             if (environmentConfiguration is null)
             {

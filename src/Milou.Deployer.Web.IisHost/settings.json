@@ -1,6 +1,17 @@
 {
     "version": "1.0",
     "keys": [
-
+      {
+        "key": "urn:arbor:app:web:assembly-prefix",
+        "value": "Milou"
+      },
+      {
+        "key": "urn:arbor:app:web:assembly-prefix",
+        "value": "Arbor"
+      },
+      {
+        "key": "urn:milou:deployer:web:nuget-configuration:default:nuget-exe-path",
+        "value": ""
+      }
     ]
 }

@@ -157,5 +157,7 @@ namespace Arbor.App.Extensions
             assemblies
                 .SelectMany(assembly => assembly.GetLoadablePublicConcreteTypeImplementing<T>())
                 .ToImmutableArray();
+
+        public static bool HasAttribute<T>(this Type type) where T : Attribute => type.GetCustomAttribute<T>() != null;
     }
 }

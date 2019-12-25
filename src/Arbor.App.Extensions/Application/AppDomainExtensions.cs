@@ -28,7 +28,7 @@ namespace Arbor.App.Extensions.Application
 
         public static ImmutableArray<Assembly> FilteredAssemblies(
             [NotNull] this AppDomain appDomain,
-            string assemblyNameStartsWith = null,
+            string[] assemblyNameStartsWith = null,
             bool useCache = true,
             ILogger logger = null)
         {
@@ -46,7 +46,16 @@ namespace Arbor.App.Extensions.Application
 
             ForceLoadReferenceAssemblies();
 
-            string[] allowedAssemblies = {assemblyNameStartsWith ?? ""};
+            string first = Assembly.GetEntryAssembly()?.FullName.Split(".", StringSplitOptions.RemoveEmptyEntries).First();
+
+            var items = new List<string>{"Arbor"};
+
+            if (!string.IsNullOrWhiteSpace(first))
+            {
+                items.Add(first);
+            }
+
+            string[] allowedAssemblies = assemblyNameStartsWith ?? items.ToArray();
 
             try
             {
@@ -54,11 +63,13 @@ namespace Arbor.App.Extensions.Application
                     DependencyContext.Default?.RuntimeLibraries?.ToImmutableArray() ??
                     ImmutableArray<RuntimeLibrary>.Empty;
 
-                var includedLibraries = defaultRuntimeLibraries
-                    .Where(item =>
-                       allowedAssemblies.Any(
-                            listed => item.Name.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
-                    .ToArray();
+                var includedLibraries = allowedAssemblies.Length == 0
+                    ? defaultRuntimeLibraries
+                    : defaultRuntimeLibraries
+                        .Where(item =>
+                            allowedAssemblies.Any(
+                                listed => item.Name.StartsWith(listed, StringComparison.OrdinalIgnoreCase)))
+                        .ToImmutableArray();
 
                 var loadedAssemblies = AppDomain.CurrentDomain
                     .GetAssemblies()

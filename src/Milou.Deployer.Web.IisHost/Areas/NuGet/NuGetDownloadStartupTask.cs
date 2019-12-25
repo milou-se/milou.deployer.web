@@ -24,14 +24,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly TimeoutHelper _timeoutHelper;
         private readonly ILogger _logger;
-        private readonly NuGetConfiguration _nugetConfiguration;
+        private readonly NuGetConfiguration? _nugetConfiguration;
 
-        public NuGetDownloadStartupTask(
-            ILogger logger,
+        public NuGetDownloadStartupTask(ILogger logger,
             IKeyValueConfiguration configuration,
-            NuGetConfiguration nugetConfiguration,
             IHttpClientFactory httpClientFactory,
-            TimeoutHelper timeoutHelper)
+            TimeoutHelper timeoutHelper,
+            NuGetConfiguration? nugetConfiguration = null)
         {
             _logger = logger;
             _configuration = configuration;
@@ -44,7 +43,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var nugetExePath = "";
+            string nugetExePath = "";
 
             _logger.Debug("Ensuring nuget.exe exists");
 

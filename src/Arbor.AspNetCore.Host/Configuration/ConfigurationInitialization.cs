@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,9 +21,14 @@ namespace Arbor.AspNetCore.Host.Configuration
         public static MultiSourceKeyValueConfiguration InitializeStartupConfiguration(IReadOnlyList<string> args,
             IReadOnlyDictionary<string, string> environmentVariables, IReadOnlyCollection<Assembly> assemblies)
         {
+            var tempSource = KeyValueConfigurationManager.Add(NoConfiguration.Empty)
+                .AddEnvironmentVariables(environmentVariables)
+                .AddCommandLineArgsSettings(args)
+                .Build();
+
             var multiSourceKeyValueConfiguration = KeyValueConfigurationManager
                 .Add(NoConfiguration.Empty)
-                .AddReflectionSettings(assemblies)
+                .AddReflectionSettings(assemblies, tempSource)
                 .AddEnvironmentVariables(environmentVariables)
                 .AddCommandLineArgsSettings(args)
                 .DecorateWith(new ExpandKeyValueConfigurationDecorator())
@@ -54,9 +60,9 @@ namespace Arbor.AspNetCore.Host.Configuration
             return builder.Add(memoryKeyValueConfiguration);
         }
 
-        private static AppSettingsBuilder AddReflectionSettings(
-            this AppSettingsBuilder appSettingsBuilder,
-            IReadOnlyCollection<Assembly> scanAssemblies)
+        private static AppSettingsBuilder AddReflectionSettings(this AppSettingsBuilder appSettingsBuilder,
+            IReadOnlyCollection<Assembly> scanAssemblies,
+            IKeyValueConfiguration? configuration = null)
         {
             if (scanAssemblies is null)
             {
@@ -65,9 +71,23 @@ namespace Arbor.AspNetCore.Host.Configuration
 
             foreach (var currentAssembly in scanAssemblies.OrderBy(assembly => assembly.FullName))
             {
-                appSettingsBuilder =
-                    appSettingsBuilder.Add(
-                        new ReflectionKeyValueConfiguration(currentAssembly));
+                string[] allValues = configuration?.AllValues.Where(pair => pair.Key.Equals(ApplicationConstants.AssemblyPrefix))?.Select(pair => pair.Value).ToArray() ?? Array.Empty<string>();
+
+                if (allValues.Length > 0 && !allValues.Any(currentValue => currentAssembly.FullName.StartsWith(currentValue)))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    appSettingsBuilder =
+                        appSettingsBuilder.Add(
+                            new ReflectionKeyValueConfiguration(currentAssembly));
+                }
+                catch (Exception ex) when (!ex.IsFatal())
+                {
+                    Debug.WriteLine($"Could not load assembly {currentAssembly.FullName} {ex}");
+                }
             }
 
             return appSettingsBuilder;
@@ -95,11 +115,12 @@ namespace Arbor.AspNetCore.Host.Configuration
             string contentBasePath = null,
             IReadOnlyCollection<Assembly> scanAssemblies = null,
             IReadOnlyList<string> args = null,
-            IReadOnlyDictionary<string, string> environmentVariables = null)
+            IReadOnlyDictionary<string, string> environmentVariables = null,
+            IKeyValueConfiguration? keyValueConfiguration = null)
         {
             var multiSourceKeyValueConfiguration = KeyValueConfigurationManager
                 .Add(NoConfiguration.Empty)
-                .AddReflectionSettings(scanAssemblies)
+                .AddReflectionSettings(scanAssemblies, keyValueConfiguration)
                 .AddLoggingSettings()
                 .AddJsonSettings(basePath, args, environmentVariables)
                 .AddMachineSpecificSettings(basePath)

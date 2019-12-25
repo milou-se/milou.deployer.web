@@ -6,6 +6,8 @@ namespace Arbor.App.Extensions.Application
 {
     public static class ApplicationConstants
     {
+        public const string AssemblyPrefix = "urn:arbor:app:web:assembly-prefix";
+
         public const string AspNetEnvironment = "ASPNETCORE_ENVIRONMENT";
 
         public const string EnvironmentProduction = "Production";
@@ -18,7 +20,7 @@ namespace Arbor.App.Extensions.Application
 
         public const string UseExplicitPorts = "urn:arbor:app:web:use-explicit-ports";
 
-        public const string PublicHostName = "urn:arbor:app:deployer:web:public-hostname";
+        public const string PublicHostName = "urn:arbor:app:web:public-hostname";
 
         public const string PublicPort = "urn:arbor:app:web:public-port";
 

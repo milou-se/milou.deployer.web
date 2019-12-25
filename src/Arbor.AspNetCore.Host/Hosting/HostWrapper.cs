@@ -2,21 +2,18 @@
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Hosting;
 
 namespace Arbor.AspNetCore.Host.Hosting
 {
-    public sealed class WebHostWrapper : IWebHost
+    public sealed class HostWrapper : IHost
     {
-        private readonly IWebHost _webHostImplementation;
+        private readonly IHost _webHostImplementation;
 
-        public WebHostWrapper([NotNull] IWebHost webHost) =>
+        public HostWrapper([NotNull] IHost webHost) =>
             _webHostImplementation = webHost ?? throw new ArgumentNullException(nameof(webHost));
 
         public void Dispose() => _webHostImplementation.Dispose();
-
-        public void Start() => _webHostImplementation.Start();
 
         public Task StartAsync(CancellationToken cancellationToken = new CancellationToken()) =>
             _webHostImplementation.StartAsync(cancellationToken);
@@ -24,8 +21,8 @@ namespace Arbor.AspNetCore.Host.Hosting
         public Task StopAsync(CancellationToken cancellationToken = new CancellationToken()) =>
             _webHostImplementation.StopAsync(cancellationToken);
 
-        public IFeatureCollection ServerFeatures => _webHostImplementation.ServerFeatures;
-
         public IServiceProvider Services => _webHostImplementation.Services;
+
+        public void Start() => _webHostImplementation.Start();
     }
 }

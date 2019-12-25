@@ -1,15 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Validation;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Arbor.KVConfiguration.Urns;
-using Baseline.Reflection;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Application;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
+namespace Arbor.AspNetCore.Host.Configuration
 {
     [UsedImplicitly]
     public sealed class UserConfigUpdater : IDisposable
@@ -25,7 +24,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
         {
             _configurationHolder = configurationHolder;
 
-            _fileName = Path.Combine(applicationEnvironment.ContentBasePath ?? Directory.GetCurrentDirectory(),
+            _fileName = Path.Combine(
+                applicationEnvironment.ContentBasePath ?? Directory.GetCurrentDirectory(),
                 "config.user");
 
             if (File.Exists(_fileName))

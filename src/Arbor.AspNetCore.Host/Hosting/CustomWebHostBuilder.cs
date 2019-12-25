@@ -19,11 +19,11 @@ namespace Arbor.AspNetCore.Host.Hosting
 {
     public static class CustomWebHostBuilder<T> where T : class
     {
-        public static IWebHostBuilder GetWebHostBuilder(
-            EnvironmentConfiguration environmentConfiguration,
+        public static IHostBuilder GetWebHostBuilder(EnvironmentConfiguration environmentConfiguration,
             IKeyValueConfiguration configuration,
             ServiceProviderHolder serviceProviderHolder,
             ILogger logger,
+            string[] commandLineArgs,
             Action<IServiceCollection> onRegistration = null)
         {
             string contentRoot = environmentConfiguration?.ContentBasePath ?? Directory.GetCurrentDirectory();
@@ -32,7 +32,9 @@ namespace Arbor.AspNetCore.Host.Hosting
 
             var kestrelServerOptions = new List<KestrelServerOptions>();
 
-            var webHostBuilder = new WebHostBuilder()
+            IHostBuilder hostBuilder = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(commandLineArgs);
+
+            hostBuilder
                 .ConfigureLogging((context, builder) => { builder.AddProvider(new SerilogLoggerProvider(logger)); })
                 .ConfigureServices(services =>
                 {
@@ -53,65 +55,70 @@ namespace Arbor.AspNetCore.Host.Hosting
                     hostingContext.Configuration =
                         new ConfigurationWrapper((IConfigurationRoot)hostingContext.Configuration,
                             serviceProviderHolder);
-                })
-                .UseKestrel(options =>
+                }).ConfigureWebHostDefaults(webBuilder =>
                 {
-                    if (kestrelServerOptions.Contains(options))
-                    {
-                        return;
-                    }
+                    webBuilder.UseStartup<T>()
+
+                        .UseKestrel(options =>
+                        {
+                            if (kestrelServerOptions.Contains(options))
+                            {
+                                return;
+                            }
+
+                            if (environmentConfiguration != null)
+                            {
+                                if (environmentConfiguration.UseExplicitPorts)
+                                {
+                                    if (environmentConfiguration.HttpPort.HasValue)
+                                    {
+                                        logger.Information("Listening on http port {Port}",
+                                            environmentConfiguration.HttpPort.Value);
+
+                                        options.Listen(IPAddress.Any,
+                                            environmentConfiguration.HttpPort.Value);
+                                    }
+
+                                    if (environmentConfiguration.HttpsPort.HasValue
+                                        && environmentConfiguration.PfxFile.HasValue()
+                                        && environmentConfiguration.PfxPassword.HasValue())
+                                    {
+                                        logger.Information("Listening on https port {Port}",
+                                            environmentConfiguration.HttpsPort.Value);
+
+                                        options.Listen(IPAddress.Any,
+                                            environmentConfiguration.HttpsPort.Value,
+                                            listenOptions =>
+                                            {
+                                                listenOptions.UseHttps(environmentConfiguration.PfxFile,
+                                                    environmentConfiguration.PfxPassword);
+                                            });
+                                    }
+                                }
+                            }
+
+                            kestrelServerOptions.Add(options);
+                        })
+                        .UseContentRoot(contentRoot)
+                        .ConfigureAppConfiguration((hostingContext, config) => { config.AddEnvironmentVariables(); })
+                        .UseIISIntegration()
+                        .UseDefaultServiceProvider((context, options) =>
+                        {
+                            options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
+                        })
+                        .UseStartup<T>();
 
                     if (environmentConfiguration != null)
                     {
-                        if (environmentConfiguration.UseExplicitPorts)
+                        if (environmentConfiguration.EnvironmentName.HasValue())
                         {
-                            if (environmentConfiguration.HttpPort.HasValue)
-                            {
-                                logger.Information("Listening on http port {Port}",
-                                    environmentConfiguration.HttpPort.Value);
-
-                                options.Listen(IPAddress.Any,
-                                    environmentConfiguration.HttpPort.Value);
-                            }
-
-                            if (environmentConfiguration.HttpsPort.HasValue
-                                && environmentConfiguration.PfxFile.HasValue()
-                                && environmentConfiguration.PfxPassword.HasValue())
-                            {
-                                logger.Information("Listening on https port {Port}",
-                                    environmentConfiguration.HttpsPort.Value);
-
-                                options.Listen(IPAddress.Any,
-                                    environmentConfiguration.HttpsPort.Value,
-                                    listenOptions =>
-                                    {
-                                        listenOptions.UseHttps(environmentConfiguration.PfxFile,
-                                            environmentConfiguration.PfxPassword);
-                                    });
-                            }
+                            webBuilder.UseEnvironment(environmentConfiguration.EnvironmentName);
                         }
                     }
+                });
 
-                    kestrelServerOptions.Add(options);
-                })
-                .UseContentRoot(contentRoot)
-                .ConfigureAppConfiguration((hostingContext, config) => { config.AddEnvironmentVariables(); })
-                .UseIISIntegration()
-                .UseDefaultServiceProvider((context, options) =>
-                {
-                    options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
-                })
-                .UseStartup<T>();
 
-            if (environmentConfiguration != null)
-            {
-                if (environmentConfiguration.EnvironmentName.HasValue())
-                {
-                    webHostBuilder = webHostBuilder.UseEnvironment(environmentConfiguration.EnvironmentName);
-                }
-            }
-
-            var webHostBuilderWrapper = new WebHostBuilderWrapper(webHostBuilder);
+            var webHostBuilderWrapper = new HostBuilderWrapper(hostBuilder);
 
             return webHostBuilderWrapper;
         }

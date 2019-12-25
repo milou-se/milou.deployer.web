@@ -20,6 +20,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -34,7 +35,7 @@ namespace Arbor.AspNetCore.Host
         private bool _disposing;
 
         public App(
-            [NotNull] IWebHostBuilder webHost,
+            [NotNull] IHostBuilder webHost,
             [NotNull] CancellationTokenSource cancellationTokenSource,
             [NotNull] ILogger appLogger,
             MultiSourceKeyValueConfiguration configuration,
@@ -64,9 +65,9 @@ namespace Arbor.AspNetCore.Host
         public ConfigurationInstanceHolder ConfigurationInstanceHolder { get; }
 
         [PublicAPI]
-        public IWebHostBuilder HostBuilder { get; private set; }
+        public IHostBuilder HostBuilder { get; private set; }
 
-        public IWebHost WebHost { get; private set; }
+        public IHost Host { get; private set; }
 
         public void Dispose()
         {
@@ -87,7 +88,7 @@ namespace Arbor.AspNetCore.Host
             Logger?.Verbose("Disposing web host {Application} {Instance}",
                 ApplicationName,
                 _instanceId);
-            WebHost?.SafeDispose();
+            Host?.SafeDispose();
             Logger?.Verbose("Disposing Application root scope {Application} {Instance}",
                 ApplicationName,
                 _instanceId);
@@ -116,7 +117,7 @@ namespace Arbor.AspNetCore.Host
 
             Configuration = null;
             Logger = null;
-            WebHost = null;
+            Host = null;
             HostBuilder = null;
             _disposed = true;
             _disposing = false;
@@ -188,7 +189,8 @@ namespace Arbor.AspNetCore.Host
                         paths.ContentBasePath,
                         scanAssemblies,
                         commandLineArgs,
-                        environmentVariables);
+                        environmentVariables,
+                        startupConfiguration);
 
                 configurationInstanceHolder.AddInstance(configuration);
             }
@@ -280,7 +282,14 @@ namespace Arbor.AspNetCore.Host
                 {
                     var interfaces = registeredType.GetInterfaces();
 
-                    var instance = configurationInstanceHolder.GetInstances(registeredType).Single().Value;
+                    var all = configurationInstanceHolder.GetInstances(registeredType);
+
+                    if (all.Count > 1)
+                    {
+
+                    }
+
+                    var instance = all.Single().Value;
 
                     foreach (var @interface in interfaces)
                     {
@@ -291,12 +300,35 @@ namespace Arbor.AspNetCore.Host
                     serviceCollection.AddSingleton(serviceType, instance);
                 }
 
+                var serviceProviderModules = scanAssemblies.
+                    GetLoadablePublicConcreteTypesImplementing<IServiceProviderModule>();
+
+                var serviceProviderHolder = new ServiceProviderHolder(serviceCollection.BuildServiceProvider(),
+                    serviceCollection);
+
+                foreach (var module in serviceProviderModules)
+                {
+                    try
+                    {
+                        if (Activator.CreateInstance(module) is IServiceProviderModule instance)
+                        {
+                            instance.Register(serviceProviderHolder);
+                        }
+                    }
+                    catch (Exception ex) when (!ex.IsFatal())
+                    {
+                        appLogger.Error(ex, "Could not create instance of type {Type}", module.FullName);
+                    }
+                }
+
+                var webHostBuilder = CustomWebHostBuilder<T>.GetWebHostBuilder(environmentConfiguration,
+                    configuration,
+                    serviceProviderHolder,
+                    appLogger,
+                    commandLineArgs);
+
                 app = new App<T>(
-                    CustomWebHostBuilder<T>.GetWebHostBuilder(environmentConfiguration,
-                        configuration,
-                        new ServiceProviderHolder(serviceCollection.BuildServiceProvider(),
-                            serviceCollection),
-                        appLogger),
+                    webHostBuilder,
                     cancellationTokenSource,
                     appLogger,
                     configuration,
@@ -418,10 +450,16 @@ namespace Arbor.AspNetCore.Host
             {
                 throw new ArgumentNullException(nameof(args));
             }
+            bool runAsService = args.Any(arg => arg.Equals(ApplicationConstants.RunAsService, StringComparison.OrdinalIgnoreCase));
 
             try
             {
-                WebHost = HostBuilder.Build();
+                if (runAsService)
+                {
+                    HostBuilder.UseWindowsService();
+                }
+
+                Host = HostBuilder.Build();
             }
             catch (Exception ex) when (!ex.IsFatal())
             {
@@ -429,13 +467,13 @@ namespace Arbor.AspNetCore.Host
                 throw new InvalidOperationException($"Could not build web host in {AppInstance}", ex);
             }
 
-            if (args.Any(arg => arg.Equals(ApplicationConstants.RunAsService, StringComparison.OrdinalIgnoreCase)))
+            if (runAsService)
             {
                 Logger.Information("Starting {AppInstance} as a Windows Service", AppInstance);
 
                 try
                 {
-                    WebHost.CustomRunAsService();
+                    await Host.WaitForShutdownAsync();
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
@@ -451,7 +489,7 @@ namespace Arbor.AspNetCore.Host
 
                 try
                 {
-                    await WebHost.StartAsync(CancellationTokenSource.Token);
+                    await Host.StartAsync(CancellationTokenSource.Token);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {

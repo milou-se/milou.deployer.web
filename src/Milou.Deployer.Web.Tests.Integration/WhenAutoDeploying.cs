@@ -51,7 +51,7 @@ namespace Milou.Deployer.Web.Tests.Integration
             using (var httpClient = new HttpClient())
             {
                 using (var cancellationTokenSource =
-                    WebFixture.App.WebHost.Services.GetService<CancellationTokenSource>())
+                    WebFixture.App.Host.Services.GetService<CancellationTokenSource>())
                 {
                     cancellationTokenSource.Token.Register(() =>
                     {
@@ -63,7 +63,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                     {
                         // ReSharper disable MethodSupportsCancellation
                         var startupTaskContext =
-                            WebFixture.App.WebHost.Services.GetRequiredService<StartupTaskContext>();
+                            WebFixture.App.Host.Services.GetRequiredService<StartupTaskContext>();
 
                         while (!startupTaskContext.IsCompleted &&
                                !cancellationTokenSource.Token.IsCancellationRequested)

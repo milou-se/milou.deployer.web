@@ -1,11 +1,7 @@
-﻿using System.IO;
-using Arbor.App.Extensions.Application;
+﻿using Arbor.App.Extensions.Application;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
-
-using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.IisHost.Areas.ErrorHandling;
 using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Routing;
