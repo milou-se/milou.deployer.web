@@ -233,7 +233,6 @@ pip-log.txt
 
 **/PostgreSql.Binaries.Lite.*.nupkg
 **/nCrunchTemp_*
-NuGet.Config
 src/Milou.Deployer.Web.IisHost/settings.*.json
 tools/DevRootCert.txt
 src/Milou.Deployer.Web.IisHost/wwwroot/wwwroot/lib/**/*

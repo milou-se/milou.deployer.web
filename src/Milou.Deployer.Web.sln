@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		global.json = global.json
 		..\LICENSE.txt = ..\LICENSE.txt
 		Milou.ruleset = Milou.ruleset
+		..\nuget.config = ..\nuget.config
 		..\version.json = ..\version.json
 	EndProjectSection
 EndProject
@@ -37,7 +38,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Agent.Ho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbor.AspNetCore.Host", "Arbor.AspNetCore.Host\Arbor.AspNetCore.Host.csproj", "{57D8429A-E201-451C-BD75-10688FC7082D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arbor.App.Extensions", "Arbor.App.Extensions\Arbor.App.Extensions.csproj", "{A8E4B02C-900D-4752-BE9E-BB426C234C14}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbor.App.Extensions", "Arbor.App.Extensions\Arbor.App.Extensions.csproj", "{A8E4B02C-900D-4752-BE9E-BB426C234C14}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
