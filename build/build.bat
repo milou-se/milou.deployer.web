@@ -11,6 +11,7 @@ SET Arbor.X.Artifacts.CleanupBeforeBuildEnabled=true
 SET Arbor.X.Build.NetAssembly.Configuration=
 SET Arbor.X.MSBuild.NuGetRestore.Enabled=true
 SET Arbor.X.Tools.External.Xunit.NetCoreApp.Enabled=false
+SET Arbor.Build.BuilderNumber.UnixEpochSecondsEnabled=true
 
 SET Fallback.Version.Build=0
 
