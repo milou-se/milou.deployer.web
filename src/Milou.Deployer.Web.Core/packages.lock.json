@@ -173,9 +173,9 @@
       },
       "Milou.Deployer.Bootstrapper.Common": {
         "type": "Direct",
-        "requested": "[4.6.3, )",
-        "resolved": "4.6.3",
-        "contentHash": "aPpZAkOS+HTwBw2N/zLQqpm/DdlDntjSqDNafrPurVBye82sL/Ub1rc9pDM593FirZv75wsgmuW6Ho2QzUH/8A==",
+        "requested": "[4.7.0-build.1577575671, )",
+        "resolved": "4.7.0-build.1577575671",
+        "contentHash": "S7cWvUyuD43iAIAUxYIeUywkhO8nUcE05Mdhg6ZnqKUHxlmmVacYjpMfIqURXR5uTARzYf+8gcdHhAJcDYQcwQ==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
@@ -186,9 +186,9 @@
       },
       "Milou.Deployer.Core": {
         "type": "Direct",
-        "requested": "[4.6.3, )",
-        "resolved": "4.6.3",
-        "contentHash": "C+t+tB/lRpvzobX2eJ9Z1GOXNHI7FRR3vqzAiaJ397D6ErwT6FnAVvQc95Nf5BI0ryZ3ahaFycgM+p9cF0B9qA==",
+        "requested": "[4.7.0-build.1577575671, )",
+        "resolved": "4.7.0-build.1577575671",
+        "contentHash": "9gBBPhsg+/sN6WcsIk6QN7UHKuWxOmo3Br8lfJRWuiEIRX8RmrQK5DaS+nHQ5DXbF96Io/u8R4S50oaqjBDuxw==",
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
