@@ -2,15 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using Arbor.KVConfiguration.Urns;
+using JetBrains.Annotations;
 
 namespace Arbor.App.Extensions.Configuration
 {
     public static class ConfigurationInstanceHolderExtensions
     {
-        public static void AddInstance<T>(this ConfigurationInstanceHolder holder, T instance) where T : class =>
-            holder.Add(new NamedInstance<T>(instance, instance.GetType().FullName));
+        public static void AddInstance<T>(this ConfigurationInstanceHolder holder, [NotNull] T instance) where T : class
+        {
+            if (instance == null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
 
-        public static T Get<T>(this ConfigurationInstanceHolder holder) where T : class =>
+            holder.Add(new NamedInstance<T>(instance, instance.GetType().FullName!));
+        }
+
+        public static T? Get<T>(this ConfigurationInstanceHolder holder) where T : class =>
             holder.GetInstances<T>().SingleOrDefault().Value;
 
         public static T Create<T>(this ConfigurationInstanceHolder holder) where T : class =>
@@ -31,7 +39,7 @@ namespace Arbor.App.Extensions.Configuration
             }
         }
 
-        public static object Create(this ConfigurationInstanceHolder holder, Type type)
+        public static object? Create(this ConfigurationInstanceHolder holder, Type type)
         {
             var instances = holder.GetInstances(type);
 
@@ -72,7 +80,7 @@ namespace Arbor.App.Extensions.Configuration
                     $"Missing types defined in ctor for type {type.FullName}: {string.Join(", ", missingArgs.Select(m => m.ParameterType.FullName))}");
             }
 
-            var args = parameters.Length == 0
+            object?[] args = parameters.Length == 0
                 ? Array.Empty<object>()
                 : parameters.Select(p => optionalArgs.Contains(p)
                     ? null

@@ -11,7 +11,7 @@ namespace Arbor.App.Extensions
     [PublicAPI]
     public static class TypeExtensions
     {
-        public static Type TryGetType(this ExcludedAutoRegistrationType excluded)
+        public static Type? TryGetType(this ExcludedAutoRegistrationType excluded)
         {
             try
             {

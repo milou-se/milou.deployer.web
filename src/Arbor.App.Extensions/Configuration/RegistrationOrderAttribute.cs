@@ -9,7 +9,7 @@ namespace Arbor.App.Extensions.Configuration
 
         public int Order { get; }
 
-        public string Tag { get; set; }
+        public string? Tag { get; set; }
 
         public bool RegisterInRootScope { get; set; }
     }

@@ -11,8 +11,8 @@ namespace Arbor.App.Extensions.Time
         private readonly TimeZoneInfo _timeZone;
 
         public CustomSystemClock(
-            [CanBeNull] IKeyValueConfiguration keyValueConfiguration = null,
-            string timeZoneId = null)
+            IKeyValueConfiguration? keyValueConfiguration = null,
+            string? timeZoneId = null)
         {
             timeZoneId = !string.IsNullOrWhiteSpace(timeZoneId)
                 ? timeZoneId

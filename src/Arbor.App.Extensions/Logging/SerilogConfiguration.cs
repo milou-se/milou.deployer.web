@@ -18,7 +18,7 @@ namespace Arbor.App.Extensions.Logging
             bool consoleEnabled = false,
             bool debugConsoleEnabled = false)
         {
-            Uri uri = null;
+            Uri? uri = null;
             if (!seqEnabled)
             {
                 IsValid = true;
@@ -50,9 +50,9 @@ namespace Arbor.App.Extensions.Logging
 
         public bool DebugConsoleEnabled { get; }
 
-        public Uri SeqUrl { get; }
+        public Uri? SeqUrl { get; }
 
-        public string RollingLogFilePath { get; }
+        public string? RollingLogFilePath { get; }
 
         public bool IsValid { get; }
 

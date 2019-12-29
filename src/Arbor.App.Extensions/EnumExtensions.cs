@@ -8,25 +8,25 @@ namespace Arbor.App.Extensions
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                item = default;
+                item = default!;
                 return false;
             }
 
-            if (!Enum.TryParse(typeof(T), value, true, out object result))
+            if (!Enum.TryParse(typeof(T), value, true, out object? result))
             {
-                item = default;
+                item = default!;
                 return false;
             }
 
             if (!(result is T instance))
             {
-                item = default;
+                item = default!;
                 return false;
             }
 
             if (!Enum.IsDefined(typeof(T), instance))
             {
-                item = default;
+                item = default!;
                 return false;
             }
 

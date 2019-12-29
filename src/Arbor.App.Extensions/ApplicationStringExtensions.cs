@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using JetBrains.Annotations;
@@ -134,7 +135,7 @@ namespace Arbor.App.Extensions
             return result;
         }
 
-        public static string WithDefault(this string value, string defaultValue)
+        public static string? WithDefault(this string value, string? defaultValue)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
@@ -147,8 +148,8 @@ namespace Arbor.App.Extensions
         public static bool AllHaveValue(params string[] values) =>
             values != null && values.All(value => !string.IsNullOrWhiteSpace(value));
 
-        public static bool HasValue(this string text) => !string.IsNullOrWhiteSpace(text);
+        public static bool HasValue([NotNullWhen(true)] this string? text) => !string.IsNullOrWhiteSpace(text);
 
-        public static bool IsNullOrWhiteSpace(this string text) => string.IsNullOrWhiteSpace(text);
+        public static bool IsNullOrWhiteSpace(this string? text) => string.IsNullOrWhiteSpace(text);
     }
 }

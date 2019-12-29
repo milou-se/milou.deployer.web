@@ -13,7 +13,7 @@ namespace Arbor.App.Extensions.IO
             File = file ?? throw new ArgumentNullException(nameof(file));
         }
 
-        public FileInfo File { get; private set; }
+        public FileInfo? File { get; private set; }
 
         public void Dispose()
         {
@@ -46,7 +46,7 @@ namespace Arbor.App.Extensions.IO
             File = null;
         }
 
-        public static TempFile CreateTempFile(string name = null, string extension = null)
+        public static TempFile CreateTempFile(string name = null, string? extension = null)
         {
             string defaultName = $"MDW-tmp-{DateTime.UtcNow.Ticks}";
 
@@ -54,7 +54,7 @@ namespace Arbor.App.Extensions.IO
 
             string tempDir = Path.GetTempPath();
 
-            DirectoryInfo customTempDir = default;
+            DirectoryInfo? customTempDir = default;
 
             if (!string.IsNullOrWhiteSpace(name))
             {

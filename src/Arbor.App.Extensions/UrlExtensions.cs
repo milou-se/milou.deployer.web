@@ -42,7 +42,7 @@ namespace Arbor.App.Extensions
             return builder.Uri;
         }
 
-        public static Uri ParseUriOrDefault(this string value)
+        public static Uri? ParseUriOrDefault(this string? value)
         {
             if (Uri.TryCreate(value, UriKind.Absolute, out Uri uri))
             {

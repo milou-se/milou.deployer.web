@@ -8,8 +8,8 @@ namespace Arbor.App.Extensions.IO
     {
         public const string Urn = "urn:arbor:app:web:paths";
 
-        public string BasePath { get; set; }
+        public string? BasePath { get; set; }
 
-        public string ContentBasePath { get; set; }
+        public string? ContentBasePath { get; set; }
     }
 }

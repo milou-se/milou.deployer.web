@@ -51,22 +51,22 @@ namespace Arbor.AspNetCore.Host
             AppInstance = ApplicationName + " " + _instanceId;
         }
 
-        public string ApplicationName { get; }
+        public string? ApplicationName { get; }
 
         public string AppInstance { get; }
 
         public CancellationTokenSource CancellationTokenSource { get; }
 
-        public ILogger Logger { get; private set; }
+        public ILogger? Logger { get; private set; }
 
         public MultiSourceKeyValueConfiguration Configuration { get; private set; }
 
         public ConfigurationInstanceHolder ConfigurationInstanceHolder { get; }
 
         [PublicAPI]
-        public IHostBuilder HostBuilder { get; private set; }
+        public IHostBuilder? HostBuilder { get; private set; }
 
-        public IHost Host { get; private set; }
+        public IHost? Host { get; private set; }
 
         public void Dispose()
         {

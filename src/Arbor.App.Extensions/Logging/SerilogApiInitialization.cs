@@ -97,8 +97,8 @@ namespace Arbor.App.Extensions.Logging
             if (serilogConfiguration.RollingLogFilePathEnabled)
             {
                 string logFilePath = Path.IsPathRooted(serilogConfiguration.RollingLogFilePath)
-                    ? serilogConfiguration.RollingLogFilePath
-                    : Path.Combine(AppDomain.CurrentDomain.BaseDirectory, serilogConfiguration.RollingLogFilePath);
+                    ? serilogConfiguration.RollingLogFilePath!
+                    : Path.Combine(AppDomain.CurrentDomain.BaseDirectory!, serilogConfiguration.RollingLogFilePath);
 
                 var fileInfo = new FileInfo(logFilePath);
 
@@ -213,9 +213,9 @@ namespace Arbor.App.Extensions.Logging
                     .WriteTo.File(logFile, startupLevel, rollingInterval: RollingInterval.Day);
             }
 
-            string seq = environmentVariables.ValueOrDefault(LoggingConstants.SeqStartupUrl);
+            string? seq = environmentVariables.ValueOrDefault(LoggingConstants.SeqStartupUrl);
 
-            Uri usedSeqUri = null;
+            Uri? usedSeqUri = null;
             if (!string.IsNullOrWhiteSpace(seq))
             {
                 string seqUrl = Environment.ExpandEnvironmentVariables(seq);

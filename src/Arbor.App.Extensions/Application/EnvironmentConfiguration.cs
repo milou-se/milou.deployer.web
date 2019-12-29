@@ -20,16 +20,16 @@ namespace Arbor.App.Extensions.Application
                                                 StringComparison.OrdinalIgnoreCase);
 
         [PublicAPI]
-        public string ApplicationBasePath { get; set; }
+        public string? ApplicationBasePath { get; set; }
 
         [PublicAPI]
-        public string ContentBasePath { get; set; }
+        public string? ContentBasePath { get; set; }
 
         [PublicAPI]
-        public string EnvironmentName { get; set; }
+        public string? EnvironmentName { get; set; }
 
         [PublicAPI]
-        public string PublicHostname { get; set; }
+        public string? PublicHostname { get; set; }
 
         public bool UseExplicitPorts { get; set; }
 
@@ -46,10 +46,10 @@ namespace Arbor.App.Extensions.Application
         public int? HttpsPort { get; set; }
 
         [PublicAPI]
-        public string PfxFile { get; set; }
+        public string? PfxFile { get; set; }
 
         [PublicAPI]
-        public string PfxPassword { get; set; }
+        public string? PfxPassword { get; set; }
 
         public bool UseVerboseLogging { get; set; }
 
@@ -57,7 +57,7 @@ namespace Arbor.App.Extensions.Application
 
         public int? ForwardLimit { get; set; }
 
-        public ImmutableArray<string> CommandLineArgs { get; set; }
+        public ImmutableArray<string> CommandLineArgs { get; set; } = ImmutableArray<string>.Empty;
 
         public List<IPAddress> ProxyAddresses { get; } = new List<IPAddress>();
 

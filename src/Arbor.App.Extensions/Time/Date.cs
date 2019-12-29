@@ -26,7 +26,7 @@ namespace Arbor.App.Extensions.Time
         [SuppressMessage("ReSharper", "ImpureMethodCallOnReadonlyValueField")]
         public bool Equals(Date other) => _datePart.Equals(other._datePart);
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is null)
             {

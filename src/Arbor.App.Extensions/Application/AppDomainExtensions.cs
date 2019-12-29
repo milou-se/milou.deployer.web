@@ -22,13 +22,13 @@ namespace Arbor.App.Extensions.Application
 
             foreach (var type in types)
             {
-                TempLogger.WriteLine(type.Assembly.GetName().Name);
+                TempLogger.WriteLine(type.Assembly.GetName().Name!);
             }
         }
 
         public static ImmutableArray<Assembly> FilteredAssemblies(
             [NotNull] this AppDomain appDomain,
-            string[] assemblyNameStartsWith = null,
+            string[]? assemblyNameStartsWith = null,
             bool useCache = true,
             ILogger logger = null)
         {
@@ -46,7 +46,7 @@ namespace Arbor.App.Extensions.Application
 
             ForceLoadReferenceAssemblies();
 
-            string first = Assembly.GetEntryAssembly()?.FullName.Split(".", StringSplitOptions.RemoveEmptyEntries).First();
+            string? first = Assembly.GetEntryAssembly()?.FullName.Split(".", StringSplitOptions.RemoveEmptyEntries).First();
 
             var items = new List<string>{"Arbor"};
 
@@ -75,7 +75,7 @@ namespace Arbor.App.Extensions.Application
                     .GetAssemblies()
                     .Where(assembly => !assembly.IsDynamic)
                     .Where(assembly => allowedAssemblies.Any(allowed =>
-                        assembly.GetName().Name.StartsWith(allowed, StringComparison.OrdinalIgnoreCase)))
+                        assembly.GetName().Name?.StartsWith(allowed, StringComparison.OrdinalIgnoreCase) ?? false))
                     .ToArray();
 
                 var loadedAssemblyNames = loadedAssemblies
@@ -84,7 +84,7 @@ namespace Arbor.App.Extensions.Application
 
                 var toLoad = includedLibraries
                     .Where(lib =>
-                        !loadedAssemblyNames.Any(loaded => loaded.Name.Equals(lib.Name, StringComparison.Ordinal)))
+                        !loadedAssemblyNames.Any(loaded => loaded?.Name?.Equals(lib.Name, StringComparison.Ordinal) ?? false))
                     .ToArray();
 
                 var assemblyNames = toLoad
@@ -111,6 +111,13 @@ namespace Arbor.App.Extensions.Application
             {
                 string? assemblyName = assembly.GetName().Name;
 
+                int defaultOrder = 0;
+
+                if (string.IsNullOrWhiteSpace(assemblyName))
+                {
+                    return defaultOrder;
+                }
+
                 foreach ((string Name, int Order) valueTuple in orders)
                 {
                     if (assemblyName.IndexOf(valueTuple.Name, StringComparison.OrdinalIgnoreCase) >= 0)
@@ -119,7 +126,6 @@ namespace Arbor.App.Extensions.Application
                     }
                 }
 
-                int defaultOrder = 0;
 
                 return defaultOrder;
             }

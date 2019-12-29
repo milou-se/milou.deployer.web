@@ -7,7 +7,7 @@ namespace Arbor.App.Extensions.Cli
 {
     public static class ParameterParser
     {
-        public static string ParseParameter(
+        public static string? ParseParameter(
             [NotNull] this IReadOnlyCollection<string> parameters,
             [NotNull] string parameterName)
         {
@@ -23,7 +23,7 @@ namespace Arbor.App.Extensions.Cli
 
             string trimmedName = parameterName.Trim();
             string prefix = $"{trimmedName}=";
-            var matchingArgs = parameters
+            string[] matchingArgs = parameters
                 .Where(param => param != null)
                 .Select(param => param.Trim())
                 .Where(param => param.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
