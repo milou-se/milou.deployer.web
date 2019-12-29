@@ -16,9 +16,9 @@
       },
       "Arbor.KVConfiguration.Core": {
         "type": "Direct",
-        "requested": "[0.20.0-build.195, )",
-        "resolved": "0.20.0-build.195",
-        "contentHash": "di7i1OhnU6QpVixC3AozJszH5smofk/7l9r2mtLT2PiWpVoY01XMh4RpqzYKQ84h8LOIMH//JRQLLmRbN2qg/Q==",
+        "requested": "[0.20.0-build.1577577006, )",
+        "resolved": "0.20.0-build.1577577006",
+        "contentHash": "OsJ4V2Rbmc179+hmryk4A46DEvbWjSl+Z+I3e3QjoG1H9RBGPlUVnjDGmBOR+HJg5HR2sMdAcIVjHwugSVo0lw==",
         "dependencies": {
           "Microsoft.Extensions.Primitives": "[3.0.0, 4.0.0)",
           "System.Collections.Immutable": "[1.5.0, 2.0.0)"
@@ -26,60 +26,60 @@
       },
       "Arbor.KVConfiguration.DependencyInjection": {
         "type": "Direct",
-        "requested": "[0.20.0-build.195, )",
-        "resolved": "0.20.0-build.195",
-        "contentHash": "0rD94IhM0JMHsAZop05C9ZSH7+Ha6NSk47cR9YWghTM+iIx6MG2Guhy8MgP8JZBuO92i/C4q5YARqfxF2kIXgQ==",
+        "requested": "[0.20.0-build.1577577006, )",
+        "resolved": "0.20.0-build.1577577006",
+        "contentHash": "PyT2qUgfCEbjCHrtwNiXTzoJz9eRiQbh+phlkXH318cXPav3PeertoLrMtHQx5XLhadOubQBpi4YOJvV/LT7fA==",
         "dependencies": {
-          "Arbor.KVConfiguration.Core": "[0.20.0-build.195]",
-          "Arbor.KVConfiguration.Urns": "[0.20.0-build.195]",
+          "Arbor.KVConfiguration.Core": "[0.20.0-build.1577577006]",
+          "Arbor.KVConfiguration.Urns": "[0.20.0-build.1577577006]",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[3.0.0, 4.0.0)"
         }
       },
       "Arbor.KVConfiguration.JsonConfiguration": {
         "type": "Direct",
-        "requested": "[0.20.0-build.195, )",
-        "resolved": "0.20.0-build.195",
-        "contentHash": "z40jWTxKi7ayaX0lFogJN9aONCz552aFIuaPftCLIjwsUGWhSBltrc4RQtRt5NCEQ4z53KOmU+8nqP6KIgLAvQ==",
+        "requested": "[0.20.0-build.1577577006, )",
+        "resolved": "0.20.0-build.1577577006",
+        "contentHash": "+ttEbbdWl2oUCylahLLqoaNOOacAF3WF8uR7/a+sH3Mcf3iJ7oDTJrQ/UO+AifbgZs3giFxM1R66Y5+ZBdtODQ==",
         "dependencies": {
-          "Arbor.KVConfiguration.Core": "[0.20.0-build.195]",
-          "Arbor.KVConfiguration.Schema": "[0.20.0-build.195]",
-          "Arbor.KVConfiguration.Schema.Json": "[0.20.0-build.195]",
+          "Arbor.KVConfiguration.Core": "[0.20.0-build.1577577006]",
+          "Arbor.KVConfiguration.Schema": "[0.20.0-build.1577577006]",
+          "Arbor.KVConfiguration.Schema.Json": "[0.20.0-build.1577577006]",
           "Newtonsoft.Json": "[12.0.1, 13.0.0)"
         }
       },
       "Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns": {
         "type": "Direct",
-        "requested": "[0.20.0-build.195, )",
-        "resolved": "0.20.0-build.195",
-        "contentHash": "NNlKabGwY3Ye018TRl4mXAAf7IznzDO2xZY4pbXhDqgOd4EoJwnDFrnFSvpcSEu9S3TtPUJKQJL09g41ppyLLA==",
+        "requested": "[0.20.0-build.1577577006, )",
+        "resolved": "0.20.0-build.1577577006",
+        "contentHash": "ofT/9wEtUiemST2CyHE1wU+1lL1i9IWA1j+Kh7T4XjhONTZTI+asvqjr8PCvn5IEjuNEKiEu3ciVWmmCSOxDYg==",
         "dependencies": {
-          "Arbor.KVConfiguration.Core": "[0.20.0-build.195]",
-          "Arbor.KVConfiguration.Urns": "[0.20.0-build.195]",
+          "Arbor.KVConfiguration.Core": "[0.20.0-build.1577577006]",
+          "Arbor.KVConfiguration.Urns": "[0.20.0-build.1577577006]",
           "Microsoft.Extensions.Configuration": "[3.0.0, 4.0.0)",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[3.0.0, 4.0.0)"
         }
       },
       "Arbor.KVConfiguration.Urns": {
         "type": "Direct",
-        "requested": "[0.20.0-build.195, )",
-        "resolved": "0.20.0-build.195",
-        "contentHash": "eW2MOwGU9kxLRa4lWy5nbYRtnOmihkFgvUexBexdxeRQ7kWX3I0Jhj3CRAalmRQaip6j93R7WxS07rG6vTC+eg==",
+        "requested": "[0.20.0-build.1577577006, )",
+        "resolved": "0.20.0-build.1577577006",
+        "contentHash": "KH9ammuKpmu6Y5CFq3/xxzjscOaeQf3o+Y7vSwEQIyuqIrzhKKY4bjg365UPHQKJn8xbY40Lk7FUEJYumPWQVA==",
         "dependencies": {
-          "Arbor.KVConfiguration.Core": "[0.20.0-build.195]",
-          "Arbor.KVConfiguration.Schema": "[0.20.0-build.195]",
-          "Arbor.Primitives": "[0.20.0-build.195]",
+          "Arbor.KVConfiguration.Core": "[0.20.0-build.1577577006]",
+          "Arbor.KVConfiguration.Schema": "[0.20.0-build.1577577006]",
+          "Arbor.Primitives": "[0.20.0-build.1577577006]",
           "Newtonsoft.Json": "12.0.1"
         }
       },
       "Arbor.KVConfiguration.UserConfiguration": {
         "type": "Direct",
-        "requested": "[0.20.0-build.195, )",
-        "resolved": "0.20.0-build.195",
-        "contentHash": "xnNtWTA8jrGhz16FqdW5YElOu1X9/mo7DXaetKUa3NxnvzavNhLtoDbLjd45VCSgROo/IjF7mofCrP6JwH1WDA==",
+        "requested": "[0.20.0-build.1577577006, )",
+        "resolved": "0.20.0-build.1577577006",
+        "contentHash": "F49u9iAHOTx2CldmczB0BTsHNO3HJgEOU+Fr3BVV4DbkWpC9mHnmV0KHOtfKY9lucEuWIIzl4vKEFTnprW6jHg==",
         "dependencies": {
-          "Arbor.KVConfiguration.Core": "[0.20.0-build.195]",
-          "Arbor.KVConfiguration.JsonConfiguration": "[0.20.0-build.195]",
-          "Arbor.KVConfiguration.Schema": "[0.20.0-build.195]"
+          "Arbor.KVConfiguration.Core": "[0.20.0-build.1577577006]",
+          "Arbor.KVConfiguration.JsonConfiguration": "[0.20.0-build.1577577006]",
+          "Arbor.KVConfiguration.Schema": "[0.20.0-build.1577577006]"
         }
       },
       "Arbor.ModelBinding": {
@@ -239,9 +239,9 @@
       },
       "Milou.Deployer.Bootstrapper.Common": {
         "type": "Direct",
-        "requested": "[4.7.0-build.1577575671, )",
-        "resolved": "4.7.0-build.1577575671",
-        "contentHash": "S7cWvUyuD43iAIAUxYIeUywkhO8nUcE05Mdhg6ZnqKUHxlmmVacYjpMfIqURXR5uTARzYf+8gcdHhAJcDYQcwQ==",
+        "requested": "[4.7.0-build.1577577415, )",
+        "resolved": "4.7.0-build.1577577415",
+        "contentHash": "HGB517Mpb+l4BH/qhUksXZAz1Y7BHmEdiUYsC6YmtsWDG3Z80Lia1Se9jCIr4iHWjfQxoxyYPjnhsZDD/r9NwA==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
@@ -252,9 +252,9 @@
       },
       "Milou.Deployer.Core": {
         "type": "Direct",
-        "requested": "[4.7.0-build.1577575671, )",
-        "resolved": "4.7.0-build.1577575671",
-        "contentHash": "9gBBPhsg+/sN6WcsIk6QN7UHKuWxOmo3Br8lfJRWuiEIRX8RmrQK5DaS+nHQ5DXbF96Io/u8R4S50oaqjBDuxw==",
+        "requested": "[4.7.0-build.1577577415, )",
+        "resolved": "4.7.0-build.1577577415",
+        "contentHash": "0Bz6Z7G5ApM4+jeN2+bXtfpjVZmIFbhSol6ogGJQ+EJvGIVuOydWwk1DGegTU3v+6f8AKGaeRVWY8cpndSTQ2A==",
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
@@ -394,25 +394,25 @@
       },
       "Arbor.KVConfiguration.Schema": {
         "type": "Transitive",
-        "resolved": "0.20.0-build.195",
-        "contentHash": "FIZQNpmbS3XyHiYZRAZIYo6mjN+csOd3PsKCG7FQuEBA4QbmKpSyE5IZ6i4NhaOVevPySL+6qjJXhm9dlMKxsg==",
+        "resolved": "0.20.0-build.1577577006",
+        "contentHash": "XYGpW1slZ6t/KebIKjXiNIWGUzvYOYzQp0dOeC0fPeTkZsgMKXiRiggRzRQ1r8BoRixdLKf22Tu6unl4hAym9w==",
         "dependencies": {
-          "Arbor.KVConfiguration.Core": "[0.20.0-build.195]"
+          "Arbor.KVConfiguration.Core": "[0.20.0-build.1577577006]"
         }
       },
       "Arbor.KVConfiguration.Schema.Json": {
         "type": "Transitive",
-        "resolved": "0.20.0-build.195",
-        "contentHash": "X+epO3pYRmZn9FOMpD3/ug4/8qUPdp2yz3JZrXWZbJkrt+ViZWK9sdZ0lr6IvIs6K26CcpqOTcrfO6Nw3Z1wNQ==",
+        "resolved": "0.20.0-build.1577577006",
+        "contentHash": "XVslru3t5XEEDtTnGgJxlMgCImWJ/E9SMvG0dONX4c/O4d/9x7vT56UQc1iuhPX+u8b9S8fDy8/y1KqRlDtKjA==",
         "dependencies": {
-          "Arbor.KVConfiguration.Core": "[0.20.0-build.195]",
+          "Arbor.KVConfiguration.Core": "[0.20.0-build.1577577006]",
           "Newtonsoft.Json": "12.0.1"
         }
       },
       "Arbor.Primitives": {
         "type": "Transitive",
-        "resolved": "0.20.0-build.195",
-        "contentHash": "nJbG/9GpQX2+T+vn+26Q/eksbWVwTNCvMGY9xhlbd05ZQ2wUfEg54okYc8waBywKAYUqTP5Zs0NtGoj0a0kUhQ==",
+        "resolved": "0.20.0-build.1577577006",
+        "contentHash": "mdWM67mvMqP0UTBiqbw/cuObHFp7w/JrSOHCAMXq60xh5FOdD/Zyn4W9TKgLnmTZlurCx2rtM6kke3UUQa4Ueg==",
         "dependencies": {
           "System.Memory": "[4.5.2, 5.0.0)"
         }
@@ -2121,7 +2121,7 @@
       "arbor.app.extensions": {
         "type": "Project",
         "dependencies": {
-          "Arbor.KVConfiguration.Urns": "0.20.0-build.195",
+          "Arbor.KVConfiguration.Urns": "0.20.0-build.1577577006",
           "JetBrains.Annotations": "2019.1.3",
           "MediatR": "7.0.0",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.0",
@@ -2139,12 +2139,12 @@
         "dependencies": {
           "Arbor.App.Extensions": "1.0.0",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
-          "Arbor.KVConfiguration.Core": "0.20.0-build.195",
-          "Arbor.KVConfiguration.DependencyInjection": "0.20.0-build.195",
-          "Arbor.KVConfiguration.JsonConfiguration": "0.20.0-build.195",
-          "Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns": "0.20.0-build.195",
-          "Arbor.KVConfiguration.Urns": "0.20.0-build.195",
-          "Arbor.KVConfiguration.UserConfiguration": "0.20.0-build.195",
+          "Arbor.KVConfiguration.Core": "0.20.0-build.1577577006",
+          "Arbor.KVConfiguration.DependencyInjection": "0.20.0-build.1577577006",
+          "Arbor.KVConfiguration.JsonConfiguration": "0.20.0-build.1577577006",
+          "Arbor.KVConfiguration.Microsoft.Extensions.Configuration.Urns": "0.20.0-build.1577577006",
+          "Arbor.KVConfiguration.Urns": "0.20.0-build.1577577006",
+          "Arbor.KVConfiguration.UserConfiguration": "0.20.0-build.1577577006",
           "Arbor.ModelBinding": "0.7.2",
           "Arbor.Processing": "0.3.0",
           "Arbor.Tooler": "0.6.5",
@@ -2181,9 +2181,9 @@
         "type": "Project",
         "dependencies": {
           "Arbor.App.Extensions": "1.0.0",
-          "Arbor.KVConfiguration.Core": "0.20.0-build.195",
-          "Arbor.KVConfiguration.Urns": "0.20.0-build.195",
-          "Arbor.KVConfiguration.UserConfiguration": "0.20.0-build.195",
+          "Arbor.KVConfiguration.Core": "0.20.0-build.1577577006",
+          "Arbor.KVConfiguration.Urns": "0.20.0-build.1577577006",
+          "Arbor.KVConfiguration.UserConfiguration": "0.20.0-build.1577577006",
           "Arbor.ModelBinding": "0.7.2",
           "Arbor.Processing": "0.3.0",
           "Arbor.Tooler": "0.6.5",
@@ -2197,8 +2197,8 @@
           "Microsoft.Extensions.Hosting.Abstractions": "3.1.0",
           "Microsoft.Extensions.Http": "3.1.0",
           "Microsoft.Extensions.Logging.Abstractions": "3.1.0",
-          "Milou.Deployer.Bootstrapper.Common": "4.7.0-build.1577575671",
-          "Milou.Deployer.Core": "4.7.0-build.1577575671",
+          "Milou.Deployer.Bootstrapper.Common": "4.7.0-build.1577577415",
+          "Milou.Deployer.Core": "4.7.0-build.1577577415",
           "Newtonsoft.Json": "12.0.3",
           "NuGet.Frameworks": "5.4.0",
           "NuGet.Packaging": "5.4.0",
@@ -2216,9 +2216,9 @@
       "milou.deployer.web.marten": {
         "type": "Project",
         "dependencies": {
-          "Arbor.KVConfiguration.Core": "0.20.0-build.195",
-          "Arbor.KVConfiguration.JsonConfiguration": "0.20.0-build.195",
-          "Arbor.KVConfiguration.Urns": "0.20.0-build.195",
+          "Arbor.KVConfiguration.Core": "0.20.0-build.1577577006",
+          "Arbor.KVConfiguration.JsonConfiguration": "0.20.0-build.1577577006",
+          "Arbor.KVConfiguration.Urns": "0.20.0-build.1577577006",
           "JetBrains.Annotations": "2019.1.3",
           "Marten": "3.10.0",
           "Microsoft.CodeAnalysis.CSharp": "3.4.0",
