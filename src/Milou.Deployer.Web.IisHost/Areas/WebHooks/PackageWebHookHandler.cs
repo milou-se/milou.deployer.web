@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 
             foreach (var packageWebHook in _packageWebHooks)
             {
-                CancellationTokenSource cancellationTokenSource = default;
+                CancellationTokenSource? cancellationTokenSource = default;
 
                 if (cancellationToken == CancellationToken.None)
                 {

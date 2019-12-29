@@ -46,7 +46,7 @@ namespace Arbor.App.Extensions.IO
             File = null;
         }
 
-        public static TempFile CreateTempFile(string name = null, string? extension = null)
+        public static TempFile CreateTempFile(string? name = null, string? extension = null)
         {
             string defaultName = $"MDW-tmp-{DateTime.UtcNow.Ticks}";
 

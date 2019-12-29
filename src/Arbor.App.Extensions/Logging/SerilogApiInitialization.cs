@@ -171,7 +171,7 @@ namespace Arbor.App.Extensions.Logging
                                               .SerilogStartupLogEnabled),
                                           out bool enabled) && enabled;
 
-            string logFile = null;
+            string? logFile = null;
 
             if (fileLoggingEnabled)
             {

@@ -31,7 +31,7 @@ namespace Milou.Deployer.Web.Tests.Unit
         [Fact]
         public void DisposeNull()
         {
-            object o = null;
+            object? o = null;
             // ReSharper disable once ExpressionIsAlwaysNull
             o.SafeDispose();
         }

@@ -333,8 +333,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             DeploymentTarget target,
             CancellationToken cancellationToken)
         {
-            CancellationTokenSource cancellationTokenSource;
-            CancellationTokenSource linkedCancellationTokenSource = null;
+            CancellationTokenSource? cancellationTokenSource;
+            CancellationTokenSource? linkedCancellationTokenSource = null;
             if (target.NuGet.PackageListTimeout.HasValue)
             {
                 cancellationTokenSource = new CancellationTokenSource(target.NuGet.PackageListTimeout.Value);

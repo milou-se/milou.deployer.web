@@ -6,7 +6,7 @@
 @{
     var url = Context.Request.GetEncodedUrl();
 
-    _ = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
+    _ = Uri.TryCreate(url, UriKind.Absolute, out Uri? uri);
 
     UriBuilder builder = new UriBuilder(uri);
 

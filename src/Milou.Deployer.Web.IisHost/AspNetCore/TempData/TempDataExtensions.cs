@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
                     return default;
                 }
 
-                string key = typeof(T).FullName;
+                string? key = typeof(T).FullName;
 
                 if (string.IsNullOrWhiteSpace(key))
                 {

@@ -135,7 +135,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                     packageSourceAppSettingsKey);
             }
 
-            string configFile =
+            string? configFile =
                 nugetConfigFile.WithDefault(_keyValueConfiguration[ConfigurationConstants.NugetConfigFile]);
 
             if (configFile.HasValue() && File.Exists(configFile))
