@@ -38,8 +38,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Milou.Deployer.Web.Agent.Ho
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbor.AspNetCore.Host", "Arbor.AspNetCore.Host\Arbor.AspNetCore.Host.csproj", "{57D8429A-E201-451C-BD75-10688FC7082D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arbor.App.Extensions", "Arbor.App.Extensions\Arbor.App.Extensions.csproj", "{A8E4B02C-900D-4752-BE9E-BB426C234C14}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,10 +80,6 @@ Global
 		{57D8429A-E201-451C-BD75-10688FC7082D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57D8429A-E201-451C-BD75-10688FC7082D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57D8429A-E201-451C-BD75-10688FC7082D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A8E4B02C-900D-4752-BE9E-BB426C234C14}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A8E4B02C-900D-4752-BE9E-BB426C234C14}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A8E4B02C-900D-4752-BE9E-BB426C234C14}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A8E4B02C-900D-4752-BE9E-BB426C234C14}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

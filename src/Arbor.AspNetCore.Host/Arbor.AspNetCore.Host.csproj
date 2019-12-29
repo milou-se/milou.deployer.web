@@ -6,6 +6,8 @@
 
   <ItemGroup>
 
+      <PackageReference Include="Arbor.App.Extensions" Version="0.1.0" />
+
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
         <PackageReference Include="Arbor.KVConfiguration.DependencyInjection" Version="0.20.0-build.1577577006" />
         <PackageReference Include="Arbor.Processing" Version="0.3.0" />
@@ -43,10 +45,6 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Arbor.App.Extensions\Arbor.App.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

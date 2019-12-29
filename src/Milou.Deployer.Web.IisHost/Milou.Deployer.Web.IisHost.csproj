@@ -28,6 +28,8 @@
     </ItemGroup>
     <ItemGroup>
 
+      <PackageReference Include="Arbor.App.Extensions" Version="0.1.0" />
+
       <PackageReference Include="FluentFTP" Version="28.0.5" />
 
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />

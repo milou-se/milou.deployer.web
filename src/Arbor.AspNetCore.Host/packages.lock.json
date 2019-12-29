@@ -2,6 +2,25 @@
   "version": 1,
   "dependencies": {
     ".NETCoreApp,Version=v3.1": {
+      "Arbor.App.Extensions": {
+        "type": "Direct",
+        "requested": "[0.1.0, )",
+        "resolved": "0.1.0",
+        "contentHash": "FZ8QjGa1TM4ckfi69qcd0kMEdhG5Ov0IlLULIFKkN1E+1rzmHfpsRrn35ihWubRQDdF76CDX1/j9OBv+EPFDFQ==",
+        "dependencies": {
+          "Arbor.KVConfiguration.Urns": "0.20.0-build.1577577006",
+          "JetBrains.Annotations": "2019.1.3",
+          "MediatR": "7.0.0",
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.0",
+          "Microsoft.Extensions.DependencyModel": "3.1.0",
+          "Microsoft.Extensions.Hosting.WindowsServices": "3.1.0",
+          "Serilog": "2.9.0",
+          "Serilog.Sinks.Console": "3.1.1",
+          "Serilog.Sinks.Debug": "1.0.1",
+          "Serilog.Sinks.File": "4.1.0",
+          "Serilog.Sinks.Seq": "4.0.0"
+        }
+      },
       "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": {
         "type": "Direct",
         "requested": "[0.10.2, )",
@@ -1732,22 +1751,6 @@
           "System.Text.Encoding": "4.3.0",
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0"
-        }
-      },
-      "arbor.app.extensions": {
-        "type": "Project",
-        "dependencies": {
-          "Arbor.KVConfiguration.Urns": "0.20.0-build.1577577006",
-          "JetBrains.Annotations": "2019.1.3",
-          "MediatR": "7.0.0",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "3.1.0",
-          "Microsoft.Extensions.DependencyModel": "3.1.0",
-          "Microsoft.Extensions.Hosting.WindowsServices": "3.1.0",
-          "Serilog": "2.9.0",
-          "Serilog.Sinks.Console": "3.1.1",
-          "Serilog.Sinks.Debug": "1.0.1",
-          "Serilog.Sinks.File": "4.1.0",
-          "Serilog.Sinks.Seq": "4.0.0"
         }
       }
     }
