@@ -7,5 +7,6 @@
         <CodeAnalysisRuleSet>..\Milou.ruleset</CodeAnalysisRuleSet>
         <Nullable>enable</Nullable>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+        <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     </PropertyGroup>
 </Project>
