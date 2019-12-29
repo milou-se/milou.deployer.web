@@ -30,6 +30,8 @@
 
       <PackageReference Include="Arbor.App.Extensions" Version="0.1.0" />
 
+      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.1.0" />
+
       <PackageReference Include="FluentFTP" Version="28.0.5" />
 
       <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
@@ -80,7 +82,6 @@
       <None Include="wwwroot\unpkg.json" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Arbor.AspNetCore.Host\Arbor.AspNetCore.Host.csproj" />
         <ProjectReference Include="..\Milou.Deployer.Web.Agent\Milou.Deployer.Web.Agent.csproj" />
         <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
         <ProjectReference Include="..\Milou.Deployer.Web.Marten\Milou.Deployer.Web.Marten.csproj" />
