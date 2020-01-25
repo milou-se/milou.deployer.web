@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string targetDirectory = null,
             string webConfigTransform = null,
             string excludedFilePatterns = null,
-            string environmentType = null,
+            string environmentTypeId = null,
             string packageListTimeout = null,
             string publishType = null,
             string ftpPath = null,
@@ -47,7 +47,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             TargetDirectory = targetDirectory;
             WebConfigTransform = webConfigTransform;
             IsValid = !string.IsNullOrWhiteSpace(Id);
-            EnvironmentType = EnvironmentType.Parse(environmentType);
+            EnvironmentTypeId = environmentTypeId;
 
             if (TimeSpan.TryParse(packageListTimeout, out TimeSpan timeout) && timeout.TotalSeconds > 0.5D)
             {
@@ -62,7 +62,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public TimeSpan? MetadataTimeout { get; }
 
-        public EnvironmentType? EnvironmentType { get; }
+        public string? EnvironmentTypeId { get; }
 
         public string Id { get; }
 

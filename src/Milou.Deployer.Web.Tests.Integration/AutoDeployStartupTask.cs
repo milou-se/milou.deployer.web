@@ -47,6 +47,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
         protected override async Task ExecuteAsync(CancellationToken startupCancellationToken)
         {
+            await Task.Yield();
+
             if (_testConfiguration is null)
             {
                 IsCompleted = true;

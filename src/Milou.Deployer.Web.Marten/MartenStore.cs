@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Environments;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -30,7 +31,8 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<DeploymentLogRequest, DeploymentLogResponse>,
         IRequestHandler<RemoveTarget, Unit>,
         IRequestHandler<EnableTarget, Unit>,
-        IRequestHandler<DisableTarget, Unit>
+        IRequestHandler<DisableTarget, Unit>,
+        IRequestHandler<CreateEnvironment, CreateEnvironmentResult>
     {
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
@@ -95,7 +97,7 @@ namespace Milou.Deployer.Web.Marten
                     targetDirectory: deploymentTargetData.TargetDirectory,
                     webConfigTransform: deploymentTargetData.WebConfigTransform,
                     excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
-                    environmentType: deploymentTargetData.EnvironmentType,
+                    environmentTypeId: deploymentTargetData.EnvironmentTypeId,
                     enabled: deploymentTargetData.Enabled,
                     packageListTimeout: deploymentTargetData.PackageListTimeout,
                     publishType: deploymentTargetData.PublishType,
@@ -445,7 +447,7 @@ namespace Milou.Deployer.Web.Marten
                 data.ExcludedFilePatterns = request.ExcludedFilePatterns;
                 data.FtpPath = request.FtpPath?.Path;
                 data.PublishType = request.PublishType.Name;
-                data.EnvironmentType = request.EnvironmentType.Name;
+                data.EnvironmentTypeId = request.EnvironmentTypeId;
                 data.PackageListTimeout = request.PackageListTimeout;
                 data.NuGetData ??= new NuGetData
                                    {
@@ -531,6 +533,27 @@ namespace Milou.Deployer.Web.Marten
             }
 
             return Unit.Value;
+        }
+
+        public async Task<CreateEnvironmentResult> Handle(CreateEnvironment request, CancellationToken cancellationToken)
+        {
+            using (var session = _documentStore.OpenSession())
+            {
+                var environmentTypeData = await session.LoadAsync<EnvironmentTypeData>(request.EnvironmentTypeId, cancellationToken);
+
+                if (environmentTypeData is {})
+                {
+                    return new CreateEnvironmentResult("");
+                }
+
+                environmentTypeData = EnvironmentTypeData.MapToData(new EnvironmentType(request.EnvironmentTypeId, request.EnvironmentTypeName, PreReleaseBehavior.Parse(request.PreReleaseBehavior)));
+
+                session.Store(environmentTypeData);
+
+                await session.SaveChangesAsync(cancellationToken);
+
+                return new CreateEnvironmentResult(environmentTypeData.Id);
+            }
         }
     }
 }

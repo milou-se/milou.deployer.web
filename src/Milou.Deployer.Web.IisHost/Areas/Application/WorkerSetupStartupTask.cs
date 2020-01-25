@@ -59,6 +59,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield();
+
             IReadOnlyCollection<string> targetIds;
 
             try

@@ -39,6 +39,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         protected override async Task ExecuteAsync(CancellationToken startupCancellationToken)
         {
+            await Task.Yield();
+
             if (_dataSeeders.Length > 0)
             {
                 _logger.Debug("Running data seeders");

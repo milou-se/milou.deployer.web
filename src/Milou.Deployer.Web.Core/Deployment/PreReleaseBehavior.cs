@@ -16,10 +16,7 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public static readonly PreReleaseBehavior Deny = new PreReleaseBehavior(nameof(Deny));
 
-        private PreReleaseBehavior(string name)
-        {
-            Name = name;
-        }
+        private PreReleaseBehavior(string name) => Name = name;
 
         [PublicAPI]
         public string Name { get; }
@@ -33,10 +30,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             Deny
         };
 
-        public static PreReleaseBehavior Parse(string value)
-        {
-            return All.SingleOrDefault(
-                       behavior => behavior.Name.Equals(value, StringComparison.InvariantCultureIgnoreCase)) ?? Invalid;
-        }
+        public static PreReleaseBehavior Parse(string value) =>
+            All.SingleOrDefault(
+                behavior => behavior.Name.Equals(value, StringComparison.InvariantCultureIgnoreCase)) ?? Invalid;
     }
 }

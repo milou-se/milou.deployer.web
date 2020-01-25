@@ -61,7 +61,7 @@
                 <span title="@(item.DeployedAtUtc.ToLocalTimeFormatted(Time))">@item.DeployedAtUtc.RelativeUtcToLocalTime(Time)</span>
             </td>
 
-            <td>@item.Target.EnvironmentType</td>
+            <td>@item.Target.EnvironmentTypeId</td>
             <td>
                 @if (item.Target.Url.HasValue())
                 {

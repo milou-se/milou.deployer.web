@@ -41,6 +41,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield();
+
             string nugetExePath = "";
 
             _logger.Debug("Ensuring nuget.exe exists");
