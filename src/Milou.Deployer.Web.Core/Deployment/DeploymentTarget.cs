@@ -60,10 +60,10 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            _ = PublishType.TryParseOrDefault(publishType, out PublishType type);
+            PublishType.TryParseOrDefault(publishType, out PublishType type);
             PublishType = type;
 
-            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
             FtpPath = path;
 
             Url = url;
@@ -145,10 +145,10 @@ namespace Milou.Deployer.Web.Core.Deployment
         public ImmutableDictionary<string, string[]> Parameters { get; }
 
         [Obsolete]
-        public string NuGetConfigFile { get; }
+        public string? NuGetConfigFile { get; }
 
         [Obsolete]
-        public string NuGetPackageSource { get; }
+        public string? NuGetPackageSource { get; }
 
         [Obsolete]
         public TimeSpan? PackageListTimeout { get; }

@@ -147,14 +147,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(WorkerCreated notification, CancellationToken cancellationToken)
         {
-            StartWorker(notification.Worker, cancellationToken);
-
             if (!_configurationInstanceHolder.TryGet(
                     notification.Worker.TargetId,
                     out DeploymentTargetWorker worker))
             {
-                _configurationInstanceHolder.Add(new NamedInstance<object>(notification.Worker, notification.Worker.TargetId));
+                _configurationInstanceHolder.Add(new NamedInstance<DeploymentTargetWorker>(notification.Worker, notification.Worker.TargetId));
             }
+
+            StartWorker(notification.Worker, cancellationToken);
 
             return Task.CompletedTask;
         }

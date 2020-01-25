@@ -7,10 +7,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
     public static class NameHelper
     {
-        public static string GetFullProjectName(string organization, string projectName)
-        {
-            return organization.Replace("-", "_", StringComparison.InvariantCulture) + "-" + projectName.Replace("-", "_", StringComparison.InvariantCulture);
-        }
+        public static string GetFullProjectName(string organization, string projectName) => organization.Replace("-", "_", StringComparison.InvariantCulture) + "-" + projectName.Replace("-", "_", StringComparison.InvariantCulture);
 
         public static bool IsNameValid([NotNull] string name)
         {
@@ -88,7 +85,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
                 '-'
             };
 
-            var isNameValid = name.ToCharArray().All(c => allowedCharacters.Contains(c) || char.IsDigit(c));
+            bool isNameValid = name.ToCharArray().All(c => allowedCharacters.Contains(c) || char.IsDigit(c));
 
             return isNameValid;
         }

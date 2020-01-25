@@ -8,18 +8,22 @@
         <Compile Remove="App_Data\**" />
         <Compile Remove="Areas\NuGet\Controllers\**" />
         <Compile Remove="Areas\Protocols\**" />
+        <Compile Remove="AspNetCore\Hosting\**" />
         <Compile Remove="logs\**" />
         <Content Remove="App_Data\**" />
         <Content Remove="Areas\NuGet\Controllers\**" />
         <Content Remove="Areas\Protocols\**" />
+        <Content Remove="AspNetCore\Hosting\**" />
         <Content Remove="logs\**" />
         <EmbeddedResource Remove="App_Data\**" />
         <EmbeddedResource Remove="Areas\NuGet\Controllers\**" />
         <EmbeddedResource Remove="Areas\Protocols\**" />
+        <EmbeddedResource Remove="AspNetCore\Hosting\**" />
         <EmbeddedResource Remove="logs\**" />
         <None Remove="App_Data\**" />
         <None Remove="Areas\NuGet\Controllers\**" />
         <None Remove="Areas\Protocols\**" />
+        <None Remove="AspNetCore\Hosting\**" />
         <None Remove="logs\**" />
     </ItemGroup>
     <ItemGroup>
@@ -75,7 +79,6 @@
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Areas\Security\Views\Login\" />
-        <Folder Include="AspNetCore\Hosting\" />
     </ItemGroup>
     <ItemGroup>
       <None Include="wwwroot\applicationmetadata.json" />
