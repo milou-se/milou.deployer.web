@@ -14,14 +14,11 @@ using Arbor.KVConfiguration.Schema.Json;
 using JetBrains.Annotations;
 
 using MediatR;
-
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Application.Metadata;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Packages;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.NuGet;
 using Newtonsoft.Json;

@@ -1,7 +1,6 @@
 ﻿using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Urns;
-using Milou.Deployer.Web.Core.Application;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Unit

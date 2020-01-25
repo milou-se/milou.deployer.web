@@ -12,15 +12,12 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Http;
-using Microsoft.Extensions.Logging;
-using Milou.Deployer.Web.Core.Application;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Security;
 using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Newtonsoft.Json;
-using Serilog.AspNetCore;
 using ILogger = Serilog.ILogger;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup

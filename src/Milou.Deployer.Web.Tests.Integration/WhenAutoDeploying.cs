@@ -10,7 +10,6 @@ using Arbor.App.Extensions;
 using Arbor.KVConfiguration.JsonConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Startup;
 using NuGet.Versioning;
 using Xunit;

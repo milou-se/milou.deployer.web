@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Arbor.AspNetCore.Host.Configuration;
-using Milou.Deployer.Web.IisHost.Areas.Configuration;
 using Xunit;
 
 namespace Milou.Deployer.Web.Tests.Integration

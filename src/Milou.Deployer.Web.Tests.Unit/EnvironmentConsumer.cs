@@ -1,6 +1,5 @@
 ﻿using Arbor.App.Extensions.Application;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Application;
 
 namespace Milou.Deployer.Web.Tests.Unit
 {

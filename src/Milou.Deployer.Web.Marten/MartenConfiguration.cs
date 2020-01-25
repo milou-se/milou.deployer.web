@@ -5,7 +5,6 @@ using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.Validation;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Marten
 {

@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
-using Milou.Deployer.Web.Core.Extensions;
 using MimeKit;
 using Serilog;
 

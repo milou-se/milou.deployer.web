@@ -13,7 +13,6 @@ using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
-using Milou.Deployer.Web.IisHost.Areas.Organizations;
 using Milou.Deployer.Web.IisHost.Areas.Targets.ViewModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Views;
 using Milou.Deployer.Web.IisHost.AspNetCore.TempData;

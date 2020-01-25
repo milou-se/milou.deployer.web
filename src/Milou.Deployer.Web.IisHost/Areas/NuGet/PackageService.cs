@@ -16,7 +16,6 @@ using JetBrains.Annotations;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment.Packages;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.Core.Settings;
 

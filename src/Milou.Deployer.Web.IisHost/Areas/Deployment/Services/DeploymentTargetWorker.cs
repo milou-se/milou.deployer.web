@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 

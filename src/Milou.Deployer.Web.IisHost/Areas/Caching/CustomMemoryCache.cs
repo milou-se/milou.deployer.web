@@ -6,7 +6,6 @@ using Arbor.App.Extensions;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Caching.Memory;
 using Milou.Deployer.Web.Core.Caching;
-using Milou.Deployer.Web.Core.Extensions;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Caching

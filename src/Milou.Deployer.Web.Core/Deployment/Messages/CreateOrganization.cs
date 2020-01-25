@@ -2,7 +2,6 @@
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Validation;
 using MediatR;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {

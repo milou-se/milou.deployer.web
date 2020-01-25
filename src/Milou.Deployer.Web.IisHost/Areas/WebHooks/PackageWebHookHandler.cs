@@ -7,9 +7,6 @@ using Arbor.App.Extensions;
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-
-using Milou.Deployer.Web.Core.Extensions;
-
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks

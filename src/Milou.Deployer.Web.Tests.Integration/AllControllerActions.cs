@@ -6,8 +6,6 @@ using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Mvc;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Xunit;
 using Xunit.Abstractions;

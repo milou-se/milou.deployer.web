@@ -4,7 +4,6 @@ using System.Linq;
 using Arbor.App.Extensions;
 using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Web.Core.Deployment.Targets;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Targets

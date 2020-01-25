@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 using MediatR;
-
-using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.IisHost.Areas.NuGet;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks

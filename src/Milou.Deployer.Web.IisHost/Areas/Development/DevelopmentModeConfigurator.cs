@@ -3,7 +3,6 @@ using System.Linq;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Configuration;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Application;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Development
 {
