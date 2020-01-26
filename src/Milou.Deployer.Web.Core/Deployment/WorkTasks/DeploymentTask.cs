@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
             }
 
             var parts = packageVersion.Split(' ');
-            var packageId = parts[0];
+            string packageId = parts[0];
 
             var version = SemanticVersion.Parse(parts.Last());
 
@@ -90,6 +90,11 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                return;
+            }
+
             MessageQueue.Add((message, Status));
 
             if (Status == WorkTaskStatus.Done || Status == WorkTaskStatus.Failed)
@@ -98,10 +103,6 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
             }
         }
 
-        public override string ToString()
-        {
-            return
-                $"{nameof(SemanticVersion)}: {SemanticVersion.ToNormalizedString()}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(PackageId)}: {PackageId}, {nameof(DeploymentTaskId)}: {DeploymentTaskId}";
-        }
+        public override string ToString() => $"{nameof(SemanticVersion)}: {SemanticVersion.ToNormalizedString()}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(PackageId)}: {PackageId}, {nameof(DeploymentTaskId)}: {DeploymentTaskId}";
     }
 }

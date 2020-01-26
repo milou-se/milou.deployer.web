@@ -31,12 +31,12 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
-            _ = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
+            Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
             Url = uri;
             PackageId = packageId;
             ExcludedFilePatterns = excludedFilePatterns;
-            _ = PublishType.TryParseOrDefault(publishType, out var foundPublishType);
-            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
+            PublishType.TryParseOrDefault(publishType, out var foundPublishType);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
             PublishType = foundPublishType;
             FtpPath = path;
             IisSiteName = iisSiteName;
@@ -92,11 +92,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public FtpPath? FtpPath { get; }
 
-        public override string ToString()
-        {
-            return
-                $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
-        }
+        public override string ToString() => $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

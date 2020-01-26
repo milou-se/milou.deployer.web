@@ -88,15 +88,17 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         {
             while (!stoppingToken.IsCancellationRequested && IsRunning)
             {
-                var deploymentTask = _queue.Take(stoppingToken);
-
                 if (!IsRunning)
                 {
                     return;
                 }
 
+                DeploymentTask deploymentTask = default;
+
                 try
                 {
+                    deploymentTask = _queue.Take(stoppingToken);
+
                     CurrentTask = deploymentTask;
 
                     deploymentTask.Status = WorkTaskStatus.Started;
@@ -133,20 +135,35 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
-                    _logger.Error(ex, "Failed when executing deployment task {TaskId}", deploymentTask.DeploymentTaskId);
+                    if (deploymentTask != null)
+                    {
+                        deploymentTask.Status = WorkTaskStatus.Failed;
+                        _logger.Error(ex, "Failed when executing deployment task {TaskId}",
+                            deploymentTask.DeploymentTaskId);
+                    }
+                    else
+                    {
+                        _logger.Error(ex, "Failed when executing deployment");
+                    }
                 }
                 finally
                 {
                     CurrentTask = null;
                 }
-
             }
 
+            ClearQueue();
+        }
+
+        private void ClearQueue()
+        {
             while (_queue.Count > 0)
             {
                 try
                 {
-                    _queue.Take();
+                    var deploymentTask = _queue.Take();
+
+                    _logger.Debug("Ignored queued deployment task {DeploymentTask}", deploymentTask);
                 }
                 catch (Exception ex) when (!ex.IsFatal())
                 {
@@ -233,6 +250,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         internal Task StopAsync(CancellationToken stoppingToken)
         {
             IsRunning = false;
+
+            ClearQueue();
+
             return Task.CompletedTask;
         }
 
@@ -252,6 +272,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public void Dispose()
         {
             IsRunning = false;
+            ClearQueue();
             _queue?.Dispose();
             _taskQueue?.Dispose();
         }
