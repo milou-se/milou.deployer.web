@@ -20,10 +20,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 
         public string IisSiteName { get; set; }
 
-        public string NuGetConfigFile { get; set; }
-
-        public string NuGetPackageSource { get; set; }
-
         public bool AutoDeployEnabled { get; set; }
 
         public string PackageId { get; set; }
@@ -43,8 +39,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
         public bool Enabled { get; set; }
 
         public string EnvironmentType { get; set; }
-
-        public TimeSpan? PackageListTimeout { get; set; }
 
         public NuGetData NuGetData { get; set; }
 

@@ -62,6 +62,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.TempData
                     case string json:
                         try
                         {
+                            if (typeof(T).IsAbstract)
+                            {
+                                return default;
+                            }
+
                             var deserializeObject = JsonConvert.DeserializeObject<T>(json);
 
                             return deserializeObject;

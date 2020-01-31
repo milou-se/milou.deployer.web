@@ -7,7 +7,6 @@ using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
 using Milou.Deployer.Web.Core.Configuration;
-using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Extensions;
 using Newtonsoft.Json;
 
@@ -26,8 +25,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             string packageId,
             string publishSettingsXml = null,
             bool allowExplicitPreRelease = false,
-            string nuGetConfigFile = null,
-            string nuGetPackageSource = null,
             Uri url = null,
             string environmentConfiguration = null,
             string organization = null,
@@ -45,7 +42,6 @@ namespace Milou.Deployer.Web.Core.Deployment
             string webConfigTransform = default,
             string excludedFilePatterns = default,
             bool enabled = false,
-            TimeSpan? packageListTimeout = default,
             string publishType = default,
             string ftpPath = default,
             TargetNuGetSettings nuget = default,
@@ -79,14 +75,11 @@ namespace Milou.Deployer.Web.Core.Deployment
             WebConfigTransform = webConfigTransform;
             ExcludedFilePatterns = excludedFilePatterns;
             Enabled = enabled;
-            PackageListTimeout = packageListTimeout;
             Organization = organization ?? string.Empty;
             ProjectInvariantName = project ?? string.Empty;
             Name = name;
             Id = id;
             AllowExplicitExplicitPreRelease = allowExplicitPreRelease;
-            NuGetConfigFile = nuGetConfigFile;
-            NuGetPackageSource = nuGetPackageSource;
             PackageId = packageId.WithDefault(Constants.NotAvailable);
             PublishSettingsXml = publishSettingsXml;
             EnvironmentType = EnvironmentType.Parse(environmentType);
@@ -144,15 +137,6 @@ namespace Milou.Deployer.Web.Core.Deployment
         public bool Enabled { get; }
 
         public ImmutableDictionary<string, string[]> Parameters { get; }
-
-        [Obsolete]
-        public string NuGetConfigFile { get; }
-
-        [Obsolete]
-        public string NuGetPackageSource { get; }
-
-        [Obsolete]
-        public TimeSpan? PackageListTimeout { get; }
 
         [JsonProperty(nameof(PublishType))]
         public string PublishTypeValue => PublishType.Name;

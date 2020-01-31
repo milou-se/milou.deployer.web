@@ -50,7 +50,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
                                     "MilouDeployer",
                                     null,
                                     true,
-                                    new StringValues("*"),
+                                    null,
                                     targetDirectory: Path.Combine(
                                         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                                         "Milou.Deployer.Web",
