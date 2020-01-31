@@ -33,6 +33,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             string project = null,
             bool autoDeployment = false,
             string environmentTypeId = null,
+            EnvironmentType environmentType = null,
             bool autoDeployEnabled = false,
             StringValues emailNotificationAddresses = default,
             Dictionary<string, string[]> parameters = null,
@@ -89,6 +90,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             PackageId = packageId.WithDefault(Constants.NotAvailable);
             PublishSettingsXml = publishSettingsXml;
             EnvironmentTypeId = environmentTypeId;
+            EnvironmentType = environmentType;
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
             Parameters = parameters?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
             NuGet = nuget;
@@ -114,9 +116,12 @@ namespace Milou.Deployer.Web.Core.Deployment
         public bool? AllowExplicitExplicitPreRelease { get; }
 
         public bool AllowPreRelease =>
-            AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value;
+            (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value) ||
+            (EnvironmentType?.PreReleaseBehavior == PreReleaseBehavior.Allow)
+        ;
 
         public string EnvironmentTypeId { get; }
+        public EnvironmentType EnvironmentType { get; }
 
         public string Id { get; }
 

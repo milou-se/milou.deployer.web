@@ -14,10 +14,18 @@ namespace Milou.Deployer.Web.Marten
 
         public EnvironmentTypeService(IDocumentStore martenStore) => _store = martenStore;
 
-        public async Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(CancellationToken cancellationToken =
+        public Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(CancellationToken cancellationToken =
+            default) =>
+            _store.GetEnvironmentTypes(cancellationToken);
+    }
+
+
+    internal static class EnvironmentTypeDataExtensions
+    {
+        public static async Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(this IDocumentStore documentStore, CancellationToken cancellationToken =
             default)
         {
-            using var querySession = _store.QuerySession();
+            using var querySession = documentStore.QuerySession();
 
             var environmentTypeData = await querySession.Query<EnvironmentTypeData>()
                 .ToListAsync<EnvironmentTypeData>(cancellationToken);

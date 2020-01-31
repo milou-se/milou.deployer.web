@@ -73,12 +73,16 @@ namespace Milou.Deployer.Web.Marten
             return new CreateProjectResult(createProject.Id);
         }
 
-        private DeploymentTarget MapDataToTarget(DeploymentTargetData deploymentTargetData)
+        private DeploymentTarget MapDataToTarget(DeploymentTargetData deploymentTargetData, ImmutableArray<EnvironmentType> environmentTypes)
         {
             if (deploymentTargetData is null)
             {
                 return null;
             }
+
+            var environmentType =
+                environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTargetData.EnvironmentTypeId)) ??
+                EnvironmentType.Unknown;
 
             DeploymentTarget deploymentTargetAsync = null;
             try
@@ -98,6 +102,7 @@ namespace Milou.Deployer.Web.Marten
                     webConfigTransform: deploymentTargetData.WebConfigTransform,
                     excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
                     environmentTypeId: deploymentTargetData.EnvironmentTypeId,
+                    environmentType: environmentType,
                     enabled: deploymentTargetData.Enabled,
                     packageListTimeout: deploymentTargetData.PackageListTimeout,
                     publishType: deploymentTargetData.PublishType,
@@ -150,20 +155,23 @@ namespace Milou.Deployer.Web.Marten
         private ImmutableArray<OrganizationInfo> MapDataToOrganizations(
             IReadOnlyList<OrganizationData> organizations,
             IReadOnlyList<ProjectData> projects,
-            IReadOnlyList<DeploymentTargetData> targets)
+            IReadOnlyList<DeploymentTargetData> targets,
+            ImmutableArray<EnvironmentType> environmentTypes)
         {
             return organizations.Select(org => new OrganizationInfo(org.Id,
                     projects
                         .Where(project => project.OrganizationId.Equals(org.Id, StringComparison.OrdinalIgnoreCase))
                         .Select(project =>
-                            new ProjectInfo(org.Id,
+                        {
+                            var deploymentTargetDatas = targets
+                                .Where(target =>
+                                    target.ProjectId != null
+                                    && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase));
+                            return new ProjectInfo(org.Id,
                                 project.Id,
-                                targets
-                                    .Where(target =>
-                                        target.ProjectId != null
-                                        && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase))
-                                    .Select(MapDataToTarget)
-                                    .Where(t => t != null)))
+                                deploymentTargetDatas.Select(s => MapDataToTarget(s, environmentTypes))
+                            );
+                        })
                         .ToImmutableArray()))
                 .Concat(new[]
                 {
@@ -175,7 +183,7 @@ namespace Milou.Deployer.Web.Marten
                                 "NA",
                                 targets
                                     .Where(target => target.ProjectId is null)
-                                    .Select(MapDataToTarget)
+                                    .Select(s => MapDataToTarget(s, environmentTypes))
                                     .Where(t => t != null))
                         })
                 })
@@ -205,7 +213,8 @@ namespace Milou.Deployer.Web.Marten
                                 target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
                             cancellationToken);
 
-                    var deploymentTarget = MapDataToTarget(deploymentTargetData);
+                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(cancellationToken: cancellationToken);
+                    var deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);
 
                     return deploymentTarget ?? DeploymentTarget.None;
                 }
@@ -238,8 +247,10 @@ namespace Milou.Deployer.Web.Marten
                             .ToListAsync<OrganizationData>(
                                 cancellationToken);
 
+                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(cancellationToken: cancellationToken);
+
                     var organizationsInfo =
-                        MapDataToOrganizations(organizations, projects, targets);
+                        MapDataToOrganizations(organizations, projects, targets, environmentTypes);
 
                     return organizationsInfo;
                 }
@@ -267,11 +278,13 @@ namespace Milou.Deployer.Web.Marten
 
                 try
                 {
+                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(cancellationToken: stoppingToken);
+
                     var targets = await session.Query<DeploymentTargetData>()
                         .ToListAsync<DeploymentTargetData>(stoppingToken);
 
                     var deploymentTargets = targets
-                        .Select(MapDataToTarget)
+                        .Select(s => MapDataToTarget(s, environmentTypes))
                         .Where(Filter)
                         .ToImmutableArray();
 
