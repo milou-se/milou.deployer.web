@@ -32,8 +32,8 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             Assert.NotNull(deserialized);
 
-            Assert.Null(deserialized.NuGetPackageSource);
-            Assert.Null(deserialized.NuGetConfigFile);
+            Assert.Null(deserialized.NuGet.NuGetPackageSource);
+            Assert.Null(deserialized.NuGet.NuGetConfigFile);
         }
     }
 }

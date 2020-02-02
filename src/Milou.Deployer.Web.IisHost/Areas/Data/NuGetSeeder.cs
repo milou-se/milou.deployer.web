@@ -38,15 +38,15 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                         deploymentTarget.Url.ToString(),
                         deploymentTarget.PackageId,
                         deploymentTarget.IisSiteName,
-                        deploymentTarget.NuGetPackageSource,
-                        deploymentTarget.NuGetConfigFile,
+                        deploymentTarget.NuGet.NuGetPackageSource,
+                        deploymentTarget.NuGet.NuGetConfigFile,
                         deploymentTarget.AutoDeployEnabled,
                         deploymentTarget.PublishSettingsXml,
                         deploymentTarget.TargetDirectory,
                         deploymentTarget.WebConfigTransform,
                         deploymentTarget.ExcludedFilePatterns,
                         deploymentTarget.EnvironmentTypeId,
-                        deploymentTarget.PackageListTimeout?.ToString(),
+                        deploymentTarget.NuGet.PackageListTimeout?.ToString(),
                         deploymentTarget.PublishType?.ToString(),
                         deploymentTarget.FtpPath?.Path);
 
