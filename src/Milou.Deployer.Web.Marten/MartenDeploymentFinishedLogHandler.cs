@@ -29,6 +29,14 @@ namespace Milou.Deployer.Web.Marten
 
             using (var session = _documentStore.OpenSession())
             {
+                var existing = await session.Query<TaskLog>().Where(taskLog => taskLog.Id == taskLogId).ToListAsync();
+
+                if (existing.Any())
+                {
+                    _logger.Warning("There is already a task log with id {TaskLogId}", taskLogId);
+                    return;
+                }
+
                 var taskMetadata = new TaskLog
                 {
                     DeploymentTaskId = notification.DeploymentTask.DeploymentTaskId,

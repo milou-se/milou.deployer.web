@@ -46,7 +46,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             if (!_configurationInstanceHolder.TryGet(targetId,
                 out DeploymentTargetWorker worker))
             {
-                _logger.Warning("Could not get worker for target id {TargetId}", targetId);
+                int registered = _configurationInstanceHolder.RegisteredTypes
+                    .Count(type => type == typeof(DeploymentTargetWorker));
+
+                _logger.Warning("Could not get worker for target id {TargetId}, {Count} worker types registered", targetId, registered);
             }
 
             return worker;
@@ -108,10 +111,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private void StartWorker(DeploymentTargetWorker deploymentTargetWorker, CancellationToken stoppingToken)
         {
+            try
+            {
+                TryStartWorker(deploymentTargetWorker, stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Could not start worker for target id {TargetId}", deploymentTargetWorker.TargetId);
+            }
+        }
+        private void TryStartWorker(DeploymentTargetWorker deploymentTargetWorker, CancellationToken stoppingToken)
+        {
+            _logger.Debug("Trying to start worker for target id {TargetId}");
+
             if (_tasks.ContainsKey(deploymentTargetWorker.TargetId))
             {
                 if (deploymentTargetWorker.IsRunning)
                 {
+                    _logger.Debug("Worker for target id {TargetId} is already running");
                     return;
                 }
 
@@ -136,6 +153,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 }
 
                 _tasks.Remove(deploymentTargetWorker.TargetId);
+            }
+            else
+            {
+                _logger.Debug("Start worker task was not found for target id {TargetId}");
             }
 
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -196,6 +217,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         private async Task StopWorkerAsync(DeploymentTargetWorker worker, CancellationToken cancellationToken)
         {
+            _logger.Debug("Stopping worker for target id {TargetId}", worker.TargetId);
             await worker.StopAsync(cancellationToken);
         }
 
