@@ -84,6 +84,9 @@ namespace Milou.Deployer.Web.Core.Configuration
         public const string NuGetExeDirectory = "urn:milou:deployer:web:nuget:nuget-directory";
 
         [Metadata]
+        public const string NuGetExeVersion = "urn:milou:deployer:web:nuget:nuget-exe-version";
+
+        [Metadata]
         public const string LogLevel = "urn:milou-deployer:web:log:level";
     }
 }

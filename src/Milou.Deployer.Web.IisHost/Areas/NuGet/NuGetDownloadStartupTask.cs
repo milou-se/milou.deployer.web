@@ -59,12 +59,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
                 using (var cts = _timeoutHelper.CreateCancellationTokenSource(fromSeconds))
                 {
                     var downloadDirectory = _configuration[ConfigurationConstants.NuGetExeDirectory].WithDefault(null);
+                    var exeVersion = _configuration[ConfigurationConstants.NuGetExeVersion].WithDefault(null);
 
                     var httpClient = _httpClientFactory.CreateClient();
 
                     var nuGetDownloadClient = new NuGetDownloadClient();
                     var nuGetDownloadResult = await nuGetDownloadClient.DownloadNuGetAsync(
-                        new NuGetDownloadSettings(downloadDirectory: downloadDirectory),
+                        new NuGetDownloadSettings(downloadDirectory: downloadDirectory, nugetExeVersion: exeVersion),
                         _logger,
                         httpClient,
                         cts.Token);

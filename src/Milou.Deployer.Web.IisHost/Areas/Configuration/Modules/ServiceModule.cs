@@ -25,9 +25,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 this);
 
             builder.AddSingleton<ICredentialReadService, ConfigurationCredentialReadService>(this);
-            builder.AddSingleton(context => new NuGetDownloadClient());
-            builder.AddSingleton(context => new NuGetDownloadSettings());
-            builder.AddSingleton(context => new NuGetCliSettings(nuGetExePath: context.GetRequiredService<NuGetConfiguration>().NugetExePath));
             builder.AddSingleton<NuGetPackageInstaller>();
 
             return builder;
