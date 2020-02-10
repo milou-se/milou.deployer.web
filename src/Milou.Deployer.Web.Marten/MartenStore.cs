@@ -482,13 +482,29 @@ namespace Milou.Deployer.Web.Marten
                 throw new ArgumentNullException(nameof(request));
             }
 
+            if (request.DeploymentTargetId == null)
+            {
+                throw new ArgumentNullException(nameof(request.DeploymentTargetId));
+            }
+
             using (var session = _documentStore.OpenSession())
             {
-                session.Delete<DeploymentTargetData>(request.TargetId);
-                session.DeleteWhere<TaskMetadata>(m => m.DeploymentTargetId.Equals(request.TargetId, StringComparison.OrdinalIgnoreCase));
+                var deploymentTargetData = await session.Query<DeploymentTargetData>().Where(target => target.Id == request.DeploymentTargetId).ToListAsync();
+
+                if (deploymentTargetData.Count == 0)
+                {
+                    _logger.Warning("Could not delete deployment target with id {DeploymentTargetId}, not found", request.DeploymentTargetId);
+
+                    return Unit.Value;
+                }
+
+                session.Delete<DeploymentTargetData>(request.DeploymentTargetId);
+                session.DeleteWhere<TaskMetadata>(m => m.DeploymentTargetId.Equals(request.DeploymentTargetId, StringComparison.OrdinalIgnoreCase));
 
                 await session.SaveChangesAsync(cancellationToken);
             }
+
+            _logger.Information("Deleted deployment target with id {DeploymentTargetId}", request.DeploymentTargetId);
 
             return Unit.Value;
         }

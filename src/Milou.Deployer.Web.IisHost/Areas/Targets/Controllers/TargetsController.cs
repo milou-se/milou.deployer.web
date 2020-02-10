@@ -51,9 +51,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
                 return BadRequest($"Model of type {typeof(RemoveTarget)} is null");
             }
 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             await mediator.Send(removeTarget);
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToRoute(MonitorConstants.MonitorRouteName);
         }
 
         [HttpPost]
