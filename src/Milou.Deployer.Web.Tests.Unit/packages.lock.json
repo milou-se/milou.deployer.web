@@ -501,8 +501,8 @@
       },
       "Milou.Deployer.Bootstrapper.Common": {
         "type": "Transitive",
-        "resolved": "4.6.3",
-        "contentHash": "aPpZAkOS+HTwBw2N/zLQqpm/DdlDntjSqDNafrPurVBye82sL/Ub1rc9pDM593FirZv75wsgmuW6Ho2QzUH/8A==",
+        "resolved": "4.6.4",
+        "contentHash": "GA4vQ/yjhFYmwCyRD2PNWezIojPqAmhiSX83bJXo/OAhhP3BkCLBw+XiEldQGftjtb25EyXveX0mqz5pBX+pyw==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
@@ -513,8 +513,8 @@
       },
       "Milou.Deployer.Core": {
         "type": "Transitive",
-        "resolved": "4.6.3",
-        "contentHash": "C+t+tB/lRpvzobX2eJ9Z1GOXNHI7FRR3vqzAiaJ397D6ErwT6FnAVvQc95Nf5BI0ryZ3ahaFycgM+p9cF0B9qA==",
+        "resolved": "4.6.4",
+        "contentHash": "e/UstIRqZRWfzd6kqH7bCOGDE4x55RaY4xhLravZPe4SGCU34mGlH1PiHf/n+QXABOGLyc3pSshxiP63QnuavA==",
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
@@ -1909,8 +1909,8 @@
           "Microsoft.Extensions.Http": "3.1.1",
           "Microsoft.Extensions.Logging.Abstractions": "3.1.1",
           "Microsoft.Extensions.Primitives": "3.1.1",
-          "Milou.Deployer.Bootstrapper.Common": "4.6.3",
-          "Milou.Deployer.Core": "4.6.3",
+          "Milou.Deployer.Bootstrapper.Common": "4.6.4",
+          "Milou.Deployer.Core": "4.6.4",
           "Newtonsoft.Json": "12.0.3",
           "NuGet.Frameworks": "5.4.0",
           "NuGet.Packaging": "5.4.0",
