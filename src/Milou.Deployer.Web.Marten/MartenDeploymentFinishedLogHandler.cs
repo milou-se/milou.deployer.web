@@ -7,6 +7,7 @@ using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Targets;
+using Serilog;
 
 namespace Milou.Deployer.Web.Marten
 {
@@ -14,10 +15,12 @@ namespace Milou.Deployer.Web.Marten
     public class MartenDeploymentFinishedLogHandler : INotificationHandler<DeploymentFinishedNotification>
     {
         private readonly IDocumentStore _documentStore;
+        private readonly ILogger _logger;
 
-        public MartenDeploymentFinishedLogHandler([NotNull] IDocumentStore documentStore)
+        public MartenDeploymentFinishedLogHandler([NotNull] IDocumentStore documentStore, ILogger logger)
         {
             _documentStore = documentStore ?? throw new ArgumentNullException(nameof(documentStore));
+            _logger = logger;
         }
 
         public async Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
@@ -45,7 +48,14 @@ namespace Milou.Deployer.Web.Marten
                 notificationLogLine.item.Id = $"{taskLogId}/{notificationLogLine.index + 1}";
             }
 
-            _documentStore.BulkInsert(notification.LogLines);
+            try
+            {
+                _documentStore.BulkInsert(notification.LogLines);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Could not bulk insert log lines");
+            }
         }
     }
 }
