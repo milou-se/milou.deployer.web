@@ -12,11 +12,11 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.1.0" />
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.20.0-build.1577577006" />
-    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.20.0-build.1577577006" />
-    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.20.0-build.1577577006" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.2.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.20.0" />
+    <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.20.0" />
+    <PackageReference Include="Arbor.KVConfiguration.UserConfiguration" Version="0.20.0" />
     <PackageReference Include="Arbor.ModelBinding" Version="0.7.2" />
     <PackageReference Include="Arbor.Processing" Version="0.4.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.7.1" />
@@ -24,7 +24,7 @@
     <PackageReference Include="MailKit" Version="2.5.0" />
     <PackageReference Include="Marten" Version="3.9.0" />
     <PackageReference Include="Marten" Version="3.10.0" />
-    <PackageReference Include="MediatR" Version="7.0.0" />
+    <PackageReference Include="MediatR" Version="8.0.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
@@ -35,8 +35,8 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.1.1" />
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.6.4" />
-    <PackageReference Include="Milou.Deployer.Core" Version="4.6.4" />
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.7.0-build.1581364143" />
+    <PackageReference Include="Milou.Deployer.Core" Version="4.7.0-build.1581364143" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NuGet.Frameworks" Version="5.4.0" />
     <PackageReference Include="NuGet.Packaging" Version="5.4.0" />
