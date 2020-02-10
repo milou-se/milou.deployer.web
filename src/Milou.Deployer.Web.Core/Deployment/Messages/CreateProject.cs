@@ -1,11 +1,10 @@
 ﻿using Arbor.App.Extensions;
-using Arbor.App.Extensions.Validation;
 using MediatR;
 using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class CreateProject : IRequest<CreateProjectResult>, IValidationObject
+    public class CreateProject : IRequest<CreateProjectResult>
     {
         public CreateProject(string id, string organizationId)
         {

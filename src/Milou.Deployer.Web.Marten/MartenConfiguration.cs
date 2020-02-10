@@ -2,7 +2,6 @@
 using System.Linq;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Configuration;
-using Arbor.App.Extensions.Validation;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Extensions;
@@ -12,7 +11,7 @@ namespace Milou.Deployer.Web.Marten
     [Urn(MartenConstants.MartenConfiguration)]
     [UsedImplicitly]
     [Optional]
-    public class MartenConfiguration : IValidationObject, IConfigurationValues
+    public class MartenConfiguration : IConfigurationValues
     {
         public MartenConfiguration(string connectionString, bool enabled = false)
         {

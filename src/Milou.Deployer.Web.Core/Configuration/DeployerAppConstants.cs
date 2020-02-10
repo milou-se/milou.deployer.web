@@ -52,6 +52,7 @@ namespace Milou.Deployer.Web.Core.Configuration
         [Metadata]
         public const string AllowedIpNetworks = "urn:milou:deployer:authorization:allowed-ip-networks";
 
-
+        [Metadata]
+        public const string NuGetExeVersion = "urn:milou:deployer:web:nuget:nuget-exe-version";
     }
 }

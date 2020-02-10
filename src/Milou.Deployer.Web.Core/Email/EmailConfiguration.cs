@@ -1,5 +1,4 @@
 ﻿using Arbor.App.Extensions;
-using Arbor.App.Extensions.Validation;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Configuration;
@@ -8,7 +7,7 @@ namespace Milou.Deployer.Web.Core.Email
 {
     [Urn(DeployerAppConstants.EmailConfiguration)]
     [UsedImplicitly]
-    public class EmailConfiguration : IValidationObject
+    public class EmailConfiguration
     {
         public EmailConfiguration(
             string defaultFromEmailAddress,

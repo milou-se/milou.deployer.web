@@ -1,11 +1,11 @@
 ﻿using System;
-using Arbor.App.Extensions.Validation;
+
 using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Email
 {
     [UsedImplicitly]
-    public class EmailAddress : IValidationObject
+    public class EmailAddress
     {
         public EmailAddress(string address)
         {

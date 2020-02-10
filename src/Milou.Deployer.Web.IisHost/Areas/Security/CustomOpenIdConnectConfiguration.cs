@@ -1,7 +1,7 @@
 ﻿
 using System;
 using Arbor.App.Extensions.Configuration;
-using Arbor.App.Extensions.Validation;
+
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 
@@ -10,7 +10,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     [Urn(UrnKey)]
     [UsedImplicitly]
     [Optional]
-    public class CustomOpenIdConnectConfiguration : IValidationObject, IConfigurationValues
+    public class CustomOpenIdConnectConfiguration : IConfigurationValues
     {
         [PublicAPI]
         public const string UrnKey = "urn:milou:deployer:web:open-id-connect";

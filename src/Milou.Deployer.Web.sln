@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.gitattributes = ..\.gitattributes
 		..\.gitignore = ..\.gitignore
 		..\build\build.bat = ..\build\build.bat
+		..\.github\workflows\ci.yml = ..\.github\workflows\ci.yml
 		Milou.Deployer.Web.IisHost\config.user = Milou.Deployer.Web.IisHost\config.user
 		Directory.Build.props = Directory.Build.props
 		..\Dockerfile = ..\Dockerfile

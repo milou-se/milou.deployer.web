@@ -14,4 +14,9 @@ jobs:
         dotnet tool install --global Arbor.Tooler.GlobalTool
         dotnet tool install --global Arbor.Build.Bootstrapper
     - name: build
+      env:
+        Arbor.X.NuGet.PackageUpload.Server.ApiKey: ${{ secrets.myget }}
+        Arbor.X.NuGet.PackageUpload.Server.Uri: "https://www.myget.org/F/milou-se/api/v2/package"
+        Arbor.X.NuGet.PackageUpload.Enabled: "true"
+        Arbor.X.NuGet.PackageUpload.ForceUploadEnabled: "true"
       run: build\build.bat

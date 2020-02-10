@@ -1,13 +1,11 @@
 ﻿using System;
 using Arbor.App.Extensions;
-using Arbor.App.Extensions.Validation;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Messages;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
-    public class CreateTarget : IRequest<CreateTargetResult>, IValidationObject
+    public class CreateTarget : IRequest<CreateTargetResult>
     {
         public CreateTarget(string id, string name)
         {

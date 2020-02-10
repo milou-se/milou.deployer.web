@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using Arbor.App.Extensions.Validation;
 using MediatR;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {
-    public class UpdateDeploymentTarget : IRequest<UpdateDeploymentTargetResult>, IValidationObject, IValidatableObject
+    public class UpdateDeploymentTarget : IRequest<UpdateDeploymentTargetResult>, IValidatableObject
     {
         public UpdateDeploymentTarget(
             string id,

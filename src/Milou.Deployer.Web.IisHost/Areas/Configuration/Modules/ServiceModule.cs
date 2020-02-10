@@ -3,11 +3,9 @@ using Arbor.KVConfiguration.Core;
 using Arbor.Tooler;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Core.NuGet;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Credentials;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.NuGet;
 
@@ -26,9 +24,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
                 this);
 
             builder.AddSingleton<ICredentialReadService, ConfigurationCredentialReadService>(this);
-            builder.AddSingleton(context => new NuGetDownloadClient());
-            builder.AddSingleton(context => new NuGetDownloadSettings());
-            builder.AddSingleton(context => new NuGetCliSettings(nuGetExePath: context.GetRequiredService<NuGetConfiguration>().NugetExePath));
             builder.AddSingleton<NuGetPackageInstaller>();
 
             return builder;

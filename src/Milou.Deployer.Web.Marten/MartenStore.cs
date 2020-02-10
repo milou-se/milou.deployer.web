@@ -90,8 +90,6 @@ namespace Milou.Deployer.Web.Marten
                     deploymentTargetData.PublishSettingsXml,
                     deploymentTargetData.AllowExplicitPreRelease,
                     url: deploymentTargetData.Url,
-                    nuGetConfigFile: deploymentTargetData.NuGetConfigFile,
-                    nuGetPackageSource: deploymentTargetData.NuGetPackageSource,
                     iisSiteName: deploymentTargetData.IisSiteName,
                     autoDeployEnabled: deploymentTargetData.AutoDeployEnabled,
                     targetDirectory: deploymentTargetData.TargetDirectory,
@@ -99,7 +97,6 @@ namespace Milou.Deployer.Web.Marten
                     excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
                     environmentType: deploymentTargetData.EnvironmentType,
                     enabled: deploymentTargetData.Enabled,
-                    packageListTimeout: deploymentTargetData.PackageListTimeout,
                     publishType: deploymentTargetData.PublishType,
                     ftpPath: deploymentTargetData.FtpPath,
                     metadataTimeout: deploymentTargetData.MetadataTimeout,
@@ -438,8 +435,6 @@ namespace Milou.Deployer.Web.Marten
                 data.Url = request.Url;
                 data.IisSiteName = request.IisSiteName;
                 data.AllowExplicitPreRelease = request.AllowExplicitPreRelease;
-                data.NuGetPackageSource = request.NugetPackageSource;
-                data.NuGetConfigFile = request.NugetConfigFile;
                 data.AutoDeployEnabled = request.AutoDeployEnabled;
                 data.PublishSettingsXml = request.PublishSettingsXml;
                 data.TargetDirectory = request.TargetDirectory;
@@ -448,13 +443,10 @@ namespace Milou.Deployer.Web.Marten
                 data.FtpPath = request.FtpPath?.Path;
                 data.PublishType = request.PublishType.Name;
                 data.EnvironmentType = request.EnvironmentType.Name;
-                data.PackageListTimeout = request.PackageListTimeout;
-                data.NuGetData ??= new NuGetData
-                                   {
-                                       NuGetConfigFile = request.NugetConfigFile,
-                                       NuGetPackageSource = request.NugetPackageSource,
-                                       PackageListTimeout = request.PackageListTimeout
-                                   };
+                data.NuGetData ??= new NuGetData();
+                data.NuGetData.NuGetConfigFile = request.NugetConfigFile;
+                data.NuGetData.NuGetPackageSource = request.NugetPackageSource;
+                data.NuGetData.PackageListTimeout = request.PackageListTimeout;
                 data.MetadataTimeout = request.MetadataTimeout;
                 session.Store(data);
 
