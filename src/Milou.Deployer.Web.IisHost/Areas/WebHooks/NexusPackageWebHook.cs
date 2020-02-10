@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 
 using Milou.Deployer.Web.Core.Deployment.Packages;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Integration.Nexus;
 using Milou.Deployer.Web.Core.Settings;
 

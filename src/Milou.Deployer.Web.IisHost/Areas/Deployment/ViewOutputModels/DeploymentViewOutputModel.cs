@@ -5,7 +5,6 @@ using Arbor.App.Extensions;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Packages;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels
 {

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Milou.Deployer.Web.Core.Deployment.Targets;
-using Newtonsoft.Json;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 {

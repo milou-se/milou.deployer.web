@@ -7,9 +7,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Messages
     {
         public DeploymentTargetWorker Worker { get; }
 
-        public WorkerCreated(DeploymentTargetWorker worker)
-        {
-            Worker = worker;
-        }
+        public WorkerCreated(DeploymentTargetWorker worker) => Worker = worker;
     }
 }

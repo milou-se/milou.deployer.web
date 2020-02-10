@@ -5,7 +5,6 @@ using Arbor.App.Extensions.Application;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Milou.Deployer.Web.Core.Application;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Routing

@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string targetDirectory = null,
             string webConfigTransform = null,
             string excludedFilePatterns = null,
-            string environmentType = null,
+            string environmentTypeId = null,
             string packageListTimeout = null,
             string publishType = null,
             string ftpPath = null,
@@ -30,12 +30,12 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
-            _ = Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
+            Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
             Url = uri;
             PackageId = packageId;
             ExcludedFilePatterns = excludedFilePatterns;
-            _ = PublishType.TryParseOrDefault(publishType, out var foundPublishType);
-            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
+            PublishType.TryParseOrDefault(publishType, out var foundPublishType);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
             PublishType = foundPublishType;
             FtpPath = path;
             IisSiteName = iisSiteName;
@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             TargetDirectory = targetDirectory;
             WebConfigTransform = webConfigTransform;
             IsValid = !string.IsNullOrWhiteSpace(Id);
-            EnvironmentType = EnvironmentType.Parse(environmentType);
+            EnvironmentTypeId = environmentTypeId;
 
             if (TimeSpan.TryParse(packageListTimeout, out TimeSpan timeout) && timeout.TotalSeconds > 0.5D)
             {
@@ -61,7 +61,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public TimeSpan? MetadataTimeout { get; }
 
-        public EnvironmentType? EnvironmentType { get; }
+        public string? EnvironmentTypeId { get; }
 
         public string Id { get; }
 
@@ -91,11 +91,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
         public FtpPath? FtpPath { get; }
 
-        public override string ToString()
-        {
-            return
-                $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
-        }
+        public override string ToString() => $"{nameof(Id)}: {Id}, {nameof(Url)}: {Url}, {nameof(AllowExplicitPreRelease)}: {AllowExplicitPreRelease}, {nameof(IisSiteName)}: {IisSiteName}, {nameof(NugetPackageSource)}: {NugetPackageSource}, {nameof(NugetConfigFile)}: {NugetConfigFile}, {nameof(AutoDeployEnabled)}: {AutoDeployEnabled}, {nameof(PublishSettingsXml)}: {PublishSettingsXml}, {nameof(TargetDirectory)}: {TargetDirectory}, {nameof(PackageId)}: {PackageId}, {nameof(IsValid)}: {IsValid}";
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

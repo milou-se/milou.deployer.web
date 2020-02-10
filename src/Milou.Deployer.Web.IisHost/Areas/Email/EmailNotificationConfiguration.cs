@@ -7,7 +7,6 @@ using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Core.Metadata;
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Email
 {

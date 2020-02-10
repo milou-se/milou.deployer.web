@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
-using Arbor.App.Extensions.Configuration;
 using Arbor.App.Extensions.Time;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Urns;
@@ -14,7 +13,6 @@ using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Deployment.Sources;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Startup;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Serilog;
@@ -61,6 +59,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield();
+
             IReadOnlyCollection<string> targetIds;
 
             try

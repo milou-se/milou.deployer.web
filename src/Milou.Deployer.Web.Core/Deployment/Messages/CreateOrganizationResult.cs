@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Arbor.App.Extensions;
 using Arbor.KVConfiguration.Core;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {

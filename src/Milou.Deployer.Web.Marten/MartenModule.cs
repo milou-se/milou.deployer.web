@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 using Marten;
 using Marten.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Json;
@@ -82,6 +83,8 @@ namespace Milou.Deployer.Web.Marten
                         DocumentStore.For(options => ConfigureMarten(options, configuration.ConnectionString)),
                     this);
             }
+
+            builder.AddSingleton<IEnvironmentTypeService, EnvironmentTypeService>();
 
             return builder;
         }

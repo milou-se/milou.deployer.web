@@ -1,6 +1,5 @@
 ﻿using Arbor.App.Extensions.Logging;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;

@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Arbor.App.Extensions;
 using MediatR;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages
 {

@@ -68,6 +68,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield();
+
             var deploymentTargetWorkers = _configurationInstanceHolder.GetInstances<DeploymentTargetWorker>().Values
                 .ToImmutableArray();
 
@@ -85,7 +87,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                         .Select(pair => pair.Key)
                         .ToArray();
 
-                    foreach (var completedTaskKey in completedTaskKeys)
+                    foreach (string completedTaskKey in completedTaskKeys)
                     {
                         if (_tasks.ContainsKey(completedTaskKey))
                         {
@@ -147,14 +149,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public Task Handle(WorkerCreated notification, CancellationToken cancellationToken)
         {
-            StartWorker(notification.Worker, cancellationToken);
-
             if (!_configurationInstanceHolder.TryGet(
                     notification.Worker.TargetId,
-                    out DeploymentTargetWorker worker))
+                    out DeploymentTargetWorker _))
             {
-                _configurationInstanceHolder.Add(new NamedInstance<object>(notification.Worker, notification.Worker.TargetId));
+                _configurationInstanceHolder.Add(new NamedInstance<DeploymentTargetWorker>(notification.Worker, notification.Worker.TargetId));
             }
+
+            StartWorker(notification.Worker, cancellationToken);
 
             return Task.CompletedTask;
         }

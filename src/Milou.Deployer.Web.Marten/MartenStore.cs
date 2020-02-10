@@ -10,13 +10,12 @@ using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Marten;
 using MediatR;
-using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
+using Milou.Deployer.Web.Core.Deployment.Environments;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
-using Milou.Deployer.Web.Core.Extensions;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -32,7 +31,8 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<DeploymentLogRequest, DeploymentLogResponse>,
         IRequestHandler<RemoveTarget, Unit>,
         IRequestHandler<EnableTarget, Unit>,
-        IRequestHandler<DisableTarget, Unit>
+        IRequestHandler<DisableTarget, Unit>,
+        IRequestHandler<CreateEnvironment, CreateEnvironmentResult>
     {
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
@@ -73,12 +73,16 @@ namespace Milou.Deployer.Web.Marten
             return new CreateProjectResult(createProject.Id);
         }
 
-        private DeploymentTarget MapDataToTarget(DeploymentTargetData deploymentTargetData)
+        private DeploymentTarget MapDataToTarget(DeploymentTargetData deploymentTargetData, ImmutableArray<EnvironmentType> environmentTypes)
         {
             if (deploymentTargetData is null)
             {
                 return null;
             }
+
+            var environmentType =
+                environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTargetData.EnvironmentTypeId)) ??
+                EnvironmentType.Unknown;
 
             DeploymentTarget deploymentTargetAsync = null;
             try
@@ -95,7 +99,8 @@ namespace Milou.Deployer.Web.Marten
                     targetDirectory: deploymentTargetData.TargetDirectory,
                     webConfigTransform: deploymentTargetData.WebConfigTransform,
                     excludedFilePatterns: deploymentTargetData.ExcludedFilePatterns,
-                    environmentType: deploymentTargetData.EnvironmentType,
+                    environmentTypeId: deploymentTargetData.EnvironmentTypeId,
+                    environmentType: environmentType,
                     enabled: deploymentTargetData.Enabled,
                     publishType: deploymentTargetData.PublishType,
                     ftpPath: deploymentTargetData.FtpPath,
@@ -147,20 +152,23 @@ namespace Milou.Deployer.Web.Marten
         private ImmutableArray<OrganizationInfo> MapDataToOrganizations(
             IReadOnlyList<OrganizationData> organizations,
             IReadOnlyList<ProjectData> projects,
-            IReadOnlyList<DeploymentTargetData> targets)
+            IReadOnlyList<DeploymentTargetData> targets,
+            ImmutableArray<EnvironmentType> environmentTypes)
         {
             return organizations.Select(org => new OrganizationInfo(org.Id,
                     projects
                         .Where(project => project.OrganizationId.Equals(org.Id, StringComparison.OrdinalIgnoreCase))
                         .Select(project =>
-                            new ProjectInfo(org.Id,
+                        {
+                            var deploymentTargetDatas = targets
+                                .Where(target =>
+                                    target.ProjectId != null
+                                    && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase));
+                            return new ProjectInfo(org.Id,
                                 project.Id,
-                                targets
-                                    .Where(target =>
-                                        target.ProjectId != null
-                                        && target.ProjectId.Equals(project.Id, StringComparison.OrdinalIgnoreCase))
-                                    .Select(MapDataToTarget)
-                                    .Where(t => t != null)))
+                                deploymentTargetDatas.Select(s => MapDataToTarget(s, environmentTypes))
+                            );
+                        })
                         .ToImmutableArray()))
                 .Concat(new[]
                 {
@@ -172,7 +180,7 @@ namespace Milou.Deployer.Web.Marten
                                 "NA",
                                 targets
                                     .Where(target => target.ProjectId is null)
-                                    .Select(MapDataToTarget)
+                                    .Select(s => MapDataToTarget(s, environmentTypes))
                                     .Where(t => t != null))
                         })
                 })
@@ -202,7 +210,8 @@ namespace Milou.Deployer.Web.Marten
                                 target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
                             cancellationToken);
 
-                    var deploymentTarget = MapDataToTarget(deploymentTargetData);
+                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(cancellationToken: cancellationToken);
+                    var deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);
 
                     return deploymentTarget ?? DeploymentTarget.None;
                 }
@@ -235,8 +244,10 @@ namespace Milou.Deployer.Web.Marten
                             .ToListAsync<OrganizationData>(
                                 cancellationToken);
 
+                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(cancellationToken: cancellationToken);
+
                     var organizationsInfo =
-                        MapDataToOrganizations(organizations, projects, targets);
+                        MapDataToOrganizations(organizations, projects, targets, environmentTypes);
 
                     return organizationsInfo;
                 }
@@ -264,11 +275,13 @@ namespace Milou.Deployer.Web.Marten
 
                 try
                 {
+                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(cancellationToken: stoppingToken);
+
                     var targets = await session.Query<DeploymentTargetData>()
                         .ToListAsync<DeploymentTargetData>(stoppingToken);
 
                     var deploymentTargets = targets
-                        .Select(MapDataToTarget)
+                        .Select(s => MapDataToTarget(s, environmentTypes))
                         .Where(Filter)
                         .ToImmutableArray();
 
@@ -442,7 +455,7 @@ namespace Milou.Deployer.Web.Marten
                 data.ExcludedFilePatterns = request.ExcludedFilePatterns;
                 data.FtpPath = request.FtpPath?.Path;
                 data.PublishType = request.PublishType.Name;
-                data.EnvironmentType = request.EnvironmentType.Name;
+                data.EnvironmentTypeId = request.EnvironmentTypeId;
                 data.NuGetData ??= new NuGetData();
                 data.NuGetData.NuGetConfigFile = request.NugetConfigFile;
                 data.NuGetData.NuGetPackageSource = request.NugetPackageSource;
@@ -525,6 +538,27 @@ namespace Milou.Deployer.Web.Marten
             }
 
             return Unit.Value;
+        }
+
+        public async Task<CreateEnvironmentResult> Handle(CreateEnvironment request, CancellationToken cancellationToken)
+        {
+            using (var session = _documentStore.OpenSession())
+            {
+                var environmentTypeData = await session.LoadAsync<EnvironmentTypeData>(request.EnvironmentTypeId, cancellationToken);
+
+                if (environmentTypeData is {})
+                {
+                    return new CreateEnvironmentResult("");
+                }
+
+                environmentTypeData = EnvironmentTypeData.MapToData(new EnvironmentType(request.EnvironmentTypeId, request.EnvironmentTypeName, PreReleaseBehavior.Parse(request.PreReleaseBehavior)));
+
+                session.Store(environmentTypeData);
+
+                await session.SaveChangesAsync(cancellationToken);
+
+                return new CreateEnvironmentResult(environmentTypeData.Id);
+            }
         }
     }
 }

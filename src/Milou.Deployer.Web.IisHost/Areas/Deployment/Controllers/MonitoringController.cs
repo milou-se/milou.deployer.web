@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Sources;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.ViewOutputModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers;
@@ -59,8 +58,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [HttpGet]
         [Route("~/api/targets")]
-        public async Task<IActionResult> Targets(CancellationToken cancellationToken)
+        public async Task<IActionResult> Targets(CancellationToken cancellationToken,
+            [FromServices] IEnvironmentTypeService environmentTypeService)
         {
+            var environmentTypes = await environmentTypeService.GetEnvironmentTypes(cancellationToken);
+
             var targets = (await _targetSource.GetOrganizationsAsync(cancellationToken))
                 .SelectMany(
                     organization => organization.Projects.SelectMany(project => project.DeploymentTargets))
@@ -72,6 +74,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                         new { deploymentTargetId = deploymentTarget.Id });
                     var statusUrl = Url.RouteUrl(TargetConstants.TargetStatusApiRouteName,
                         new { deploymentTargetId = deploymentTarget.Id });
+
+                    var environmentType =
+                        environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTarget.EnvironmentTypeId)) ?? EnvironmentType.Unknown;
+
                     return new
                     {
                         targetId = deploymentTarget.Id,
@@ -88,7 +94,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                         intervalAgo = "",
                         intervalAgoName = "",
                         deployedAtLocalTime = "",
-                        environmentType = deploymentTarget.EnvironmentType.Name,
+                        environmentType = environmentType.Name,
                         metadataUrl = deploymentTarget.Url is null ? null : $"{deploymentTarget.Url.AbsoluteUri.TrimEnd('/')}/applicationmetadata.json",
                         statusMessage = "",
                         latestNewerAvailabe = "",

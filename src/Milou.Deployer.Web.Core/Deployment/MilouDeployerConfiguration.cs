@@ -1,7 +1,6 @@
 ﻿using Arbor.App.Extensions;
 using Arbor.App.Extensions.Configuration;
 using Arbor.KVConfiguration.Core;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {

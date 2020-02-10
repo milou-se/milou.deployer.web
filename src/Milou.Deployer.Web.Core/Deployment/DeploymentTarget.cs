@@ -30,7 +30,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             string organization = null,
             string project = null,
             bool autoDeployment = false,
-            string environmentType = null,
+            string environmentTypeId = null,
+            EnvironmentType environmentType = null,
             bool autoDeployEnabled = false,
             StringValues emailNotificationAddresses = default,
             Dictionary<string, string[]> parameters = null,
@@ -57,10 +58,10 @@ namespace Milou.Deployer.Web.Core.Deployment
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(name));
             }
 
-            _ = PublishType.TryParseOrDefault(publishType, out PublishType type);
+            PublishType.TryParseOrDefault(publishType, out PublishType type);
             PublishType = type;
 
-            _ = FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
+            FtpPath.TryParse(ftpPath, FileSystemType.Directory, out FtpPath path);
             FtpPath = path;
 
             Url = url;
@@ -82,7 +83,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             AllowExplicitExplicitPreRelease = allowExplicitPreRelease;
             PackageId = packageId.WithDefault(Constants.NotAvailable);
             PublishSettingsXml = publishSettingsXml;
-            EnvironmentType = EnvironmentType.Parse(environmentType);
+            EnvironmentTypeId = environmentTypeId;
+            EnvironmentType = environmentType;
             EmailNotificationAddresses = emailNotificationAddresses.SafeToReadOnlyCollection();
             Parameters = parameters?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
             NuGet = nuget;
@@ -107,11 +109,12 @@ namespace Milou.Deployer.Web.Core.Deployment
 
         public bool? AllowExplicitExplicitPreRelease { get; }
 
-        public bool AllowPreRelease
-            =>
-                (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value)
-                || EnvironmentType.PreReleaseBehavior == PreReleaseBehavior.Allow;
+        public bool AllowPreRelease =>
+            (AllowExplicitExplicitPreRelease.HasValue && AllowExplicitExplicitPreRelease.Value) ||
+            (EnvironmentType?.PreReleaseBehavior == PreReleaseBehavior.Allow)
+        ;
 
+        public string EnvironmentTypeId { get; }
         public EnvironmentType EnvironmentType { get; }
 
         public string Id { get; }

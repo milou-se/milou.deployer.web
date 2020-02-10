@@ -9,7 +9,6 @@ namespace Milou.Deployer.Web.Core.Json
         {
             yield return new StringValuesJsonConverter();
             yield return new DateConverter();
-            yield return new EnvironmentTypeConverter();
         }
     }
 }

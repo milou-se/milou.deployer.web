@@ -3,8 +3,6 @@ using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.DependencyInjection;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Core.Application;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Health
 {

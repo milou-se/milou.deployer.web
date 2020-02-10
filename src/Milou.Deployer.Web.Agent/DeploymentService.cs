@@ -17,7 +17,6 @@ using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.Logging;
 using NuGet.Versioning;
 using Serilog;

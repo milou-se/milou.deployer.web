@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Arbor.App.Extensions;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets
 {

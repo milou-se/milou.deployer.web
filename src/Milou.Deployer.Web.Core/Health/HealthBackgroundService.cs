@@ -21,6 +21,8 @@ namespace Milou.Deployer.Web.Core.Health
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield();
+
             while (!_startupTaskContext.IsCompleted)
             {
                 await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);

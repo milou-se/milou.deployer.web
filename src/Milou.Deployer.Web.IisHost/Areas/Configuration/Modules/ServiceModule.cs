@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Credentials;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Areas.NuGet;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules

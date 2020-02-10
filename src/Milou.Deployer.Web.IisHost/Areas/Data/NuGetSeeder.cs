@@ -1,14 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-
 using JetBrains.Annotations;
-
 using MediatR;
-
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
-
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Data
@@ -16,11 +12,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
     [UsedImplicitly]
     public class NuGetSeeder : IDataSeeder
     {
-        private readonly IMediator _mediator;
-
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
 
         private readonly ILogger _logger;
+        private readonly IMediator _mediator;
 
         public NuGetSeeder(IMediator mediator, IDeploymentTargetReadService deploymentTargetReadService, ILogger logger)
         {
@@ -50,7 +45,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                         deploymentTarget.TargetDirectory,
                         deploymentTarget.WebConfigTransform,
                         deploymentTarget.ExcludedFilePatterns,
-                        deploymentTarget.EnvironmentType?.Name,
+                        deploymentTarget.EnvironmentTypeId,
                         deploymentTarget.NuGet.PackageListTimeout?.ToString(),
                         deploymentTarget.PublishType?.ToString(),
                         deploymentTarget.FtpPath?.Path);

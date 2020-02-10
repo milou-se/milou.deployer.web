@@ -7,13 +7,12 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-
+using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
-using Milou.Deployer.Web.IisHost.Areas.Organizations;
 using Milou.Deployer.Web.IisHost.Areas.Targets.ViewModels;
 using Milou.Deployer.Web.IisHost.Areas.Targets.Views;
 using Milou.Deployer.Web.IisHost.AspNetCore.TempData;
@@ -97,7 +96,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(
             [FromRoute] string deploymentTargetId,
-            [FromServices] IDeploymentTargetReadService deploymentTargetReadService)
+            [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
+            [FromServices] IEnvironmentTypeService environmentTypeService)
         {
             var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
 
@@ -106,7 +106,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(new EditTargetViewOutputModel(deploymentTarget));
+            var environmentTypes = await environmentTypeService.GetEnvironmentTypes();
+
+            return View(new EditTargetViewOutputModel(deploymentTarget, environmentTypes));
         }
 
         [Route(TargetConstants.EditTargetPostRoute, Name = TargetConstants.EditTargetPostRouteName)]

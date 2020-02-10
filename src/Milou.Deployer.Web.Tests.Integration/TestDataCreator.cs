@@ -5,7 +5,6 @@ using Arbor.App.Extensions;
 using Microsoft.Extensions.Primitives;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
-using Milou.Deployer.Web.Core.Extensions;
 
 namespace Milou.Deployer.Web.Tests.Integration
 {

@@ -38,10 +38,11 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 
         public bool Enabled { get; set; }
 
-        public string EnvironmentType { get; set; }
 
         public NuGetData NuGetData { get; set; }
 
         public TimeSpan? MetadataTimeout { get; set; }
+
+        public string? EnvironmentTypeId { get; set; }
     }
 }

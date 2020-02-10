@@ -21,6 +21,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Yield();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 foreach (var domain in AllowedIpAddressHandler.Domains)

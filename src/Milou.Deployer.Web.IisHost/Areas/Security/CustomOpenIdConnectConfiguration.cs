@@ -1,6 +1,4 @@
-﻿
-using System;
-using Arbor.App.Extensions.Configuration;
+﻿using Arbor.App.Extensions.Configuration;
 
 using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;

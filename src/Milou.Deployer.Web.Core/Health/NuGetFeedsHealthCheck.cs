@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.Processing;
 using JetBrains.Annotations;
-using Milou.Deployer.Web.Core.Extensions;
 using Milou.Deployer.Web.Core.NuGet;
 using Serilog;
 
