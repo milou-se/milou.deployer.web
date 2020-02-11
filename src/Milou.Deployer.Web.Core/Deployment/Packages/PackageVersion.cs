@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
 
         public bool Equals(PackageVersion other)
         {
-            if (ReferenceEquals(null, other))
+            if (other is null)
             {
                 return false;
             }
@@ -49,9 +49,9 @@ namespace Milou.Deployer.Web.Core.Deployment.Packages
             return string.Equals(Key, other.Key, StringComparison.OrdinalIgnoreCase);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj))
+            if (obj is null)
             {
                 return false;
             }

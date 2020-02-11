@@ -51,7 +51,7 @@ namespace Milou.Deployer.Web.Agent
             [NotNull] string deploymentTargetId,
             CancellationToken cancellationToken = default)
         {
-            var deploymentTarget =
+            DeploymentTarget deploymentTarget =
                 await _deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId, cancellationToken);
 
             return deploymentTarget;
@@ -64,7 +64,7 @@ namespace Milou.Deployer.Web.Agent
         {
             var targetTempDirectory = new DirectoryInfo(Path.Combine(Path.GetTempPath(), "MDep", jobId));
 
-            var targetDirectoryPath = deploymentTarget.TargetDirectory
+            string targetDirectoryPath = deploymentTarget.TargetDirectory
                 .WithDefault(targetTempDirectory.FullName);
 
             if (!Directory.Exists(targetDirectoryPath))
@@ -124,12 +124,12 @@ namespace Milou.Deployer.Web.Agent
                 return;
             }
 
-            foreach (var temporaryFile in deploymentTask.TempFiles)
+            foreach (TempFile temporaryFile in deploymentTask.TempFiles)
             {
                 temporaryFile.SafeDispose();
             }
 
-            foreach (var deploymentTaskTempDirectory in deploymentTask.TempDirectories)
+            foreach (DirectoryInfo deploymentTaskTempDirectory in deploymentTask.TempDirectories)
             {
                 deploymentTaskTempDirectory.Refresh();
 
@@ -141,10 +141,7 @@ namespace Milou.Deployer.Web.Agent
             }
         }
 
-        private static void SetLogging(LoggingLevelSwitch loggingLevelSwitch)
-        {
-            Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
-        }
+        private static void SetLogging(LoggingLevelSwitch loggingLevelSwitch) => Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
 
         public async Task<ExitCode> ExecuteAsync(
             DeploymentTask deploymentTask,
@@ -153,7 +150,7 @@ namespace Milou.Deployer.Web.Agent
             ILogger mainLogger,
             CancellationToken cancellationToken = default)
         {
-            var jobId = "MDep_" + Guid.NewGuid();
+            string jobId = "MDep_" + Guid.NewGuid();
 
             jobLogger.Information("Starting job {JobId}", jobId);
 
@@ -172,18 +169,18 @@ namespace Milou.Deployer.Web.Agent
 
             SetLogging(loggingLevelSwitch);
 
-            var targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
+            string targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
 
-            var targetEnvironmentConfigName =
+            string targetEnvironmentConfigName =
                 deploymentTarget.EnvironmentConfiguration;
 
             var arguments = new List<string>();
 
             jobLogger.Information("Using manifest file for job {JobId}", jobId);
 
-            var publishSettingsFile = deploymentTarget.PublishSettingFile;
+            string publishSettingsFile = deploymentTarget.PublishSettingFile;
 
-            var deploymentTargetParametersFile = deploymentTarget.ParameterFile;
+            string deploymentTargetParametersFile = deploymentTarget.ParameterFile;
 
             var tempManifestFile = TempFile.CreateTempFile(jobId, ".manifest");
 
@@ -204,7 +201,7 @@ namespace Milou.Deployer.Web.Agent
             if (!string.IsNullOrWhiteSpace(deploymentTargetParametersFile)
                 && File.Exists(deploymentTargetParametersFile))
             {
-                var parametersJson =
+                string parametersJson =
                     await File.ReadAllTextAsync(deploymentTargetParametersFile, Encoding.UTF8, cancellationToken);
 
                 parameterDictionary = JsonConvert
@@ -221,13 +218,13 @@ namespace Milou.Deployer.Web.Agent
                 parameterDictionary = deploymentTarget.Parameters;
             }
 
-            var parameters = parameterDictionary;
+            ImmutableDictionary<string, string[]> parameters = parameterDictionary;
 
             if (deploymentTarget.PublishSettingsXml.HasValue())
             {
                 var tempFileName = TempFile.CreateTempFile();
 
-                var expandedXml = Environment.ExpandEnvironmentVariables(deploymentTarget.PublishSettingsXml);
+                string expandedXml = Environment.ExpandEnvironmentVariables(deploymentTarget.PublishSettingsXml);
 
                 await File.WriteAllTextAsync(tempFileName.File.FullName,
                     expandedXml,
@@ -243,21 +240,21 @@ namespace Milou.Deployer.Web.Agent
             {
                 const string secretKeyPrefix = "publish-settings";
 
-                var id = deploymentTarget.Id;
+                string id = deploymentTarget.Id;
 
                 const string usernameKey = secretKeyPrefix + ":username";
                 const string passwordKey = secretKeyPrefix + ":password";
                 const string publishUrlKey = secretKeyPrefix + ":publish-url";
                 const string msdeploySiteKey = secretKeyPrefix + ":msdeploySite";
 
-                var username = _credentialReadService.GetSecret(id, usernameKey);
-                var password = _credentialReadService.GetSecret(id, passwordKey);
-                var publishUrl = _credentialReadService.GetSecret(id, publishUrlKey);
-                var msdeploySite = _credentialReadService.GetSecret(id, msdeploySiteKey);
+                string username = _credentialReadService.GetSecret(id, usernameKey);
+                string password = _credentialReadService.GetSecret(id, passwordKey);
+                string publishUrl = _credentialReadService.GetSecret(id, publishUrlKey);
+                string msdeploySite = _credentialReadService.GetSecret(id, msdeploySiteKey);
 
                 if (StringUtils.AllHaveValues(username, password, publishUrl, msdeploySite))
                 {
-                    var tempPublishFile = CreateTempPublishFile(deploymentTarget,
+                    TempFile tempPublishFile = CreateTempPublishFile(deploymentTarget,
                         username,
                         password,
                         publishUrl);
@@ -295,7 +292,7 @@ namespace Milou.Deployer.Web.Agent
                 }
             };
 
-            var json = JsonConvert.SerializeObject(definitions, Formatting.Indented);
+            string json = JsonConvert.SerializeObject(definitions, Formatting.Indented);
 
             jobLogger.Information("Using definitions JSON: {Json}", json);
 
@@ -309,7 +306,7 @@ namespace Milou.Deployer.Web.Agent
             arguments.Add($"{ConfigurationKeys.LogLevelEnvironmentVariable}={_loggingLevelSwitch.MinimumLevel}");
             arguments.Add($"{LoggingConstants.LoggingCategoryFormatEnabled}");
 
-            var deployerArgs = arguments.ToArray();
+            string[] deployerArgs = arguments.ToArray();
 
             jobLogger.Verbose("Running Milou Deployer bootstrapper");
 
@@ -319,14 +316,14 @@ namespace Milou.Deployer.Web.Agent
             {
                 mainLogger.Debug("Starting milou deployer process with args {Args}", string.Join(" ", deployerArgs));
 
-                using (var deployerApp =
+                using (App deployerApp =
                     await App.CreateAsync(deployerArgs,
                         jobLogger,
                         httpClient,
                         false,
                         cancellationToken))
                 {
-                    var result = await deployerApp.ExecuteAsync(
+                    Arbor.Tooler.NuGetPackageInstallResult result = await deployerApp.ExecuteAsync(
                         deployerArgs.ToImmutableArray(),
                         cancellationToken);
 

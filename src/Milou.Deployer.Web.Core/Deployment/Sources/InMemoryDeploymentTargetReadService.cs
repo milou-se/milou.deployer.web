@@ -20,7 +20,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
 
         public InMemoryDeploymentTargetReadService(
             ILogger logger,
-            Func<Task<IReadOnlyCollection<OrganizationInfo>>> dataCreator = null)
+            Func<Task<IReadOnlyCollection<OrganizationInfo>>>? dataCreator = null)
         {
             _logger = logger;
             _dataCreator = dataCreator;
@@ -108,9 +108,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Sources
 
         public Task<ImmutableArray<ProjectInfo>> GetProjectsAsync(
             string organizationId,
-            CancellationToken cancellationToken = default)
-        {
-            return Task.FromResult(ImmutableArray<ProjectInfo>.Empty);
-        }
+            CancellationToken cancellationToken = default) => Task.FromResult(ImmutableArray<ProjectInfo>.Empty);
     }
 }

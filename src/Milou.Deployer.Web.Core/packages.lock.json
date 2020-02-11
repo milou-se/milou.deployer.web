@@ -141,6 +141,12 @@
           "Microsoft.CodeAnalysis.Common": "[3.4.0]"
         }
       },
+      "Microsoft.CodeAnalysis.CSharp.CodeStyle": {
+        "type": "Direct",
+        "requested": "[3.6.0-beta1-20111-06, )",
+        "resolved": "3.6.0-beta1-20111-06",
+        "contentHash": "OHiOADImbf3lYffPv9ShPQJx6ItYIHgXJl2rnDtCTjJfLDhbGeBeXI1QpidtRSp87OpoHNT7qvjALrvtzQ+5PQ=="
+      },
       "Microsoft.CodeAnalysis.FxCopAnalyzers": {
         "type": "Direct",
         "requested": "[2.9.8, )",

@@ -23,29 +23,29 @@ namespace Milou.Deployer.Web.Core.Deployment
             [NotNull] string id,
             [NotNull] string name,
             string packageId,
-            string publishSettingsXml = null,
+            string? publishSettingsXml = null,
             bool allowExplicitPreRelease = false,
-            Uri url = null,
-            string environmentConfiguration = null,
-            string organization = null,
-            string project = null,
+            Uri? url = null,
+            string? environmentConfiguration = null,
+            string? organization = null,
+            string? project = null,
             bool autoDeployment = false,
-            string environmentTypeId = null,
-            EnvironmentType environmentType = null,
+            string? environmentTypeId = null,
+            EnvironmentType? environmentType = null,
             bool autoDeployEnabled = false,
             StringValues emailNotificationAddresses = default,
-            Dictionary<string, string[]> parameters = null,
-            string publishSettingFile = null,
-            string targetDirectory = null,
-            string parameterFile = null,
+            Dictionary<string, string[]>? parameters = null,
+            string? publishSettingFile = null,
+            string? targetDirectory = null,
+            string? parameterFile = null,
             bool isReadOnly = false,
-            string iisSiteName = default,
-            string webConfigTransform = default,
-            string excludedFilePatterns = default,
+            string? iisSiteName = default,
+            string? webConfigTransform = default,
+            string? excludedFilePatterns = default,
             bool enabled = false,
-            string publishType = default,
-            string ftpPath = default,
-            TargetNuGetSettings nuget = default,
+            string? publishType = default,
+            string? ftpPath = default,
+            TargetNuGetSettings? nuget = default,
             TimeSpan? metadataTimeout = default)
         {
             if (string.IsNullOrWhiteSpace(id))
@@ -161,7 +161,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         {
             if (string.IsNullOrWhiteSpace(Name) && string.IsNullOrWhiteSpace(Id))
             {
-                return base.ToString();
+                return base.ToString()!;
             }
 
             return $"{Name} ({Id})";

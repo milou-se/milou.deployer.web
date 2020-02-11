@@ -12,16 +12,16 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
 
             var assemblyName = executingAssembly.GetName();
 
-            var assemblyVersion = assemblyName.Version.ToString().ThrowIfNullOrEmpty();
+            string assemblyVersion = assemblyName.Version?.ToString()?.ThrowIfNullOrEmpty();
 
             var assemblyInformationalVersionAttribute =
                 executingAssembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
 
-            var location = executingAssembly.Location.ThrowIfNullOrEmpty();
+            string location = executingAssembly.Location.ThrowIfNullOrEmpty();
 
             var fvi = FileVersionInfo.GetVersionInfo(location);
 
-            var fileVersion = fvi.FileVersion;
+            string fileVersion = fvi.FileVersion;
 
             return new ApplicationVersionInfo(assemblyVersion,
                 fileVersion,

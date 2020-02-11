@@ -46,8 +46,7 @@ namespace Milou.Deployer.Web.Core.Application.Metadata
         [NotNull]
         public DeploymentTarget Target { get; }
 
-        [CanBeNull]
-        public SemanticVersion SemanticVersion
+        public SemanticVersion? SemanticVersion
         {
             get
             {

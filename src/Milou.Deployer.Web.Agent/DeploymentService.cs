@@ -59,7 +59,7 @@ namespace Milou.Deployer.Web.Agent
             DateTime end,
             Stopwatch stopwatch,
             ExitCode exitCode,
-            DeploymentTarget deploymentTarget)
+            DeploymentTarget? deploymentTarget)
         {
             var metadata = new StringBuilder();
 
@@ -102,7 +102,7 @@ namespace Milou.Deployer.Web.Agent
 
             metadata.Append("Exit code ").Append(exitCode).AppendLine();
 
-            var metadataContent = metadata.ToString();
+            string metadataContent = metadata.ToString();
 
             return metadataContent;
         }
@@ -113,7 +113,7 @@ namespace Milou.Deployer.Web.Agent
                 !deploymentTarget.PackageId.Equals(packageId,
                     StringComparison.InvariantCultureIgnoreCase))
             {
-                var allPackageIds = string.Join(", ",
+                string allPackageIds = string.Join(", ",
                     deploymentTarget.PackageId.Select(name => $"'{name}'"));
 
                 throw new DeployerAppException(
@@ -261,7 +261,7 @@ namespace Milou.Deployer.Web.Agent
 
             stopwatch.Stop();
 
-            var metadataContent = LogJobMetadata(deploymentTask,
+            string metadataContent = LogJobMetadata(deploymentTask,
                 start,
                 result.Item2,
                 stopwatch,

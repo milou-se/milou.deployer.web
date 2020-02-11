@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -13,12 +14,12 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             LogItem[] logLines,
             DateTime finishedAtUtc)
         {
-            LogLines = logLines;
+            LogLines = logLines.ToImmutableArray();
             FinishedAtUtc = finishedAtUtc;
             DeploymentTask = deploymentTask ?? throw new ArgumentNullException(nameof(deploymentTask));
         }
 
-        public LogItem[] LogLines { get; }
+        public ImmutableArray<LogItem> LogLines { get; }
 
         public DeploymentTask DeploymentTask { get; }
 

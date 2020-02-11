@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
-            Uri.TryCreate(url, UriKind.Absolute, out Uri uri);
+            Uri.TryCreate(url, UriKind.Absolute, out Uri? uri);
             Url = uri;
             PackageId = packageId;
             ExcludedFilePatterns = excludedFilePatterns;

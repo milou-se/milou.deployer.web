@@ -19,10 +19,7 @@ namespace Milou.Deployer.Web.Core.Json
         /// <returns>
         ///     <c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.
         /// </returns>
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(StringValues);
-        }
+        public override bool CanConvert(Type objectType) => objectType == typeof(StringValues);
 
         /// <summary>
         ///     Reads the JSON representation of the object.
@@ -34,12 +31,17 @@ namespace Milou.Deployer.Web.Core.Json
         /// <returns>
         ///     The object value.
         /// </returns>
-        public override object ReadJson(
+        public override object? ReadJson(
             JsonReader reader,
             Type objectType,
-            object existingValue,
+            object? existingValue,
             JsonSerializer serializer)
         {
+            if (reader is null)
+            {
+                return null;
+            }
+
             if (reader.TokenType == JsonToken.StartArray)
             {
                 var array = JArray.Load(reader);
@@ -58,9 +60,6 @@ namespace Milou.Deployer.Web.Core.Json
         /// <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter" /> to write to.</param>
         /// <param name="value">The value.</param>
         /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotSupportedException();
-        }
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer) => throw new NotSupportedException();
     }
 }
