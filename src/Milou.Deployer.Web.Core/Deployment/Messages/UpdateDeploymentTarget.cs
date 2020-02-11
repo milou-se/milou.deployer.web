@@ -26,7 +26,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string packageListTimeout = null,
             string publishType = null,
             string ftpPath = null,
-            string metadataTimeout = default)
+            string metadataTimeout = default,
+            bool requireEnvironmentConfig = default)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
@@ -57,6 +58,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             {
                 MetadataTimeout = parsedMetadataTimeout;
             }
+
+            RequireEnvironmentConfig = requireEnvironmentConfig;
         }
 
         public TimeSpan? MetadataTimeout { get; }
@@ -99,10 +102,17 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             {
                 yield return new ValidationResult("URL must be defined", new []{nameof(Url)});
             }
+
+            if (RequireEnvironmentConfig == true && string.IsNullOrWhiteSpace(EnvironmentTypeId))
+            {
+                yield return new ValidationResult($"{nameof(RequireEnvironmentConfig)} can only be true when environment type id is set", new []{nameof(RequireEnvironmentConfig)});
+            }
         }
 
         public bool IsValid { get; }
 
         public TimeSpan? PackageListTimeout { get; }
+
+        public bool? RequireEnvironmentConfig { get; }
     }
 }

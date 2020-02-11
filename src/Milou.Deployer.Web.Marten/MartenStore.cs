@@ -10,6 +10,7 @@ using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Marten;
 using MediatR;
+using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Environments;
 using Milou.Deployer.Web.Core.Deployment.Messages;
@@ -38,12 +39,14 @@ namespace Milou.Deployer.Web.Marten
         private readonly ILogger _logger;
 
         private readonly IMediator _mediator;
+        private readonly ICustomMemoryCache _cache;
 
-        public MartenStore([NotNull] IDocumentStore documentStore, ILogger logger, IMediator mediator)
+        public MartenStore([NotNull] IDocumentStore documentStore, ILogger logger, IMediator mediator, ICustomMemoryCache cache)
         {
             _documentStore = documentStore ?? throw new ArgumentNullException(nameof(documentStore));
             _logger = logger;
             _mediator = mediator;
+            _cache = cache;
         }
 
         private async Task<CreateProjectResult> CreateProjectAsync(
@@ -105,7 +108,8 @@ namespace Milou.Deployer.Web.Marten
                     publishType: deploymentTargetData.PublishType,
                     ftpPath: deploymentTargetData.FtpPath,
                     metadataTimeout: deploymentTargetData.MetadataTimeout,
-                    nuget: MapNuGet(deploymentTargetData.NuGetData));
+                    nuget: MapNuGet(deploymentTargetData.NuGetData),
+                    requireEnvironmentConfig: deploymentTargetData.RequireEnvironmentConfig);
             }
             catch (Exception ex)
             {
@@ -210,7 +214,7 @@ namespace Milou.Deployer.Web.Marten
                                 target.Id.Equals(deploymentTargetId, StringComparison.OrdinalIgnoreCase),
                             cancellationToken);
 
-                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(cancellationToken: cancellationToken);
+                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
                     var deploymentTarget = MapDataToTarget(deploymentTargetData, environmentTypes);
 
                     return deploymentTarget ?? DeploymentTarget.None;
@@ -244,7 +248,7 @@ namespace Milou.Deployer.Web.Marten
                             .ToListAsync<OrganizationData>(
                                 cancellationToken);
 
-                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(cancellationToken: cancellationToken);
+                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: cancellationToken);
 
                     var organizationsInfo =
                         MapDataToOrganizations(organizations, projects, targets, environmentTypes);
@@ -275,7 +279,7 @@ namespace Milou.Deployer.Web.Marten
 
                 try
                 {
-                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(cancellationToken: stoppingToken);
+                    ImmutableArray<EnvironmentType> environmentTypes = await _documentStore.GetEnvironmentTypes(_cache, cancellationToken: stoppingToken);
 
                     var targets = await session.Query<DeploymentTargetData>()
                         .ToListAsync<DeploymentTargetData>(stoppingToken);
@@ -456,6 +460,7 @@ namespace Milou.Deployer.Web.Marten
                 data.FtpPath = request.FtpPath?.Path;
                 data.PublishType = request.PublishType.Name;
                 data.EnvironmentTypeId = request.EnvironmentTypeId;
+                data.RequireEnvironmentConfig = request.RequireEnvironmentConfig;
                 data.NuGetData ??= new NuGetData();
                 data.NuGetData.NuGetConfigFile = request.NugetConfigFile;
                 data.NuGetData.NuGetPackageSource = request.NugetPackageSource;

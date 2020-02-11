@@ -46,7 +46,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             string? publishType = default,
             string? ftpPath = default,
             TargetNuGetSettings? nuget = default,
-            TimeSpan? metadataTimeout = default)
+            TimeSpan? metadataTimeout = default,
+            bool? requireEnvironmentConfig = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -65,7 +66,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             FtpPath = path;
 
             Url = url;
-            EnvironmentConfiguration = environmentConfiguration;
+            EnvironmentConfiguration = environmentConfiguration ?? environmentType?.Name;
             AutoDeployment = autoDeployment;
             AutoDeployEnabled = autoDeployEnabled;
             PublishSettingFile = publishSettingFile;
@@ -89,12 +90,14 @@ namespace Milou.Deployer.Web.Core.Deployment
             Parameters = parameters?.ToImmutableDictionary() ?? ImmutableDictionary<string, string[]>.Empty;
             NuGet = nuget;
             MetadataTimeout = metadataTimeout;
+            RequireEnvironmentConfiguration = requireEnvironmentConfig;
         }
 
         public IReadOnlyCollection<string> EmailNotificationAddresses { get; }
 
         public Uri Url { get; }
 
+        [Obsolete("Use EnvironmentTypeId")]
         public string EnvironmentConfiguration { get; }
 
         public bool AutoDeployment { get; }
@@ -115,6 +118,7 @@ namespace Milou.Deployer.Web.Core.Deployment
         ;
 
         public string EnvironmentTypeId { get; }
+
         public EnvironmentType EnvironmentType { get; }
 
         public string Id { get; }
@@ -156,6 +160,8 @@ namespace Milou.Deployer.Web.Core.Deployment
         public TargetNuGetSettings NuGet { get; }
 
         public TimeSpan? MetadataTimeout { get; }
+
+        public bool? RequireEnvironmentConfiguration { get; }
 
         public override string ToString()
         {

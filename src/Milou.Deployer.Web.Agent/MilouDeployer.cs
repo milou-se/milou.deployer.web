@@ -171,8 +171,7 @@ namespace Milou.Deployer.Web.Agent
 
             string targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
 
-            string targetEnvironmentConfigName =
-                deploymentTarget.EnvironmentConfiguration;
+            string targetEnvironmentConfigName = deploymentTarget.EnvironmentType?.Name ?? deploymentTarget.EnvironmentConfiguration;
 
             var arguments = new List<string>();
 
@@ -279,6 +278,7 @@ namespace Milou.Deployer.Web.Agent
                         targetDirectoryPath,
                         isPreRelease = deploymentTask.SemanticVersion.IsPrerelease,
                         environmentConfig = targetEnvironmentConfigName,
+                        requireEnvironmentConfig = deploymentTarget.RequireEnvironmentConfiguration,
                         publishSettingsFile,
                         parameters,
                         deploymentTarget.NuGet.NuGetConfigFile,
