@@ -12,6 +12,6 @@ namespace Milou.Deployer.Web.Core.Caching
 
         void SetValue<T>([NotNull] string key, [NotNull] T item, TimeSpan? cacheTime = default) where T : class;
 
-        void Invalidate(string prefix = null);
+        void Invalidate(string? prefix = null);
     }
 }

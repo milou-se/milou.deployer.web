@@ -12,14 +12,13 @@ namespace Milou.Deployer.Web.Marten
     {
         private readonly ICustomMemoryCache _cache;
 
-        public EnvironmentTypeService(ICustomMemoryCache cache)
-        {
-            _cache = cache;
-        }
-
         private readonly IDocumentStore _store;
 
-        public EnvironmentTypeService(IDocumentStore martenStore) => _store = martenStore;
+        public EnvironmentTypeService(IDocumentStore martenStore, ICustomMemoryCache cache)
+        {
+            _store = martenStore;
+            _cache = cache;
+        }
 
         public Task<ImmutableArray<EnvironmentType>> GetEnvironmentTypes(CancellationToken cancellationToken =
             default) =>

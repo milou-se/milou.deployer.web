@@ -41,8 +41,10 @@ namespace Milou.Deployer.Web.Agent
         {
             _deploymentTargetReadService = deploymentTargetReadService ??
                                            throw new ArgumentNullException(nameof(deploymentTargetReadService));
+
             _credentialReadService =
                 credentialReadService ?? throw new ArgumentNullException(nameof(credentialReadService));
+
             _clientFactory = clientFactory ?? throw new ArgumentNullException(nameof(clientFactory));
             _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
         }
@@ -141,7 +143,8 @@ namespace Milou.Deployer.Web.Agent
             }
         }
 
-        private static void SetLogging(LoggingLevelSwitch loggingLevelSwitch) => Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
+        private static void SetLogging(LoggingLevelSwitch loggingLevelSwitch) =>
+            Environment.SetEnvironmentVariable("loglevel", loggingLevelSwitch.MinimumLevel.ToString());
 
         public async Task<ExitCode> ExecuteAsync(
             DeploymentTask deploymentTask,
@@ -171,7 +174,7 @@ namespace Milou.Deployer.Web.Agent
 
             string targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
 
-            string targetEnvironmentConfigName = deploymentTarget.EnvironmentType?.Name ?? deploymentTarget.EnvironmentConfiguration;
+            var targetEnvironmentConfig = deploymentTarget.GetEnvironmentConfiguration();
 
             var arguments = new List<string>();
 
@@ -194,6 +197,7 @@ namespace Milou.Deployer.Web.Agent
                     "The deployment target {DeploymentTarget} parameter file '{DeploymentTargetParametersFile}' is not a rooted path",
                     deploymentTarget,
                     deploymentTargetParametersFile);
+
                 return ExitCode.Failure;
             }
 
@@ -277,7 +281,7 @@ namespace Milou.Deployer.Web.Agent
                         deploymentTask.PackageId,
                         targetDirectoryPath,
                         isPreRelease = deploymentTask.SemanticVersion.IsPrerelease,
-                        environmentConfig = targetEnvironmentConfigName,
+                        environmentConfig = targetEnvironmentConfig,
                         requireEnvironmentConfig = deploymentTarget.RequireEnvironmentConfiguration,
                         publishSettingsFile,
                         parameters,

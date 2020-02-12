@@ -184,11 +184,11 @@ else
 
                 <label for="environmentType">Environment type</label>
                 <div class="input-value">
-                    <select name="environmentType" id="environmentType">
+                    <select name="environmentTypeId" id="environmentTypeId">
 
                         @foreach (var type in Model.EnvironmentTypes.OrderBy(environment => environment.Name))
                         {
-                            <option name="@type.Name" @(Model.DeploymentTarget.EnvironmentTypeId?.Equals(type.Id) ?? false).Selected()>@type.Name</option>
+                            <option value="@type.Id" @((Model.DeploymentTarget.EnvironmentTypeId?.Equals(type.Id) ?? false).Selected())>@type.Name</option>
                         }
 
                     </select>

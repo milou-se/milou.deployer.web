@@ -17,7 +17,7 @@ namespace Milou.Deployer.Web.Core.Json
                 return null;
             }
 
-            return new Date(DateTime.Parse(reader.Value.ToString()));
+            return new Date(DateTime.Parse(reader?.Value?.ToString()));
         }
 
         public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
@@ -26,6 +26,7 @@ namespace Milou.Deployer.Web.Core.Json
             {
                 return;
             }
+
             writer.WriteValue(((Date)value).ToString());
         }
 

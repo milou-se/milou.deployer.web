@@ -25,26 +25,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
             _logger = logger;
         }
 
-        private IReadOnlyCollection<string> GetCachedKeys()
-        {
-            (string key, bool exists)[] keys = Keys.Select(key => (key.Key, _memoryCache.TryGetValue(key.Key, out _)))
-                .ToArray();
-
-            var toRemove = keys.Where(item => !item.exists).Select(item => item.key).ToArray();
-
-            foreach (var nonCachedKey in toRemove)
-            {
-                var removed = Keys.TryRemove(nonCachedKey, out _);
-
-                if (!removed)
-                {
-                    _logger.Debug("Could not remove cached item with key {CacheKey}", nonCachedKey);
-                }
-            }
-
-            return Keys.Keys.ToArray();
-        }
-
         public IReadOnlyCollection<string> CachedKeys => GetCachedKeys();
 
         public bool TryGetValue<T>(string key, out T item) where T : class
@@ -91,7 +71,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
             }
         }
 
-        public void Invalidate(string prefix = null)
+        public void Invalidate(string? prefix = null)
         {
             var keys = GetCachedKeys();
 
@@ -116,12 +96,34 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
                 keys.Count,
                 prefix);
 
-            foreach (var key in filteredKeys)
+            foreach (string key in filteredKeys)
             {
                 _memoryCache.Remove(key);
                 Keys.TryRemove(key, out _);
                 _logger.Debug("Removed item with key {CacheKey} from in-memory cache", key);
             }
+        }
+
+        private IReadOnlyCollection<string> GetCachedKeys()
+        {
+            (string key, bool exists)[] keys = Keys.Select(key => (key.Key, _memoryCache.TryGetValue(key.Key, out _)))
+                .ToArray();
+
+            string[] toRemove = keys.Where(item => !item.exists)
+                .Select(item => item.key)
+                .ToArray();
+
+            foreach (string nonCachedKey in toRemove)
+            {
+                bool removed = Keys.TryRemove(nonCachedKey, out _);
+
+                if (!removed)
+                {
+                    _logger.Debug("Could not remove cached item with key {CacheKey}", nonCachedKey);
+                }
+            }
+
+            return Keys.Keys.ToArray();
         }
     }
 }

@@ -70,7 +70,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                         out int startupTimeoutInSeconds) ||
                     startupTimeoutInSeconds <= 0)
                 {
-                    startupTimeoutInSeconds = 10;
+                    startupTimeoutInSeconds = 30;
                 }
 
                 using (var startupToken = _timeoutHelper.CreateCancellationTokenSource(TimeSpan.FromSeconds(startupTimeoutInSeconds)))

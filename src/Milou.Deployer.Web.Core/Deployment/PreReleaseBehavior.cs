@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Deployment
 {
-    public class PreReleaseBehavior
+    public sealed class PreReleaseBehavior
     {
         public static readonly PreReleaseBehavior Invalid = new PreReleaseBehavior(nameof(Invalid));
 
@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.Core.Deployment
             Deny
         };
 
-        public static PreReleaseBehavior Parse(string value) =>
+        public static PreReleaseBehavior Parse(string? value) =>
             All.SingleOrDefault(
                 behavior => behavior.Name.Equals(value, StringComparison.InvariantCultureIgnoreCase)) ?? Invalid;
     }

@@ -561,24 +561,30 @@ namespace Milou.Deployer.Web.Marten
             return Unit.Value;
         }
 
-        public async Task<CreateEnvironmentResult> Handle(CreateEnvironment request, CancellationToken cancellationToken)
+        public async Task<CreateEnvironmentResult> Handle([NotNull] CreateEnvironment request, CancellationToken cancellationToken)
         {
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             using (var session = _documentStore.OpenSession())
             {
-                var environmentTypeData = await session.LoadAsync<EnvironmentTypeData>(request.EnvironmentTypeId, cancellationToken);
+                EnvironmentTypeData environmentTypeData = await session.LoadAsync<EnvironmentTypeData>(request.EnvironmentTypeId.Trim(), cancellationToken);
 
                 if (environmentTypeData is {})
                 {
-                    return new CreateEnvironmentResult("");
+                    return new CreateEnvironmentResult(environmentTypeData.Id, Result.AlreadyExists);
                 }
 
-                environmentTypeData = EnvironmentTypeData.MapToData(new EnvironmentType(request.EnvironmentTypeId, request.EnvironmentTypeName, PreReleaseBehavior.Parse(request.PreReleaseBehavior)));
+                var data = await session.StoreEnvironmentType(request, _cache, _logger, cancellationToken);
 
-                session.Store(environmentTypeData);
+                if (data.Id.IsNullOrWhiteSpace())
+                {
+                    return new CreateEnvironmentResult("", Result.Failed);
+                }
 
-                await session.SaveChangesAsync(cancellationToken);
-
-                return new CreateEnvironmentResult(environmentTypeData.Id);
+                return new CreateEnvironmentResult(data.Id, Result.Created);
             }
         }
     }

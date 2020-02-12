@@ -46,23 +46,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 _logger.Debug("Running data seeders");
 
                 await Task.Run(() => RunSeeders(startupCancellationToken), startupCancellationToken);
-
             }
             else
             {
                 _logger.Debug("No data seeders were found");
+                IsCompleted = true;
             }
-
         }
 
         private async Task RunSeeders(CancellationToken cancellationToken)
         {
             if (!int.TryParse(_configuration[DeployerAppConstants.SeedTimeoutInSeconds],
-                    out var seedTimeoutInSeconds) ||
+                    out int seedTimeoutInSeconds) ||
                 seedTimeoutInSeconds <= 0)
             {
-                seedTimeoutInSeconds = 10;
+                seedTimeoutInSeconds = 20;
             }
+
+            _logger.Debug("Found {SeederCount} data seeders", _dataSeeders.Length);
 
             foreach (var dataSeeder in _dataSeeders)
             {
@@ -82,7 +83,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
                 }
                 catch (TaskCanceledException ex)
                 {
-                    _logger.Error(ex, "Could not run seeder {Seeder}", dataSeeder.GetType().Name);
+                    _logger.Error(ex, "Could not run seeder {Seeder}, timeout {Timeout} seconds expired",
+                        dataSeeder.GetType().Name, seedTimeoutInSeconds);
                 }
                 catch (Exception ex)
                 {

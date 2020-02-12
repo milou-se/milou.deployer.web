@@ -10,14 +10,4 @@ namespace Milou.Deployer.Web.Core.Deployment.Environments
 
         public string PreReleaseBehavior { get; set; }
     }
-
-    public class CreateEnvironmentResult
-    {
-        public string Id { get; }
-
-        public CreateEnvironmentResult(string id)
-        {
-            Id = id;
-        }
-    }
 }

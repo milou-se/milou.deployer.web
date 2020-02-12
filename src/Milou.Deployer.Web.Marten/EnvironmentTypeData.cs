@@ -10,11 +10,13 @@ namespace Milou.Deployer.Web.Marten
 
         public string Name { get; set; }
 
+        public static readonly EnvironmentTypeData Empty = new EnvironmentTypeData {Id = ""};
+
         public static EnvironmentTypeData MapToData(EnvironmentType environmentType) =>
             new EnvironmentTypeData
             {
-                Id = environmentType.Id,
-                PreReleaseBehavior = environmentType.PreReleaseBehavior.Name,
+                Id = environmentType.Id.Trim(),
+                PreReleaseBehavior = environmentType.PreReleaseBehavior.Name.Trim(),
                 Name = environmentType.Name
             };
 

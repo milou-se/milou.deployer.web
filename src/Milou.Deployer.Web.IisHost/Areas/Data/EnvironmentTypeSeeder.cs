@@ -6,6 +6,7 @@ using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Environments;
 using Milou.Deployer.Web.Core.Deployment.Targets;
+using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Data
 {
@@ -13,12 +14,14 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
     public class EnvironmentTypeSeeder : IDataSeeder
     {
         private readonly IEnvironmentTypeService _environmentTypeService;
+        private readonly ILogger _logger;
         private readonly IMediator _mediator;
 
-        public EnvironmentTypeSeeder(IMediator mediator, IEnvironmentTypeService environmentTypeService)
+        public EnvironmentTypeSeeder(IMediator mediator, IEnvironmentTypeService environmentTypeService, ILogger logger)
         {
             _mediator = mediator;
             _environmentTypeService = environmentTypeService;
+            _logger = logger;
         }
 
         public async Task SeedAsync(CancellationToken cancellationToken)
@@ -34,25 +37,25 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
             {
                 new CreateEnvironment
                 {
-                    EnvironmentTypeId = "QA",
+                    EnvironmentTypeId = "qa",
                     EnvironmentTypeName = "QualityAssurance",
                     PreReleaseBehavior = PreReleaseBehavior.AllowWithForceFlag.Name
                 },
                 new CreateEnvironment
                 {
-                    EnvironmentTypeId = "Production",
+                    EnvironmentTypeId = "production",
                     EnvironmentTypeName = "Production",
                     PreReleaseBehavior = PreReleaseBehavior.Deny.Name
                 },
                 new CreateEnvironment
                 {
-                    EnvironmentTypeId = "Development ",
+                    EnvironmentTypeId = "development ",
                     EnvironmentTypeName = "Development ",
                     PreReleaseBehavior = PreReleaseBehavior.Allow.Name
                 },
                 new CreateEnvironment
                 {
-                    EnvironmentTypeId = "Test",
+                    EnvironmentTypeId = "test",
                     EnvironmentTypeName = "Test ",
                     PreReleaseBehavior = PreReleaseBehavior.Allow.Name
                 }
@@ -60,7 +63,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
 
             foreach (var createEnvironment in commands)
             {
-                await _mediator.Send(createEnvironment, cancellationToken);
+                var result = await _mediator.Send(createEnvironment, cancellationToken);
+
+                _logger.Debug("CreateEnvironment result for Id {Id}: {Status}", result.Id, result.Status);
             }
         }
     }
