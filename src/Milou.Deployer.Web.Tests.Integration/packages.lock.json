@@ -939,8 +939,8 @@
       },
       "Milou.Deployer.Bootstrapper.Common": {
         "type": "Transitive",
-        "resolved": "4.7.0-build.1581496070",
-        "contentHash": "wY6me1Izgz+M7HHAK4wHGCdrGQj5xkx7gRoOKL+pHi5MwRZnia290jseX7IQpcqiMgzdZ3XGErUZuUpRbAvEWA==",
+        "resolved": "4.7.0",
+        "contentHash": "CYEuiTgTbIPHUnZIo5K149TslMd1CDeCSGoh6lYL49jwpKwypenBNM3+oROedV1XpX8w7mwqGOplSmoDERogSQ==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
@@ -951,8 +951,8 @@
       },
       "Milou.Deployer.Core": {
         "type": "Transitive",
-        "resolved": "4.7.0-build.1581496070",
-        "contentHash": "FQsgDJu1OAn7INbNJ9sZD/F2keFM0xJQNjD+DRnzB8EBXS9Sld7jJMqG4Va9hGGVWJaY0xj3VI2oUgrVTS2ClA==",
+        "resolved": "4.7.0",
+        "contentHash": "vLlSkRxV1IMD6NCN9IHTdbAj0HFypQ0ibysn0LNqUuV/rpsZKwmllQPJ4UVnpitiL3jx6rNHTD6NGEQ9kQ6ymA==",
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
@@ -2476,8 +2476,8 @@
           "Microsoft.Extensions.Http": "3.1.1",
           "Microsoft.Extensions.Logging.Abstractions": "3.1.1",
           "Microsoft.Extensions.Primitives": "3.1.1",
-          "Milou.Deployer.Bootstrapper.Common": "4.7.0-build.1581496070",
-          "Milou.Deployer.Core": "4.7.0-build.1581496070",
+          "Milou.Deployer.Bootstrapper.Common": "4.7.0",
+          "Milou.Deployer.Core": "4.7.0",
           "Newtonsoft.Json": "12.0.3",
           "NuGet.Frameworks": "5.4.0",
           "NuGet.Packaging": "5.4.0",
@@ -2521,8 +2521,8 @@
           "Microsoft.Extensions.Http": "3.1.1",
           "Microsoft.Extensions.Logging.Abstractions": "3.1.1",
           "Microsoft.Extensions.Primitives": "3.1.1",
-          "Milou.Deployer.Bootstrapper.Common": "4.7.0-build.1581496070",
-          "Milou.Deployer.Core": "4.7.0-build.1581496070",
+          "Milou.Deployer.Bootstrapper.Common": "4.7.0",
+          "Milou.Deployer.Core": "4.7.0",
           "Milou.Deployer.Web.Agent": "1.0.0",
           "Milou.Deployer.Web.Core": "1.0.0",
           "Milou.Deployer.Web.Marten": "1.0.0",

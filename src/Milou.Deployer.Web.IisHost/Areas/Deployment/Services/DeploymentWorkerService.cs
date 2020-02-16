@@ -122,13 +122,13 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         }
         private void TryStartWorker(DeploymentTargetWorker deploymentTargetWorker, CancellationToken stoppingToken)
         {
-            _logger.Debug("Trying to start worker for target id {TargetId}");
+            _logger.Debug("Trying to start worker for target id {TargetId}", deploymentTargetWorker.TargetId);
 
             if (_tasks.ContainsKey(deploymentTargetWorker.TargetId))
             {
                 if (deploymentTargetWorker.IsRunning)
                 {
-                    _logger.Debug("Worker for target id {TargetId} is already running");
+                    _logger.Debug("Worker for target id {TargetId} is already running", deploymentTargetWorker.TargetId);
                     return;
                 }
 
@@ -156,7 +156,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
             else
             {
-                _logger.Debug("Start worker task was not found for target id {TargetId}");
+                _logger.Debug("Start worker task was not found for target id {TargetId}", deploymentTargetWorker.TargetId);
             }
 
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
