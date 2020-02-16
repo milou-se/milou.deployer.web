@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
@@ -65,7 +66,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             _logger.Debug("Found {SeederCount} data seeders", _dataSeeders.Length);
 
-            foreach (var dataSeeder in _dataSeeders)
+            foreach (var dataSeeder in _dataSeeders.OrderBy(seeder => seeder.Order))
             {
                 try
                 {

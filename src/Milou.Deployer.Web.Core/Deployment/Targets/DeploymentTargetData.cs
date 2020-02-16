@@ -38,7 +38,6 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 
         public bool Enabled { get; set; }
 
-
         public NuGetData NuGetData { get; set; }
 
         public TimeSpan? MetadataTimeout { get; set; }
@@ -46,5 +45,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
         public string? EnvironmentTypeId { get; set; }
 
         public bool? RequireEnvironmentConfig { get; set; }
+
+        public string? EnvironmentConfiguration { get; set; }
     }
 }

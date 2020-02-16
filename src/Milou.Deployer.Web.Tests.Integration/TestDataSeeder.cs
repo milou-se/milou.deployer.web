@@ -51,5 +51,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             await _mediator.Send(enableTarget, cancellationToken);
         }
+
+        public int Order => int.MaxValue;
     }
 }

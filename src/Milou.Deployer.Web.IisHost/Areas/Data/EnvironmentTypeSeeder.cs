@@ -68,5 +68,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                 _logger.Debug("CreateEnvironment result for Id {Id}: {Status}", result.Id, result.Status);
             }
         }
+
+        public int Order => 100;
     }
 }

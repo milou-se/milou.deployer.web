@@ -109,7 +109,8 @@ namespace Milou.Deployer.Web.Marten
                     ftpPath: deploymentTargetData.FtpPath,
                     metadataTimeout: deploymentTargetData.MetadataTimeout,
                     nuget: MapNuGet(deploymentTargetData.NuGetData),
-                    requireEnvironmentConfig: deploymentTargetData.RequireEnvironmentConfig);
+                    requireEnvironmentConfig: deploymentTargetData.RequireEnvironmentConfig,
+                    environmentConfiguration: deploymentTargetData.EnvironmentConfiguration);
             }
             catch (Exception ex)
             {
@@ -461,11 +462,13 @@ namespace Milou.Deployer.Web.Marten
                 data.PublishType = request.PublishType.Name;
                 data.EnvironmentTypeId = request.EnvironmentTypeId;
                 data.RequireEnvironmentConfig = request.RequireEnvironmentConfig;
+                data.RequireEnvironmentConfig = request.RequireEnvironmentConfig;
                 data.NuGetData ??= new NuGetData();
                 data.NuGetData.NuGetConfigFile = request.NugetConfigFile;
                 data.NuGetData.NuGetPackageSource = request.NugetPackageSource;
                 data.NuGetData.PackageListTimeout = request.PackageListTimeout;
                 data.MetadataTimeout = request.MetadataTimeout;
+                data.RequireEnvironmentConfig = request.RequireEnvironmentConfig;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);

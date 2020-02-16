@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Arbor.App.Extensions.Application;
 using MediatR;
 using Milou.Deployer.Core.Deployment;
 using Milou.Deployer.Core.Deployment.Ftp;
@@ -27,7 +28,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string publishType = null,
             string ftpPath = null,
             string metadataTimeout = default,
-            bool requireEnvironmentConfig = default)
+            bool requireEnvironmentConfig = default,
+            string environmentConfiguration = null)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
@@ -60,6 +62,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             }
 
             RequireEnvironmentConfig = requireEnvironmentConfig;
+            EnvironmentConfiguration = environmentConfiguration;
         }
 
         public TimeSpan? MetadataTimeout { get; }
@@ -114,5 +117,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public TimeSpan? PackageListTimeout { get; }
 
         public bool? RequireEnvironmentConfig { get; }
+
+        public string? EnvironmentConfiguration { get; }
     }
 }

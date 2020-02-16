@@ -186,6 +186,11 @@ else
                 <div class="input-value">
                     <select name="environmentTypeId" id="environmentTypeId">
 
+                        @if (Model.DeploymentTarget.EnvironmentTypeId is null)
+                        {
+                            <option value="" @true.Selected()>@EnvironmentType.Unknown.Name</option>
+                        }
+
                         @foreach (var type in Model.EnvironmentTypes.OrderBy(environment => environment.Name))
                         {
                             <option value="@type.Id" @((Model.DeploymentTarget.EnvironmentTypeId?.Equals(type.Id) ?? false).Selected())>@type.Name</option>
