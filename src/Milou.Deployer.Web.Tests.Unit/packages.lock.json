@@ -412,8 +412,8 @@
       },
       "Microsoft.AspNetCore.Authentication.OpenIdConnect": {
         "type": "Transitive",
-        "resolved": "3.0.0",
-        "contentHash": "z/VvjURz5vS9SLVIHSKzPRe6PH5DPQxuzu+5Cv+2zojg7sVmXmj+sldBoGlGLvf7AA/F53+pc4oE7S8Fa9kfOQ==",
+        "resolved": "3.1.1",
+        "contentHash": "16dSxXz0n6TVPLRdT8VqnOXu0BNxtyokQTOpYrizeFzpOvfTO+Mlgeg8thYt4qVkuNPEFluNDflzOFmzxCT6Uw==",
         "dependencies": {
           "Microsoft.IdentityModel.Protocols.OpenIdConnect": "5.5.0"
         }
@@ -443,10 +443,10 @@
       },
       "Microsoft.AspNetCore.Hosting.WindowsServices": {
         "type": "Transitive",
-        "resolved": "3.0.0",
-        "contentHash": "HSYKvUmS7/XJ8rxUZaH8HrLu69QAzY1gPaxX5nD+zwPVvTT5cwKFIe+8wCO3d70SbNrPQOa7j7Jr8oOHxww/sw==",
+        "resolved": "3.1.1",
+        "contentHash": "v9zbXE4qwY+13yVMh1++0Kapqmu2vOZ7Z+T3r3zosy1lafU4e91vzZZe+PZN2xDpTPG4b4fj3/HiEeLQVMl0qg==",
         "dependencies": {
-          "System.ServiceProcess.ServiceController": "4.6.0"
+          "System.ServiceProcess.ServiceController": "4.7.0"
         }
       },
       "Microsoft.AspNetCore.Http.Abstractions": {
@@ -2383,7 +2383,7 @@
           "Arbor.Tooler": "0.7.3",
           "JetBrains.Annotations": "2019.1.3",
           "MailKit": "2.5.0",
-          "Marten": "3.9.0",
+          "Marten": "3.10.0",
           "MediatR": "8.0.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "8.0.0",
           "Microsoft.CodeAnalysis.CSharp": "3.4.0",
@@ -2428,8 +2428,8 @@
           "Marten.Analyzers": "1.5.0",
           "MediatR": "8.0.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "8.0.0",
-          "Microsoft.AspNetCore.Authentication.OpenIdConnect": "3.0.0",
-          "Microsoft.AspNetCore.Hosting.WindowsServices": "3.0.0",
+          "Microsoft.AspNetCore.Authentication.OpenIdConnect": "3.1.1",
+          "Microsoft.AspNetCore.Hosting.WindowsServices": "3.1.1",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.1.1",
           "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "3.1.1",
           "Microsoft.CodeAnalysis.CSharp": "3.4.0",

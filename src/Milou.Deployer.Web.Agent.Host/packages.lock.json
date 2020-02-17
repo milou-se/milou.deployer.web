@@ -155,8 +155,8 @@
       },
       "Marten": {
         "type": "Transitive",
-        "resolved": "3.9.0",
-        "contentHash": "GIshpScZ1Jfh8oeN4jO++dle9LLjzWyHsb/ltrMGb675PS6PzElTvas4lDHVPaSSGe9Ig6eqIScMZ7S4k5cj2A==",
+        "resolved": "3.10.0",
+        "contentHash": "rnR23nvUwYUPeqBFrprJwJVL8X5UltKP9o9gGJVfd1AQCDOvgW5Z4r4HZ0ooD0dWxJDil1q44N3z5VXDq8XXsA==",
         "dependencies": {
           "Baseline": "1.5.0",
           "Newtonsoft.Json": "11.0.2",
@@ -1851,7 +1851,7 @@
           "Arbor.Tooler": "0.7.3",
           "JetBrains.Annotations": "2019.1.3",
           "MailKit": "2.5.0",
-          "Marten": "3.9.0",
+          "Marten": "3.10.0",
           "MediatR": "8.0.0",
           "MediatR.Extensions.Microsoft.DependencyInjection": "8.0.0",
           "Microsoft.CodeAnalysis.CSharp": "3.4.0",
