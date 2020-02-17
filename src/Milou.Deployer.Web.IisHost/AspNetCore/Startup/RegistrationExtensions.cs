@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
@@ -132,7 +133,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return serviceCollection;
         }
 
-        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services)
+        public static IServiceCollection AddDeploymentMvc(this IServiceCollection services,
+            EnvironmentConfiguration environmentConfiguration)
         {
             var mvcBuilder = services.AddMvc(
                 options =>
@@ -151,7 +153,12 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             }
 
             services.AddControllers();
-            services.AddRazorPages().AddRazorRuntimeCompilation();
+            var razorPagesBuilder = services.AddRazorPages();
+
+            if (environmentConfiguration.ToHostEnvironment().IsDevelopment())
+            {
+                razorPagesBuilder.AddRazorRuntimeCompilation();
+            }
 
             return services;
         }
