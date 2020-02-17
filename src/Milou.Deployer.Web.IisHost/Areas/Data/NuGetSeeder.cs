@@ -50,10 +50,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                     if (string.IsNullOrWhiteSpace(deploymentTarget.EnvironmentTypeId)
                         && !string.IsNullOrWhiteSpace(environmentConfiguration))
                     {
-                        string configuration = environmentConfiguration;
+                        string configuration = environmentConfiguration.Trim();
 
                         var foundType = environmentTypes.SingleOrDefault(type =>
-                            type.Name.Equals(configuration,
+                            type.Name.Trim().Equals(configuration,
                                 StringComparison.OrdinalIgnoreCase));
 
                         if (foundType is { })

@@ -47,7 +47,9 @@ namespace Milou.Deployer.Web.Core.Deployment
             string? ftpPath = default,
             TargetNuGetSettings? nuget = default,
             TimeSpan? metadataTimeout = default,
-            bool? requireEnvironmentConfig = default)
+            bool? requireEnvironmentConfig = default,
+            bool? packageListPrefixEnabled = default,
+            string? packageListPrefix = default)
         {
             if (string.IsNullOrWhiteSpace(id))
             {
@@ -91,6 +93,8 @@ namespace Milou.Deployer.Web.Core.Deployment
             NuGet = nuget;
             MetadataTimeout = metadataTimeout;
             RequireEnvironmentConfiguration = requireEnvironmentConfig;
+            PackageListPrefixEnabled = packageListPrefixEnabled;
+            PackageListPrefix = packageListPrefix;
         }
 
         public IReadOnlyCollection<string> EmailNotificationAddresses { get; }
@@ -162,6 +166,10 @@ namespace Milou.Deployer.Web.Core.Deployment
         public TimeSpan? MetadataTimeout { get; }
 
         public bool? RequireEnvironmentConfiguration { get; }
+
+        public bool? PackageListPrefixEnabled { get; }
+
+        public string? PackageListPrefix { get; }
 
         public override string ToString()
         {

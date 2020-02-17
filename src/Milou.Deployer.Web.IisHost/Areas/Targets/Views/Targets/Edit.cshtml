@@ -82,6 +82,7 @@ else
                     <input id="target-autoDeployEnabled" type="checkbox" name="autoDeployEnabled" @Model.DeploymentTarget.AutoDeployEnabled.Checked() />
                 </div>
             </div>
+
             <div class="input-field">
                 <label for="target-packageId">Allowed package name</label>
                 <div class="input-value">
@@ -89,6 +90,19 @@ else
                 </div>
             </div>
 
+            <div class="input-field">
+                <label for="target-packageListPrefixEnabled">Package list prefix enabled</label>
+                <div class="input-value">
+                    <input id="target-packageListPrefixEnabled" type="checkbox" name="packageListPrefixEnabled" @Model.DeploymentTarget.PackageListPrefixEnabled.Checked() />
+                </div>
+            </div>
+
+            <div class="input-field">
+                <label for="target-packageListPrefix">Package list prefix</label>
+                <div class="input-value">
+                    <input id="target-packageListPrefix" type="text" name="packageListPrefix" value="@Model.DeploymentTarget.PackageListPrefix" />
+                </div>
+            </div>
 
             <div class="input-field">
                 <label for="target-targetDirectory">Local target directory</label>

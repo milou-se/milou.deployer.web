@@ -174,7 +174,7 @@ namespace Milou.Deployer.Web.Agent
 
             string targetDirectoryPath = GetTargetDirectoryPath(deploymentTarget, jobId, deploymentTask);
 
-            var targetEnvironmentConfig = deploymentTarget.GetEnvironmentConfiguration();
+            var targetEnvironmentConfig = deploymentTarget.GetEnvironmentConfiguration()?.Trim();
 
             var arguments = new List<string>();
 
@@ -291,7 +291,9 @@ namespace Milou.Deployer.Web.Agent
                         iisSiteName = deploymentTarget.IisSiteName,
                         webConfigTransform = deploymentTarget.WebConfigTransform,
                         publishType = deploymentTarget.PublishType.Name,
-                        ftpPath = deploymentTarget.FtpPath?.Path
+                        ftpPath = deploymentTarget.FtpPath?.Path,
+                        packageListPrefixEnabled = deploymentTarget.PackageListPrefixEnabled,
+                        packageListPrefix = deploymentTarget.PackageListPrefixEnabled.HasValue && deploymentTarget.PackageListPrefixEnabled.Value ? deploymentTarget.PackageListPrefix : ""
                     }
                 }
             };

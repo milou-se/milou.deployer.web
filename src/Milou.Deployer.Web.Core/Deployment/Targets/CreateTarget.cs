@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Arbor.App.Extensions;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Messages;
@@ -9,17 +10,19 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
     {
         public CreateTarget(string id, string name)
         {
-            Id = id;
-            Name = name;
+            Id = id?.Trim();
+            Name = name?.Trim();
         }
 
+        [Required]
         public string Id { get; }
 
+        [Required]
         public string Name { get; }
 
         public override string ToString()
         {
-            return "";
+            return Id;
         }
 
         public bool IsValid => Id.HasValue() && Name.HasValue() &&

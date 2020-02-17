@@ -29,13 +29,15 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             string ftpPath = null,
             string metadataTimeout = default,
             bool requireEnvironmentConfig = default,
-            string environmentConfiguration = null)
+            string environmentConfiguration = null,
+            bool packageListPrefixEnabled = false,
+            string? packageListPrefix = null)
         {
             Id = id;
             AllowExplicitPreRelease = allowExplicitPreRelease;
             Uri.TryCreate(url, UriKind.Absolute, out Uri? uri);
             Url = uri;
-            PackageId = packageId;
+            PackageId = packageId?.Trim();
             ExcludedFilePatterns = excludedFilePatterns;
             PublishType.TryParseOrDefault(publishType, out var foundPublishType);
             FtpPath.TryParse(ftpPath, FileSystemType.Directory, out var path);
@@ -49,7 +51,8 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
             TargetDirectory = targetDirectory;
             WebConfigTransform = webConfigTransform;
             IsValid = !string.IsNullOrWhiteSpace(Id);
-            EnvironmentTypeId = environmentTypeId;
+            EnvironmentTypeId = environmentTypeId?.Trim();
+            PackageListPrefix = packageListPrefix;
 
             if (TimeSpan.TryParse(packageListTimeout, out TimeSpan timeout) && timeout.TotalSeconds > 0.5D)
             {
@@ -63,6 +66,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
 
             RequireEnvironmentConfig = requireEnvironmentConfig;
             EnvironmentConfiguration = environmentConfiguration;
+            PackageListPrefixEnabled = packageListPrefixEnabled;
         }
 
         public TimeSpan? MetadataTimeout { get; }
@@ -119,5 +123,9 @@ namespace Milou.Deployer.Web.Core.Deployment.Messages
         public bool? RequireEnvironmentConfig { get; }
 
         public string? EnvironmentConfiguration { get; }
+
+        public bool PackageListPrefixEnabled { get; }
+
+        public string? PackageListPrefix { get; }
     }
 }

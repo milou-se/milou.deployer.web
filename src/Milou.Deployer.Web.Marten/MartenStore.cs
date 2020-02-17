@@ -110,7 +110,9 @@ namespace Milou.Deployer.Web.Marten
                     metadataTimeout: deploymentTargetData.MetadataTimeout,
                     nuget: MapNuGet(deploymentTargetData.NuGetData),
                     requireEnvironmentConfig: deploymentTargetData.RequireEnvironmentConfig,
-                    environmentConfiguration: deploymentTargetData.EnvironmentConfiguration);
+                    environmentConfiguration: deploymentTargetData.EnvironmentConfiguration,
+                    packageListPrefixEnabled: deploymentTargetData.PackageListPrefixEnabled,
+                    packageListPrefix: deploymentTargetData.PackageListPrefix);
             }
             catch (Exception ex)
             {
@@ -461,14 +463,14 @@ namespace Milou.Deployer.Web.Marten
                 data.FtpPath = request.FtpPath?.Path;
                 data.PublishType = request.PublishType.Name;
                 data.EnvironmentTypeId = request.EnvironmentTypeId;
-                data.RequireEnvironmentConfig = request.RequireEnvironmentConfig;
-                data.RequireEnvironmentConfig = request.RequireEnvironmentConfig;
                 data.NuGetData ??= new NuGetData();
                 data.NuGetData.NuGetConfigFile = request.NugetConfigFile;
                 data.NuGetData.NuGetPackageSource = request.NugetPackageSource;
                 data.NuGetData.PackageListTimeout = request.PackageListTimeout;
                 data.MetadataTimeout = request.MetadataTimeout;
                 data.RequireEnvironmentConfig = request.RequireEnvironmentConfig;
+                data.PackageListPrefixEnabled = request.PackageListPrefixEnabled;
+                data.PackageListPrefix = request.PackageListPrefix;
                 session.Store(data);
 
                 await session.SaveChangesAsync(cancellationToken);

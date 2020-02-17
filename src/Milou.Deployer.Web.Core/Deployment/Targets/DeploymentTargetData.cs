@@ -47,5 +47,9 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
         public bool? RequireEnvironmentConfig { get; set; }
 
         public string? EnvironmentConfiguration { get; set; }
+
+        public bool? PackageListPrefixEnabled { get; set; }
+
+        public string? PackageListPrefix { get; set; }
     }
 }

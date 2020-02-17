@@ -56,7 +56,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Data
                 new CreateEnvironment
                 {
                     EnvironmentTypeId = "test",
-                    EnvironmentTypeName = "Test ",
+                    EnvironmentTypeName = "Test",
                     PreReleaseBehavior = PreReleaseBehavior.Allow.Name
                 }
             };

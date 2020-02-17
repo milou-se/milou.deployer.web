@@ -42,8 +42,8 @@ namespace Milou.Deployer.Web.Marten
 
             try
             {
-                var environmentTypeData = EnvironmentTypeData.MapToData(new EnvironmentType(request.EnvironmentTypeId,
-                    request.EnvironmentTypeName, PreReleaseBehavior.Parse(request.PreReleaseBehavior)));
+                var environmentTypeData = EnvironmentTypeData.MapToData(new EnvironmentType(request.EnvironmentTypeId.Trim(),
+                    request.EnvironmentTypeName.Trim(), PreReleaseBehavior.Parse(request.PreReleaseBehavior)));
 
                 session.Store(environmentTypeData);
 
