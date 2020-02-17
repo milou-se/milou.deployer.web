@@ -139,7 +139,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
         public static IServiceCollection AddDeploymentMvc(this IServiceCollection services,
             EnvironmentConfiguration environmentConfiguration,
-            IKeyValueConfiguration configuration)
+            IKeyValueConfiguration configuration,
+            ILogger logger)
         {
             var mvcBuilder = services.AddMvc(
                 options =>
@@ -154,17 +155,20 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
             foreach (var filteredAssembly in ApplicationAssemblies.FilteredAssemblies())
             {
+                logger.Debug("Adding assembly {Assembly} to MVC application parts", filteredAssembly.FullName);
                 mvcBuilder.AddApplicationPart(filteredAssembly);
             }
 
             services.AddControllers();
             var razorPagesBuilder = services.AddRazorPages();
 
+#if DEBUG
             if (environmentConfiguration.ToHostEnvironment().IsDevelopment()
                 || configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled, defaultValue: false))
             {
                 razorPagesBuilder.AddRazorRuntimeCompilation();
             }
+#endif
 
             return services;
         }

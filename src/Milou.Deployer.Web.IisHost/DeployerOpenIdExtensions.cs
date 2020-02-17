@@ -31,7 +31,7 @@ namespace Milou.Deployer.Web.IisHost
                 .AddDeploymentHttpClients(httpLoggingConfiguration)
                 .AddDeploymentSignalR()
                 .AddServerFeatures()
-                .AddDeploymentMvc(environmentConfiguration, configuration);
+                .AddDeploymentMvc(environmentConfiguration, configuration, logger);
         }
     }
 }
