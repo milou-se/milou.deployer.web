@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
+using Arbor.KVConfiguration.Core;
+using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
@@ -16,8 +18,10 @@ using Microsoft.Extensions.Http;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Security;
+using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Security;
+using Milou.Deployer.Web.IisHost.Areas.Startup;
 using Newtonsoft.Json;
 using ILogger = Serilog.ILogger;
 
@@ -134,7 +138,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
         }
 
         public static IServiceCollection AddDeploymentMvc(this IServiceCollection services,
-            EnvironmentConfiguration environmentConfiguration)
+            EnvironmentConfiguration environmentConfiguration,
+            IKeyValueConfiguration configuration)
         {
             var mvcBuilder = services.AddMvc(
                 options =>
@@ -155,7 +160,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             services.AddControllers();
             var razorPagesBuilder = services.AddRazorPages();
 
-            if (environmentConfiguration.ToHostEnvironment().IsDevelopment())
+            if (environmentConfiguration.ToHostEnvironment().IsDevelopment()
+                || configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled, defaultValue: false))
             {
                 razorPagesBuilder.AddRazorRuntimeCompilation();
             }
