@@ -8,9 +8,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
     [UsedImplicitly]
     public class StandardServiceModule : IModule
     {
-        public IServiceCollection Register(IServiceCollection builder)
-        {
-            return builder.AddSingleton<MonitoringService>(this);
-        }
+        public IServiceCollection Register(IServiceCollection builder) => builder.AddSingleton<MonitoringService>(this);
     }
 }

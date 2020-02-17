@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
+using Arbor.AspNetCore.Host.Hosting;
 using Arbor.AspNetCore.Mvc.Formatting.HtmlForms.Core;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
@@ -18,7 +19,6 @@ using Microsoft.Extensions.Http;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Security;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers;
 using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.Areas.Startup;
@@ -153,7 +153,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                     options.SerializerSettings.Formatting = Formatting.Indented;
                 });
 
-            foreach (var filteredAssembly in ApplicationAssemblies.FilteredAssemblies())
+            foreach (var filteredAssembly in ApplicationAssemblies.FilteredAssemblies(useCache: false))
             {
                 logger.Debug("Adding assembly {Assembly} to MVC application parts", filteredAssembly.FullName);
                 mvcBuilder.AddApplicationPart(filteredAssembly);
@@ -164,7 +164,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
 #if DEBUG
             if (environmentConfiguration.ToHostEnvironment().IsDevelopment()
-                || configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled, defaultValue: false))
+                || configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled, false))
             {
                 razorPagesBuilder.AddRazorRuntimeCompilation();
             }

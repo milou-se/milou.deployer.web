@@ -34,7 +34,7 @@
 
       <PackageReference Include="Arbor.App.Extensions" Version="0.2.0" />
 
-      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.2.0" />
+      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.3.0" />
 
       <PackageReference Include="FluentFTP" Version="30.2.0" />
 

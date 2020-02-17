@@ -236,8 +236,8 @@
       },
       "Arbor.AspNetCore.Host": {
         "type": "Transitive",
-        "resolved": "0.2.0",
-        "contentHash": "MLxFKt8f3WAtUuKIPxTwQ0lnH1c3Q6znCK9+cRHyw2T4gA+ANoyPsDqN00o704/0DqfCvWfcAEdw56dEvcFYMA==",
+        "resolved": "0.3.0",
+        "contentHash": "P5811oO8sCBNxcQOWXJBc2fjH896yLxTW2Y/yh6atgqkmLJ4eaKaeXpmSW95JotiCxD80SR2CUkTKLh0XWh9Nw==",
         "dependencies": {
           "Arbor.App.Extensions": "0.2.0",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
@@ -255,7 +255,6 @@
           "Microsoft.AspNetCore.Authentication.OpenIdConnect": "3.0.0",
           "Microsoft.AspNetCore.Hosting.WindowsServices": "3.0.0",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.1.0",
-          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "3.1.0",
           "Microsoft.CodeAnalysis.CSharp": "3.4.0",
           "Microsoft.Extensions.Diagnostics.HealthChecks": "3.1.0",
           "Microsoft.Extensions.Http": "3.1.0",
@@ -485,30 +484,6 @@
           "Newtonsoft.Json.Bson": "1.0.2"
         }
       },
-      "Microsoft.AspNetCore.Mvc.Razor.Extensions": {
-        "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "7ze6IIFraKEXFXeVhUWqRenXhB/hTt7C0tkj4C7ZvRAWIgQeEpnObJDDwhiqpv2zJ62rOP9b2QA6gU3b793PCA==",
-        "dependencies": {
-          "Microsoft.AspNetCore.Razor.Language": "3.1.1",
-          "Microsoft.CodeAnalysis.Razor": "3.1.1"
-        }
-      },
-      "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": {
-        "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "bVAY28O/Dgsz8nGidV73+FXVyrGrcEwUybRczAKz43ZfhUlVfr/z6IjUmSggB2wWbyR2n+gx0CPNfjYaKX69vw==",
-        "dependencies": {
-          "Microsoft.AspNetCore.Mvc.Razor.Extensions": "3.1.1",
-          "Microsoft.CodeAnalysis.Razor": "3.1.1",
-          "Microsoft.Extensions.DependencyModel": "3.1.1"
-        }
-      },
-      "Microsoft.AspNetCore.Razor.Language": {
-        "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "y7bdq18d9zQHKVJKTCgQWmbbNsflhMjGCe/wprn7tyqgIP9DAv0UACgr9XdECqwoDj5iwH+HXli4YvQJQ4Qt2g=="
-      },
       "Microsoft.CodeAnalysis.Analyzers": {
         "type": "Transitive",
         "resolved": "2.9.6",
@@ -526,16 +501,6 @@
           "System.Runtime.CompilerServices.Unsafe": "4.5.2",
           "System.Text.Encoding.CodePages": "4.5.1",
           "System.Threading.Tasks.Extensions": "4.5.3"
-        }
-      },
-      "Microsoft.CodeAnalysis.Razor": {
-        "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "r6PU7vALSW00v5cZOYrSUvOi6HdjGiCU/2frJMO46v+tdlu8V4vktVyoMVqaKTbXv59D9rsfSjef1ArIUE+Edg==",
-        "dependencies": {
-          "Microsoft.AspNetCore.Razor.Language": "3.1.1",
-          "Microsoft.CodeAnalysis.CSharp": "3.3.0",
-          "Microsoft.CodeAnalysis.Common": "3.3.0"
         }
       },
       "Microsoft.CodeAnalysis.VersionCheckAnalyzer": {
@@ -2412,7 +2377,7 @@
         "type": "Project",
         "dependencies": {
           "Arbor.App.Extensions": "0.2.0",
-          "Arbor.AspNetCore.Host": "0.2.0",
+          "Arbor.AspNetCore.Host": "0.3.0",
           "Arbor.AspNetCore.Mvc.Formatting.HtmlForms": "0.10.2",
           "Arbor.KVConfiguration.Core": "0.20.0",
           "Arbor.KVConfiguration.DependencyInjection": "0.20.0",
@@ -2431,7 +2396,6 @@
           "Microsoft.AspNetCore.Authentication.OpenIdConnect": "3.1.1",
           "Microsoft.AspNetCore.Hosting.WindowsServices": "3.1.1",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "3.1.1",
-          "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation": "3.1.1",
           "Microsoft.CodeAnalysis.CSharp": "3.4.0",
           "Microsoft.Extensions.Diagnostics.HealthChecks": "3.1.1",
           "Microsoft.Extensions.Http": "3.1.1",
