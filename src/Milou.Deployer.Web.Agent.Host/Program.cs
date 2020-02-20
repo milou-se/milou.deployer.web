@@ -1,14 +1,17 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Milou.Deployer.Web.Agent.Host
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var exitCode = await AgentApp.CreateAndRunAsync(args);
 
-            // TODO create SignalR connection to host, create deploy service and remove dependency on target source
+            return exitCode;
         }
+
+
     }
 }

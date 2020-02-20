@@ -61,7 +61,7 @@
         <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.1" />
         <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="3.1.1" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.1" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.2" />
         <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.1.1" />
         <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.7.2" />
         <PackageReference Include="Milou.Deployer.Core" Version="4.7.2" />

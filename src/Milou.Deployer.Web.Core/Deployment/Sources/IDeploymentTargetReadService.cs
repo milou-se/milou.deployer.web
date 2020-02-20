@@ -5,12 +5,8 @@ using Milou.Deployer.Web.Core.Deployment.Targets;
 
 namespace Milou.Deployer.Web.Core.Deployment.Sources
 {
-    public interface IDeploymentTargetReadService
+    public interface IDeploymentTargetReadService : IDeploymentTargetService
     {
-        Task<DeploymentTarget> GetDeploymentTargetAsync(
-            string deploymentTargetId,
-            CancellationToken cancellationToken = default);
-
         Task<ImmutableArray<OrganizationInfo>> GetOrganizationsAsync(CancellationToken cancellationToken = default);
 
         Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions options = default, CancellationToken stoppingToken = default);

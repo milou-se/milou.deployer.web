@@ -33,17 +33,19 @@ namespace Milou.Deployer.Web.Agent
 
         private readonly ILogger _logger;
         private readonly LoggingLevelSwitch _loggingLevelSwitch;
+        private readonly DeploymentServiceSettings _deploymentServiceSettings;
         private readonly IMediator _mediator;
 
-        private readonly IDeploymentTargetReadService _targetSource;
+        private readonly IDeploymentTargetService _targetSource;
 
         public DeploymentService(
             [NotNull] ILogger logger,
-            [NotNull] IDeploymentTargetReadService targetSource,
+            [NotNull] IDeploymentTargetService targetSource,
             [NotNull] IMediator mediator,
             [NotNull] MilouDeployer deployer,
             [NotNull] ICustomClock customClock,
-            [NotNull] LoggingLevelSwitch loggingLevelSwitch)
+            [NotNull] LoggingLevelSwitch loggingLevelSwitch,
+            DeploymentServiceSettings deploymentServiceSettings = default)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _targetSource = targetSource ?? throw new ArgumentNullException(nameof(targetSource));
@@ -51,6 +53,7 @@ namespace Milou.Deployer.Web.Agent
             _deployer = deployer ?? throw new ArgumentNullException(nameof(deployer));
             _customClock = customClock ?? throw new ArgumentNullException(nameof(customClock));
             _loggingLevelSwitch = loggingLevelSwitch ?? throw new ArgumentNullException(nameof(loggingLevelSwitch));
+            _deploymentServiceSettings = deploymentServiceSettings ?? new DeploymentServiceSettings();
         }
 
         private static string LogJobMetadata(
@@ -218,9 +221,12 @@ namespace Milou.Deployer.Web.Agent
 
             var finishedAtUtc = _customClock.UtcNow().UtcDateTime;
 
-            await _mediator.Publish(
-                new DeploymentFinishedNotification(deploymentTask, logBuilder.ToArray(), finishedAtUtc),
-                cancellationToken);
+            if (_deploymentServiceSettings.PublishEventEnabled)
+            {
+                await _mediator.Publish(
+                    new DeploymentFinishedNotification(deploymentTask, logBuilder.ToArray(), finishedAtUtc),
+                    cancellationToken);
+            }
 
             return (exitCode, finishedAtUtc);
         }
@@ -275,10 +281,18 @@ namespace Milou.Deployer.Web.Agent
                 result.Item2,
                 metadataContent);
 
-            await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, deploymentTaskResult),
-                cancellationToken);
+            if (_deploymentServiceSettings.PublishEventEnabled)
+            {
+                await _mediator.Publish(new DeploymentMetadataLogNotification(deploymentTask, deploymentTaskResult),
+                    cancellationToken);
+            }
 
             return deploymentTaskResult;
         }
+    }
+
+    public class DeploymentServiceSettings
+    {
+        public bool PublishEventEnabled { get; set; } = true;
     }
 }

@@ -433,8 +433,8 @@
       },
       "Microsoft.Extensions.Logging.Abstractions": {
         "type": "Transitive",
-        "resolved": "3.1.1",
-        "contentHash": "4/1BLjd9Zvc87xlhfkIsAlHOgMnGJBQFIEmO3CUKLrf38nIFp3W7X+JoFiRmn20WAi5+l2sgUWS4ixaIuB3S0g=="
+        "resolved": "3.1.2",
+        "contentHash": "cIXPw7VVX3fON4uuHwJFmCi0qDl8uY75xZMKB2oM3In0ZDEB1Ee+p9Ti1DSw92AwRtJ2Zh+QG1joTBednJMzvA=="
       },
       "Microsoft.Extensions.Logging.Configuration": {
         "type": "Transitive",
@@ -1893,7 +1893,7 @@
           "Microsoft.Extensions.DependencyModel": "3.1.1",
           "Microsoft.Extensions.Hosting.Abstractions": "3.1.1",
           "Microsoft.Extensions.Http": "3.1.1",
-          "Microsoft.Extensions.Logging.Abstractions": "3.1.1",
+          "Microsoft.Extensions.Logging.Abstractions": "3.1.2",
           "Microsoft.Extensions.Primitives": "3.1.1",
           "Milou.Deployer.Bootstrapper.Common": "4.7.2",
           "Milou.Deployer.Core": "4.7.2",

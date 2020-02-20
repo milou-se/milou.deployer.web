@@ -29,12 +29,12 @@ namespace Milou.Deployer.Web.Agent
     {
         private readonly ICredentialReadService _credentialReadService;
 
-        private readonly IDeploymentTargetReadService _deploymentTargetReadService;
+        private readonly IDeploymentTargetService _deploymentTargetReadService;
         private readonly IHttpClientFactory _clientFactory;
         private readonly LoggingLevelSwitch _loggingLevelSwitch;
 
         public MilouDeployer(
-            [NotNull] IDeploymentTargetReadService deploymentTargetReadService,
+            [NotNull] IDeploymentTargetService deploymentTargetReadService,
             [NotNull] ICredentialReadService credentialReadService,
             [NotNull] IHttpClientFactory clientFactory,
             [NotNull] LoggingLevelSwitch loggingLevelSwitch)
