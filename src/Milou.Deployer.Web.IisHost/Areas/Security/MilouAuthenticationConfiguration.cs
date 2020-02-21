@@ -11,12 +11,18 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
     {
         public bool Enabled { get; }
 
+        public bool BearerTokenEnabled { get; }
+
+        public string? BearerTokenIssuerKey { get; }
+
         [PublicAPI]
         public const string UrnKey = "urn:milou:deployer:web:milou-authentication";
 
-        public MilouAuthenticationConfiguration(bool enabled)
+        public MilouAuthenticationConfiguration(bool enabled, bool bearerTokenEnabled, string? bearerTokenIssuerKey)
         {
             Enabled = enabled;
+            BearerTokenEnabled = bearerTokenEnabled;
+            BearerTokenIssuerKey = bearerTokenIssuerKey;
         }
     }
 }

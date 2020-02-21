@@ -74,6 +74,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
         public static void UseSignalRHubs(this IEndpointRouteBuilder routerBuilder)
         {
             routerBuilder.MapHub<TargetHub>(DeploymentLogConstants.HubRoute);
+            routerBuilder.MapHub<AgentHub>(AgentConstants.HubRoute);
         }
     }
 }

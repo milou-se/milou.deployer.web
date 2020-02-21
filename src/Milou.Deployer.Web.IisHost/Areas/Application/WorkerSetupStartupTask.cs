@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     public class WorkerSetupStartupTask : BackgroundService, IStartupTask
     {
         private readonly IKeyValueConfiguration _configuration;
-        private readonly DeploymentService _deploymentService;
+        private readonly IDeploymentService _deploymentService;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly ConfigurationInstanceHolder _holder;
         private readonly ILogger _logger;
@@ -38,7 +38,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             ILogger logger,
             IDeploymentTargetReadService deploymentTargetReadService,
             ConfigurationInstanceHolder holder,
-            DeploymentService deploymentService,
+            IDeploymentService deploymentService,
             IMediator mediator,
             WorkerConfiguration workerConfiguration,
             TimeoutHelper timeoutHelper,

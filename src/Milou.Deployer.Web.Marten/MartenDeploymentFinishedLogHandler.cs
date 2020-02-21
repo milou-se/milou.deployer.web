@@ -23,6 +23,7 @@ namespace Milou.Deployer.Web.Marten
             _logger = logger;
         }
 
+
         public async Task Handle(DeploymentFinishedNotification notification, CancellationToken cancellationToken)
         {
             string taskLogId = $"deploymentTaskLog/{notification.DeploymentTask.DeploymentTaskId}";

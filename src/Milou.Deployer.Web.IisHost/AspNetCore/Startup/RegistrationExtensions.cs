@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Text.Unicode;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Application;
 using Arbor.AspNetCore.Host.Hosting;
@@ -7,6 +10,7 @@ using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Core.Extensions.BoolExtensions;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -16,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
+using Microsoft.IdentityModel.Tokens;
 using Milou.Deployer.Web.Core.Json;
 using Milou.Deployer.Web.Core.Logging;
 using Milou.Deployer.Web.Core.Security;
@@ -24,6 +29,8 @@ using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.Areas.Startup;
 using Newtonsoft.Json;
 using ILogger = Serilog.ILogger;
+using MessageReceivedContext = Microsoft.AspNetCore.Authentication.JwtBearer.MessageReceivedContext;
+using TokenValidatedContext = Microsoft.AspNetCore.Authentication.JwtBearer.TokenValidatedContext;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 {
@@ -134,7 +141,46 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                     options => { });
             }
 
+            if (milouAuthenticationConfiguration?.BearerTokenEnabled == true
+             && !string.IsNullOrWhiteSpace(milouAuthenticationConfiguration.BearerTokenIssuerKey))
+            {
+                authenticationBuilder.AddJwtBearer(options =>
+                {
+                    var bytes = Convert.FromBase64String(milouAuthenticationConfiguration.BearerTokenIssuerKey);
+                    var tokenValidationParameters = new TokenValidationParameters
+                    {
+                            IssuerSigningKeys = new List<SecurityKey> { new SymmetricSecurityKey(bytes)},
+                            ValidateAudience = false,
+                            ValidateIssuer = false
+                        };
+
+                    options.TokenValidationParameters = tokenValidationParameters;
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = OnMessageReceived,
+                        OnChallenge = OnChallenge,
+                        OnTokenValidated = OnTokenValidated
+                    };
+                });
+            }
+
             return serviceCollection;
+        }
+
+        private static Task OnChallenge(JwtBearerChallengeContext arg)
+        {
+            return Task.CompletedTask;
+        }
+
+        private static Task OnTokenValidated(TokenValidatedContext arg)
+        {
+            return Task.CompletedTask;
+        }
+
+        private static Task OnMessageReceived(MessageReceivedContext arg)
+        {
+            return Task.CompletedTask;
         }
 
         public static IServiceCollection AddDeploymentMvc(this IServiceCollection services,
@@ -191,9 +237,17 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                     options.AddPolicy(
                         AuthorizationPolicies.IpOrToken,
                         policy => policy.Requirements.Add(new DefaultAuthorizationRequirement()));
+                    options.AddPolicy(
+                        AuthorizationPolicies.Agent,
+                        policy =>
+                        {
+                            policy.Requirements.Add(new AgentAuthorizationRequirement());
+                            policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
+                        });
                 });
 
             services.AddSingleton<IAuthorizationHandler, DefaultAuthorizationHandler>();
+            services.AddSingleton<IAuthorizationHandler, AgentAuthorizationHandler>();
 
             if (environmentConfiguration.IsDevelopmentMode)
             {

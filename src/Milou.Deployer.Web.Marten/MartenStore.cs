@@ -33,7 +33,8 @@ namespace Milou.Deployer.Web.Marten
         IRequestHandler<RemoveTarget, Unit>,
         IRequestHandler<EnableTarget, Unit>,
         IRequestHandler<DisableTarget, Unit>,
-        IRequestHandler<CreateEnvironment, CreateEnvironmentResult>
+        IRequestHandler<CreateEnvironment, CreateEnvironmentResult>,
+        IRequestHandler<CreateDeploymentTaskPackage, Unit>
     {
         private readonly IDocumentStore _documentStore;
         private readonly ILogger _logger;
@@ -290,6 +291,7 @@ namespace Milou.Deployer.Web.Marten
                     var deploymentTargets = targets
                         .Select(s => MapDataToTarget(s, environmentTypes))
                         .Where(Filter)
+                        .OrderBy(target => target.Name)
                         .ToImmutableArray();
 
                     return deploymentTargets;
@@ -591,6 +593,47 @@ namespace Milou.Deployer.Web.Marten
 
                 return new CreateEnvironmentResult(data.Id, Result.Created);
             }
+        }
+
+        public async Task Handle(DeploymentTaskCreatedNotification notification, CancellationToken cancellationToken)
+        {
+            using (var session = _documentStore.OpenSession())
+            {
+                session.Store(new DeploymentTaskData
+                {
+                    Id = notification.DeploymentTask.DeploymentTaskId,
+                    PackageVersion = notification.DeploymentTask.PackageVersion,
+                    DeploymentTargetId = notification.DeploymentTask.DeploymentTargetId,
+                    StartedBy = notification.DeploymentTask.StartedBy,
+                    AgentId = ""
+                });
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+        }
+
+        public async Task<Unit> Handle(CreateDeploymentTaskPackage request, CancellationToken cancellationToken)
+        {
+            using (var session = _documentStore.OpenSession())
+            {
+                var deploymentTaskPackageData = new DeploymentTaskPackageData()
+                {
+                    Id = request.DeploymentTaskPackage.DeploymentTaskId,
+                    DeploymentTargetId = request.DeploymentTaskPackage.DeploymentTargetId,
+                    NuGetConfigXml = request.DeploymentTaskPackage.NugetConfigXml,
+                    ManifestJson = request.DeploymentTaskPackage.ManifestJson,
+                    PublishSettingsXml = request.DeploymentTaskPackage.PublishSettingsXml,
+                    AgentId = request.DeploymentTaskPackage.AgentId,
+                    ProcessArgs = request.DeploymentTaskPackage.DeployerProcessArgs.ToArray()
+                };
+
+                session.Store(deploymentTaskPackageData);
+
+                await session.SaveChangesAsync(cancellationToken);
+            }
+
+            return Unit.Value;
+
         }
     }
 }

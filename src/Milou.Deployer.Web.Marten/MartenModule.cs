@@ -9,6 +9,7 @@ using Marten;
 using Marten.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Milou.Deployer.Web.Core;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Json;
@@ -65,6 +66,7 @@ namespace Milou.Deployer.Web.Marten
             {
                 builder.AddSingleton(typeof(MartenStore), this);
                 builder.AddSingleton(typeof(IDeploymentTargetReadService), typeof(MartenStore), this);
+                builder.AddSingleton<IDeploymentTaskPackageStore, DeploymentTaskPackageStore>();
 
                 var genericInterfaces = typeof(MartenStore)
                     .GetInterfaces()

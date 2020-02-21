@@ -36,6 +36,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
 
         public const string EditTargetRouteName = nameof(EditTargetRoute);
 
+        public const string TargetRoute = "/target/{deploymentTargetId}";
+
+        public const string TargetRouteName = nameof(TargetRoute);
+
         public const string InvalidateCacheRoute = "/invalidatecache";
 
         public const string InvalidateCacheRouteName = nameof(InvalidateCacheRoute);

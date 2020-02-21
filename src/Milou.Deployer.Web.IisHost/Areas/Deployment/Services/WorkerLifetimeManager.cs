@@ -15,7 +15,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     public class WorkerLifetimeManager : INotificationHandler<TargetCreated>
     {
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
-        private readonly DeploymentService _deploymentService;
+        private readonly IDeploymentService _deploymentService;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly WorkerConfiguration _workerConfiguration;
@@ -25,7 +25,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public WorkerLifetimeManager(
             ConfigurationInstanceHolder configurationInstanceHolder,
-            DeploymentService deploymentService,
+            IDeploymentService deploymentService,
             WorkerConfiguration workerConfiguration,
             IMediator mediator,
             ILogger logger,

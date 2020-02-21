@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
+using Milou.Deployer.Web.Marten;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
@@ -23,20 +24,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     {
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
         private readonly ILogger _logger;
+        private readonly IMediator _mediator;
         private readonly Dictionary<string, Task> _tasks;
         private readonly Dictionary<string, CancellationTokenSource> _cancellations;
 
         public DeploymentWorkerService(
             ConfigurationInstanceHolder configurationInstanceHolder,
-            ILogger logger)
+            ILogger logger,
+            IMediator mediator)
         {
             _configurationInstanceHolder = configurationInstanceHolder;
             _logger = logger;
+            _mediator = mediator;
             _tasks = new Dictionary<string, Task>();
             _cancellations = new Dictionary<string, CancellationTokenSource>();
         }
 
-        private DeploymentTargetWorker GetWorkerByTargetId([NotNull] string targetId)
+        private DeploymentTargetWorker? GetWorkerByTargetId([NotNull] string targetId)
         {
             if (string.IsNullOrWhiteSpace(targetId))
             {
@@ -58,6 +62,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
         public void Enqueue([NotNull] DeploymentTask deploymentTask)
         {
             var foundWorker = GetWorkerByTargetId(deploymentTask.DeploymentTargetId);
+
+            Task.Run<Task>(() => _mediator.Publish(new DeploymentTaskCreatedNotification(deploymentTask)));
 
             if (foundWorker is null)
             {

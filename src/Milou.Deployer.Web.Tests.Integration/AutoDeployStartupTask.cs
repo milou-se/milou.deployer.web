@@ -22,7 +22,7 @@ namespace Milou.Deployer.Web.Tests.Integration
 {
     public class AutoDeployStartupTask : BackgroundService, IStartupTask
     {
-        private readonly DeploymentService _deploymentService;
+        private readonly IDeploymentService _deploymentService;
         private readonly ILogger _logger;
         private readonly IDeploymentTargetReadService _readService;
         private readonly TestConfiguration _testConfiguration;
@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         private readonly TestHttpPort _testSiteHttpPort;
 
         public AutoDeployStartupTask(
-            DeploymentService deploymentService,
+            IDeploymentService deploymentService,
             ILogger logger,
             IDeploymentTargetReadService readService,
             ConfigurationInstanceHolder configurationInstanceHolder,

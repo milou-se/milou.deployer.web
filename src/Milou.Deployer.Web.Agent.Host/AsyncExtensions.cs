@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace Milou.Deployer.Web.Agent.Host
+namespace Milou.Deployer.Web.Agent
 {
     public static class AsyncExtensions
     {

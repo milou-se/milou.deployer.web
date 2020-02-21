@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Deployment;
@@ -114,6 +115,24 @@ namespace Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
             var environmentTypes = await environmentTypeService.GetEnvironmentTypes();
 
             return View(new EditTargetViewOutputModel(deploymentTarget, environmentTypes));
+        }
+
+        [AllowAnonymous]
+        [Route(TargetConstants.TargetRoute, Name = TargetConstants.TargetRouteName)]
+        [HttpGet]
+        public async Task<IActionResult> Index(
+            [FromRoute] string deploymentTargetId,
+            [FromServices] IDeploymentTargetReadService deploymentTargetReadService,
+            [FromServices] IEnvironmentTypeService environmentTypeService)
+        {
+            var deploymentTarget = await deploymentTargetReadService.GetDeploymentTargetAsync(deploymentTargetId);
+
+            if (deploymentTarget is null)
+            {
+                return new NotFoundResult();
+            }
+
+            return new ObjectResult(deploymentTarget);
         }
 
         [Route(TargetConstants.EditTargetPostRoute, Name = TargetConstants.EditTargetPostRouteName)]

@@ -1,45 +1,53 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Arbor.App.Extensions.Time;
 using Arbor.Processing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Milou.Deployer.Web.Core.Credentials;
-using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.Core.Deployment.Sources;
 using Serilog;
 using Serilog.Core;
+using Serilog.Events;
 
 namespace Milou.Deployer.Web.Agent.Host
 {
     public class AgentApp
     {
-        public async Task<ExitCode> RunAsync()
+        public async Task<ExitCode> RunAsync(string[] args)
         {
-            LoggingLevelSwitch levelSwitch = new LoggingLevelSwitch();
+            LoggingLevelSwitch levelSwitch = new LoggingLevelSwitch()
+            {
+                MinimumLevel = LogEventLevel.Verbose
+            };
+
             var logger = new LoggerConfiguration()
+                .WriteTo.Console()
                 .MinimumLevel.ControlledBy(levelSwitch)
                 .CreateLogger();
 
-            var host = new HostBuilder().ConfigureServices((hostContext, services) =>
+            logger.Debug("Started logging");
+
+            var host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args).ConfigureServices((hostContext, services) =>
                 {
-                    services.Configure<HostOptions>(option =>
-                    {
-                        services.AddSingleton<ICredentialReadService, CredentialReadProxyService>();
-                        services.AddSingleton<IDeploymentTargetService, DeploymentTargetProxyService>();
-                        services.AddSingleton<ICustomClock,CustomSystemClock>();
+                        services.AddSingleton(
+                            new TimeoutHelper(new TimeoutConfiguration {CancellationEnabled = false}));
+                        services.AddSingleton<DeploymentTaskPackageService>();
+                        services.AddSingleton<IDeploymentPackageAgent, DeploymentPackageAgent>();
+                        services.AddSingleton<IDeploymentPackageHandler, DeploymentPackageHandler>();
+                        services.AddSingleton<ICustomClock, CustomSystemClock>();
                         services.AddSingleton(levelSwitch);
-                        services.AddSingleton(logger);
-                        services.AddSingleton(new DeploymentServiceSettings() {PublishEventEnabled = false});
-                        services.AddSingleton<MilouDeployer>();
-                        services.AddSingleton<DeploymentService>();
+                        services.AddSingleton<ILogger>(logger);
+                        services.AddSingleton(new DeploymentServiceSettings {PublishEventEnabled = false});
+
+                        //services.AddSingleton<IDeploymentService, DeploymentService>();
                         services.AddHttpClient();
                         services.AddHostedService<AgentService>();
-                    });
+
                 })
                 .Build();
 
+            logger.Debug("Running host");
             await host.RunAsync();
+
+            logger.Debug("Host shut down");
 
             return ExitCode.Success;
         }
@@ -48,17 +56,7 @@ namespace Milou.Deployer.Web.Agent.Host
         {
             var app = new AgentApp();
 
-            return await app.RunAsync();
+            return await app.RunAsync(args);
         }
-    }
-
-    public class CredentialReadProxyService : ICredentialReadService
-    {
-        public string GetSecret(string id, string secretKey, CancellationToken cancellationToken = default) => throw new System.NotImplementedException();
-    }
-
-    public class DeploymentTargetProxyService :IDeploymentTargetService
-    {
-        public Task<DeploymentTarget> GetDeploymentTargetAsync(string deploymentTargetId, CancellationToken cancellationToken = default) => throw new System.NotImplementedException();
     }
 }

@@ -14,6 +14,7 @@ using Milou.Deployer.Web.Core.Configuration;
 using Milou.Deployer.Web.Core.Network;
 using Milou.Deployer.Web.Core.Security;
 using Milou.Deployer.Web.IisHost.Areas.Network;
+using Milou.Deployer.Web.IisHost.AspNetCore.Startup;
 using Serilog;
 using Serilog.Events;
 
@@ -187,6 +188,23 @@ namespace Milou.Deployer.Web.IisHost.Areas.Security
                     _logger.Verbose("User does not have claim {ClaimType}", CustomClaimTypes.IpAddress);
                 }
             }
+
+            return Task.CompletedTask;
+        }
+    }
+
+    [UsedImplicitly]
+    public class AgentAuthorizationHandler : AuthorizationHandler<AgentAuthorizationRequirement>
+    {
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
+            AgentAuthorizationRequirement requirement)
+        {
+            if (!context.User.Identity.IsAuthenticated)
+            {
+                return Task.CompletedTask;
+            }
+
+            context.Succeed(requirement);
 
             return Task.CompletedTask;
         }

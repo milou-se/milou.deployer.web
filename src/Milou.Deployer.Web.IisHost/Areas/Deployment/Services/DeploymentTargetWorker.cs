@@ -20,7 +20,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
     public sealed class DeploymentTargetWorker : IDisposable
     {
-        private readonly DeploymentService _deploymentService;
+        private readonly IDeploymentService _deploymentService;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly BlockingCollection<DeploymentTask> _queue = new BlockingCollection<DeploymentTask>();
@@ -34,7 +34,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 
         public DeploymentTargetWorker(
             [NotNull] string targetId,
-            [NotNull] DeploymentService deploymentService,
+            [NotNull] IDeploymentService deploymentService,
             [NotNull] ILogger logger,
             [NotNull] IMediator mediator,
             [NotNull] WorkerConfiguration workerConfiguration,

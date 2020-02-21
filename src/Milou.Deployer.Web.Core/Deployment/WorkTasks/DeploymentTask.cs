@@ -7,6 +7,7 @@ using System.Linq;
 using Arbor.App.Extensions.IO;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment.Packages;
+using Newtonsoft.Json;
 using NuGet.Versioning;
 
 namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
@@ -63,8 +64,10 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
                 $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.Ordinal)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
 
+        [JsonIgnore]
         public List<DirectoryInfo> TempDirectories { get; } = new List<DirectoryInfo>();
 
+        [JsonIgnore]
         public List<TempFile> TempFiles { get; } = new List<TempFile>();
 
         public SemanticVersion SemanticVersion { get; }
@@ -78,8 +81,10 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
         public DateTime EnqueuedAtUtc { get; set; }
 
         [PublicAPI]
+        [JsonIgnore]
         public WorkTaskStatus Status { get; set; } = WorkTaskStatus.Created;
 
+        [JsonIgnore]
         public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } =
             new BlockingCollection<(string, WorkTaskStatus)>();
 
