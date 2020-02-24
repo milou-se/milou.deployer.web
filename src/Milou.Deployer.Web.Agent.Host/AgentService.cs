@@ -1,16 +1,16 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.Agent.Host
 {
     public class AgentService : BackgroundService
     {
@@ -26,28 +26,31 @@ namespace Milou.Deployer.Web.Agent
             _logger = logger;
         }
 
-        private async Task ExecuteDeploymentTask(string deploymentTaskId)
+        private async Task ExecuteDeploymentTask(string deploymentTaskId, string deploymentTargetId)
         {
             if (string.IsNullOrWhiteSpace(deploymentTaskId))
             {
                 return;
             }
 
-            var exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId);
+            var exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId, deploymentTargetId);
 
             if (!exitCode.IsSuccess)
             {
-                await _hubConnection.InvokeAsync("DeployFailed", deploymentTaskId);
+                //TODO replace with http call
+                await _hubConnection.InvokeAsync("DeployFailed", deploymentTaskId, deploymentTargetId);
             }
             else
             {
-                await _hubConnection.InvokeAsync("DeploySucceeded", deploymentTaskId);
+                //TODO replace with http call
+                await _hubConnection.InvokeAsync("DeploySucceeded", deploymentTaskId, deploymentTargetId);
             }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.Information("Starting service {Service}", nameof(AgentService));
+            _logger.Information("Starting Agent service {Service}", nameof(AgentService));
+
             await Task.Yield();
 
             string connectionUrl = "http://localhost:34343/agents";
@@ -61,15 +64,15 @@ namespace Milou.Deployer.Web.Agent
 
             _hubConnection.Closed += HubConnectionOnClosed;
 
-            _hubConnection.On<string>("Deploy", ExecuteDeploymentTask);
+            _hubConnection.On<string, string>("Deploy", ExecuteDeploymentTask);
 
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             var jwtSecurityToken = tokenHandler.ReadJwtToken(_accessToken);
-            var agentId =  jwtSecurityToken.Claims.SingleOrDefault(claim => claim.Type == JwtRegisteredClaimNames.UniqueName)?.Value;
+            string agentId =  jwtSecurityToken.Claims.SingleOrDefault(claim => claim.Type == JwtRegisteredClaimNames.UniqueName)?.Value;
 
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
 
                 bool connected = false;
 
@@ -96,10 +99,10 @@ namespace Milou.Deployer.Web.Agent
                 _logger.Error(ex, "Could not connect to server from agent {Agent}", agentId);
             }
 
-            _logger.Debug("Background service waiting for cancellation");
+            _logger.Debug("Agent background service waiting for cancellation");
             await stoppingToken;
-            _logger.Debug("Cancellation requested");
-            _logger.Debug("Stopping SignalR");
+            _logger.Debug("Cancellation requested in Agent app");
+            _logger.Debug("Stopping SignalR in Agent");
 
             await _hubConnection.StopAsync();
 

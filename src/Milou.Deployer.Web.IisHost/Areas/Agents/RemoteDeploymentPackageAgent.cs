@@ -18,10 +18,10 @@ namespace Milou.Deployer.Web.Agent
             _agentId = agentId;
         }
 
-        public async Task<ExitCode> RunAsync(string deploymentTaskId, CancellationToken cancellationToken = default)
+        public async Task<ExitCode> RunAsync(string deploymentTaskId, string deploymentTargetId, CancellationToken cancellationToken = default)
         {
             //TODO use agent id
-            await _agentHub.Clients.All.SendAsync("Deploy", deploymentTaskId);
+            await _agentHub.Clients.All.SendAsync("Deploy", deploymentTaskId, deploymentTargetId);
 
             await Task.Delay(TimeSpan.FromSeconds(10)); //TODO
 

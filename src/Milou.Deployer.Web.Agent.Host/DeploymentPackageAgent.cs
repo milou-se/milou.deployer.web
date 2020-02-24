@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Time;
 using Arbor.Processing;
 using Milou.Deployer.Core.Extensions;
+using Milou.Deployer.Web.Agent.Host;
 using Serilog;
+using Serilog.Sinks.Http;
+using Serilog.Sinks.Http.Private.Network;
 
 namespace Milou.Deployer.Web.Agent
 {
@@ -12,25 +16,33 @@ namespace Milou.Deployer.Web.Agent
     {
         private readonly TimeoutHelper _timeoutHelper;
         private readonly ILogger _logger;
+        private readonly LogHttpClientFactory _logHttpClientFactory;
         private readonly IDeploymentPackageHandler _deploymentPackageHandler;
         private readonly DeploymentTaskPackageService _deploymentTaskPackageService;
 
-        public DeploymentPackageAgent(TimeoutHelper timeoutHelper, ILogger logger, IDeploymentPackageHandler deploymentPackageHandler, DeploymentTaskPackageService deploymentTaskPackageService)
+        public DeploymentPackageAgent(
+            TimeoutHelper timeoutHelper,
+            ILogger logger,
+            LogHttpClientFactory logHttpClientFactory,
+            IDeploymentPackageHandler deploymentPackageHandler, DeploymentTaskPackageService deploymentTaskPackageService)
         {
             _timeoutHelper = timeoutHelper;
             _logger = logger;
+            _logHttpClientFactory = logHttpClientFactory;
             _deploymentPackageHandler = deploymentPackageHandler;
             _deploymentTaskPackageService = deploymentTaskPackageService;
         }
 
-        public async Task<ExitCode> RunAsync(string deploymentTaskId, CancellationToken cancellationToken)
+        public async Task<ExitCode> RunAsync(string deploymentTaskId, string deploymentTargetId, CancellationToken cancellationToken)
         {
             _logger.Information("Received deployment task {DeploymentTaskId}", deploymentTaskId);
 
+            var client = _logHttpClientFactory.CreateClient(deploymentTaskId, deploymentTargetId);
+            string uri = "http://localhost:34343/deployment-task/log"; //TODO define agent log uri
             var logger = new LoggerConfiguration()
                 .MinimumLevel.Verbose()
-                .WriteTo.Console()
                 .WriteTo.Logger(_logger)
+                .WriteTo.DurableHttpUsingTimeRolledBuffers(uri,period: TimeSpan.FromSeconds(5), httpClient: client)
                 .CreateLogger(); //TODO create job logger in agent
 
             ExitCode exitCode;

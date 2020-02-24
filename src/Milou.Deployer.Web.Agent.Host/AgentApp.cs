@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Net.Http;
+using System.Threading.Tasks;
 using Arbor.App.Extensions.Time;
 using Arbor.Processing;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Serilog.Sinks.Http;
 
 namespace Milou.Deployer.Web.Agent.Host
 {
@@ -30,6 +32,7 @@ namespace Milou.Deployer.Web.Agent.Host
                         services.AddSingleton(
                             new TimeoutHelper(new TimeoutConfiguration {CancellationEnabled = false}));
                         services.AddSingleton<DeploymentTaskPackageService>();
+                        services.AddSingleton<LogHttpClientFactory>();
                         services.AddSingleton<IDeploymentPackageAgent, DeploymentPackageAgent>();
                         services.AddSingleton<IDeploymentPackageHandler, DeploymentPackageHandler>();
                         services.AddSingleton<ICustomClock, CustomSystemClock>();
@@ -57,6 +60,21 @@ namespace Milou.Deployer.Web.Agent.Host
             var app = new AgentApp();
 
             return await app.RunAsync(args);
+        }
+    }
+
+    public class LogHttpClientFactory
+    {
+        private readonly IHttpClientFactory _clientFactory;
+
+        public LogHttpClientFactory(IHttpClientFactory clientFactory)
+        {
+            _clientFactory = clientFactory;
+        }
+
+        public IHttpClient CreateClient(string deploymentTaskId, string deploymentTargetId)
+        {
+            return new CustomHttpClient(_clientFactory, deploymentTaskId, deploymentTargetId);
         }
     }
 }

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using Arbor.App.Extensions.IO;
 using JetBrains.Annotations;
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Newtonsoft.Json;
@@ -43,8 +39,6 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
                 $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.InvariantCulture)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
 
-        public string StartedBy { get; }
-
         public DeploymentTask(
             [NotNull] PackageVersion packageVersion,
             [NotNull] string deploymentTargetId,
@@ -64,11 +58,8 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
                 $"{DateTime.UtcNow.ToString("O", CultureInfo.InvariantCulture).Replace(":", "_", StringComparison.Ordinal)}_{deploymentTaskId.ToString().Substring(0, 8)}";
         }
 
-        [JsonIgnore]
-        public List<DirectoryInfo> TempDirectories { get; } = new List<DirectoryInfo>();
+        public string StartedBy { get; }
 
-        [JsonIgnore]
-        public List<TempFile> TempFiles { get; } = new List<TempFile>();
 
         public SemanticVersion SemanticVersion { get; }
 
@@ -84,30 +75,7 @@ namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
         [JsonIgnore]
         public WorkTaskStatus Status { get; set; } = WorkTaskStatus.Created;
 
-        [JsonIgnore]
-        public BlockingCollection<(string, WorkTaskStatus)> MessageQueue { get; } =
-            new BlockingCollection<(string, WorkTaskStatus)>();
-
-        public void Log(string message)
-        {
-            if (MessageQueue.IsAddingCompleted)
-            {
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(message))
-            {
-                return;
-            }
-
-            MessageQueue.Add((message, Status));
-
-            if (Status == WorkTaskStatus.Done || Status == WorkTaskStatus.Failed)
-            {
-                MessageQueue.CompleteAdding();
-            }
-        }
-
-        public override string ToString() => $"{nameof(SemanticVersion)}: {SemanticVersion.ToNormalizedString()}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(PackageId)}: {PackageId}, {nameof(DeploymentTaskId)}: {DeploymentTaskId}";
+        public override string ToString() =>
+            $"{nameof(SemanticVersion)}: {SemanticVersion.ToNormalizedString()}, {nameof(DeploymentTargetId)}: {DeploymentTargetId}, {nameof(PackageId)}: {PackageId}, {nameof(DeploymentTaskId)}: {DeploymentTaskId}";
     }
 }

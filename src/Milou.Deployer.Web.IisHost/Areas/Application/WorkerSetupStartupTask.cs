@@ -23,7 +23,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
     public class WorkerSetupStartupTask : BackgroundService, IStartupTask
     {
         private readonly IKeyValueConfiguration _configuration;
-        private readonly IDeploymentService _deploymentService;
+        private readonly IServiceProvider _deploymentService;
         private readonly IDeploymentTargetReadService _deploymentTargetReadService;
         private readonly ConfigurationInstanceHolder _holder;
         private readonly ILogger _logger;
@@ -32,17 +32,19 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
         private readonly TimeoutHelper _timeoutHelper;
 
         private readonly ICustomClock _clock;
+        private readonly IServiceProvider _serviceProvider;
 
         public WorkerSetupStartupTask(
             IKeyValueConfiguration configuration,
             ILogger logger,
             IDeploymentTargetReadService deploymentTargetReadService,
             ConfigurationInstanceHolder holder,
-            IDeploymentService deploymentService,
+            IServiceProvider deploymentService,
             IMediator mediator,
             WorkerConfiguration workerConfiguration,
             TimeoutHelper timeoutHelper,
-            ICustomClock clock)
+            ICustomClock clock,
+            IServiceProvider serviceProvider)
         {
             _configuration = configuration;
             _logger = logger;
@@ -53,6 +55,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
             _workerConfiguration = workerConfiguration;
             _timeoutHelper = timeoutHelper;
             _clock = clock;
+            _serviceProvider = serviceProvider;
         }
 
         public bool IsCompleted { get; private set; }
@@ -97,7 +100,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Application
 
             foreach (string targetId in targetIds)
             {
-                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _deploymentService, _logger, _mediator, _workerConfiguration, _timeoutHelper, _clock);
+                var deploymentTargetWorker = new DeploymentTargetWorker(targetId, _logger, _mediator, _workerConfiguration, _timeoutHelper, _clock, _serviceProvider);
 
                 _holder.Add(new NamedInstance<DeploymentTargetWorker>(
                     deploymentTargetWorker,

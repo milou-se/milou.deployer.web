@@ -50,15 +50,42 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
         }
 
         [PublicAPI]
-        public async Task DeployFailed(string deploymentTaskId)
+        public async Task DeployFailed(string deploymentTaskId, string deploymentTargetId)
         {
             _logger.Error("Deploy failed for deployment task id {DeploymentTaskId}", deploymentTaskId);
+            await _mediator.Publish(new AgentDeploymentFailedNotification(deploymentTaskId, deploymentTargetId));
         }
 
         [PublicAPI]
-        public async Task DeploySucceeded(string deploymentTaskId)
+        public async Task DeploySucceeded(string deploymentTaskId, string deploymentTargetId)
         {
             _logger.Information("Deploy succeeded for deployment task id {DeploymentTaskId}", deploymentTaskId);
+            await _mediator.Publish(new AgentDeploymentDoneNotification(deploymentTaskId, deploymentTargetId));
+
+        }
+    }
+
+    public class AgentDeploymentDoneNotification : INotification
+    {
+        public string DeploymentTaskId { get; }
+        public string DeploymentTargetId { get; }
+
+        public AgentDeploymentDoneNotification(string deploymentTaskId, string deploymentTargetId)
+        {
+            DeploymentTaskId = deploymentTaskId;
+            DeploymentTargetId = deploymentTargetId;
+        }
+    }
+
+    public class AgentDeploymentFailedNotification : INotification
+    {
+        public string DeploymentTaskId { get; }
+        public string DeploymentTargetId { get; }
+
+        public AgentDeploymentFailedNotification(string deploymentTaskId, string deploymentTargetId)
+        {
+            DeploymentTaskId = deploymentTaskId;
+            DeploymentTargetId = deploymentTargetId;
         }
     }
 }

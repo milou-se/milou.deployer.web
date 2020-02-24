@@ -12,7 +12,8 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.2.0" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.3.1" />
+    <PackageReference Include="DotNext.Threading" Version="2.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.20.0" />
     <PackageReference Include="Arbor.KVConfiguration.Urns" Version="0.20.0" />
@@ -35,8 +36,8 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.1.2" />
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.7.2" />
-    <PackageReference Include="Milou.Deployer.Core" Version="4.7.2" />
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.7.5" />
+    <PackageReference Include="Milou.Deployer.Core" Version="4.7.5" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NuGet.Frameworks" Version="5.4.0" />
     <PackageReference Include="NuGet.Packaging" Version="5.4.0" />

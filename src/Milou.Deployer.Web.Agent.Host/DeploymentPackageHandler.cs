@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Arbor.App.Extensions;
 using Arbor.App.Extensions.IO;
 using Arbor.Processing;
 using Arbor.Tooler;
@@ -20,25 +18,6 @@ namespace Milou.Deployer.Web.Agent
 
         public DeploymentPackageHandler(IHttpClientFactory httpClientFactory) => _httpClientFactory = httpClientFactory;
 
-        private static void ClearTemporaryDirectoriesAndFiles(IEnumerable<TempFile> tempFiles,IEnumerable<DirectoryInfo> tempDirectories)
-        {
-            foreach (TempFile temporaryFile in tempFiles)
-            {
-                temporaryFile.SafeDispose();
-            }
-
-            foreach (DirectoryInfo deploymentTaskTempDirectory in tempDirectories)
-            {
-                deploymentTaskTempDirectory.Refresh();
-
-
-                if (deploymentTaskTempDirectory.Exists)
-                {
-                    deploymentTaskTempDirectory.Delete(true);
-                }
-            }
-        }
-
         public async Task<ExitCode> RunAsync(
             DeploymentTaskPackage deploymentTaskPackage,
             ILogger jobLogger,
@@ -46,7 +25,8 @@ namespace Milou.Deployer.Web.Agent
         {
             using var manifestFile = TempFile.CreateTempFile("manifest", ".json");
 
-            await File.WriteAllTextAsync(manifestFile.File.FullName, deploymentTaskPackage.ManifestJson, Encoding.UTF8, cancellationToken);
+            await File.WriteAllTextAsync(manifestFile.File.FullName, deploymentTaskPackage.ManifestJson, Encoding.UTF8,
+                cancellationToken);
 
             using var publishSettings = string.IsNullOrWhiteSpace(deploymentTaskPackage.PublishSettingsXml)
                 ? null
@@ -56,7 +36,8 @@ namespace Milou.Deployer.Web.Agent
 
             if (publishSettings?.File?.Exists ?? false)
             {
-                await File.WriteAllTextAsync(publishSettings.File.FullName, deploymentTaskPackage.PublishSettingsXml, Encoding.UTF8, cancellationToken);
+                await File.WriteAllTextAsync(publishSettings.File.FullName, deploymentTaskPackage.PublishSettingsXml,
+                    Encoding.UTF8, cancellationToken);
 
                 publishSettings.File.CopyTo(Path.Combine(currentDir.FullName, publishSettings.File.Name));
             }

@@ -16,7 +16,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Configuration.Modules
         public IServiceCollection Register(IServiceCollection builder)
         {
             builder.AddSingleton<PackageService>(this);
-            builder.AddSingleton<IDeploymentService, DeploymentService>(this);
+            builder.Add<IDeploymentService, DeploymentService>(ServiceLifetime.Transient, this);
             builder.AddSingleton(
                 context => new MilouDeployerConfiguration(context.GetService<IKeyValueConfiguration>()),
                 this);

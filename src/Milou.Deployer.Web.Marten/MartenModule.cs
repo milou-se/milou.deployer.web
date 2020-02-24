@@ -66,6 +66,7 @@ namespace Milou.Deployer.Web.Marten
             {
                 builder.AddSingleton(typeof(MartenStore), this);
                 builder.AddSingleton(typeof(IDeploymentTargetReadService), typeof(MartenStore), this);
+                builder.AddSingleton(typeof(IDeploymentTargetService), typeof(MartenStore), this);
                 builder.AddSingleton<IDeploymentTaskPackageStore, DeploymentTaskPackageStore>();
 
                 var genericInterfaces = typeof(MartenStore)
