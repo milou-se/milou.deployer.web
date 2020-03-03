@@ -102,7 +102,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
                         packages = Array.Empty<object>(),
                         packageId = deploymentTarget.PackageId
                     };
-                });
+                })
+                .OrderBy(target => target.name);
 
             return Json(new { targets });
         }
