@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Application.Metadata
 {
-    public class ApplicationVersionInfo
+    public class ApplicationVersionInfo //TODO extract from project
     {
         public ApplicationVersionInfo(
             [NotNull] string assemblyVersion,

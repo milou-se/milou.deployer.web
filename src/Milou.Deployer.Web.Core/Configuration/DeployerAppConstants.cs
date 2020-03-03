@@ -3,9 +3,9 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Configuration
 {
-    public class DeployerAppConstants
+    [PublicAPI]
+    public static class DeployerAppConstants
     {
-
         [Metadata]
         public const string EmailConfiguration = "urn:milou:deployer:web:email:configuration";
 

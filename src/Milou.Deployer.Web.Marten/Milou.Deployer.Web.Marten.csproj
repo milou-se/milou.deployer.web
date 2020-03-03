@@ -25,4 +25,8 @@
     <ProjectReference Include="..\Milou.Deployer.Web.Core\Milou.Deployer.Web.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DeploymentTasks\" />
+  </ItemGroup>
+
 </Project>

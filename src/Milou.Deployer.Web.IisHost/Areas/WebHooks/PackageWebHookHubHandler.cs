@@ -10,12 +10,13 @@ using MediatR;
 using Microsoft.AspNetCore.SignalR;
 
 using Milou.Deployer.Web.Core.Deployment.Sources;
+using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 {
     [UsedImplicitly]
-    public class PackageWebHookHubHandler : INotificationHandler<PackageWebHookNotification>
+    public class PackageWebHookHubHandler : INotificationHandler<PackageEventNotification>
     {
         private readonly IHubContext<TargetHub> _targetHubContext;
 
@@ -27,7 +28,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _readService = readService;
         }
 
-        public async Task Handle(PackageWebHookNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(PackageEventNotification notification, CancellationToken cancellationToken)
         {
             var deploymentTargets = await _readService.GetDeploymentTargetsAsync(stoppingToken: cancellationToken);
 

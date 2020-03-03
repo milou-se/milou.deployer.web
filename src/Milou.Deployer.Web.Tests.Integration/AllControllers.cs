@@ -46,7 +46,7 @@ namespace Milou.Deployer.Web.Tests.Integration
                 typeof(AllowAnonymousAttribute)
             };
 
-            var attributes = controllerType.GetCustomAttributes().Where(attribute =>
+            var attributes = controllerType.GetCustomAttributes(true).Where(attribute =>
                     httpMethodAttributes.Any(authenticationAttribute => authenticationAttribute == attribute.GetType()))
                 .ToArray();
 

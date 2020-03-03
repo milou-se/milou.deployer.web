@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace Milou.Deployer.Web.Core.Caching
 {
-    public interface ICustomMemoryCache
+    public interface ICustomMemoryCache //TODO extract from project
     {
         IReadOnlyCollection<string> CachedKeys { get; }
 

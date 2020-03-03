@@ -11,7 +11,7 @@ using DotNext.Threading;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
@@ -20,7 +20,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 {
-    public sealed class DeploymentTargetWorker : IDisposable
+    public sealed class DeploymentTargetWorker : IDeploymentTargetWorker, IDisposable
     {
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
@@ -293,7 +293,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             return Task.CompletedTask;
         }
 
-        internal async Task ExecuteAsync(CancellationToken stoppingToken)
+        public async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             CheckDisposed();
 

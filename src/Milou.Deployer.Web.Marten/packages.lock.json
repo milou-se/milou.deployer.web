@@ -105,8 +105,8 @@
       },
       "Arbor.App.Extensions": {
         "type": "Transitive",
-        "resolved": "0.3.1",
-        "contentHash": "GgUNLdoWICIzo4gL4pfPHjhSBpxr20cNo2rdtDPOgPQWmSFsW9RW+2pzpeVmbko3ml8h3XXM/cfbRAhHB7rsKQ==",
+        "resolved": "0.3.2",
+        "contentHash": "VPtR6KlgEtFOzNbNLBJUfbcqN5FJlb5Id8SlhsKg9Q2O3+1h5R086T7d+k+xoozTXc3PvOQkUNSnu+RBnJCJ8w==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "JetBrains.Annotations": "2019.1.3",
@@ -237,8 +237,8 @@
       },
       "MediatR": {
         "type": "Transitive",
-        "resolved": "8.0.0",
-        "contentHash": "cYSDJ2b/dIiwTLW/ZW/SQcXq9I3WF6KR4D0KN4hxWR08tZqcvcVS1bQXZbsANdQdTQfxx+ZFp5WkHLMyeoR5Zw=="
+        "resolved": "8.0.1",
+        "contentHash": "nqtv05FHNNNLmEv4QN9pRtmSLa0bnDPciOjLKpA/k5FZIVS72vPyY3/1lHQ9V/dcQSMA5ZLig62SyRk2cSKNBA=="
       },
       "MediatR.Extensions.Microsoft.DependencyInjection": {
         "type": "Transitive",
@@ -1978,7 +1978,7 @@
       "milou.deployer.web.agent": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.3.1",
+          "Arbor.App.Extensions": "0.3.2",
           "Arbor.Processing": "0.4.0",
           "Arbor.Tooler": "0.7.3",
           "Microsoft.AspNetCore.SignalR.Client": "3.1.2",
@@ -1993,7 +1993,7 @@
       "milou.deployer.web.core": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.3.1",
+          "Arbor.App.Extensions": "0.3.2",
           "Arbor.KVConfiguration.Core": "0.20.0",
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "Arbor.KVConfiguration.UserConfiguration": "0.20.0",
@@ -2004,7 +2004,7 @@
           "JetBrains.Annotations": "2019.1.3",
           "MailKit": "2.5.1",
           "Marten": "3.10.0",
-          "MediatR": "8.0.0",
+          "MediatR": "8.0.1",
           "MediatR.Extensions.Microsoft.DependencyInjection": "8.0.0",
           "Microsoft.CodeAnalysis.CSharp": "3.4.0",
           "Microsoft.Extensions.DependencyModel": "3.1.2",

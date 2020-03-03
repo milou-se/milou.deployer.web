@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using Milou.Deployer.Web.Core.Deployment;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Targets.Views

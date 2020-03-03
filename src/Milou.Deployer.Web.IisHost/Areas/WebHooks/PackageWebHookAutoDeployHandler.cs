@@ -9,6 +9,7 @@ using MediatR;
 
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
+using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 
@@ -17,7 +18,7 @@ using Serilog;
 namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
 {
     [UsedImplicitly]
-    public class PackageWebHookAutoDeployHandler : INotificationHandler<PackageWebHookNotification>
+    public class PackageWebHookAutoDeployHandler : INotificationHandler<PackageEventNotification>
     {
         private readonly DeploymentWorkerService _deploymentService;
 
@@ -43,7 +44,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _applicationSettingsStore = applicationSettingsStore;
         }
 
-        public async Task Handle(PackageWebHookNotification notification, CancellationToken cancellationToken)
+        public async Task Handle(PackageEventNotification notification, CancellationToken cancellationToken)
         {
             if (!(await _applicationSettingsStore.GetApplicationSettings(cancellationToken)).AutoDeploy.Enabled)
             {

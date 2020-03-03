@@ -6,7 +6,7 @@ using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Serilog;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.Core.Deployment
 {
     public interface IDeploymentService
     {

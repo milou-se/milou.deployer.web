@@ -9,6 +9,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
@@ -105,7 +106,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
                 out DeploymentTargetWorker _))
             {
                 _configurationInstanceHolder.Add(
-                    new NamedInstance<DeploymentTargetWorker>(notification.Worker, notification.Worker.TargetId));
+                    new NamedInstance<IDeploymentTargetWorker>(notification.Worker, notification.Worker.TargetId));
             }
 
             StartWorker(notification.Worker, cancellationToken);
@@ -196,7 +197,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             await Task.WhenAll(_tasks.Values.Where(task => !task.IsCompleted));
         }
 
-        private void StartWorker(DeploymentTargetWorker deploymentTargetWorker, CancellationToken stoppingToken)
+        private void StartWorker(IDeploymentTargetWorker deploymentTargetWorker, CancellationToken stoppingToken)
         {
             try
             {
@@ -208,7 +209,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             }
         }
 
-        private void TryStartWorker(DeploymentTargetWorker deploymentTargetWorker, CancellationToken stoppingToken)
+        private void TryStartWorker(IDeploymentTargetWorker deploymentTargetWorker, CancellationToken stoppingToken)
         {
             _logger.Debug("Trying to start worker for target id {TargetId}", deploymentTargetWorker.TargetId);
 

@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging.EventSource;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Controllers;
 using Serilog;
-using Serilog.Events;
-using Serilog.Parsing;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class DeploymentTaskLogController : BaseApiController
     {
@@ -25,6 +18,7 @@ namespace Milou.Deployer.Web.Agent
         }
 
         [AllowAnonymous]
+        [HttpPost]
         [Route("/deployment-task/log")]
         public async Task<IActionResult> Log([FromBody] SerilogSinkEvents events, [FromServices] IMediator mediator)
         {
@@ -66,19 +60,5 @@ namespace Milou.Deployer.Web.Agent
 
             return Ok();
         }
-    }
-
-    public class SerilogSinkEvents{
-
-        public SerilogSinkEvent[] Events { get; set; }
-    }
-
-    public class SerilogSinkEvent
-    {
-      public DateTimeOffset Timestamp { get; set; }
-      public LogEventLevel Level { get; set; }
-      public string MessageTemplate { get; set; }
-      public string RenderedMessage { get; set; }
-      public Dictionary<string, object> Properties { get; set; }
     }
 }

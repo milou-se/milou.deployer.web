@@ -1,12 +1,11 @@
 ﻿using MediatR;
-
 using Milou.Deployer.Web.Core.Deployment.Packages;
 
-namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
+namespace Milou.Deployer.Web.Core.NuGet
 {
-    public class PackageWebHookNotification : INotification
+    public class PackageEventNotification : INotification
     {
-        public PackageWebHookNotification(PackageVersion packageVersion, string nugetSource, string nugetConfig)
+        public PackageEventNotification(PackageVersion packageVersion, string nugetSource, string nugetConfig)
         {
             PackageVersion = packageVersion;
             NugetSource = nugetSource;

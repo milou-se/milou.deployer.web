@@ -1,9 +1,11 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Marten.Schema;
+using Milou.Deployer.Web.Marten;
 
 namespace Milou.Deployer.Web.Core.Deployment.Targets
 {
+    [MartenData]
     public class DeploymentTargetData
     {
         public string Id { get; set; }

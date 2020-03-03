@@ -6,7 +6,7 @@ using Milou.Deployer.Core.Extensions;
 using Newtonsoft.Json;
 using Serilog;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.Agent.Host.Deployment
 {
     public class DeploymentTaskPackageService
     {
@@ -19,7 +19,7 @@ namespace Milou.Deployer.Web.Agent
             _logger = logger;
         }
 
-        public async Task<DeploymentTaskPackage> GetDeploymentTaskPackageAsync(string deploymentTaskId,
+        public async Task<DeploymentTaskPackage?> GetDeploymentTaskPackageAsync(string deploymentTaskId,
             CancellationToken cancellationToken = default)
         {
             var httpClient = _httpClientFactory.CreateClient();

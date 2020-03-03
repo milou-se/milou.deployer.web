@@ -11,8 +11,7 @@ namespace Milou.Deployer.Web.Core.Credentials
     [UsedImplicitly]
     public class ConfigurationCredentialReadService : ICredentialReadService
     {
-        [NotNull]
-        private readonly IKeyValueConfiguration _keyValueConfiguration;
+        [NotNull] private readonly IKeyValueConfiguration _keyValueConfiguration;
 
         private readonly ILogger _logger;
 
@@ -22,6 +21,7 @@ namespace Milou.Deployer.Web.Core.Credentials
         {
             _keyValueConfiguration =
                 keyValueConfiguration ?? throw new ArgumentNullException(nameof(keyValueConfiguration));
+
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -40,11 +40,13 @@ namespace Milou.Deployer.Web.Core.Credentials
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(secretKey));
             }
 
-            var combinedKey = $"{ConfigurationConstants.SecretsKeyPrefix}{id}:{secretKey}";
+            string combinedKey = $"{ConfigurationConstants.SecretsKeyPrefix}{id}:{secretKey}";
 
-            var value = _keyValueConfiguration[combinedKey];
+            string value = _keyValueConfiguration[combinedKey];
 
-            var anonymous = string.IsNullOrWhiteSpace(value) ? Constants.NotAvailable : new string('*', value.Length);
+            string anonymous = string.IsNullOrWhiteSpace(value)
+                ? Constants.NotAvailable
+                : new string('*', value.Length);
 
             _logger.Debug(
                 "Getting secret for target id {TargetId}, secret key {SecretKey}, combined key {CombinedKey}, value (anonymous) '{Value}'",

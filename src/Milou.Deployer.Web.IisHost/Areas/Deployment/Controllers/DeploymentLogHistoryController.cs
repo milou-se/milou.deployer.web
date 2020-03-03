@@ -25,10 +25,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [Route(DeploymentConstants.HistoryLogRoute, Name = DeploymentConstants.HistoryLogRouteName)]
         [HttpGet]
-        public async Task<IActionResult> Log()
-        {
-            return View(new DeploymentLogViewOutputModel(ImmutableArray<LogItem>.Empty));
-        }
+        public IActionResult Log() => View(new DeploymentLogViewOutputModel(ImmutableArray<LogItem>.Empty));
 
         [Route(DeploymentConstants.HistoryLogRoute + ".json", Name = DeploymentConstants.HistoryLogRouteName + "Json")]
         [HttpGet]

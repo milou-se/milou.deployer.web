@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -10,7 +11,7 @@ using Arbor.Tooler;
 using Milou.Deployer.Bootstrapper.Common;
 using Serilog;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.Agent.Host.Deployment
 {
     public class DeploymentPackageHandler : IDeploymentPackageHandler
     {
@@ -33,6 +34,11 @@ namespace Milou.Deployer.Web.Agent
                 : TempFile.CreateTempFile(deploymentTaskPackage.DeploymentTargetId, ".publishSettings");
 
             var currentDir = manifestFile.File!.Directory;
+
+            if (string.IsNullOrWhiteSpace(currentDir?.FullName))
+            {
+                throw new InvalidOperationException("Current directory is not set");
+            }
 
             if (publishSettings?.File?.Exists ?? false)
             {

@@ -81,7 +81,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void SingleIPv4AddressShouldBeParsed()
         {
-            IpNetworkParser.TryParse("127.0.0.1/32", out var network);
+            _ = IpNetworkParser.TryParse("127.0.0.1/32", out var network);
 
             Assert.NotNull(network);
             Assert.Equal(network.Prefix, IPAddress.Loopback);
@@ -91,7 +91,7 @@ namespace Milou.Deployer.Web.Tests.Integration
         [Fact]
         public void SingleIPv6AddressShouldBeParsed()
         {
-            IpNetworkParser.TryParse("::1/32", out var network);
+            _ = IpNetworkParser.TryParse("::1/32", out var network);
 
             Assert.NotNull(network);
             Assert.Equal(IPAddress.Parse("::1"), network.Prefix);

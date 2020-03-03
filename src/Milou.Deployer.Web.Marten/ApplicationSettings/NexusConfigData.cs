@@ -1,5 +1,6 @@
-﻿namespace Milou.Deployer.Web.IisHost.Areas.Settings
+﻿namespace Milou.Deployer.Web.Marten
 {
+    [MartenData]
     public class NexusConfigData
     {
         public string HmacKey { get; set; }

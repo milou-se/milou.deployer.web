@@ -3,9 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.Processing;
 using Microsoft.AspNetCore.SignalR;
+using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class RemoteDeploymentPackageAgent : IDeploymentPackageAgent
     {

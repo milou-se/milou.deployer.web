@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Arbor.Processing;
 using Serilog;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.Agent.Host.Deployment
 {
     /// <summary>
     /// Runs deploy for all given data defined in deployment task package

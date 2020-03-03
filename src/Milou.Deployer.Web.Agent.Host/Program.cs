@@ -1,17 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Arbor.AspNetCore.Host;
+using Arbor.Primitives;
 
 namespace Milou.Deployer.Web.Agent.Host
 {
-    class Program
+    internal static class Program
     {
-        static async Task<int> Main(string[] args)
-        {
-            var exitCode = await AgentApp.CreateAndRunAsync(args);
-
-            return exitCode;
-        }
-
-
+        public static Task<int> Main(string[] args) =>
+            AppStarter<AgentStartup>.StartAsync(args, EnvironmentVariables.GetEnvironmentVariables().Variables);
     }
 }

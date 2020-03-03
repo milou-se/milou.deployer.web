@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-
 using Marten;
-
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Integration.Nexus;
 using Milou.Deployer.Web.Core.Settings;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Settings
+namespace Milou.Deployer.Web.Marten
 {
     public class MartenSettingsStore : IApplicationSettingsStore
     {

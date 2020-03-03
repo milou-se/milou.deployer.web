@@ -4,7 +4,7 @@ using Milou.Deployer.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Application.Metadata
 {
-    public static class ApplicationVersionHelper
+    public static class ApplicationVersionHelper //TODO extract from project
     {
         public static ApplicationVersionInfo GetAppVersion()
         {

@@ -716,18 +716,4 @@ namespace Milou.Deployer.Web.Core.Deployment
             return deploymentTarget;
         }
     }
-
-    internal class DeploymentTaskTempData
-    {
-        public DeploymentTaskTempData(ILogger tempLogger, string deploymentTaskId, List<LogItem> logBuilder)
-        {
-            TempLogger = tempLogger;
-            DeploymentTaskId = deploymentTaskId;
-            LogBuilder = logBuilder;
-        }
-
-        public ILogger TempLogger { get; }
-        public string DeploymentTaskId { get; }
-        public List<LogItem> LogBuilder { get; }
-    }
 }

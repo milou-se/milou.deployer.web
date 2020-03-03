@@ -2,6 +2,7 @@
 
 namespace Milou.Deployer.Web.Marten
 {
+    [MartenData]
     public class EnvironmentTypeData
     {
         public string PreReleaseBehavior { get; set; }

@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Http;
 
 using Milou.Deployer.Web.Core.Deployment.Packages;
 using Milou.Deployer.Web.Core.Integration.Nexus;
+using Milou.Deployer.Web.Core.NuGet;
 using Milou.Deployer.Web.Core.Settings;
 
 using Newtonsoft.Json;
@@ -36,7 +37,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             _logger = logger;
         }
 
-        public async Task<PackageWebHookNotification> TryGetWebHookNotification(
+        public async Task<PackageEventNotification> TryGetWebHookNotification(
             HttpRequest request,
             string content,
             CancellationToken cancellationToken)
@@ -118,7 +119,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.WebHooks
             var packageVersion = new PackageVersion(name, semanticVersion);
             _logger.Information("Successfully received Nexus web hook notification for package {Package}", packageVersion);
 
-            return new PackageWebHookNotification(packageVersion, nexusConfig.NuGetSource, nexusConfig.NuGetConfig);
+            return new PackageEventNotification(packageVersion, nexusConfig.NuGetSource, nexusConfig.NuGetConfig);
         }
 
         private async Task<NexusConfig> GetSignatureKeyAsync(CancellationToken cancellationToken)

@@ -1,7 +1,8 @@
 ﻿using Marten.Schema;
 
-namespace Milou.Deployer.Web.Core.Deployment.Targets
+namespace Milou.Deployer.Web.Marten
 {
+    [MartenData]
     public class ProjectData
     {
         [ForeignKey(typeof(OrganizationData))]

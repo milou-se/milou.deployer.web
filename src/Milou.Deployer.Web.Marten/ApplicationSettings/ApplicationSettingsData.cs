@@ -1,7 +1,8 @@
 ﻿using System;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Settings
+namespace Milou.Deployer.Web.Marten
 {
+    [MartenData]
     public class ApplicationSettingsData
     {
         public TimeSpan? CacheTime { get; set; }

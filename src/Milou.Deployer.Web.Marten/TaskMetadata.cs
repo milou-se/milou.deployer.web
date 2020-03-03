@@ -1,8 +1,9 @@
 ﻿using System;
 using JetBrains.Annotations;
 
-namespace Milou.Deployer.Web.Core.Deployment.Targets
+namespace Milou.Deployer.Web.Marten
 {
+    [MartenData]
     [PublicAPI]
     public class TaskMetadata
     {

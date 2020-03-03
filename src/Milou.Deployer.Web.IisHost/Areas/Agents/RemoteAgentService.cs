@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.IisHost.Areas.Agents
 {
     public class RemoteAgentService : IAgentService
     {

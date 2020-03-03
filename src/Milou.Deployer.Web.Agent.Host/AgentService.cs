@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
 using Serilog;
@@ -12,18 +13,22 @@ using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegiste
 
 namespace Milou.Deployer.Web.Agent.Host
 {
-    public class AgentService : BackgroundService
+    public class AgentService : BackgroundService, IAsyncDisposable
     {
+        private readonly string _accessToken =
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJhZ2VudDEiLCJ1bmlxdWVfbmFtZSI6ImFnZW50MSIsIm5iZiI6MTU4MjMxNjczNSwiZXhwIjoxNjcyNDQxMjAwLCJpYXQiOjE1ODIzMTY3MzV9.Ct3y__VNYl2ZBhD24lLRKNRnauKgBm2Ma9T-HxOed8Q"; // TODO make agent token configurable
+
         private readonly IDeploymentPackageAgent _deploymentPackageAgent;
         private readonly ILogger _logger;
+        private readonly IMediator _mediator;
 
-        private HubConnection _hubConnection;
-        string _accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJhZ2VudDEiLCJ1bmlxdWVfbmFtZSI6ImFnZW50MSIsIm5iZiI6MTU4MjMxNjczNSwiZXhwIjoxNjcyNDQxMjAwLCJpYXQiOjE1ODIzMTY3MzV9.Ct3y__VNYl2ZBhD24lLRKNRnauKgBm2Ma9T-HxOed8Q";
+        private HubConnection? _hubConnection;
 
-        public AgentService(IDeploymentPackageAgent deploymentPackageAgent, ILogger logger)
+        public AgentService(IDeploymentPackageAgent deploymentPackageAgent, ILogger logger, IMediator mediator)
         {
             _deploymentPackageAgent = deploymentPackageAgent;
             _logger = logger;
+            _mediator = mediator;
         }
 
         private async Task ExecuteDeploymentTask(string deploymentTaskId, string deploymentTargetId)
@@ -35,16 +40,10 @@ namespace Milou.Deployer.Web.Agent.Host
 
             var exitCode = await _deploymentPackageAgent.RunAsync(deploymentTaskId, deploymentTargetId);
 
-            if (!exitCode.IsSuccess)
-            {
-                //TODO replace with http call
-                await _hubConnection.InvokeAsync("DeployFailed", deploymentTaskId, deploymentTargetId);
-            }
-            else
-            {
-                //TODO replace with http call
-                await _hubConnection.InvokeAsync("DeploySucceeded", deploymentTaskId, deploymentTargetId);
-            }
+            var deploymentTaskAgentResult =
+                new DeploymentTaskAgentResult(deploymentTaskId, deploymentTargetId, exitCode.IsSuccess);
+
+            await _mediator.Send(deploymentTaskAgentResult);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -53,22 +52,11 @@ namespace Milou.Deployer.Web.Agent.Host
 
             await Task.Yield();
 
-            string connectionUrl = "http://localhost:34343/agents";
+            string connectionUrl = "http://localhost:34343/agents"; //TODO make agent SignalR url configurable
 
-            _hubConnection = new HubConnectionBuilder()
-                .WithUrl(connectionUrl, options =>
-                {
-                    options.AccessTokenProvider = GetAccessToken;
-                })
-                .Build();
+            CreateSignalRConnection(connectionUrl);
 
-            _hubConnection.Closed += HubConnectionOnClosed;
-
-            _hubConnection.On<string, string>("Deploy", ExecuteDeploymentTask);
-
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-            var jwtSecurityToken = tokenHandler.ReadJwtToken(_accessToken);
-            string agentId =  jwtSecurityToken.Claims.SingleOrDefault(claim => claim.Type == JwtRegisteredClaimNames.UniqueName)?.Value;
+            string agentId = GetAgentId();
 
             try
             {
@@ -76,7 +64,7 @@ namespace Milou.Deployer.Web.Agent.Host
 
                 bool connected = false;
 
-                while (!connected)
+                while (!connected && _hubConnection is {})
                 {
                     try
                     {
@@ -90,7 +78,7 @@ namespace Milou.Deployer.Web.Agent.Host
                     {
                         _logger.Error(ex, "Could not connect to server from agent {Agent}", agentId);
 
-                        await Task.Delay(TimeSpan.FromSeconds(5));
+                        await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
                     }
                 }
             }
@@ -104,20 +92,50 @@ namespace Milou.Deployer.Web.Agent.Host
             _logger.Debug("Cancellation requested in Agent app");
             _logger.Debug("Stopping SignalR in Agent");
 
-            await _hubConnection.StopAsync();
-
-            _logger.Debug("Stopped SignalR");
         }
 
-        private async Task<string> GetAccessToken()
+        private void CreateSignalRConnection(string connectionUrl)
         {
-            return _accessToken;
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(connectionUrl, options => { options.AccessTokenProvider = GetAccessToken; })
+                .Build();
+
+            _hubConnection.Closed += HubConnectionOnClosed;
+
+            _hubConnection.On<string, string>("Deploy", ExecuteDeploymentTask);
         }
+
+        private string? GetAgentId()
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = tokenHandler.ReadJwtToken(_accessToken);
+
+            string? agentId = jwtSecurityToken.Claims
+                .SingleOrDefault(claim => claim.Type == JwtRegisteredClaimNames.UniqueName)
+                ?.Value;
+
+            return agentId;
+        }
+
+        private async Task<string> GetAccessToken() => _accessToken;
 
         private async Task HubConnectionOnClosed(Exception arg)
         {
-            await Task.Delay(new Random().Next(0, 5) * 1000);
-            await _hubConnection.StartAsync();
+            if (_hubConnection is {})
+            {
+                await Task.Delay(new Random().Next(0, 5) * 1000);
+                await _hubConnection.StartAsync();
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            if (_hubConnection is { })
+            {
+                await _hubConnection.StopAsync();
+
+                _logger.Debug("Stopped SignalR");
+            }
         }
     }
 }

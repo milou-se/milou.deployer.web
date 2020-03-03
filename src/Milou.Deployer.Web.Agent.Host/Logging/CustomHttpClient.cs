@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Serilog.Sinks.Http;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.Agent.Host.Logging
 {
     public class CustomHttpClient : IHttpClient
     {

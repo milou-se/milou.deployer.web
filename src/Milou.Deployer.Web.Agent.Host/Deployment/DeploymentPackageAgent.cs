@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions.Time;
 using Arbor.Processing;
 using Milou.Deployer.Core.Extensions;
-using Milou.Deployer.Web.Agent.Host;
+using Milou.Deployer.Web.Agent.Host.Logging;
 using Serilog;
-using Serilog.Sinks.Http;
-using Serilog.Sinks.Http.Private.Network;
 
-namespace Milou.Deployer.Web.Agent
+namespace Milou.Deployer.Web.Agent.Host.Deployment
 {
     public class DeploymentPackageAgent : IDeploymentPackageAgent
     {
