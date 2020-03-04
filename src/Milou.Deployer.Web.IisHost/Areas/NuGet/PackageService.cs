@@ -78,10 +78,10 @@ namespace Milou.Deployer.Web.IisHost.Areas.NuGet
         public async Task<IReadOnlyCollection<PackageVersion>> GetPackageVersionsAsync(
             [NotNull] string packageId,
             bool useCache = true,
-            ILogger logger = null,
+            ILogger? logger = null,
             bool includePreReleased = false,
-            string nugetPackageSource = null,
-            string nugetConfigFile = null,
+            string? nugetPackageSource = null,
+            string? nugetConfigFile = null,
             CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(packageId))

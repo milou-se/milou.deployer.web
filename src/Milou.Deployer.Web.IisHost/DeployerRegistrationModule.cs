@@ -10,7 +10,7 @@ using Serilog;
 
 namespace Milou.Deployer.Web.IisHost
 {
-    public class DeployerOpenIdModule : IServiceProviderModule
+    public class DeployerRegistrationModule : IServiceProviderModule
     {
         public void Register(ServiceProviderHolder serviceProviderHolder)
         {

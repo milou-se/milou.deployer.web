@@ -4,7 +4,7 @@ using Marten;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Deployment;
 
-namespace Milou.Deployer.Web.Marten
+namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     public class DeploymentTaskPackageStore : IDeploymentTaskPackageStore
     {

@@ -22,12 +22,9 @@ namespace Milou.Deployer.Web.Marten
 
         public bool Enabled { get; }
 
-        public override string ToString()
-        {
-            return
-                $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous(ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray())}], {nameof(Enabled)}: {Enabled.ToString(CultureInfo.InvariantCulture).ToLowerInvariant()}";
-        }
-
         public bool IsValid => !Enabled || !string.IsNullOrWhiteSpace(ConnectionString);
+
+        public override string ToString() =>
+            $"{nameof(ConnectionString)}: [{ConnectionString.MakeKeyValuePairAnonymous(ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray())}], {nameof(Enabled)}: {Enabled.ToString(CultureInfo.InvariantCulture).ToLowerInvariant()}";
     }
 }

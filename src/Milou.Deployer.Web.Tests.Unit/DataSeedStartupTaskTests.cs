@@ -40,6 +40,8 @@ namespace Milou.Deployer.Web.Tests.Unit
 
             await _startupTask.StartAsync(CancellationToken.None);
 
+            await Task.Delay(TimeSpan.FromMilliseconds(100));
+
             Assert.True(_startupTask.IsCompleted);
         }
     }

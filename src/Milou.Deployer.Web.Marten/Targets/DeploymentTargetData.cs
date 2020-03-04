@@ -1,9 +1,9 @@
 ﻿using System;
 using JetBrains.Annotations;
 using Marten.Schema;
-using Milou.Deployer.Web.Marten;
+using Milou.Deployer.Web.Marten.Settings;
 
-namespace Milou.Deployer.Web.Core.Deployment.Targets
+namespace Milou.Deployer.Web.Marten.Targets
 {
     [MartenData]
     public class DeploymentTargetData
@@ -36,7 +36,7 @@ namespace Milou.Deployer.Web.Core.Deployment.Targets
 
         public string PublishType { get; set; }
 
-        public string FtpPath { get; set; }
+        public string? FtpPath { get; set; }
 
         public bool Enabled { get; set; }
 

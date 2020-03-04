@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
 
         public override Task OnConnectedAsync()
         {
-            _logger.Debug("SignalR Agent client connected, user {User}",this.Context.User);
+            _logger.Debug("SignalR Agent client connected, user {User}",this.Context.User.Identity.Name);
 
             return base.OnConnectedAsync();
         }

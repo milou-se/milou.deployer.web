@@ -1,7 +1,8 @@
 ﻿using System;
 
-namespace Milou.Deployer.Web.Core.Deployment.Targets
+namespace Milou.Deployer.Web.Marten.Settings
 {
+    [MartenData]
     public class NuGetData
     {
         public TimeSpan? PackageListTimeout { get; set; }

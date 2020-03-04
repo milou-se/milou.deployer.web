@@ -28,7 +28,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         public async Task<IActionResult> Index(string deploymentTaskId) => throw new NotImplementedException();
 
         [HttpGet]
-        [Route("/deployment-task-package/{deploymentTaskId}")]
+        [Route(AgentConstants.DeploymentTaskPackageRoute)]
         public async Task<IActionResult> DeploymentTaskPackage([NotNull] string deploymentTaskId,
             [FromServices] IDeploymentTaskPackageStore deploymentTaskPackageStore)
         {
@@ -43,9 +43,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             return new ObjectResult(deploymentTaskPackage);
         }
 
-        [Route("/deployment-task/result")]
+        [Route(AgentConstants.DeploymentTaskResult)]
         [HttpPost]
-        public async Task<IActionResult> DeployAgentResult(DeploymentTaskAgentResult deploymentTaskAgentResult)
+        public async Task<IActionResult> DeployAgentResult([FromBody]DeploymentTaskAgentResult deploymentTaskAgentResult)
         {
             //TODO check deploymentTargetId and deploymentTaskId belongs together
 

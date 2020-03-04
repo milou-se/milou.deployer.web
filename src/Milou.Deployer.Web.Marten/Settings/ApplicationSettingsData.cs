@@ -1,6 +1,7 @@
 ﻿using System;
+using Milou.Deployer.Web.Marten.AutoDeploy;
 
-namespace Milou.Deployer.Web.Marten
+namespace Milou.Deployer.Web.Marten.Settings
 {
     [MartenData]
     public class ApplicationSettingsData

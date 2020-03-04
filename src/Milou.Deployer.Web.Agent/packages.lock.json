@@ -4,9 +4,9 @@
     ".NETCoreApp,Version=v3.1": {
       "Arbor.App.Extensions": {
         "type": "Direct",
-        "requested": "[0.3.2, )",
-        "resolved": "0.3.2",
-        "contentHash": "VPtR6KlgEtFOzNbNLBJUfbcqN5FJlb5Id8SlhsKg9Q2O3+1h5R086T7d+k+xoozTXc3PvOQkUNSnu+RBnJCJ8w==",
+        "requested": "[0.4.0-build.1583328273, )",
+        "resolved": "0.4.0-build.1583328273",
+        "contentHash": "3bG252BDcTSrZaIgzxVrTFN9D85r+dk9dw61GBifwsIRjMZ8Wwe1JDQbE6NGyJ6AFC9+Wfq1DtDccHcd2fns0g==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "JetBrains.Annotations": "2019.1.3",

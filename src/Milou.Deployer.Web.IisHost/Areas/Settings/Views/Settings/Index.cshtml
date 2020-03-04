@@ -1,6 +1,6 @@
 ﻿@using Arbor.App.Extensions
+@using Arbor.App.Extensions.Application
 @using Arbor.App.Extensions.Configuration
-@using Milou.Deployer.Web.Core.Application.Metadata
 @using Milou.Deployer.Web.Core.Html
 @using Milou.Deployer.Web.IisHost.Areas.Deployment.Services
 @using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
@@ -292,7 +292,7 @@ else
                 <td>
                     @if (item.CurrentTask != null)
                     {
-                        <span>@item.CurrentTask.SemanticVersion?.ToNormalizedString() id @item.CurrentTask.DeploymentTaskId</span>
+                        <span>@item.CurrentTask.SemanticVersion.ToNormalizedString() id @item.CurrentTask.DeploymentTaskId</span>
                     }
                 </td>
                 <td>

@@ -26,7 +26,7 @@ using Milou.Deployer.Web.IisHost.Areas.Logging;
 using Milou.Deployer.Web.IisHost.Areas.Security;
 using Milou.Deployer.Web.IisHost.Areas.Startup;
 using Newtonsoft.Json;
-using ILogger = Serilog.ILogger;
+using Serilog;
 using MessageReceivedContext = Microsoft.AspNetCore.Authentication.JwtBearer.MessageReceivedContext;
 using TokenValidatedContext = Microsoft.AspNetCore.Authentication.JwtBearer.TokenValidatedContext;
 
@@ -90,6 +90,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         openIdConnectOptions.MetadataAddress = openIdConnectConfiguration.MetadataAddress;
                         openIdConnectOptions.Scope.Add("email");
                         openIdConnectOptions.TokenValidationParameters.ValidIssuer = openIdConnectConfiguration.Issuer;
+
                         openIdConnectOptions.TokenValidationParameters.IssuerValidator = (issuer, token, parameters) =>
                         {
                             if (string.Equals(issuer, openIdConnectConfiguration.Issuer, StringComparison.Ordinal))
@@ -102,7 +103,8 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
                         openIdConnectOptions.Events.OnRemoteFailure = context =>
                         {
-                            logger.Error(context.Failure, "Remote call to OpenIDConnect {Uri} failed", context.Options.Backchannel.BaseAddress);
+                            logger.Error(context.Failure, "Remote call to OpenIDConnect {Uri} failed",
+                                context.Options.Backchannel.BaseAddress);
 
                             return Task.CompletedTask;
                         };
@@ -140,17 +142,18 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             }
 
             if (milouAuthenticationConfiguration?.BearerTokenEnabled == true
-             && !string.IsNullOrWhiteSpace(milouAuthenticationConfiguration.BearerTokenIssuerKey))
+                && !string.IsNullOrWhiteSpace(milouAuthenticationConfiguration.BearerTokenIssuerKey))
             {
                 authenticationBuilder.AddJwtBearer(options =>
                 {
-                    var bytes = Convert.FromBase64String(milouAuthenticationConfiguration.BearerTokenIssuerKey);
+                    byte[] bytes = Convert.FromBase64String(milouAuthenticationConfiguration.BearerTokenIssuerKey);
+
                     var tokenValidationParameters = new TokenValidationParameters
                     {
-                            IssuerSigningKeys = new List<SecurityKey> { new SymmetricSecurityKey(bytes)},
-                            ValidateAudience = false,
-                            ValidateIssuer = false
-                        };
+                        IssuerSigningKeys = new List<SecurityKey> {new SymmetricSecurityKey(bytes)},
+                        ValidateAudience = false,
+                        ValidateIssuer = false
+                    };
 
                     options.TokenValidationParameters = tokenValidationParameters;
 
@@ -166,20 +169,11 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             return serviceCollection;
         }
 
-        private static Task OnChallenge(JwtBearerChallengeContext arg)
-        {
-            return Task.CompletedTask;
-        }
+        private static Task OnChallenge(JwtBearerChallengeContext arg) => Task.CompletedTask;
 
-        private static Task OnTokenValidated(TokenValidatedContext arg)
-        {
-            return Task.CompletedTask;
-        }
+        private static Task OnTokenValidated(TokenValidatedContext arg) => Task.CompletedTask;
 
-        private static Task OnMessageReceived(MessageReceivedContext arg)
-        {
-            return Task.CompletedTask;
-        }
+        private static Task OnMessageReceived(MessageReceivedContext arg) => Task.CompletedTask;
 
         public static IServiceCollection AddDeploymentMvc(this IServiceCollection services,
             EnvironmentConfiguration environmentConfiguration,
@@ -187,15 +181,16 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             ILogger logger)
         {
             var mvcBuilder = services.AddMvc(
-                options =>
-                {
-                    options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
-                }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0).AddNewtonsoftJson(
-                options =>
-                {
-                    options.SerializerSettings.Converters.Add(new DateConverter());
-                    options.SerializerSettings.Formatting = Formatting.Indented;
-                });
+                    options =>
+                    {
+                        options.InputFormatters.Insert(0, new XWwwFormUrlEncodedFormatter());
+                    }).SetCompatibilityVersion(CompatibilityVersion.Latest)
+                .AddNewtonsoftJson(
+                    options =>
+                    {
+                        options.SerializerSettings.Converters.Add(new DateConverter());
+                        options.SerializerSettings.Formatting = Formatting.Indented;
+                    });
 
             foreach (var filteredAssembly in ApplicationAssemblies.FilteredAssemblies(useCache: false))
             {
@@ -208,7 +203,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 
 #if DEBUG
             if (environmentConfiguration.ToHostEnvironment().IsDevelopment()
-                || configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled, false))
+                || configuration.ValueOrDefault(StartupConstants.RuntimeCompilationEnabled))
             {
                 razorPagesBuilder.AddRazorRuntimeCompilation();
             }
@@ -235,6 +230,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                     options.AddPolicy(
                         AuthorizationPolicies.IpOrToken,
                         policy => policy.Requirements.Add(new DefaultAuthorizationRequirement()));
+
                     options.AddPolicy(
                         AuthorizationPolicies.Agent,
                         policy =>

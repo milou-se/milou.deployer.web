@@ -30,7 +30,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.ErrorHandling
                 !context.Request.Path.StartsWithSegments(ErrorRouteConstants.ErrorRoute,
                     StringComparison.OrdinalIgnoreCase))
             {
-                var message = "Application configuration is invalid";
+                string message = "Application configuration is invalid";
 
                 var stringBuilder = new StringBuilder();
 

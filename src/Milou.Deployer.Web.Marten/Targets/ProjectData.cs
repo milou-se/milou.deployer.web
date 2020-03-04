@@ -1,6 +1,6 @@
 ﻿using Marten.Schema;
 
-namespace Milou.Deployer.Web.Marten
+namespace Milou.Deployer.Web.Marten.Targets
 {
     [MartenData]
     public class ProjectData

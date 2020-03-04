@@ -9,11 +9,9 @@ namespace Milou.Deployer.Web.IisHost.Areas.Caching
     [UsedImplicitly]
     public class CacheModule : IModule
     {
-        public IServiceCollection Register(IServiceCollection builder)
-        {
-            return builder
+        public IServiceCollection Register(IServiceCollection builder) =>
+            builder
                 .AddSingleton<IMemoryCache, MemoryCache>(new MemoryCache(new MemoryCacheOptions()), this)
                 .AddSingleton<ICustomMemoryCache, CustomMemoryCache>(this);
-        }
     }
 }

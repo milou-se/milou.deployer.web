@@ -1,6 +1,6 @@
 ﻿using Milou.Deployer.Web.Core.Deployment;
 
-namespace Milou.Deployer.Web.Marten
+namespace Milou.Deployer.Web.Marten.EnvironmentTypes
 {
     [MartenData]
     public class EnvironmentTypeData

@@ -10,7 +10,7 @@ using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Environments;
 using Serilog;
 
-namespace Milou.Deployer.Web.Marten
+namespace Milou.Deployer.Web.Marten.EnvironmentTypes
 {
     internal static class EnvironmentTypeDataExtensions
     {

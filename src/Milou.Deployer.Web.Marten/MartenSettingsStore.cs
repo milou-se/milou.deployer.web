@@ -5,6 +5,8 @@ using Marten;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Integration.Nexus;
 using Milou.Deployer.Web.Core.Settings;
+using Milou.Deployer.Web.Marten.AutoDeploy;
+using Milou.Deployer.Web.Marten.Settings;
 
 namespace Milou.Deployer.Web.Marten
 {

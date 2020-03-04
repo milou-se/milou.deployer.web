@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Milou.Deployer.Web.Core.Startup;
 
 namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
 {
+    [UsedImplicitly]
     public class StartupTasksMiddleware
     {
         private readonly StartupTaskContext _context;
@@ -19,6 +21,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
             _next = next;
         }
 
+        [PublicAPI]
         public async Task Invoke(HttpContext httpContext)
         {
             if (_context.IsCompleted || httpContext.Request.Path.StartsWithSegments(_startupSegment, StringComparison.OrdinalIgnoreCase))

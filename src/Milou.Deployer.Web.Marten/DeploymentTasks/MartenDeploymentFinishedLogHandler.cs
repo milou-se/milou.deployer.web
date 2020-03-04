@@ -6,10 +6,9 @@ using JetBrains.Annotations;
 using Marten;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment.Messages;
-using Milou.Deployer.Web.Core.Deployment.Targets;
 using Serilog;
 
-namespace Milou.Deployer.Web.Marten
+namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [UsedImplicitly]
     public class MartenDeploymentFinishedLogHandler : INotificationHandler<DeploymentFinishedNotification>

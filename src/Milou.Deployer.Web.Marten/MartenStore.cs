@@ -17,6 +17,10 @@ using Milou.Deployer.Web.Core.Deployment.Messages;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
+using Milou.Deployer.Web.Marten.DeploymentTasks;
+using Milou.Deployer.Web.Marten.EnvironmentTypes;
+using Milou.Deployer.Web.Marten.Settings;
+using Milou.Deployer.Web.Marten.Targets;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -77,7 +81,7 @@ namespace Milou.Deployer.Web.Marten
             return new CreateProjectResult(createProject.Id);
         }
 
-        private DeploymentTarget MapDataToTarget(DeploymentTargetData deploymentTargetData, ImmutableArray<EnvironmentType> environmentTypes)
+        private DeploymentTarget? MapDataToTarget(DeploymentTargetData deploymentTargetData, ImmutableArray<EnvironmentType> environmentTypes)
         {
             if (deploymentTargetData is null)
             {
@@ -88,13 +92,13 @@ namespace Milou.Deployer.Web.Marten
                 environmentTypes.SingleOrDefault(type => type.Id.Equals(deploymentTargetData.EnvironmentTypeId)) ??
                 EnvironmentType.Unknown;
 
-            DeploymentTarget deploymentTargetAsync = null;
+            DeploymentTarget? deploymentTargetAsync = null;
             try
             {
                 deploymentTargetAsync = new DeploymentTarget(
                     deploymentTargetData.Id,
                     deploymentTargetData.Name,
-                    deploymentTargetData.PackageId.WithDefault(Constants.NotAvailable),
+                    deploymentTargetData.PackageId.WithDefault(Constants.NotAvailable)!,
                     deploymentTargetData.PublishSettingsXml,
                     deploymentTargetData.AllowExplicitPreRelease,
                     url: deploymentTargetData.Url,
@@ -123,13 +127,20 @@ namespace Milou.Deployer.Web.Marten
             return deploymentTargetAsync;
         }
 
-        private TargetNuGetSettings MapNuGet(NuGetData nugetData) =>
-            new TargetNuGetSettings
+        private TargetNuGetSettings MapNuGet(NuGetData? nugetData)
+        {
+            if (nugetData is null)
             {
-                PackageListTimeout = nugetData?.PackageListTimeout,
-                NuGetPackageSource = nugetData?.NuGetPackageSource,
-                NuGetConfigFile = nugetData?.NuGetConfigFile
+                return new TargetNuGetSettings();
+            }
+
+            return new TargetNuGetSettings
+            {
+                PackageListTimeout = nugetData.PackageListTimeout,
+                NuGetPackageSource = nugetData.NuGetPackageSource,
+                NuGetConfigFile = nugetData.NuGetConfigFile
             };
+        }
 
         private async Task<CreateOrganizationResult> CreateOrganizationAsync(
             CreateOrganization createOrganization,
@@ -267,7 +278,7 @@ namespace Milou.Deployer.Web.Marten
             }
         }
 
-        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions options = default, CancellationToken stoppingToken = default)
+        public async Task<ImmutableArray<DeploymentTarget>> GetDeploymentTargetsAsync(TargetOptions? options = default, CancellationToken stoppingToken = default)
         {
             using (var session = _documentStore.QuerySession())
             {
@@ -289,7 +300,7 @@ namespace Milou.Deployer.Web.Marten
                         .ToListAsync<DeploymentTargetData>(stoppingToken);
 
                     var deploymentTargets = targets
-                        .Select(s => MapDataToTarget(s, environmentTypes))
+                        .Select(targetData => MapDataToTarget(targetData, environmentTypes)!)
                         .Where(Filter)
                         .OrderBy(target => target.Name)
                         .ToImmutableArray();
@@ -454,7 +465,7 @@ namespace Milou.Deployer.Web.Marten
                 targetName = data.Name;
 
                 data.PackageId = request.PackageId;
-                data.Url = request.Url;
+                data.Url = request.Url!;
                 data.IisSiteName = request.IisSiteName;
                 data.AllowExplicitPreRelease = request.AllowExplicitPreRelease;
                 data.AutoDeployEnabled = request.AutoDeployEnabled;

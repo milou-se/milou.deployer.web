@@ -32,9 +32,9 @@
     </ItemGroup>
     <ItemGroup>
 
-      <PackageReference Include="Arbor.App.Extensions" Version="0.3.2" />
+      <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1583328273" />
 
-      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.5.0" />
+      <PackageReference Include="Arbor.AspNetCore.Host" Version="0.6.0-build.1583328634" />
 
       <PackageReference Include="FluentFTP" Version="31.3.2" />
 

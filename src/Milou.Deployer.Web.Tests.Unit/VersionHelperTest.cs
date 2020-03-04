@@ -1,4 +1,4 @@
-﻿using Milou.Deployer.Web.Core.Application.Metadata;
+﻿using Arbor.App.Extensions.Application;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -6,10 +6,7 @@ namespace Milou.Deployer.Web.Tests.Unit
 {
     public class VersionHelperTest
     {
-        public VersionHelperTest(ITestOutputHelper output)
-        {
-            _output = output;
-        }
+        public VersionHelperTest(ITestOutputHelper output) => _output = output;
 
         private readonly ITestOutputHelper _output;
 

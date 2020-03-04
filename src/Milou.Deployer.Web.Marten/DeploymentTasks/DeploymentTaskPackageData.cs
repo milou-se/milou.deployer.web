@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Web.Marten
+﻿namespace Milou.Deployer.Web.Marten.DeploymentTasks
 {
     [MartenData]
     public class DeploymentTaskPackageData

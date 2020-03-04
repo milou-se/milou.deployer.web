@@ -13,6 +13,8 @@ using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Sources;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Json;
+using Milou.Deployer.Web.Marten.DeploymentTasks;
+using Milou.Deployer.Web.Marten.EnvironmentTypes;
 
 namespace Milou.Deployer.Web.Marten
 {

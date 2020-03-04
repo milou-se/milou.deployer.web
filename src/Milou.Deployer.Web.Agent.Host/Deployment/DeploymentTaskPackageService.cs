@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Milou.Deployer.Core.Extensions;
+using Milou.Deployer.Web.Agent.Host.Configuration;
 using Newtonsoft.Json;
 using Serilog;
 
@@ -12,11 +13,13 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
+        private readonly TokenConfiguration _tokenConfiguration;
 
-        public DeploymentTaskPackageService(IHttpClientFactory httpClientFactory, ILogger logger)
+        public DeploymentTaskPackageService(IHttpClientFactory httpClientFactory, ILogger logger, TokenConfiguration tokenConfiguration)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            _tokenConfiguration = tokenConfiguration;
         }
 
         public async Task<DeploymentTaskPackage?> GetDeploymentTaskPackageAsync(string deploymentTaskId,
@@ -24,11 +27,13 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
         {
             var httpClient = _httpClientFactory.CreateClient();
 
+            httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _tokenConfiguration.Key);
+
             string json =
-                await httpClient.GetStringAsync($"http://localhost:34343/deployment-task-package/{deploymentTaskId}");
+                await httpClient.GetStringAsync($"{_tokenConfiguration.ServerBaseUri}{AgentConstants.DeploymentTaskPackageRoute.Replace("{deploymentTaskId}",deploymentTaskId)}");
 
             //TODO fix http error handling
-            //TODO fix hard coded url to deployment task package
 
             if (string.IsNullOrWhiteSpace(json))
             {

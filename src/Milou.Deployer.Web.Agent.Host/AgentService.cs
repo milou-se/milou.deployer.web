@@ -5,9 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Tasks;
+using Arbor.KVConfiguration.Core;
 using MediatR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Agent.Host.Configuration;
 using Serilog;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
@@ -15,20 +17,19 @@ namespace Milou.Deployer.Web.Agent.Host
 {
     public class AgentService : BackgroundService, IAsyncDisposable
     {
-        private readonly string _accessToken =
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJhZ2VudDEiLCJ1bmlxdWVfbmFtZSI6ImFnZW50MSIsIm5iZiI6MTU4MjMxNjczNSwiZXhwIjoxNjcyNDQxMjAwLCJpYXQiOjE1ODIzMTY3MzV9.Ct3y__VNYl2ZBhD24lLRKNRnauKgBm2Ma9T-HxOed8Q"; // TODO make agent token configurable
-
         private readonly IDeploymentPackageAgent _deploymentPackageAgent;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
+        private readonly TokenConfiguration? _tokenConfiguration;
 
         private HubConnection? _hubConnection;
 
-        public AgentService(IDeploymentPackageAgent deploymentPackageAgent, ILogger logger, IMediator mediator)
+        public AgentService(IDeploymentPackageAgent deploymentPackageAgent, ILogger logger, IMediator mediator, IKeyValueConfiguration configuration, TokenConfiguration? tokenConfiguration = default)
         {
             _deploymentPackageAgent = deploymentPackageAgent;
             _logger = logger;
             _mediator = mediator;
+            _tokenConfiguration = tokenConfiguration;
         }
 
         private async Task ExecuteDeploymentTask(string deploymentTaskId, string deploymentTargetId)
@@ -52,11 +53,17 @@ namespace Milou.Deployer.Web.Agent.Host
 
             await Task.Yield();
 
-            string connectionUrl = "http://localhost:34343/agents"; //TODO make agent SignalR url configurable
+            string connectionUrl = $"http://localhost:34343{AgentConstants.HubRoute}"; //TODO make agent SignalR url configurable
+
+            string? agentId = GetAgentId();
+
+            if (string.IsNullOrWhiteSpace(agentId))
+            {
+                _logger.Error("Could not find agent id, token length is {TokenLength}", _tokenConfiguration?.Key.Length.ToString() ?? "N/A");
+                return;
+            }
 
             CreateSignalRConnection(connectionUrl);
-
-            string agentId = GetAgentId();
 
             try
             {
@@ -107,8 +114,13 @@ namespace Milou.Deployer.Web.Agent.Host
 
         private string? GetAgentId()
         {
+            if (string.IsNullOrWhiteSpace(_tokenConfiguration?.Key))
+            {
+                return default;
+            }
+
             var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtSecurityToken = tokenHandler.ReadJwtToken(_accessToken);
+            var jwtSecurityToken = tokenHandler.ReadJwtToken(_tokenConfiguration.Key);
 
             string? agentId = jwtSecurityToken.Claims
                 .SingleOrDefault(claim => claim.Type == JwtRegisteredClaimNames.UniqueName)
@@ -117,7 +129,7 @@ namespace Milou.Deployer.Web.Agent.Host
             return agentId;
         }
 
-        private async Task<string> GetAccessToken() => _accessToken;
+        private async Task<string> GetAccessToken() => _tokenConfiguration!.Key;
 
         private async Task HubConnectionOnClosed(Exception arg)
         {
@@ -136,6 +148,8 @@ namespace Milou.Deployer.Web.Agent.Host
 
                 _logger.Debug("Stopped SignalR");
             }
+
+            _hubConnection = null;
         }
     }
 }

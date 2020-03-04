@@ -6,7 +6,7 @@ using Milou.Deployer.Web.Core;
 using Milou.Deployer.Web.Core.Caching;
 using Milou.Deployer.Web.Core.Deployment;
 
-namespace Milou.Deployer.Web.Marten
+namespace Milou.Deployer.Web.Marten.EnvironmentTypes
 {
     public class EnvironmentTypeService : IEnvironmentTypeService
     {
