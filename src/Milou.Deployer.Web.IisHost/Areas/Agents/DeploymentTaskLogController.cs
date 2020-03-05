@@ -2,6 +2,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Milou.Deployer.Web.IisHost.Controllers;
 using Serilog;
@@ -12,14 +14,11 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
     {
         private readonly ILogger _logger;
 
-        public DeploymentTaskLogController(ILogger logger)
-        {
-            _logger = logger;
-        }
+        public DeploymentTaskLogController(ILogger logger) => _logger = logger;
 
         [AllowAnonymous]
         [HttpPost]
-        [Route("/deployment-task/log")]
+        [Route(AgentConstants.DeploymentTaskLogRoute, Name = AgentConstants.DeploymentTaskLogRouteName)]
         public async Task<IActionResult> Log([FromBody] SerilogSinkEvents events, [FromServices] IMediator mediator)
         {
             string deploymentTaskId = Request.Headers["x-deployment-task-id"];
@@ -37,7 +36,8 @@ namespace Milou.Deployer.Web.IisHost.Areas.Agents
                     continue;
                 }
 
-                if (!string.IsNullOrWhiteSpace(deploymentTaskId) && !string.IsNullOrWhiteSpace(deploymentTargetId) && !string.IsNullOrWhiteSpace(serilogSinkEvent.RenderedMessage))
+                if (!string.IsNullOrWhiteSpace(deploymentTaskId) && !string.IsNullOrWhiteSpace(deploymentTargetId) &&
+                    !string.IsNullOrWhiteSpace(serilogSinkEvent.RenderedMessage))
                 {
                     await mediator.Publish(new AgentLogNotification(deploymentTaskId, deploymentTargetId,
                         serilogSinkEvent.RenderedMessage));

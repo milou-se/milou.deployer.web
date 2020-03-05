@@ -7,7 +7,6 @@ using JetBrains.Annotations;
 using MediatR;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Messages;
 using Serilog;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
@@ -16,7 +15,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
     public class WorkerLifetimeManager : INotificationHandler<TargetCreated>
     {
         private readonly ConfigurationInstanceHolder _configurationInstanceHolder;
-        private readonly IDeploymentService _deploymentService;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly WorkerConfiguration _workerConfiguration;
@@ -36,7 +34,6 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Services
             IServiceProvider serviceProvider)
         {
             _configurationInstanceHolder = configurationInstanceHolder;
-            _deploymentService = deploymentService;
             _workerConfiguration = workerConfiguration;
             _mediator = mediator;
             _logger = logger;

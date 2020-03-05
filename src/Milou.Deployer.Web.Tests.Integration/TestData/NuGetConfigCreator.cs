@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace Milou.Deployer.Web.Tests.Integration.TestData
 {
-    public class NuGetConfigCreator
+    public static class NuGetConfigCreator
     {
         public static async Task CreateNuGetConfig(
             FileInfo filePath,

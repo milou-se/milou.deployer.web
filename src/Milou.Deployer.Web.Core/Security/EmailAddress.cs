@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace Milou.Deployer.Web.Core.Security
 {
+    //TODO extract from project
     public class EmailAddress
     {
         private EmailAddress(string address)

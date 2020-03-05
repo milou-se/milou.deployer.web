@@ -9,6 +9,7 @@ using Arbor.KVConfiguration.Urns;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.Hosting;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.Targets;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;

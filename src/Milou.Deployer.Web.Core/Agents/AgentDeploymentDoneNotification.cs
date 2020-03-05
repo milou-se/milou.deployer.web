@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling
+namespace Milou.Deployer.Web.Core.Agents
 {
     public class AgentDeploymentDoneNotification : INotification
     {

@@ -13,24 +13,20 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
     public class DeploymentTaskAgentResultHandler : IRequestHandler<DeploymentTaskAgentResult>
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly TokenConfiguration _tokenConfiguration;
+        private readonly AgentConfiguration _agentConfiguration;
 
         public DeploymentTaskAgentResultHandler(IHttpClientFactory httpClientFactory,
-            TokenConfiguration tokenConfiguration)
+            AgentConfiguration agentConfiguration)
         {
             _httpClientFactory = httpClientFactory;
-            _tokenConfiguration = tokenConfiguration;
+            _agentConfiguration = agentConfiguration;
         }
 
         public async Task<Unit> Handle(DeploymentTaskAgentResult request, CancellationToken cancellationToken)
         {
-            Uri uri = new Uri(_tokenConfiguration.ServerBaseUri + AgentConstants.DeploymentTaskResult);
-            var httpClient = _httpClientFactory.CreateClient();
+            var httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentClient);
 
-            httpClient.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Bearer", _tokenConfiguration.Key);
-
-            await httpClient.PostAsJsonAsync(uri, request, cancellationToken);
+            await httpClient.PostAsJsonAsync(AgentConstants.DeploymentTaskResult, request, cancellationToken);
 
             return Unit.Value;
         }

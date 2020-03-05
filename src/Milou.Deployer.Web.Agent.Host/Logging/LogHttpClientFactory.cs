@@ -7,15 +7,15 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
     public class LogHttpClientFactory
     {
         private readonly IHttpClientFactory _clientFactory;
-        private readonly TokenConfiguration _tokenConfiguration;
+        private readonly AgentConfiguration _agentConfiguration;
 
-        public LogHttpClientFactory(IHttpClientFactory clientFactory, TokenConfiguration tokenConfiguration)
+        public LogHttpClientFactory(IHttpClientFactory clientFactory, AgentConfiguration agentConfiguration)
         {
             _clientFactory = clientFactory;
-            _tokenConfiguration = tokenConfiguration;
+            _agentConfiguration = agentConfiguration;
         }
 
         public IHttpClient CreateClient(string deploymentTaskId, string deploymentTargetId) =>
-            new CustomHttpClient(_clientFactory, deploymentTaskId, deploymentTargetId, _tokenConfiguration);
+            new CustomHttpClient(_clientFactory, deploymentTaskId, deploymentTargetId, _agentConfiguration);
     }
 }

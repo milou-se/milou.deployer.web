@@ -1,4 +1,4 @@
-﻿namespace Milou.Deployer.Web.Marten
+﻿namespace Milou.Deployer.Web.Core.Deployment.WorkTasks
 {
     public class DeploymentTaskCreated
     {

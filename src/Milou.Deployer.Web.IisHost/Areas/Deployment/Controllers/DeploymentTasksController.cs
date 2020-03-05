@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 using Milou.Deployer.Web.IisHost.Controllers;
@@ -24,11 +25,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
         }
 
         [HttpGet]
-        [Route("/deployment-tasks/{deploymentTaskId}")]
-        public async Task<IActionResult> Index(string deploymentTaskId) => throw new NotImplementedException();
-
-        [HttpGet]
-        [Route(AgentConstants.DeploymentTaskPackageRoute)]
+        [Route(AgentConstants.DeploymentTaskPackageRoute, Name = AgentConstants.DeploymentTaskPackageRouteName)]
         public async Task<IActionResult> DeploymentTaskPackage([NotNull] string deploymentTaskId,
             [FromServices] IDeploymentTaskPackageStore deploymentTaskPackageStore)
         {
@@ -43,7 +40,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
             return new ObjectResult(deploymentTaskPackage);
         }
 
-        [Route(AgentConstants.DeploymentTaskResult)]
+        [Route(AgentConstants.DeploymentTaskResult, Name = AgentConstants.DeploymentTaskResultName)]
         [HttpPost]
         public async Task<IActionResult> DeployAgentResult([FromBody]DeploymentTaskAgentResult deploymentTaskAgentResult)
         {

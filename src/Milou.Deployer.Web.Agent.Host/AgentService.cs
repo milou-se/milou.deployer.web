@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Tasks;
-using Arbor.KVConfiguration.Core;
 using MediatR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Hosting;
@@ -20,16 +19,16 @@ namespace Milou.Deployer.Web.Agent.Host
         private readonly IDeploymentPackageAgent _deploymentPackageAgent;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
-        private readonly TokenConfiguration? _tokenConfiguration;
+        private readonly AgentConfiguration? _agentConfiguration;
 
         private HubConnection? _hubConnection;
 
-        public AgentService(IDeploymentPackageAgent deploymentPackageAgent, ILogger logger, IMediator mediator, IKeyValueConfiguration configuration, TokenConfiguration? tokenConfiguration = default)
+        public AgentService(IDeploymentPackageAgent deploymentPackageAgent, ILogger logger, IMediator mediator, AgentConfiguration? agentConfiguration = default)
         {
             _deploymentPackageAgent = deploymentPackageAgent;
             _logger = logger;
             _mediator = mediator;
-            _tokenConfiguration = tokenConfiguration;
+            _agentConfiguration = agentConfiguration;
         }
 
         private async Task ExecuteDeploymentTask(string deploymentTaskId, string deploymentTargetId)
@@ -53,15 +52,15 @@ namespace Milou.Deployer.Web.Agent.Host
 
             await Task.Yield();
 
-            string connectionUrl = $"http://localhost:34343{AgentConstants.HubRoute}"; //TODO make agent SignalR url configurable
-
             string? agentId = GetAgentId();
 
             if (string.IsNullOrWhiteSpace(agentId))
             {
-                _logger.Error("Could not find agent id, token length is {TokenLength}", _tokenConfiguration?.Key.Length.ToString() ?? "N/A");
+                _logger.Error("Could not find agent id, token length is {TokenLength}", _agentConfiguration?.AccessToken.Length.ToString() ?? "N/A");
                 return;
             }
+
+            string connectionUrl = $"{_agentConfiguration!.ServerBaseUri}{AgentConstants.HubRoute}";
 
             CreateSignalRConnection(connectionUrl);
 
@@ -85,7 +84,10 @@ namespace Milou.Deployer.Web.Agent.Host
                     {
                         _logger.Error(ex, "Could not connect to server from agent {Agent}", agentId);
 
-                        await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                        if (_agentConfiguration.StartupDelay >= TimeSpan.FromMilliseconds(20))
+                        {
+                            await Task.Delay(_agentConfiguration.StartupDelay.Value, stoppingToken);
+                        }
                     }
                 }
             }
@@ -98,7 +100,6 @@ namespace Milou.Deployer.Web.Agent.Host
             await stoppingToken;
             _logger.Debug("Cancellation requested in Agent app");
             _logger.Debug("Stopping SignalR in Agent");
-
         }
 
         private void CreateSignalRConnection(string connectionUrl)
@@ -114,13 +115,13 @@ namespace Milou.Deployer.Web.Agent.Host
 
         private string? GetAgentId()
         {
-            if (string.IsNullOrWhiteSpace(_tokenConfiguration?.Key))
+            if (string.IsNullOrWhiteSpace(_agentConfiguration?.AccessToken))
             {
                 return default;
             }
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtSecurityToken = tokenHandler.ReadJwtToken(_tokenConfiguration.Key);
+            var jwtSecurityToken = tokenHandler.ReadJwtToken(_agentConfiguration.AccessToken);
 
             string? agentId = jwtSecurityToken.Claims
                 .SingleOrDefault(claim => claim.Type == JwtRegisteredClaimNames.UniqueName)
@@ -129,7 +130,7 @@ namespace Milou.Deployer.Web.Agent.Host
             return agentId;
         }
 
-        private async Task<string> GetAccessToken() => _tokenConfiguration!.Key;
+        private async Task<string> GetAccessToken() => _agentConfiguration!.AccessToken;
 
         private async Task HubConnectionOnClosed(Exception arg)
         {

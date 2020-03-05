@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using MediatR;
 
-namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Messages
+namespace Milou.Deployer.Web.Core.Deployment
 {
     public class DeploymentLogNotification : INotification
     {

@@ -11,6 +11,7 @@ using DotNext.Threading;
 using JetBrains.Annotations;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
 using Milou.Deployer.Web.Core.Deployment.WorkTasks;
 using Milou.Deployer.Web.IisHost.Areas.AutoDeploy;

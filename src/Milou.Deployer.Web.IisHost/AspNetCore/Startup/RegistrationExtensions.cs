@@ -113,7 +113,7 @@ namespace Milou.Deployer.Web.IisHost.AspNetCore.Startup
                         {
                             var redirectUrl = new Uri("http://localhost/signin-oidc");
 
-                            UriBuilder builder = new UriBuilder(redirectUrl);
+                            var builder = new UriBuilder(redirectUrl);
 
                             if (!string.IsNullOrWhiteSpace(environmentConfiguration.PublicHostname))
                             {

@@ -10,25 +10,21 @@ namespace Milou.Deployer.Web.Agent.Host.Logging
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly string _deploymentTaskId;
         private readonly string _deploymentTargetId;
-        private readonly TokenConfiguration _tokenConfiguration;
+        private readonly AgentConfiguration _agentConfiguration;
 
-        public CustomHttpClient(IHttpClientFactory httpClientFactory, string deploymentTaskId, string deploymentTargetId, TokenConfiguration tokenConfiguration)
+        public CustomHttpClient(IHttpClientFactory httpClientFactory, string deploymentTaskId, string deploymentTargetId, AgentConfiguration agentConfiguration)
         {
             _httpClientFactory = httpClientFactory;
             _deploymentTaskId = deploymentTaskId;
             _deploymentTargetId = deploymentTargetId;
-            _tokenConfiguration = tokenConfiguration;
+            _agentConfiguration = agentConfiguration;
         }
 
         public void Dispose() {}
 
         public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
         {
-            var httpClient = _httpClientFactory.CreateClient("AgentLogger");
-
-            httpClient.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _tokenConfiguration.Key);
-
+            var httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentLoggerClient);
 
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri)
             {
