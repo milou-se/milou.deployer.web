@@ -1,0 +1,11 @@
+﻿@using Milou.Deployer.Web.Core.Html
+@using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+@using Milou.Deployer.Web.IisHost.Areas.Targets.Controllers
+@using Serilog.Events
+@model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
+
+<ul>
+    <li>
+        <a href="@Url.RouteUrl(TargetConstants.InvalidateCacheRouteName)">Invalidate package cache</a>
+    </li>
+</ul>

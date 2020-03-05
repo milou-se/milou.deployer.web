@@ -1,0 +1,12 @@
+﻿@using Arbor.App.Extensions.Application
+
+<h2>
+    Application version
+</h2>
+
+<p>
+    <span class="versionInfoLine">@nameof(ApplicationVersionInfo.AssemblyVersion): @Model.ApplicationVersionInfo.AssemblyVersion</span>
+    <span class="versionInfoLine">@nameof(ApplicationVersionInfo.FileVersion): @Model.ApplicationVersionInfo.FileVersion</span>
+    <span class="versionInfoLine">@nameof(ApplicationVersionInfo.InformationalVersion): @Model.ApplicationVersionInfo.InformationalVersion</span>
+    <span class="versionInfoLine">@nameof(ApplicationVersionInfo.AssemblyFullName): @Model.ApplicationVersionInfo.AssemblyFullName</span>
+</p>

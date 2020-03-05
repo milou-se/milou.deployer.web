@@ -1,0 +1,35 @@
+﻿@using Arbor.App.Extensions.Application
+@using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+
+<h2>Routes</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Route</th>
+            <th>Name</th>
+            <th>Defined in type</th>
+            <th>Used in controller</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ControllerRouteInfo item in Model.Routes)
+        {
+            <tr>
+                <td>
+                    @if (item.Route.IsLinkable() && !string.IsNullOrWhiteSpace(Url.RouteUrl(item.Route.Name)))
+                    {
+                        <a href="@Url.RouteUrl(item.Route.Name)">@item.Route.Value</a>
+                    }
+                    else
+                    {
+                        @Url.RouteUrl(item.Route.Name)
+                    }
+                </td>
+                <td>@item.Route.Name</td>
+                <td>@item.Route.Type</td>
+                <td>@item.ControllerType</td>
+            </tr>
+        }
+    </tbody>
+</table>

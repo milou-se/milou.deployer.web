@@ -1,0 +1,47 @@
+﻿@using Milou.Deployer.Web.Core.Html
+@using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+@using Serilog.Events
+@model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
+
+<h2>Application settings</h2>
+
+Cache time <span class="highlighted">@Model.ApplicationSettings.CacheTime</span>
+
+<form method="post" action="@Url.RouteUrl(SettingsConstants.SaveSettingsPostRouteName)">
+
+    <div>
+        Cache time: <input type="text" name="cacheTime" value="@Model.ApplicationSettings.CacheTime" />
+    </div>
+
+    <div>
+        Application settings cache timeout: <input type="text" name="applicationSettingsCacheTimeout" value="@Model.ApplicationSettings.ApplicationSettingsCacheTimeout" />
+    </div>
+
+    <div>
+        Default metadata timeout: <input type="text" name="defaultMetadataTimeout" value="@Model.ApplicationSettings.DefaultMetadataRequestTimeout" />
+    </div>
+
+    <div>
+        Metadata cache timeout: <input type="text" name="metadataCacheTimeout" value="@Model.ApplicationSettings.MetadataCacheTimeout" />
+    </div>
+
+    <div>
+        Nexus HMAC key: <input type="text" name="nexusConfig.HmacKey" value="@Model.ApplicationSettings.NexusConfig.HmacKey" />
+    </div>
+
+    <div>
+        Nexus NuGet source: <input type="text" name="nexusConfig.NuGetSource" value="@Model.ApplicationSettings.NexusConfig.NuGetSource" />
+    </div>
+
+    <div>
+        Nexus NuGet config: <input type="text" name="nexusConfig.NuGetConfig" value="@Model.ApplicationSettings.NexusConfig.NuGetConfig" />
+    </div>
+
+    <div>
+        <label for="autodeploy-enabled">Auto deploy enabled:</label> <input id="autodeploy-enabled" type="checkbox" name="autoDeploy.Enabled" @Model.ApplicationSettings.AutoDeploy.Enabled.Checked() />
+        <label for="autodeploy-polling-enabled">Auto deploy polling enabled:</label> <input id="autodeploy-polling-enabled" type="checkbox" name="autoDeploy.PollingEnabled" @Model.ApplicationSettings.AutoDeploy.PollingEnabled.Checked() />
+    </div>
+
+    <input type="submit" value="Save" />
+
+</form>

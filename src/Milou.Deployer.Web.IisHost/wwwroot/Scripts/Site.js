@@ -1,6 +1,4 @@
-﻿
-
-function createSpanLogItemElement(data) {
+﻿function createSpanLogItemElement(data) {
 
     const eventData = JSON.parse(data);
 
@@ -56,6 +54,15 @@ $(function() {
 
     $("div.projects").hide();
     $("div.targets").hide();
+    $("div.tab").click(function () {
+        let id = $(this).attr("id");
+
+        if (id) {
+            let currentTab = $("#tab-content-" + id);
+            currentTab.show();
+            currentTab.siblings().hide();
+        }
+    });
 
     $(".organization-toggler").click(function() {
         $(this).next("div.projects").toggle();

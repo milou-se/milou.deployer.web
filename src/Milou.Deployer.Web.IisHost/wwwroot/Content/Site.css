@@ -308,3 +308,38 @@ fieldset {
     width: 600px;
     border-width: 1px;
 }
+
+.tab {
+    display: inline-block;
+    padding: 5px;
+    margin: 0;
+    background-color: #1e90ff;
+    color: white;
+    border: 1px solid #1e90ff;
+}
+
+.tab a:link, .tab a:visited, .tab a:active, .tab a:hover {
+    color: white;
+    text-decoration: none;
+}
+
+.tab:hover {
+    background-color: white;
+    color: #1e90ff;
+}
+
+.tab:hover a:link, .tab:hover a:visited, .tab:hover a:active, .tab:hover a:hover {
+    color: #1e90ff;
+}
+
+.tab:first-child {
+    margin-left: 0;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-contents .tab-content:first-child {
+    display: block;
+}

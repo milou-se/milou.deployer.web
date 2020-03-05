@@ -1,0 +1,22 @@
+﻿@using Milou.Deployer.Web.Core.Html
+@using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+@using Serilog.Events
+@model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
+
+
+<h2>Log event level</h2>
+
+Current level <span class="highlighted">@Model.LogEventLevel</span>
+
+<form method="post" action="@Url.RouteUrl(SettingsConstants.LogSettingsPostRouteName)">
+
+    <select name="newLevel">
+        @foreach (string item in Enum.GetNames(typeof(LogEventLevel)))
+        {
+            <option @item.Equals(Model.LogEventLevel.ToString()).Selected()>@item</option>
+        }
+    </select>
+
+    <input type="submit" value="Change level"/>
+
+</form>

@@ -1,0 +1,150 @@
+﻿@using Arbor.App.Extensions.Configuration
+@using Arbor.AspNetCore.Host.Hosting
+@using Milou.Deployer.Web.IisHost.Areas.Deployment.Services
+@using Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
+@model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
+
+<h2>Configuration values</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Type</th>
+        <th>Values</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach ((object, string) item in Model.ConfigurationValues)
+    {
+        <tr>
+            <td>@item.Item1.GetType().FullName</td>
+            <td>@item.Item2</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Configuration info</h2>
+
+<div>
+    @Model.ConfigurationInfo.ConfigurationSourceChain
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Key</th>
+        <th>Value</th>
+        <th>Source</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (ConfigurationKeyInfo item in Model.ConfigurationInfo.Keys)
+    {
+        <tr>
+            <td>@item.Key</td>
+            <td>@item.Value</td>
+            <td>@item.Source</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>ASP.NET configuration values</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Key</th>
+        <th>Value</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (KeyValuePair<string, string> item in Model.AspNetConfigurationValues)
+    {
+        <tr>
+            <td>@item.Key</td>
+            <td>@item.Value</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Container registrations</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Service</th>
+        <th>Scope</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (ServiceRegistrationInfo item in Model.ServiceRegistrations)
+    {
+        <tr>
+            <td>@item.ServiceDescriptorServiceType.FullName</td>
+            <td>@item.ServiceDescriptorLifetime</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Container instances</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Service</th>
+        <th>Instance</th>
+        <th>Module</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (ServiceInstance item in Model.RegistrationInstances)
+    {
+        <tr>
+            <td>@item.RegistrationType.FullName</td>
+            <td>@item.Instance</td>
+            <td>@item.Module</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h2>Workers</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Target id</th>
+        <th>Is active</th>
+        <th>Executing task</th>
+        <th>Queue</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (DeploymentTargetWorker item in Model.DeploymentTargetWorkers)
+    {
+        <tr>
+            <td>@item.TargetId</td>
+            <td>@item.IsRunning</td>
+            <td>
+                @if (item.CurrentTask != null)
+                {
+                    <span>@item.CurrentTask.SemanticVersion.ToNormalizedString() id @item.CurrentTask.DeploymentTaskId</span>
+                }
+            </td>
+            <td>
+                @foreach (TaskInfo task in item.QueueInfo())
+                {
+                    <div>@task.SemanticVersion.ToNormalizedString() @task.EnqueuedAtUtc.ToString("o")</div>
+                }
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

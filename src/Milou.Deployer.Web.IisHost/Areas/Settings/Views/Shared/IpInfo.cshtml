@@ -1,0 +1,14 @@
+﻿@model Milou.Deployer.Web.IisHost.Areas.Settings.SettingsViewModel
+<h2>Client info</h2>
+
+<p>
+    Remote address: @Context.Connection.RemoteIpAddress<br/>
+    Remote port: @Context.Connection.RemotePort<br/>
+</p>
+
+<h2>Server info</h2>
+
+<p>
+    Local IP address: @Context.Connection.LocalIpAddress<br/>
+    Local port: @Context.Connection.LocalPort<br/>
+</p>
