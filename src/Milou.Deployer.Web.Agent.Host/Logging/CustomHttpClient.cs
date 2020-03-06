@@ -5,31 +5,28 @@ using Serilog.Sinks.Http;
 
 namespace Milou.Deployer.Web.Agent.Host.Logging
 {
-    public class CustomHttpClient : IHttpClient
+    public sealed class CustomHttpClient : IHttpClient
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _deploymentTaskId;
         private readonly string _deploymentTargetId;
-        private readonly AgentConfiguration _agentConfiguration;
+        private readonly string _deploymentTaskId;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public CustomHttpClient(IHttpClientFactory httpClientFactory, string deploymentTaskId, string deploymentTargetId, AgentConfiguration agentConfiguration)
+        public CustomHttpClient(IHttpClientFactory httpClientFactory,
+            string deploymentTaskId,
+            string deploymentTargetId)
         {
             _httpClientFactory = httpClientFactory;
             _deploymentTaskId = deploymentTaskId;
             _deploymentTargetId = deploymentTargetId;
-            _agentConfiguration = agentConfiguration;
         }
 
-        public void Dispose() {}
+        public void Dispose() { }
 
         public async Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
         {
             var httpClient = _httpClientFactory.CreateClient(HttpConfigurationModule.AgentLoggerClient);
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri)
-            {
-                Content = content
-            };
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri) {Content = content};
 
             request.Headers.Add("x-deployment-task-id", _deploymentTaskId);
             request.Headers.Add("x-deployment-target-id", _deploymentTargetId);

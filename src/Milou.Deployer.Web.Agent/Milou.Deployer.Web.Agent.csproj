@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1583328273" />
+    <PackageReference Include="Arbor.App.Extensions" Version="0.4.0-build.1583495382" />
     <PackageReference Include="Arbor.Processing" Version="0.4.0" />
     <PackageReference Include="Arbor.Tooler" Version="0.7.3" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.2" />
@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.Primitives" Version="3.1.2" />
-    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.7.5" />
+    <PackageReference Include="Milou.Deployer.Bootstrapper.Common" Version="4.8.1" />
     <PackageReference Include="NuGet.Versioning" Version="5.4.0" />
   </ItemGroup>
 

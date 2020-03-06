@@ -16,17 +16,34 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
 
         public IServiceCollection Register(IServiceCollection builder)
         {
-            builder.AddHttpClient(AgentClient, AddedBearerToken);
-            builder.AddHttpClient(AgentLoggerClient, AddedBearerToken);
+            builder.AddHttpClient(AgentClient, ConfigureClient).ConfigurePrimaryHttpMessageHandler(Configure);
+            builder.AddHttpClient(AgentLoggerClient, ConfigureClient).ConfigurePrimaryHttpMessageHandler(Configure);
 
             return builder;
         }
 
-        private void AddedBearerToken(IServiceProvider serviceProvider, HttpClient httpClient)
+        private HttpMessageHandler Configure(IServiceProvider provider)
+        {
+            var agentConfiguration = provider.GetRequiredService<AgentConfiguration>();
+            var httpMessageHandler = new HttpClientHandler();
+
+            if (!agentConfiguration.CheckCertificateEnabled)
+            {
+                httpMessageHandler.ServerCertificateCustomValidationCallback = delegate
+                {
+                    return true;
+                };
+            }
+
+            return httpMessageHandler;
+        }
+
+        private void ConfigureClient(IServiceProvider serviceProvider, HttpClient httpClient)
         {
             var agentConfiguration = serviceProvider.GetRequiredService<AgentConfiguration>();
 
             httpClient.BaseAddress = new Uri(agentConfiguration.ServerBaseUri);
+
             httpClient.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", agentConfiguration.AccessToken);
         }

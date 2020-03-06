@@ -4,9 +4,9 @@
     ".NETCoreApp,Version=v3.1": {
       "Arbor.App.Extensions": {
         "type": "Direct",
-        "requested": "[0.4.0-build.1583328273, )",
-        "resolved": "0.4.0-build.1583328273",
-        "contentHash": "3bG252BDcTSrZaIgzxVrTFN9D85r+dk9dw61GBifwsIRjMZ8Wwe1JDQbE6NGyJ6AFC9+Wfq1DtDccHcd2fns0g==",
+        "requested": "[0.4.0-build.1583495382, )",
+        "resolved": "0.4.0-build.1583495382",
+        "contentHash": "VeLDxWLxo0UcliFRKTNpLLGNhmCnC/ycAlAfey4YUZxVogTYtIgFQ2O+jL8NNKtmrOkbAPSxjauqqPtb7bNByA==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "0.20.0",
           "JetBrains.Annotations": "2019.1.3",
@@ -215,9 +215,9 @@
       },
       "Milou.Deployer.Bootstrapper.Common": {
         "type": "Direct",
-        "requested": "[4.7.5, )",
-        "resolved": "4.7.5",
-        "contentHash": "LolbU2wWV6NB6bej3SqpxZ8KvSt/JTSLg29wyFgsmaVLjes+K3CaplQEEu+U/Nz2PfPGXqSfczhurRFNJn2ETQ==",
+        "requested": "[4.8.1, )",
+        "resolved": "4.8.1",
+        "contentHash": "YxpDdsdW69NbqnX5Zp5muZhMSNKvf0VOyb0uosrCKmrHbRl2FDNrWGWQRIXR1mvSZvfJIstYt+OKGxdVkdhyLg==",
         "dependencies": {
           "Arbor.KVConfiguration.Urns": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
@@ -228,9 +228,9 @@
       },
       "Milou.Deployer.Core": {
         "type": "Direct",
-        "requested": "[4.7.5, )",
-        "resolved": "4.7.5",
-        "contentHash": "hLJ8D3TF2qzE2AZp9NeksWadVtlHezECEhAqGkdCbKDG4oEcgqd1Np6qdm7FftAQn7+NJfAy9Boxvsd2ZTjtFg==",
+        "requested": "[4.8.1, )",
+        "resolved": "4.8.1",
+        "contentHash": "D3ZdQBs0mMBqvTvAvRd4IHtIOODTXW/EmG87a4JgsayLrXLLTgxGCrdfAWVV0c8imMG7eo+H+hDzC5UImCuZ7g==",
         "dependencies": {
           "Arbor.KVConfiguration.Schema.Json": "[0.19.1, 2.0.0)",
           "Arbor.Processing": "[0.3.0, 2.0.0)",
@@ -239,8 +239,7 @@
           "NuGet.Packaging": "[5.0.0, 6.0.0)",
           "NuGet.Versioning": "[5.0.0, 6.0.0)",
           "Serilog": "[2.8.0, 3.0.0)",
-          "System.Collections.Immutable": "[1.6.0, 2.0.0)",
-          "fluentftp": "[27.1.2, 999.0.0)"
+          "System.Collections.Immutable": "[1.6.0, 2.0.0)"
         }
       },
       "Newtonsoft.Json": {
@@ -404,22 +403,6 @@
         "contentHash": "YEwnXj6HKJckOZyiOeA4JY9Hawod81+fyBwnsP08zNnSrShjbHzy4ClLniNWIitoSBz1dZZ0UfOZ1xuVOBF0Pg==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "4.7.0"
-        }
-      },
-      "FluentFTP": {
-        "type": "Transitive",
-        "resolved": "27.1.2",
-        "contentHash": "pTNFdvK8g63fayLQ+B/zMSmKqhZrHI0O0eZQjFwzxLDv/1zsPSy/XBAgi1HrLLZ/VIG3IMqBR56nZRfTjHWmaw==",
-        "dependencies": {
-          "NETStandard.Library": "1.6.1",
-          "System.Console": "4.3.0",
-          "System.IO": "4.3.0",
-          "System.Net.NameResolution": "4.3.0",
-          "System.Net.Security": "4.3.0",
-          "System.Net.Sockets": "4.3.0",
-          "System.Runtime": "4.3.0",
-          "System.Threading.Tasks": "4.3.0",
-          "System.Threading.Thread": "4.3.0"
         }
       },
       "Microsoft.AspNetCore.Connections.Abstractions": {
@@ -2008,7 +1991,7 @@
       "milou.deployer.web.agent": {
         "type": "Project",
         "dependencies": {
-          "Arbor.App.Extensions": "0.4.0-build.1583328273",
+          "Arbor.App.Extensions": "0.4.0-build.1583495382",
           "Arbor.Processing": "0.4.0",
           "Arbor.Tooler": "0.7.3",
           "Microsoft.AspNetCore.SignalR.Client": "3.1.2",
@@ -2016,7 +1999,7 @@
           "Microsoft.Extensions.Http": "3.1.2",
           "Microsoft.Extensions.Logging.Abstractions": "3.1.2",
           "Microsoft.Extensions.Primitives": "3.1.2",
-          "Milou.Deployer.Bootstrapper.Common": "4.7.5",
+          "Milou.Deployer.Bootstrapper.Common": "4.8.1",
           "NuGet.Versioning": "5.4.0"
         }
       }

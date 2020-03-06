@@ -11,9 +11,9 @@ namespace Milou.Deployer.Web.Agent
             string deploymentTaskId,
             string deploymentTargetId,
             IEnumerable<string> deployerProcessArgs,
-            string nugetConfigXml,
+            string? nugetConfigXml,
             string manifestJson,
-            string publishSettingsXml,
+            string? publishSettingsXml,
             string agentId)
         {
             DeploymentTaskId = deploymentTaskId;
@@ -30,11 +30,11 @@ namespace Milou.Deployer.Web.Agent
         [Required]
         public string DeploymentTargetId { get; }
 
-        public string NugetConfigXml { get; }
+        public string? NugetConfigXml { get; }
 
         public string ManifestJson { get; }
 
-        public string PublishSettingsXml { get; }
+        public string? PublishSettingsXml { get; }
 
         public string AgentId { get; }
 

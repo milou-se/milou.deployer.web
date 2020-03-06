@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Milou.Deployer.Web.Agent;
 using Milou.Deployer.Web.Core.Agents;
 using Milou.Deployer.Web.Core.Deployment;
-using Milou.Deployer.Web.IisHost.Areas.Deployment.Signaling;
 using Milou.Deployer.Web.IisHost.Controllers;
 using Serilog;
 
@@ -42,9 +41,12 @@ namespace Milou.Deployer.Web.IisHost.Areas.Deployment.Controllers
 
         [Route(AgentConstants.DeploymentTaskResult, Name = AgentConstants.DeploymentTaskResultName)]
         [HttpPost]
-        public async Task<IActionResult> DeployAgentResult([FromBody]DeploymentTaskAgentResult deploymentTaskAgentResult)
+        public async Task<IActionResult> DeployAgentResult(
+            [FromBody] DeploymentTaskAgentResult deploymentTaskAgentResult)
         {
             //TODO check deploymentTargetId and deploymentTaskId belongs together
+
+            await Task.Delay(TimeSpan.FromSeconds(2));
 
             if (deploymentTaskAgentResult.Succeeded)
             {

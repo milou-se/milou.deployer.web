@@ -645,12 +645,11 @@ namespace Milou.Deployer.Web.Core.Deployment
             arguments.Add(LoggingConstants.PlainOutputFormatEnabled);
             arguments.Add($"{ConfigurationKeys.LogLevelEnvironmentVariable}={_loggingLevelSwitch.MinimumLevel}");
             arguments.Add($"{LoggingConstants.LoggingCategoryFormatEnabled}");
+            arguments.Add(Deployer.Core.Cli.ConsoleConfigurationKeys.NonInteractiveArgument);
 
             jobLogger.Verbose("Running Milou Deployer bootstrapper");
 
-            // mainLogger.Debug("Starting milou deployer process with args {Args}", string.Join(" ", deployerArgs));
-
-            DeploymentTaskPackage deploymentTaskPackage = new DeploymentTaskPackage(
+            var deploymentTaskPackage = new DeploymentTaskPackage(
                 deploymentTask.DeploymentTaskId,
                 deploymentTask.DeploymentTargetId,
                 arguments.ToImmutableArray(),

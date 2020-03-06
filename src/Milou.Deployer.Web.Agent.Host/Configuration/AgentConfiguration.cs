@@ -19,14 +19,14 @@ namespace Milou.Deployer.Web.Agent.Host.Configuration
             AccessToken = accessToken;
             ServerBaseUri = serverBaseUri;
             StartupDelay = startupDelay;
-            CheckCertificateEnabled = checkCertificateEnabled;
+            CheckCertificateEnabled = checkCertificateEnabled ?? true;
         }
 
         public string AccessToken { get; }
 
         public string ServerBaseUri { get; }
 
-        public bool? CheckCertificateEnabled { get; }
+        public bool CheckCertificateEnabled { get; }
 
         public TimeSpan? StartupDelay { get; }
 

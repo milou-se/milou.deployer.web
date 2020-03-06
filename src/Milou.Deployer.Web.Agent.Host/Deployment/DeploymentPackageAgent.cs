@@ -47,7 +47,7 @@ namespace Milou.Deployer.Web.Agent.Host.Deployment
                 .MinimumLevel.Verbose()
                 .WriteTo.Logger(_logger)
                 .WriteTo.DurableHttpUsingTimeRolledBuffers(AgentConstants.DeploymentTaskLogRoute,
-                    period: TimeSpan.FromSeconds(5), httpClient: client)
+                    period: TimeSpan.FromSeconds(1), httpClient: client)
                 .CreateLogger(); //TODO create job logger in agent
 
             ExitCode exitCode;
