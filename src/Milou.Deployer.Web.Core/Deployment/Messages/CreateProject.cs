@@ -1,4 +1,5 @@
 ﻿using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using MediatR;
 
 namespace Milou.Deployer.Web.Core.Deployment.Messages

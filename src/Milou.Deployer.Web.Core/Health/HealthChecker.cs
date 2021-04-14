@@ -7,7 +7,7 @@ using Arbor.App.Extensions.Time;
 using JetBrains.Annotations;
 using Milou.Deployer.Core.Extensions;
 using Serilog;
-using EnumerableExtensions = Arbor.App.Extensions.EnumerableExtensions;
+using EnumerableExtensions = Arbor.App.Extensions.ExtensionMethods.EnumerableExtensions;
 
 namespace Milou.Deployer.Web.Core.Health
 {

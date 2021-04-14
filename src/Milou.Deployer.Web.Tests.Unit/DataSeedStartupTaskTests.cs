@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.Time;
 using Arbor.KVConfiguration.Core;
 using Milou.Deployer.Web.Core.Deployment.Targets;
@@ -38,9 +39,11 @@ namespace Milou.Deployer.Web.Tests.Unit
                 _logger,
                 new TimeoutHelper());
 
-            await _startupTask.StartAsync(CancellationToken.None);
+             await Task.Run(() =>_startupTask.StartAsync(CancellationToken.None));
 
-            Assert.True(_startupTask.IsCompleted);
+             await Task.Delay(TimeSpan.FromMilliseconds(100));
+
+             Assert.True(_startupTask.IsCompleted);
         }
     }
 }

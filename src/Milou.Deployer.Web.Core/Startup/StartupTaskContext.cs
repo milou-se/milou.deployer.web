@@ -2,6 +2,7 @@
 using System.Collections.Immutable;
 using System.Linq;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 
 namespace Milou.Deployer.Web.Core.Startup
 {

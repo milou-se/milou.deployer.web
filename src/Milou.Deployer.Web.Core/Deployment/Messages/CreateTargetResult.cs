@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.KVConfiguration.Core;
 using JetBrains.Annotations;
 using Newtonsoft.Json;

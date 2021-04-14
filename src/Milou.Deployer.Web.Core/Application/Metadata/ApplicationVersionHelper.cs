@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using Arbor.App.Extensions.Application;
 using Milou.Deployer.Core.Extensions;
 
 namespace Milou.Deployer.Web.Core.Application.Metadata

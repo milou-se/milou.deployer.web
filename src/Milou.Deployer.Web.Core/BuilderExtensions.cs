@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.DependencyInjection;
+using Arbor.App.Extensions.ExtensionMethods;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Milou.Deployer.Web.Core

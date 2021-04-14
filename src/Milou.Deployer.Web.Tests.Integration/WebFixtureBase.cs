@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.IO;
 using Arbor.AspNetCore.Host;
 using Arbor.Primitives;
@@ -138,7 +140,8 @@ namespace Milou.Deployer.Web.Tests.Integration
 
             _cancellationTokenSource.Token.Register(() => Console.WriteLine("App cancellation token triggered"));
 
-            App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.GetEnvironmentVariables().Variables, TestConfiguration, TestSiteHttpPort);
+            IReadOnlyCollection<Assembly> scanAssemblies = AppDomain.CurrentDomain.FilteredAssemblies(new string[]{"Milou","Arbor"});
+            App = await App<ApplicationPipeline>.CreateAsync(_cancellationTokenSource, args, EnvironmentVariables.GetEnvironmentVariables().Variables, scanAssemblies, instances: new object[] {TestConfiguration, TestSiteHttpPort});
 
             App.Logger.Information("Restart time is set to {RestartIntervalInSeconds} seconds",
                 CancellationTimeoutInSeconds);

@@ -49,7 +49,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Projects
             {
                 TempData.Put(createProjectResult);
 
-                if (createProject.OrganizationId.IsNullOrWhiteSpace())
+                if (string.IsNullOrWhiteSpace(createProject.OrganizationId))
                 {
                     return new RedirectToRouteResult(OrganizationConstants.OrganizationBaseRouteName);
                 }

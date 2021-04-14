@@ -1,6 +1,7 @@
 ﻿using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.DependencyInjection;
+using Arbor.App.Extensions.ExtensionMethods;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 

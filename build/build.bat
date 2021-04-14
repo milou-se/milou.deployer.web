@@ -1,4 +1,5 @@
 @ECHO OFF
+dotnet tool install Arbor.Build.Bootstrapper --tool-path .\bootstrapper --version 5.1.1
 SET Arbor.X.Build.Bootstrapper.AllowPrerelease=true
 SET Arbor.X.Tools.External.MSpec.Enabled=true
 SET Arbor.X.NuGet.Package.Artifacts.Suffix=
@@ -12,6 +13,8 @@ SET Arbor.X.Build.NetAssembly.Configuration=
 SET Arbor.X.MSBuild.NuGetRestore.Enabled=true
 SET Arbor.X.Tools.External.Xunit.NetCoreApp.Enabled=false
 SET Arbor.Build.BuilderNumber.UnixEpochSecondsEnabled=true
+SET Arbor.Build.Tools.External.MSBuild.DotNet.Enabled=true
+SET Arbor.Build.Vcs.Branch.BranchModel=GitFlowBuildOnMain
 
 SET Fallback.Version.Build=0
 
@@ -35,6 +38,6 @@ SET Arbor.X.ShowDefinedVariablesEnabled=false
 SET Arbor.X.Tools.External.MSBuild.Verbosity=minimal
 SET Arbor.X.NuGet.Package.AllowManifestReWriteEnabled=false
 
-CALL dotnet arbor-build
+CALL .\bootstrapper\dotnet-arbor-build.exe
 
 EXIT /B %ERRORLEVEL%

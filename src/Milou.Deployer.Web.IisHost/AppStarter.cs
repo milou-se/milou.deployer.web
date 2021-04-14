@@ -60,7 +60,10 @@ namespace Milou.Deployer.Web.IisHost
                     cancellationTokenSource.Token.Register(
                         () => TempLogger.WriteLine("App cancellation token triggered"));
 
-                    using (var app = await App<ApplicationPipeline>.CreateAsync(cancellationTokenSource, args, environmentVariables, instances))
+                    var scanAssemblies = AppDomain.CurrentDomain.FilteredAssemblies(
+                        new[] {"Milou", "Arbor"});
+
+                    using (var app = await App<ApplicationPipeline>.CreateAsync(cancellationTokenSource, args, environmentVariables, scanAssemblies, instances: instances))
                     {
                         bool runAsService = app.Configuration.ValueOrDefault(ApplicationConstants.RunAsService)
                                             && !Debugger.IsAttached;

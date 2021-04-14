@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.App.Extensions.IO;
 using Arbor.Processing;
 using JetBrains.Annotations;
@@ -255,7 +256,7 @@ namespace Milou.Deployer.Web.Agent
                 string publishUrl = _credentialReadService.GetSecret(id, publishUrlKey);
                 string msdeploySite = _credentialReadService.GetSecret(id, msdeploySiteKey);
 
-                if (StringUtils.AllHaveValues(username, password, publishUrl, msdeploySite))
+                if (ArborStringExtensions.AllHaveValue(username, password, publishUrl, msdeploySite))
                 {
                     TempFile tempPublishFile = CreateTempPublishFile(deploymentTarget,
                         username,

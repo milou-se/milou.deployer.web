@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 using Arbor.App.Extensions;
+using Arbor.App.Extensions.ExtensionMethods;
 using Xunit;
 using Xunit.Abstractions;
 

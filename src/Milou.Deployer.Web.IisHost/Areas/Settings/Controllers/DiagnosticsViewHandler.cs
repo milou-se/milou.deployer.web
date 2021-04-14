@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Arbor.App.Extensions;
 using Arbor.App.Extensions.Application;
 using Arbor.App.Extensions.Configuration;
+using Arbor.App.Extensions.ExtensionMethods;
 using Arbor.AspNetCore.Host.Hosting;
 using Arbor.KVConfiguration.Core;
 using Arbor.KVConfiguration.Schema.Json;
@@ -23,6 +24,7 @@ using Milou.Deployer.Web.Core.Settings;
 using Milou.Deployer.Web.IisHost.Areas.Deployment.Services;
 using Serilog;
 using Serilog.Core;
+using ApplicationVersionHelper = Arbor.App.Extensions.Application.ApplicationVersionHelper;
 
 namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
 {
@@ -121,7 +123,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                     .OrderBy(key => key)
                     .Select(key =>
                         new ConfigurationKeyInfo(key,
-                            _configuration[key].MakeAnonymous(key, ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray()),
+                            _configuration[key].MakeAnonymous(key, ArborStringExtensions.DefaultAnonymousKeyWords.ToArray()),
                             _configuration.ConfiguratorFor(key).GetType().Name))
                     .ToImmutableArray());
 
@@ -131,7 +133,7 @@ namespace Milou.Deployer.Web.IisHost.Areas.Settings.Controllers
                 .Where(pair => !string.IsNullOrWhiteSpace(pair.Value))
                 .Select(pair =>
                     new KeyValuePair<string, string>(pair.Key,
-                        pair.Value.MakeAnonymous(pair.Key, ApplicationStringExtensions.DefaultAnonymousKeyWords.ToArray())));
+                        pair.Value.MakeAnonymous(pair.Key, ArborStringExtensions.DefaultAnonymousKeyWords.ToArray())));
 
             var applicationVersionInfo = ApplicationVersionHelper.GetAppVersion();
 
