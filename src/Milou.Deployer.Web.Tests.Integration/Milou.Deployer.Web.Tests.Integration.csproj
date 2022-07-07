@@ -7,7 +7,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Arbor.Aesculus" Version="3.0.2" />
-        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" />
+        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.15" />
         <PackageReference Include="Microsoft.NetCore.App" Version="2.1.5" Condition="'$(NCrunch)' == '1'" />
         <PackageReference Include="Jetbrains.Annotations" Version="2018.2.1" />
         <PackageReference Include="Microsoft.Net.Compilers" Version="2.9.0">
