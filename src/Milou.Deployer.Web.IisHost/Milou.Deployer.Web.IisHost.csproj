@@ -14,7 +14,7 @@
         <None Remove="logs\**" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" Condition="'$(NCrunch)' == '1'" />
+        <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.22" Condition="'$(NCrunch)' == '1'" />
         <PackageReference Include="Arbor.AspNetCore.Mvc.Formatting.HtmlForms" Version="0.5.1" />
         <PackageReference Include="Arbor.KVConfiguration.Core" Version="0.16.2" />
         <PackageReference Include="Arbor.KVConfiguration.JsonConfiguration" Version="0.16.2" />
